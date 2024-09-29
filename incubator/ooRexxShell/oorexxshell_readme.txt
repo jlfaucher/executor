@@ -406,6 +406,23 @@ Known problems under all platforms
   RexxTry is much more robust in this regard.
 
 - In mode raw command, the quotes and the escape characters are sometimes not well supported.
+  Example under macOS:
+  when readline is off (use input as-is)
+      sh> echo 'he says "hello"'
+          display           he
+          should display    he says "hello"
+          executed command: sh -i -c 'echo 'he says "hello"''
+      sh> echo "he says 'hello'"
+          display           he says hello
+          should display    he says 'hello'
+          executed command: sh -i -c 'echo "he says 'hello'"'
+  when readline is on (some input characters are escaped by readline)
+      sh> echo 'he says "hello"'
+          display           /bin/sh: -c: line 0: unexpected EOF while looking for matching `''
+          executed command: sh -i -c 'echo '\'he says "hello"'\''
+      sh> echo "he says 'hello'"
+          display           /bin/sh: -c: line 0: unexpected EOF while looking for matching `"'
+          executed command: sh -i -c 'echo "he says '\'hello'\'"'
 
 - When the first word of the command is an interpreter name, then it is assumed you want to
   temporarily select this interpreter. The first word is removed from the command passed to
