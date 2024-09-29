@@ -1043,6 +1043,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
 ?c = (text.cls)
     .M         'EncodedMutableBuffer'                           : (text.cls)
     .M         'EncodedPackage'                                 : (text.cls)
+    .M         'EncodedRexxBlock'                               : (text.cls)
     .M         'EncodedString'                                  : (text.cls)
     .M         'RexxTextContents'                               : (text.cls)
     .M         'RexxTextInitializer'                            : (text.cls)
@@ -1053,7 +1054,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
 
 -- List the methods of the classes implemented by the package text.cls
 -- We retrieve the mixin classes listed by the previous query, plus the Object class for which a direct extension is applied.
--- Not listed here (319 lines)
+-- Not listed here (326 lines)
 ?cm = (text.cls)
 
 
@@ -1187,6 +1188,42 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     P. P.G.    'SETENCODING'                 : 'MutableBuffer' 'EncodedMutableBuffer' (text.cls)
 
 
+-- List the Package's method added by text.cls
+?cmi Package = (text.cls)
+    P. P.G.    'ENCODING'                    : 'Package' 'EncodedPackage' (text.cls)
+    P. P.G.    'ENCODING='                   : 'Package' 'EncodedPackage' (text.cls)
+    P. P.G.    'HASENCODING'                 : 'Package' 'EncodedPackage' (text.cls)
+    P. PCG.    'ISBUFFERORSTRING'            : 'Package' 'Object' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'            : 'Package' 'Object' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Package' 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'Package' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'Package' 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'Package' 'Object' (text.cls)
+    P. PCG.    'REQUESTBUFFERORSTRING'       : 'Package' 'Object' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'       : 'Package' 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'Package' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'Package' 'Object' (text.cls)
+    P. P.G.    'SETENCODING'                 : 'Package' 'EncodedPackage' (text.cls)
+
+
+-- List the RexxBlock's method added by text.cls
+?cmi RexxBlock = (text.cls)
+    P. P.G.    'ENCODING'                    : 'RexxBlock' 'EncodedRexxBlock' (text.cls)
+    P. P.G.    'ENCODING='                   : 'RexxBlock' 'EncodedRexxBlock' (text.cls)
+    P. P.G.    'HASENCODING'                 : 'RexxBlock' 'EncodedRexxBlock' (text.cls)
+    P. P.G.    'ISBUFFERORSTRING'            : 'RexxBlock' 'Object' (text.cls)
+    P. PCG.    'ISBUFFERORSTRING'            : 'RexxBlock' 'Object' (text.cls)
+    P. P.G.    'ISCOMPATIBLEWITHBYTESTRING'  : 'RexxBlock' 'Object' (text.cls)
+    P. PCG.    'ISCOMPATIBLEWITHBYTESTRING'  : 'RexxBlock' 'Object' (text.cls)
+    P. P.G.    'ISTEXTORBUFFERORSTRING'      : 'RexxBlock' 'Object' (text.cls)
+    P. PCG.    'ISTEXTORBUFFERORSTRING'      : 'RexxBlock' 'Object' (text.cls)
+    P. PCG.    'REQUESTBUFFERORSTRING'       : 'RexxBlock' 'Object' (text.cls)
+    P. P.G.    'REQUESTBUFFERORSTRING'       : 'RexxBlock' 'Object' (text.cls)
+    P. P.G.    'REQUESTTEXTORBUFFERORSTRING' : 'RexxBlock' 'Object' (text.cls)
+    P. PCG.    'REQUESTTEXTORBUFFERORSTRING' : 'RexxBlock' 'Object' (text.cls)
+    P. P.G.    'SETENCODING'                 : 'RexxBlock' 'EncodedRexxBlock' (text.cls)
+
+
 -- StringIndexer is a mixin class.
 -- List the classes that inherit from it: the supported encodings.
 .StringIndexer~pipe(.subclasses "recursive" | .sort | .console "item")
@@ -1268,6 +1305,8 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM P.G.    'C2G'                     : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'C2U'                     : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'C2X'                     : 'StringIndexer' (stringIndexer.cls)
+    PM PCG.    'CANBEDEFAULTENCODING'    : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'CANBEDEFAULTENCODING'    : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'CASE'                    : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'CHARACTER'               : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'CHARACTERCOUNT'          : 'StringIndexer' (stringIndexer.cls)
@@ -1293,8 +1332,8 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM PCG.    'CONCATENATE'             : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'COPY'                    : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'DECODE'                  : 'StringIndexer' (stringIndexer.cls)
-    PM P.G.    'DESCRIPTION'             : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'DESCRIPTION'             : 'StringIndexer' (stringIndexer.cls)
+    PM P.G.    'DESCRIPTION'             : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'DESCRIPTIONFORERROR'     : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'DESCRIPTIONFORERROR'     : 'StringIndexer' (stringIndexer.cls)
     PM PCG.    'EMPTYSTRING'             : 'StringIndexer' (stringIndexer.cls)
@@ -1404,7 +1443,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
     PM P.G.    'WTF16BE'                 : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'WTF16LE'                 : 'StringIndexer' (stringIndexer.cls)
     PM P.G.    'WTF8'                    : 'StringIndexer' (stringIndexer.cls)
-    [Info] [1] Class 'StringIndexer' has 144 methods
+    [Info] [1] Class 'StringIndexer' has 146 methods
 
 
 -- List all the methods c2x
