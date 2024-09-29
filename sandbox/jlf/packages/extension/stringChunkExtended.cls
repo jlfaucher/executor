@@ -1,3 +1,5 @@
+-- Compatibility with ooRexx5: regex.cls depends on StringTable
+if \ .stringtable~isa(.class) then .environment["STRINGTABLE"] = .directory
 -- Optional: load the package regex.cls
 call loadPackage "regex/regex.cls"
 
