@@ -1,5 +1,34 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://elric.pl/blog/cooperative-multitasking/
+Cooperative multitasking in Rust
+jlf: todo read
+- Custom schedulers & bypassing the default executor
+- Retry logic with state tracking
+- Segmented stacks for deep async recursion
+    https://releases.llvm.org/3.0/docs/SegmentedStacks.html
+- Priority inversion mitigation via yield-aware mutexes
+- Thread-local stealing for heterogeneous workloads
+- Lock-free task termination with epoch-based reclamation
+- Stack pivoting for hybrid async/synchronous code
+
+
+https://dev-doc.rust-lang.org/beta/unstable-book/language-features/generators.html
+generators
+The generators feature gate in Rust allows you to define generator or coroutine literals.
+A generator is a "resumable function" that syntactically resembles a closure but
+compiles to much different semantics in the compiler itself. The primary feature
+of a generator is that it can be suspended during execution to be resumed at a later date.
+Generators use the yield keyword to "return", and then the caller can resume a generator
+to resume execution just after the yield keyword.
+
+
+http://www.ada-auth.org/cgi-bin/cvsweb.cgi/ai12s/ai12-0197-3.txt?rev=1.7&raw=N
+Interesting discussion about generators in Ada
+
+http://www.ada-auth.org/cgi-bin/cvsweb.cgi/ai12s/ai12-0197-4.txt?rev=1.4&raw=N
+Ada Coroutines and channels
+
 https://simontoth.substack.com/p/daily-bite-of-c-coroutines-step-by
 Coroutines: step by step
 reddit comments:
