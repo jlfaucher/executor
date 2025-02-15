@@ -505,7 +505,7 @@ a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is acce
 
 a RexxBlock contains informations that depends on the evaluation context.  
 In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables:
-- `~source`: source of the `RexxSourceLiteral`, never changed even if `~functionDoer` or `~actionDoer` called.
+- `~source`: source of the `RexxSourceLiteral`.
 - `~variables`: snapshot of the context's variables (a directory), created only if the source starts with `expose`.
 - `~rawExecutable`: the raw executable of the `RexxSourceLiteral`, created at load-time (routine or method).
 - `~executable`: cached executable, managed by `doers.cls`. `~executable~source` can be different from `~source`.
