@@ -2694,12 +2694,12 @@ Helpers
     end
     else if address~caselessEquals("zsh") then do
         -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
-        -- sh needs that the command be surrounded by '..' to not interpret ';' inside the command.
+        -- sh needs that the command be surrounded by '"' to not interpret ';' inside the command.
         return .array~of(.ooRexxShell~systemAddress, "zsh -c '"command"'")
     end
     else if address~caselessEquals("pwsh") then do
-        -- cmd doesn't support that the command be surrounded by '..'.
-        -- sh needs that the command be surrounded by '..' to not interpret ';' inside the command.
+        -- cmd doesn't support that the command be surrounded by '"'.
+        -- sh needs that the command be surrounded by '"' to not interpret ';' inside the command.
         if .platform~is("windows") then return .array~of(.ooRexxShell~systemAddress, "pwsh -command "command)
         else return .array~of(.ooRexxShell~systemAddress, "pwsh -command '"command"'")
     end
