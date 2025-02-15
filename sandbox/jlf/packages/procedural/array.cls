@@ -16,7 +16,8 @@ Procedural version of the Executor's extended methods.
     -- which is definitively an array with no dimension : an Array (shape [] , 0 items)
     -- Any attempt to assign a value to this array using one or more index raises the error
     -- "Too many subscripts for array; 0 expected"
-    -- but it's possible to assign a value by passing NO index: a()[]=value
+    -- Possible with oorexx4, but not with oorexx5:
+    -- It's possible to assign a value by passing NO index: a()[]=value
 
     -- if arg() == 0 then return .array~new -- no dimension (yet), can be set later.
     -- Bug ? .array~new~dimensions returns [0], should return an array with no dimension (not [] which is an empty vector returned for arrays definitively with 0 dimension).
