@@ -1,4 +1,31 @@
 ================================================================================
+fexpr
+
+I take this note, related to the deferred evaluation of arguments I would like
+to support.
+
+https://news.ycombinator.com/item?id=43023101
+
+The main problem is that a language with fexprs is inherently not compilable.
+A second problem is that for some fexprs, compilation semantics cannot be found.
+A fexpr definition adds a new special operator to an interpreter.
+The existence of fexprs means that the repertoire of special operators is open-ended.
+But a compiler depends on there being a fixed set of special operators known in advance.
+For each kind of form the compiler has a case, which implements the translation scheme.
+
+Fexprs do have an advantage over macros: lack of hygiene issues.
+The local variables in a fexpr are clearly in a different lexical environment
+from the variables of the form that it operates on/with.
+The fexpr function has the lexical environment of the fexpr form as an argument.
+When the interpreter invokes a fexpr, it hands the fexpr the current lexical environment,
+and the fexpr form. Whenever the fexpr code needs to evaluate some part of that form,
+like a variable reference, it explicitly calls eval, and passes eval that lexical environment.
+In no way does that get mixed up with the interpretation of the fexpr itself.
+There can be no capture issue. An fexpr would never need gensyms, or contain
+a mistake you cannot use them.
+
+
+================================================================================
 MOSTflexiPL (Modular, Statically Typed, Flexibly Extensible Programming Language)
 http://flexipl.info/
 
