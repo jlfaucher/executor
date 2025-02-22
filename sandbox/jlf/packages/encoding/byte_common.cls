@@ -102,7 +102,7 @@
 
             end
 
-            when character == "x" then do
+            when character == "x" | character == "X" then do
                 -- \x{X..X} sequence of 1..n hexadecimal digits
                 if string~subchar(pos) == "{" then do
                     pos += 1 -- skip {
@@ -129,7 +129,7 @@
                 end
 
                 else if character == "X" then do
-                    -- \xXXXX
+                    -- \XXXXX
                     length = min(4, string~length - pos + 1)
                     hexadecimalDigits = string~substr(pos, length)
                     if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
