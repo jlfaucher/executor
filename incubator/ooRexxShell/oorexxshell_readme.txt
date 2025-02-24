@@ -446,6 +446,31 @@ History of changes
 ==================
 
 -----------------------------------------------
+2025 feb 24
+
+New attribute .ooRexxShell~lastCondition.
+Condition object of the last error trapped by ooRexxShell, or .nil.
+Example:
+    1/0=        -- Arithmetic overflow; divisor must not be zero.
+    .oorexxshell~lastcondition=
+        a Directory (14 items)
+        'ADDITIONAL'  : (an Array no shape, 0 items)
+        'CODE'        :  42.3
+        'CONDITION'   : 'SYNTAX'
+        'DESCRIPTION' : ''
+        'ERRORTEXT'   : 'Arithmetic overflow/underflow.'
+        'INSTRUCTION' : 'SIGNAL'
+        'MESSAGE'     : 'Arithmetic overflow; divisor must not be zero.'
+        'PACKAGE'     : (a Package)
+        'POSITION'    :  514
+        'PROGRAM'     : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex'
+        'PROPAGATED'  :  0
+        'RC'          :  42
+        'STACKFRAMES' : List[(   514 *-*   1/0 ;),(   514 *-* interpret .ooRexxShell~command),(   268 *-* call main),(       *-* Compiled method "CALL" with scope "Routine".),(   108 *-* shell~call(argrx, address()))]
+        'TRACEBACK'   : List['   514 *-*   1/0 ;','   514 *-* interpret .ooRexxShell~command','   268 *-* call main','       *-* Compiled method "CALL" with scope "Routine".','   108 *-* shell~call(argrx, address())']
+
+
+-----------------------------------------------
 2024 june 14
 
 Preload the JDORFX component of Rony.

@@ -1283,6 +1283,7 @@ Helpers
 ::attribute isExtended class -- Will be .true if the extended ooRexx interpreter is used.
 ::attribute isInteractive class -- Are we in interactive mode ?
 ::attribute isPortable class -- Will be .true if a portable ooRexx is used.
+::attribute lastCondition class -- Condition object of last error trapped by ooRexxShell
 ::attribute lastResult class -- result's value from the last interpreted line
 ::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
@@ -1385,6 +1386,7 @@ Helpers
 
     -- error management
     self~error = .false
+    self~lastCondition = .nil
     self~stackFrames = .list~new
     self~trapLostdigits = .true
     self~trapNoMethod = .false
@@ -1738,6 +1740,7 @@ Helpers
     use strict arg condition, shortFormat = .true
     if condition == .nil then return
 
+    .ooRexxShell~lastCondition = condition
     .ooRexxShell~traceback = condition~traceback
     .ooRexxShell~stackFrames = condition~stackFrames
     if .ooRexxShell~showStackFrames | \ (.ooRexxShell~isInteractive | .ooRexxShell~demo) then .ooRexxShell~sayStackFrames
