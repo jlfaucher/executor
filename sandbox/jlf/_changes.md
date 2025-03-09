@@ -160,6 +160,23 @@ For good or bad reason, `arg(1)` at the begining of a clause is recognized as an
 I often use source literals like `{arg(1)...}` where I want `arg(1)` to be interpreted as a function call.  
 So I decided to change the behavior of the parser to interpret as a function call any symbol followed immediatly by a left paren, even if the symbol is a keyword instruction.
 
+```
+    Illustration from ooRexxShell:
+
+        executor:
+        arg()       -- bash: 0: command not found
+
+        oorexx:
+        arg()       -- Missing expression following "(" of parse template.
+
+    Not just arg! ALL the keywords are impacted.
+
+        executor:
+        drop()      -- Could not find routine "DROP"
+
+        oorexx:
+        drop()      -- Symbol expected after "(" of a variable reference.
+```
 
 <!-- ------------------------------- -->
 ### 4.3.   `=` `==`
@@ -896,6 +913,51 @@ I use this functionality to manage special variable like `i`, `infinity`, `indet
     indeterminate=  -- (The indeterminate value)
 ```
 
+Example:
+```REXX
+    signal on novalue name novalue_continue
+    say foo
+
+    continue:
+    signal on novalue name novalue_exit
+
+    .local["NOVALUE"] = .novalue
+
+    say infinity
+    say indeterminate
+    say foo
+
+    return
+
+    novalue_continue:
+    say "novalue condition!" condition("description")
+    signal continue
+
+    novalue_exit:
+    say "novalue condition!"
+
+    ::class novalue
+
+    ::method novalue class
+        use strict arg name
+        call charout , "Intercepting no value for" name": "
+        forward message (name)
+
+    ::method infinity class
+        return "default value for infinity"
+
+    ::method unknown class
+        use strict arg msg, args
+        if msg~caselessEquals("indeterminate") then return "default value for indeterminate"
+```
+
+Output:
+```
+    novalue condition! FOO
+    Intercepting no value for INFINITY: default value for infinity
+    Intercepting no value for INDETERMINATE: default value for indeterminate
+    Intercepting no value for FOO: novalue condition!
+```
 
 <!-- ======================================================================= -->
 ## 13.   Order of argument checking for Boolean operators
@@ -1230,7 +1292,7 @@ is raised instead of
     40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
 ```
 
---> [ExpressionStack.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/expression/ExpressionStack.cpp): `RexxExpressionStack::expandArgs` updated to raise 40.3
+--> [ExpressionStack.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp): `RexxExpressionStack::expandArgs` updated to raise 40.3
 
 
 <!-- ------------------------------- -->
