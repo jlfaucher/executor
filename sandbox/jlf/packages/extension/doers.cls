@@ -1,5 +1,5 @@
 /*
-This script needs a modified ooRexx interpreter which support extension of predefined ooRexx classes.
+This script requires a modified ooRexx interpreter that supports extending the predefined ooRexx classes.
 */
 
 ::extension Routine     inherit RoutineDoer
@@ -17,7 +17,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 -----------------------------------------------------------------------------
 -- Mixin.
 /*
-    A DoerFactory is an object which knows how to create a doer.
+    A DoerFactory is an object that can create a doer.
     A doer can be created from :
     - a RexxBlock :
       At parse-time, the interpreter creates a raw executable (always a routine) from the source.
@@ -39,7 +39,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 
 -----------------------------------------------------------------------------
 -- Mixin.
--- A Doer is an object which knows how to execute itself (understands "do")
+-- A Doer is an object that can execute itself. (understands "do")
 -- This is an abstraction of routine, method, message, coactivity, closure.
 
 ::class "Doer" mixinclass Object public inherit DoerFactory
@@ -56,7 +56,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
     if arg() <> 0 then do
         guard on
         use strict arg arity -- store the arity
-        if arity < 0 then arity -= 1 -- to be different from -1 which means "never assigned". Other benefit: let know how many times the arity has been stored.
+        if arity < 0 then arity -= 1 -- to be different from -1 which means "never assigned".
         return self -- for convenience, return the doer itself
     end
     else if \var("arity") then return -1 -- unknown arity
@@ -68,8 +68,8 @@ This script needs a modified ooRexx interpreter which support extension of prede
     forward message "do"
 
 
--- This method allows to pass named arguments without using the dedicated syntax.
--- I use it in rgf_util2.rex and pipe.rex to keep then compatible with ooRexx 4.2
+-- This method allows you to pass named arguments without using the dedicated syntax.
+-- I use it in rgf_util2.rex and pipe.rex to keep them compatible with ooRexx 4.2
 -- Note that offical ooRexx5 supports the dedicated syntax, but only because it's
 -- the syntax for namespaces. So nothing to see with named arguments!
 ::method doWithNamedArguments unguarded
@@ -100,7 +100,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 /*
 http://en.wikipedia.org/wiki/Tail_call#Through_trampolining
 A trampoline is a technique to transform recursive calls into a sequence of calls
-to doers. Instead of returning the result, the doer returns a doer which returns
+to doers. Instead of returning the result, the doer returns a doer that returns
 the result. While the result returned by the doer is a doer, the result is called.
 The loop is ended when the result is not a doer.
 
@@ -128,7 +128,7 @@ Ex :
     -- The test \v~needsObject lets eliminate the StringDoers (and the MethodDoers, but the point is on StringDoers) :
     -- when you return a String, you don't want the error "Not enough arguments in method; 1 expected".
     do while v~isA(.Doer), \v~needsObject
-        v~do -- here, no args. Most of the time, v will be a closure which holds all the needed informations.
+        v~do -- here, no args. Most of the time, v will be a closure that contains all the necessary information.
         if \var("result") then return
         v = result
     end
@@ -137,7 +137,7 @@ Ex :
 
 /*
 http://en.wikipedia.org/wiki/Partial_application
-Returns a closure which remembers the arguments passed to ~partial.
+Returns a closure that remembers the arguments passed to ~partial.
 When this closure is called with the remaining arguments, a whole positional argument array is
 built from both positional argument lists (partial and remaining) and passed to the target of
 ~partial.
@@ -324,7 +324,7 @@ Ex :
 
     The Y combinator allows recursion to be defined as a set of rewrite rules.
     It takes a single argument, which is a function that isn't recursive (JLF: here, no argument, use self which is a Doer).
-    It returns a version of the function which is recursive.
+    It returns a version of the function that is recursive.
 
     Example :
         say {use arg f; return {expose f; use arg n; if n==0 then return 1; else return n * f~(n-1) } }~Y~(10)
@@ -421,7 +421,7 @@ Ex :
     The method 'run' is a private method. So can be called only from another method of object...
     "hello"~run(aMethod) --> Error: Object "hello" does not understand message "RUN" (ok, 'run' is private)
     aMethod~do("hello") --> No error, display "hello" (so the private method is visible ?)
-    --> It's because the ~run method is called from the ~do method which has been added by extension.
+    --> This is because the ~run method is called from the ~do method which was added by extension.
 */
 ::class "MethodDoer" mixinclass Object public inherit Doer
 
@@ -525,12 +525,12 @@ Ex :
     a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
     a RexxSourceLiteral holds the following properties, shared by all the RexxBlock instances created from it :
     - source: the text between the curly brackets {...} as an array of lines, including the tag ::xxx if any.
-    - package: the package which contain the source literal.
+    - package: the package that contains the source literal.
     - kind: kind of source, derived from the source's tag.
     - rawExecutable: routine or method created at parse-time (immediate parsing) after transformation of the source.
     The source is transformed to accept auto named arguments, and to return implicitely the result of the last evaluated expression.
     Source before transformation: ...
-    Source after transformation: use auto name arg ; option "NOCOMMANDS";...;if var("result") then return result
+    Source after transformation: use auto named arg ; option "NOCOMMANDS";...;if var("result") then return result
 
     a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
     a RexxBlock contains informations that depends on the evaluation context.
