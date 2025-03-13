@@ -170,26 +170,12 @@ end
 
 ::method isExposeClause class unguarded
     use strict arg clause
-    parse lower var clause word rest
-    if word <> "expose" then return .false
-    if self~isAssignment(rest) then return .false
-    left1 = rest~left(1)
-    if left1 == "(" then return .false -- function call
-    if left1 == "{" then return .false -- abreviated syntax for a block passed as last parameter
-    if left1 == "~" then return .false -- message term
-
-    return .true
-
-
-::method isAssignment class unguarded
-    use strict arg str
-    left1 = str~left(1)
-    left2 = str~left(2)
-    left3 = str~left(3)
-    if left2 == "==" then return .false
-    if left1 == "=" then return .true
-    if "+= -= *= /= %= &= |="~pos(left2) <> 0 then return .true
-    if "//= ||= &&="~pos(left3) <> 0 then return .true
+    parse lower var clause word1 word2 .
+    if word1 == "expose" then do
+        if word2 == "" then return .true -- expose
+        if word2~left(1) == "(" then return .true -- expose (name)
+        if datatype(word2, "symbol") then return .true -- expose name
+    end
     return .false
 
 
