@@ -424,6 +424,13 @@ main: procedure
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("trap on") then
                 .ooRexxShell~trap(.true, .ooRexxShell~input)
 
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("tutor off") then
+                .ooRexxShell~useTutor = .false
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("tutor on") then do
+                if .ooRexxShell~hasTutor then .ooRexxShell~useTutor = .true
+                else .ooRexxShell~sayError("The TUTOR component is not loaded")
+            end
+
             when .ooRexxShell~maybeCommand & .ooRexxShell~interpreters~hasEntry(.ooRexxShell~input) then do
                 -- Change the default interpreter
                 .ooRexxShell~interpreter = .ooRexxShell~interpreters~entry(.ooRexxShell~input)
@@ -501,27 +508,53 @@ dispatchCommand:
 -- Moreover don't call it, you must jump to (signal) it...
 interpretCommand:
     .ooRexxShell~command =  transformSource(.ooRexxShell~command)
+
+    -- JMB's TUTOR
+    if .ooRexxShell~useTutor then do
+        signal on syntax name rxuError
+        Call "rxu.rex" .Array~of(.ooRexxShell~command), "silent"
+        if .nil == result then do
+            -- .nil is returned when rxu.rex has trapped and managed an error.
+            -- condition("O") is .nil, nothing will be displayed by .ooRexxShell~sayCondition
+            signal rxuError
+        end
+        else do
+            -- here, rxu.rex did not complain
+            if result~isA(.Array) then .ooRexxShell~command = result[1]
+            else .ooRexxShell~command = result
+        end
+        signal off syntax
+    end
+
+    -- Keep it here, to let display the transformed RXU command.
+    -- In case of error raised by RXU, this trace won't be displayed
     if .ooRexxShell~traceDispatchCommand then do
         .ooRexxShell~sayTrace("[interpret]" .ooRexxShell~command)
     end
-    if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
-                                  else drop result
+
     if .ooRexxShell~trapLostdigits then signal on lostdigits
     if .ooRexxShell~trapNoMethod then signal on noMethod
     if .ooRexxShell~trapNoString then signal on noString
     if .ooRexxShell~trapNoValue then signal on noValue
     if .ooRexxShell~trapSyntax then signal on syntax
+
+    if .ooRexxShell~hasLastResult then result = .ooRexxShell~lastResult -- restore previous result
+                                  else drop result
+
     interpret .ooRexxShell~command
     after_interpret:
+
+    if var("result") then .ooRexxShell~lastResult = result -- backup current result
+                     else .ooRexxShell~dropLastResult
+
     signal off lostdigits
     signal off noMethod
     signal off noString
     signal off noValue
     signal off syntax
-    if var("result") then .ooRexxShell~lastResult = result -- backup current result
-                     else .ooRexxShell~dropLastResult
     signal return_to_dispatchCommand
 
+    -- Trap interpret errors
     lostdigits:
     noMethod:
     noString:
@@ -529,6 +562,15 @@ interpretCommand:
     syntax:
     .ooRexxShell~error = .true
     signal after_interpret -- to reset the trap errors
+
+    -- Trap RXU transformation errors
+    rxuError:
+    if .ooRexxShell~traceDispatchCommand then do
+        .ooRexxShell~sayTrace("[interpret]" .ooRexxShell~command)
+    end
+    .ooRexxShell~sayError("RXU error")
+    .ooRexxShell~error = .true
+    signal return_to_dispatchCommand
 
 
 -------------------------------------------------------------------------------
@@ -927,6 +969,8 @@ Helpers
         .ooRexxShell~isExtended = .false
         call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
         call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
+        .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
+        .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end
 
     if .platform~is("windows") then do
@@ -1055,9 +1099,17 @@ Helpers
 
 -------------------------------------------------------------------------------
 ::routine loadPackage
-    use strict arg filename, silentLoaded=.false, silentNotLoaded=.false, reportError=.true
+    use strict arg filename, silentLoaded=.false, silentNotLoaded=.false, reportError=.true, namespace=""
     signal on syntax name loadPackageError
-    .context~package~loadPackage(filename)
+    if namespace == "" then do
+        -- Compatible with ooRexx4
+        .context~package~loadPackage(filename)
+    end
+    else do
+        -- Not compatible with ooRexx4
+        package = .Package~new(filename)
+        .context~package~addPackage(package, namespace)
+    end
     if .ooRexxShell~showInitialization, \ silentLoaded then .ooRexxShell~sayInfo("loadPackage OK for" filename)
     return .true
     loadPackageError:
@@ -1269,6 +1321,7 @@ Helpers
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
+::attribute hasTutor class -- Will be true if JMB's TUTOR has been loaded
 ::attribute historyFile class
 ::attribute indentedErrorStream class -- Used by the command "<" to show the level of include
 ::attribute indentedOutputStream class -- Used by the command "<" to show the level of include
@@ -1334,6 +1387,7 @@ Helpers
 ::attribute trapNoValue class -- default false
 ::attribute trapSyntax class -- default true: the condition SYNTAX is trapped when interpreting the command
 ::attribute userHome class
+::attribute useTutor class -- default true if the TUTOR component has been loaded, can be deactivated by the user: tutor off
 
 
 -- can't use init because depends on the class .color, not yet activated
@@ -1402,6 +1456,8 @@ Helpers
     self~hasRegex = .false
     self~hasRgfUtil2 = .false
     self~hasRgfUtil2Extended = .false
+    self~hasTutor = .false
+    self~useTutor = .false
 
     -- optional services
     self~comparatorClass = .nil
@@ -1597,6 +1653,7 @@ Helpers
     ",[info]   hasRegex",
     ",[info]   hasRgfUtil2",
     ",[info]   hasRgfUtil2Extended",
+    ",[info]   hasTutor",
     ",[info]   historyFile",
     ",[custom] infoColor",
     ",[info]   initialAddress",
@@ -1638,7 +1695,8 @@ Helpers
     ",[custom] trapNoString",
     ",[custom] trapNoValue",
     ",[custom] trapSyntax",
-    ",[info]   userHome"
+    ",[info]   userHome",
+    ",[custom] useTutor"
     informations = .directory~new
     do message over messages~makeArray(",")
         message = message~strip
@@ -2127,6 +2185,7 @@ Helpers
     say "    test regression: activate the regression testing mode."
     say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace."
     say "    trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps."
+    if .ooRexxShell~hasTutor then say   "    tutor off|on: deactivate|activate JMB's TUTOR (Unicode)."
     say "Input queue name:" .ooRexxShell~queueName
 
 

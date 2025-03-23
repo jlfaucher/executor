@@ -446,6 +446,28 @@ History of changes
 ==================
 
 -----------------------------------------------
+2025 mar 22
+
+Preload the optional TUTOR component of Josep Maria.
+https://github.com/JosepMariaBlasco/TUTOR
+
+The transformed input can be displayed by tracing the dispatch:
+    trace on dispatch
+    left("Noël",3)=
+display:
+    [interpret] result = U:LEFT((U:Default("Noël")),(U:Default(3))) ; call dumpResult result, (U:Default(1))
+    'Noë'
+
+New attributes
+.ooRexxShell~hasTutor       true if the TUTOR component has been loaded
+.ooRexxShell~useTutor       true if the TUTOR component is used
+
+New commands:
+tutor off                   deactivate the TUTOR component (useTutor = .false)
+tutor on                    activate the TUTOR component (useTutor = .true)
+
+
+-----------------------------------------------
 2025 feb 24
 
 New attribute .ooRexxShell~lastCondition.
