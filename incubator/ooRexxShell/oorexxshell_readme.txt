@@ -350,7 +350,7 @@ Known problems under Windows
 
 - The colors are now handled with ANSI escape sequences.
   Prequisite: at least Windows 10.
-  If the colors are no supported under Windows 10 then see
+  If the colors are not supported under Windows 10 then see
   https://ss64.com/nt/syntax-ansi.html
   to modify the registry (VirtualTerminalLevel).
 
