@@ -510,21 +510,11 @@ interpretCommand:
     .ooRexxShell~command =  transformSource(.ooRexxShell~command)
 
     -- JMB's TUTOR
-    if .ooRexxShell~useTutor then do
-        signal on syntax name rxuError
-        Call "rxu.rex" .Array~of(.ooRexxShell~command), "silent"
-        if .nil == result then do
-            -- .nil is returned when rxu.rex has trapped and managed an error.
-            -- condition("O") is .nil, nothing will be displayed by .ooRexxShell~sayCondition
-            signal rxuError
-        end
-        else do
-            -- here, rxu.rex did not complain
-            if result~isA(.Array) then .ooRexxShell~command = result[1]
-            else .ooRexxShell~command = result
-        end
-        signal off syntax
-    end
+    signal on syntax name tutorError
+    result = transformSourceTutor(.ooRexxShell~command)
+    signal off syntax
+    if .nil == result then signal tutorError
+    .ooRexxShell~command = result
 
     -- Keep it here, to let display the transformed RXU command.
     -- In case of error raised by RXU, this trace won't be displayed
@@ -563,8 +553,8 @@ interpretCommand:
     .ooRexxShell~error = .true
     signal after_interpret -- to reset the trap errors
 
-    -- Trap RXU transformation errors
-    rxuError:
+    -- Trap Tutor transformation errors
+    tutorError:
     if .ooRexxShell~traceDispatchCommand then do
         .ooRexxShell~sayTrace("[interpret]" .ooRexxShell~command)
     end
@@ -914,6 +904,36 @@ Helpers
     end
     transformSourceError: -- in case of error, just return the original command: an error will be raised by interpret, and caught.
     return command
+
+
+-------------------------------------------------------------------------------
+::routine transformSourceTutor
+    -- Return the transformed command
+    -- or return .nil if an error was raised and trapped by RXU (not silent)
+    -- or raise an error if an error was raised by RXU but not trapped (silent)
+    use strict arg command
+
+    if .ooRexxShell~useTutor then do
+        signal on syntax name rxuError
+        Call "rxu.rex" .Array~of(command), "silent"
+        if .nil == result then do
+            -- .nil is returned when rxu.rex has trapped and managed an error.
+            -- condition("S") is ""
+            signal rxuError
+        end
+        else do
+            -- here, rxu.rex did not complain
+            if result~isA(.Array) then command = result[1]
+            else command = result
+        end
+        signal off syntax
+    end
+    return command
+
+    -- Trap RXU transformation errors
+    rxuError:
+    if condition("S") == "" then return .nil
+    raise propagate
 
 
 -------------------------------------------------------------------------------
