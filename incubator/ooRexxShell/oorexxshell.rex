@@ -424,9 +424,9 @@ main: procedure
             when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("trap on") then
                 .ooRexxShell~trap(.true, .ooRexxShell~input)
 
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("tutor off") then
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("tutor off") then
                 .ooRexxShell~useTutor = .false
-            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessAbbrev("tutor on") then do
+            when .ooRexxShell~maybeCommand & .ooRexxShell~input~space~caselessEquals("tutor on") then do
                 if .ooRexxShell~hasTutor then .ooRexxShell~useTutor = .true
                 else .ooRexxShell~sayError("The TUTOR component is not loaded")
             end
