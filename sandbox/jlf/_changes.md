@@ -1292,7 +1292,7 @@ is raised instead of
     40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
 ```
 
---> [ExpressionStack.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp): `RexxExpressionStack::expandArgs` updated to raise 40.3
+--> [BuiltinFunctions.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp): function `expandArgs` updated to raise 40.3
 
 
 <!-- ------------------------------- -->
