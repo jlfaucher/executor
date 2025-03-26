@@ -48,6 +48,35 @@ The purpose of refinements in Ruby 2.0 is to make monkey-patching safer.
 Specifically, the goal is to make it possible to extend core classes, but to
 limit the effect of those extensions to a particular area of code.
 
+https://alchemists.io/articles/ruby_refinements
+Ruby Refinements
+jlf: good explanation of lexical scopes in Ruby.
+Lexical scope is defined at the point of origin/definition, not where the code is used.
+Refinements are activated within current and nested scopes only.
+
+https://bugs.ruby-lang.org/issues/11779
+Module#using does not make sense as a method
+jlf: maybe interesting to read (examples, clarifications)
+
+https://bugs.ruby-lang.org/issues/18572
+Performance regression when invoking refined methods
+jlf: interesting, discussion about cache, several examples of refinement
+
+https://www.reddit.com/r/ruby/comments/1553yca/has_anybody_actually_been_able_to_use_rubys/
+Has anybody actually been able to use Ruby's Refinements in the real world?
+jlf: mixed opinions
+f9ae8221b
+    "IMHO refinements suck up a ton of development work for an extremely meager usage."
+Inevitable-Swan-714
+    "I'd argue that they only have meager usage because they largely miss the mark on making monkey patching safer."
+f9ae8221b
+    "Refinements are based on the lexical scope, not the instance. So yeah if you return a refined typed, it doesn't impact the called."
+f9ae8221b
+    I fondly remember that require 'aws-sdk' would cause a bunch of silly monkey patch to be added to Array and Hash.
+    That's why ruby-core looked for saner ways to extend types.
+    But ultimately the dust settled and the original problem kinda solved itself "socially" rather than via a new feature.
+    Gems authors wouldn't dare monkey patching core classes anymore and the few which do would immediately get a PR to remove it.
+
 https://railsfactory.com/the-art-of-monkey-patching-ruby
 jlf: very minimal
 
@@ -62,7 +91,7 @@ Extensions can add new functionality to a type, but they cannot override existin
 Note
 Extensions can add new computed properties, but they can’t add stored properties,
 or add property observers to existing properties.
-jlf: ooRexx is more powerful because it's possible to add stored proprties.
+jlf: ooRexx is more powerful because it's possible to add stored properties.
 That is the killer feature! Any object, including an instance of predefined
 class, and the class itself, has a pool of variables.
 
