@@ -168,3 +168,188 @@ RexxMemory.cpp
     RexxDirectory *RexxMemory::commonRetrievers = OREF_NULL;
     RexxDirectory *RexxMemory::kernel = OREF_NULL;
     RexxDirectory *RexxMemory::system = OREF_NULL;
+
+
+================================================================================
+https://sourceforge.net/p/oorexx/bugs/1953/
+================================================================================
+#1953 Tracing in 5.1 can hang or crash method callbacks in BSF400Rexx850
+
+Dom's patch
+    Index: interpreter/execution/VariableDictionary.cpp
+    ===================================================================
+    --- interpreter/execution/VariableDictionary.cpp	(revision 12938)
+    +++ interpreter/execution/VariableDictionary.cpp	(working copy)
+    @@ -546,7 +546,8 @@
+             // this one we need to use setField()
+             if (waitingActivities == OREF_NULL)
+             {
+    -            setField(waitingActivities, new_array());              JLF: a GC can be triggered by setField!!!! new_array is not protected
+    +            Protected<ArrayClass> arrActivities = new_array();
+    +            setField(waitingActivities, arrActivities);
+             }
+             // add to the end of the queue
+             waitingActivities->append(activity);
+
+Code review:
+
+RexxCore.h
+    #define setField(r, v)  OrefSet(this, this->r, v)
+    #define OrefSet(o,r,v) \
+    {                      \
+        if (o->isOldSpace()) \
+        {                    \
+            memoryObject.setOref(r, v); \
+
+    // this one is special, and is truly global.
+    extern MemoryObject memoryObject;
+
+
+RexxMemory.hpp
+    class MemoryObject : public RexxInternalObject
+    {
+        void        setOref(RexxInternalObject *variable, RexxInternalObject *value);
+        MapTable         *old2new;           // the table for tracking old2new references.
+
+
+RexxMemory.cpp
+    void MemoryObject::setOref(RexxInternalObject *oldValue, RexxInternalObject *value)
+    {
+                old2new->decrement(oldValue);
+                old2new->increment(value);
+
+
+MapTable.hpp
+    class MapTable : public RexxInternalObject
+    {
+               void   increment(RexxInternalObject *key);
+        inline void   decrement(RexxInternalObject *key) { contents->decrement(key); }
+
+        MapBucket *contents;     // the backing collection for this
+
+
+MapTable.cpp
+    /**
+     * Increment the value associated with a key.  If the key does
+     * not exist, it is inserted into the table with a value of 1.
+     *
+     * @param key    The target key.
+     */
+    void MapTable::increment(RexxInternalObject *index)
+    {
+        // try to insert in the existing hash tables...if this
+        // fails, we're full and need to reallocate.
+        if (!contents->increment(index))
+        {
+            // reallocate and try again
+            reallocateContents();
+            contents->increment(index);
+        }
+    }
+
+================================================================================
+Review code at risk with setField / OrefSet
+================================================================================
+
+Note: Rick provided a patch which is directly in setField.
+    Index: interpreter/memory/RexxMemory.cpp
+    ===================================================================
+    --- interpreter/memory/RexxMemory.cpp	(revision 12943)
+    +++ interpreter/memory/RexxMemory.cpp	(working copy)
+    @@ -1638,6 +1638,8 @@
+         // required then.
+         if (old2new != OREF_NULL)
+         {
+    +        ProtectedObject p = value;   // because updating the table can trigger a GC, make sure this is protected.
+    +
+             // the index value is the one assigned there currently.  If this
+             // is a newspace value, we should have a table entry with a reference
+             // count for it in our table.
+
+So this code review is useless, no need to fix individually the code at risk.
+
+
+=====================
+At risk with setField
+=====================
+ArrayClass.cpp
+	ArrayClass::extend
+BaseExecutable.cpp
+	StringTable *BaseExecutable::getAnnotations()
+ClassClass.cpp
+	StringTable *RexxClass::getAnnotations()
+	RexxObject *RexxClass::defineMethodsRexx(RexxObject *newMethods)
+	void RexxClass::buildFinalClassBehaviour(RexxClass *superClass)
+	RexxObject *RexxClass::defineMethod(RexxString *method_name, RexxObject *methodSource
+	RexxObject *RexxClass::deleteMethod(RexxString  *method_name)
+ClassDirective.cpp
+	void ClassDirective::addConstantMethod(RexxString *name, MethodClass *method, RexxInstruction *directive, size_t maxStack, size_t variableIndex)
+DirectoryClass.cpp
+	RexxInternalObject *DirectoryClass::setMethodRexx(RexxString *name, MethodClass *methodobj)
+IntegerClass.cpp
+	RexxString *RexxInteger::primitiveMakeString()
+LibraryPackage.cpp
+	void LibraryPackage::loadRoutines(RexxRoutineEntry *table)
+	NativeMethod *LibraryPackage::resolveMethod(RexxString *name)
+MessageClass.cpp
+	RexxObject *MessageClass::wait()
+	RexxObject *MessageClass::sendRexx(RexxObject **arguments, size_t argCount)
+	RexxObject *MessageClass::startRexx(RexxObject **arguments, size_t argCount)
+	RexxObject *MessageClass::replyRexx(RexxObject **arguments, size_t argCount)
+MethodDictionary.cpp
+	void MethodDictionary::addInstanceMethod(RexxString *name, MethodClass *method)
+MutableBufferClass.cpp
+	void MutableBuffer::ensureCapacity(size_t addedLength)		maybe?
+	RexxObject *MutableBuffer::setBufferSize(RexxInteger *size)
+ObjectClass.cpp
+	RexxObject *RexxObject::defineInstanceMethods(DirectoryClass *methods)
+	RexxObject *RexxObject::defineInstanceMethod(RexxString *msgname, MethodClass *methobj, RexxClass *scope)
+	RexxObject *RexxObject::deleteInstanceMethod(RexxString *msgname)
+	VariableDictionary * RexxObject::getObjectVariables(RexxClass *scope)		maybe?
+PackageClass.cpp
+	void PackageClass::extractNameInformation()
+	void PackageClass::mergeRequired(PackageClass *mergeSource)
+	void PackageClass::mergeLibrary(LibraryPackage *mergeSource)
+	void PackageClass::processInstall(RexxActivation *activation)
+	void PackageClass::addInstalledClass(RexxString *name, RexxClass *classObject, bool publicClass)
+	void PackageClass::addInstalledRoutine(RexxString *name, RoutineClass *routineObject, bool publicRoutine)
+	StringTable *PackageClass::getAnnotations()
+	void PackageClass::addNamespace(RexxString *name, PackageClass *package)
+	DirectoryClass *PackageClass::getPackageLocal()
+PackageClass.hpp
+	void             setSecurityManager(RexxObject *manager) { setField(securityManager, new SecurityManager(manager)); }
+RexxBehaviour.cpp
+	void RexxBehaviour::copyBehaviour(RexxBehaviour *source)
+	void RexxBehaviour::hideMethod(const char *name)
+	void RexxBehaviour::replaceMethod(RexxString *methodName, MethodClass *method)
+	void RexxBehaviour::inheritInstanceMethods(RexxBehaviour *source)
+	void RexxBehaviour::defineMethod(RexxString *methodName, MethodClass *method)
+	void RexxBehaviour::addInstanceMethod(RexxString *methodName, MethodClass *method)
+	void RexxBehaviour::addScope(RexxClass *scope)
+	void RexxBehaviour::mergeMethodDictionary(MethodDictionary *sourceDictionary)
+RexxVariable.cpp
+	void RexxVariable::inform(Activity *informee)
+SmartBuffer.cpp
+	size_t SmartBuffer::copyData(void *start, size_t length)	maybe?
+StemClass.cpp
+	RexxInternalObject *StemClass::remove(RexxObject **tailElements, size_t argCount)		maybe?
+StringClass.cpp
+	NumberString *RexxString::numberString()
+
+
+is s protected?
+BaseCode *BaseCode::setPackageObject(PackageClass *s)
+
+is a protected?
+void RexxClass::setAnnotations(StringTable *a)
+
+is b protected?
+void  RexxClass::setInstanceBehaviour(RexxBehaviour *b)
+
+
+====================
+at risk with OrefSet
+====================
+MutableBufferClass.cpp
+	RexxObject *MutableBuffer::setBufferSize(RexxInteger *size)
+

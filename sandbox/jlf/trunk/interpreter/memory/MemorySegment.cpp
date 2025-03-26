@@ -43,6 +43,7 @@
 /******************************************************************************/
 #include "RexxCore.h"
 #include "ActivityManager.hpp"
+#include "RexxMemory.hpp"   // Needed for CHECKOREFS
 
 
 void MemorySegment::dump(const char *owner, size_t counter, FILE *keyfile, FILE *dumpfile)

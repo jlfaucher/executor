@@ -51,6 +51,10 @@
 // this can be enabled to switch on memory profiling info
 //#define MEMPROFILE
 
+// Keep this declaration here, before #include "MemorySegment.hpp"
+// Otherwise you will get a compilation error "redefinition of 'validateObject'".
+#define CHECKOREFS 1
+
 #ifdef __REXX64__
 // The minimum allocation unit for an object.
 // 16 is needed for 64-bit to maintain some required alignments
@@ -420,6 +424,39 @@ enum
   static SysMutex unflattenMutex;
   static SysMutex envelopeMutex;
 };
+
+
+/******************************************************************************/
+/* Object Reference Assignment                                                */
+/******************************************************************************/
+
+// OrefSet handles reference assignment for situations where an
+// object exists in the oldspace (rexx image) area and the fields is being updated
+// to point to an object in the normal Rexx heap.  Since oldspace objects do
+// not participate in the mark-and-sweep operation, we need to keep track of these
+// references in a special table.
+//
+// OrefSet (or the setField() shorter version) needs to be used to set values in any object that
+// a) might be part of the saved imaged (transient objects like the LanguageParser, RexxActivation,
+// and Activity are examples of classes that are not...any class that is visible to the Rexx programmer
+// are classes that will be part of the image, as well as any of the instruction/expresson objects
+// created by the LanguageParser).  Note that as a general rule, fields that are set in an object's constructor
+// do not need this...the object, by definition, is being newly created and cannot be part of the saved image.
+// Other notible exceptions are the instruction/expression objects.  These object, once created, are immutable.
+// Therefore, any fields that are set in these objects can only occur while a program is getting translated.  Once
+// the translation is complete, all of the references are set and these can be safely included in the image
+// without needing to worry about oldspace issues.  If you are uncertain how a given set should be happen,
+// use OrefSet().  It is never an error to use in places where it is not required, but it certainly can be an
+// error to use in places where it is required.
+
+// Unlike ooRexx5 before rev 12948, the OrefSet macro doesn't have the problem of double evaluation of v.
+// No need to replace it by an inline function.
+
+#ifndef CHECKOREFS
+#define OrefSet(o,r,v) ((o)->isOldSpace() ? memoryObject.setOref((void *)&(r),(RexxObject *)v) : (RexxObject *)(r=v))
+#else
+#define OrefSet(o,r,v) memoryObject.checkSetOref((RexxObject *)o, (RexxObject **)&(r), (RexxObject *)v, __FILE__, __LINE__)
+#endif
 
 
 /******************************************************************************/

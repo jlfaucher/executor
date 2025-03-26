@@ -92,15 +92,6 @@ const int ARG_NINE   = 9;
 const int ARG_TEN    = 10;
 
 
-/* Object Reference Assignment */
-// #define CHECKOREFS 1
-#ifndef CHECKOREFS
-#define OrefSet(o,r,v) ((o)->isOldSpace() ? memoryObject.setOref((void *)&(r),(RexxObject *)v) : (RexxObject *)(r=v))
-#else
-#define OrefSet(o,r,v) memoryObject.checkSetOref((RexxObject *)o, (RexxObject **)&(r), (RexxObject *)v, __FILE__, __LINE__)
-#endif
-
-
 // forward declaration of commonly used classes
 class RexxExpressionStack;
 class RexxActivation;

@@ -2061,6 +2061,11 @@ RexxObject *RexxMemory::setOref(void *oldValue, RexxObject *value)
 
     if (old2new != OREF_NULL)
     {
+#if 0
+        // Unlike ooRexx5, can't protect here because crash during image restore
+        // Moreover, I have also "new RexxInteger(1)" to protect
+        ProtectedObject p(value);  // because updating the table can trigger a GC, make sure this is protected.
+#endif
         if (index != OREF_NULL && index->isNewSpace())
         {
             /* decrement reference count for     */
@@ -2076,6 +2081,7 @@ RexxObject *RexxMemory::setOref(void *oldValue, RexxObject *value)
                 if (refcount->getValue() == 0)
                 {
                     /* delete the entry for *index       */
+                    // Here, no need to protect something
                     this->old2new->remove(index);
                 }
             }
@@ -2107,7 +2113,10 @@ RexxObject *RexxMemory::setOref(void *oldValue, RexxObject *value)
                 /*the refcount to 1                  */
                 // NOTE:  We don't use new_integer here because we need a mutable
                 // integer and can't use the one out of the cache.
-                this->old2new->put(new RexxInteger(1), value);
+               RexxInteger *one = new RexxInteger(1);
+               ProtectedObject pOne(one);
+               ProtectedObject pValue(value);
+               this->old2new->put(one, value);
             }
         }
     }

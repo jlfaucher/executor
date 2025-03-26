@@ -55,8 +55,15 @@ public:
         // it would be better to have the activity class do this, but because
         // we're doing this with inline methods, we run into a bit of a
         // circular reference problem
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ProtectedObject(RexxActivity *a) : protectedObject(OREF_NULL), activity(a)
@@ -64,46 +71,86 @@ public:
         // it would be better to have the activity class do this, but because
         // we're doing this with inline methods, we run into a bit of a
         // circular reference problem
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ProtectedObject(RexxObject *o) : protectedObject(o), next(NULL)
     {
         // save the activity
         activity = ActivityManager::currentActivity;
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ProtectedObject(RexxObject *o, RexxActivity *a) : protectedObject(o), next(NULL), activity(a)
     {
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ProtectedObject(RexxInternalObject *o) : protectedObject((RexxObject *)o), next(NULL)
     {
         // save the activity
         activity = ActivityManager::currentActivity;
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ProtectedObject(RexxInternalObject *o, RexxActivity *a) : protectedObject((RexxObject *)o), next(NULL), activity(a)
     {
-        next = activity->protectedObjects;
-        activity->protectedObjects = this;
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
+        {
+            next = activity->protectedObjects;
+            activity->protectedObjects = this;
+        }
     }
 
     inline ~ProtectedObject()
     {
         // remove ourselves from the list and give this object a
         // little hold protection.
-        activity->protectedObjects = next;
-        if (protectedObject != OREF_NULL)
+
+        // NOTE:  ProtectedObject gets used in a few places during image
+        // restore before we have a valid activity.  If we don't have
+        // one, then just assume this will be safe.
+        if (activity != OREF_NULL)
         {
-            holdObject(protectedObject);
+            activity->protectedObjects = next;
+            if (protectedObject != OREF_NULL)
+            {
+                holdObject(protectedObject);
+            }
         }
     }
 
