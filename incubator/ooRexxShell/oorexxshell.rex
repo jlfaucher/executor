@@ -581,6 +581,18 @@ Helpers
 -------------------------------------------------------------------------------
 
 ::routine intro
+    if .ooRexxShell~isInteractive then do
+        if .ooRexxShell~isExtended, .unicode~totalCharactersLoaded == 0 then do
+            .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
+        end
+
+        if .ooRexxShell~useTutor then do
+            .ooRexxShell~sayComment("Unicode-REXX (TUTOR) loaded")
+            .ooRexxShell~sayComment("    Options DefaultString is" .Unicode.DefaultString)
+            .ooRexxShell~sayComment("    Options Coercions     is" .Unicode.Coercions)
+        end
+    end
+
     parse version version
     .ooRexxShell~sayInfo
     .ooRexxShell~sayInfo(version)
@@ -1062,10 +1074,6 @@ Helpers
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
     call loadPackage .oorexxshell~portableCustomizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
     call loadPackage .oorexxshell~customizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
-
-    if .ooRexxShell~isExtended then do
-        if .ooRexxShell~isInteractive then .ooRexxShell~sayComment("Unicode character names not loaded, execute: call loadUnicodeCharacterNames")
-    end
 
     call checkCircularRequires
     if .ooRexxShell~declareAll then do
@@ -1733,6 +1741,11 @@ Helpers
     informations~put(.ooRexxShell~securityManager~verbose,          "[custom] .ooRexxShell~securityManager~verbose")
     informations~put(.color~background,                             "[custom] .color~background")
 
+    if .ooRexxShell~hasTutor then do
+        informations~put(.unicode.coercions,                        "[info]   .unicode.coercions")
+        informations~put(.unicode.defaultString,                    "[info]   .unicode.defaultString")
+    end
+
     return informations
 
 
@@ -2205,7 +2218,7 @@ Helpers
     say "    test regression: activate the regression testing mode."
     say "    trace off|on [d[ispatch]] [f[ilter]] [r[eadline]] [s[ecurity][.verbose]]: deactivate|activate the trace."
     say "    trap off|on [l[ostdigits]] [nom[ethod]] [nos[tring]] [nov[alue]] [s[yntax]]: deactivate|activate the conditions traps."
-    if .ooRexxShell~hasTutor then say   "    tutor off|on: deactivate|activate JMB's TUTOR (Unicode)."
+    if .ooRexxShell~hasTutor then say   "    tutor off|on: deactivate|activate TUTOR (Unicode)."
     say "Input queue name:" .ooRexxShell~queueName
 
 
