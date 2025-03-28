@@ -446,6 +446,18 @@ History of changes
 ==================
 
 -----------------------------------------------
+2025 mar 28
+
+The XDG files are now in the portable root directory.
+Before, they were in the 'packages' directory.
+Value of .ooRexxShell~portableHome
+    old: PACKAGES_HOME
+    new: PACKAGES_HOME/..
+Would be better to use an environment variable like PORTABLE_HOME, but none is
+defined. Fallback: use the parent directory of PACKAGES_HOME.
+
+
+-----------------------------------------------
 2025 mar 22
 
 Preload the optional TUTOR component of Josep Maria.

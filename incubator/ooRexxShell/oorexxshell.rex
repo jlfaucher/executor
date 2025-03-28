@@ -1510,7 +1510,21 @@ Helpers
     self~rexxHome = environment_directory_path("REXX_HOME")
     PACKAGES_HOME = environment_directory_path("PACKAGES_HOME") -- needed for migration
     self~portableHome = ""
-    if self~isPortable then self~portableHome = PACKAGES_HOME -- could be an other value in the future
+    if self~isPortable then do
+        -- Would be better to use an environment variable like PORTABLE_HOME, but none is defined.
+        -- OOREXX_HOME is not candidate (even if its current value is what I need).
+        -- Fallback: use the parent directory of PACKAGES_HOME.
+        if PACKAGES_HOME \== "" then do
+            self~portableHome = PACKAGES_HOME || .file~separator || ".." -- could be an other value in the future
+            self~portableHome = .file~new(self~portableHome)~absolutePath -- normalized path
+        end
+    end
+
+    -- Migration to XDG
+    -- To be done before the creation of .config and .local in the portable home
+    -- otherwise the old .config and .local would not be moved.
+    call migrate PACKAGES_HOME, ".config", self~portableHome, ".config"
+    call migrate PACKAGES_HOME, ".local",  self~portableHome, ".local"
 
     -- Application of (some) XDG recommendations.
     -- https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
@@ -1615,6 +1629,8 @@ Helpers
 
     migrate: procedure
         use strict arg sourceDir, sourcefile, targetDir, targetFile
+        if sourceDir == "" then return
+        if targetDir == "" then return
         source = sourceDir || .file~separator || sourceFile
         target = targetDir || .file~separator || targetFile
         if source \== target, SysFileExists(source), \ SysFileExists(target) then call move source, target
