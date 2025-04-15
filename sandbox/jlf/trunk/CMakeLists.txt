@@ -40,12 +40,13 @@
 #/* Global settings                                                            */
 #/*----------------------------------------------------------------------------*/
 message(STATUS "CMake version is ${CMAKE_VERSION}")
+# check_ipo_supported added in 3.9
 if (APPLE)
     # apple builds with prior cmake version have an @rpath problem
     cmake_minimum_required (VERSION 3.12)
 else ()
     # for other platforms
-    cmake_minimum_required (VERSION 2.8.12)
+    cmake_minimum_required (VERSION 3.9)
 endif ()
 # CMP0091 introduced in 3.15 must stay OLD for our /MD -> /MT hack to work
 cmake_policy(VERSION 2.8...3.3)
@@ -54,6 +55,9 @@ cmake_policy(VERSION 2.8...3.3)
 # The ``OLD`` behavior for this policy is to ignore ``CMAKE_REQUIRED_LIBRARIES`` in the include file check macros.
 # The ``NEW`` behavior of this policy is to honor ``CMAKE_REQUIRED_LIBRARIES`` in the include file check macros.
 cmake_policy(SET CMP0075 NEW)
+
+# To use check_ipo_supported(), policy CMP0069 must be set to NEW; otherwise, a fatal error will occur.
+cmake_policy(SET CMP0069 NEW)
 
 # must come before the project command
 # 10.13.6 High Sierra is the minimum system supported
@@ -318,6 +322,17 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
   endif ()
 else ()
   set (CMAKE_CXX_STANDARD 11)
+endif ()
+
+# Optional IPO. Do not use IPO if it's not supported by compiler.
+include(CheckIPOSupported)
+check_ipo_supported (RESULT result OUTPUT output)
+if (result)
+  message (STATUS "IPO is supported")
+  set (IPO_SUPPORTED TRUE)
+else ()
+  message (WARNING "IPO is not supported: ${output}")
+  set (IPO_SUPPORTED FALSE)
 endif ()
 
 include_directories(${PROJECT_BINARY_DIR})
@@ -706,6 +721,7 @@ install(TARGETS rexxapi RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                         LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                         ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
 set_target_properties(rexxapi PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rexxapi PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(rexxapi)
 
 ##################### unicode ###########################
@@ -1056,6 +1072,7 @@ install(TARGETS rexx RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
                      ARCHIVE DESTINATION ${INSTALL_INCLUDE_DIR} COMPONENT DevLib)
 set_target_properties(rexx PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rexx PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(rexx)
 
 #################### orexx (executable) ##########################
@@ -1072,6 +1089,7 @@ add_executable(rexx_exe ${build_utilities_rexx_dir}/rexx.cpp
 # This allows the executable to have the same name as the library.
 SET_TARGET_PROPERTIES(rexx_exe
   PROPERTIES OUTPUT_NAME rexx)
+set_target_properties(rexx_exe PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 
 if (WIN32)
 # We need to override the PDB output file name for rexx.exe so it doesn't overwrite
@@ -1416,6 +1434,7 @@ target_link_libraries(rexxutil rexx rexxapi ${platform_rexxutil_libs} ${CMAKE_RE
 install(TARGETS rexxutil RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                          LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
 set_target_properties(rexxutil PROPERTIES VERSION ${ORX_VERSION})
+set_target_properties(rexxutil PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 
 #################### librxmath.so ################
 # additional source files required by specific platforms
@@ -1437,6 +1456,7 @@ target_link_libraries(rxmath rexx rexxapi ${platform_rxmath_libs} ${CMAKE_REQUIR
 install(TARGETS rxmath RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                        LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
 set_target_properties(rxmath PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rxmath PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(rxmath)
 
 #################### librxsock.so ################
@@ -1455,6 +1475,7 @@ target_link_libraries(rxsock rexx rexxapi ${platform_rxsock_libs} ${CMAKE_REQUIR
 install(TARGETS rxsock RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                        LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
 set_target_properties(rxsock PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rxsock PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(rxsock)
 
 
@@ -1481,6 +1502,7 @@ target_link_libraries(rxregexp rexx rexxapi ${platform_rxregexp_libs} ${CMAKE_RE
 install(TARGETS rxregexp RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                          LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
 set_target_properties(rxregexp PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rxregexp PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(rxregexp)
 
 #################### libhostemu.so ################
@@ -1506,6 +1528,7 @@ target_link_libraries(hostemu rexx rexxapi ${platform_hostemu_libs} ${CMAKE_REQU
 install(TARGETS hostemu RUNTIME COMPONENT Core DESTINATION ${INSTALL_LIB_DIR}
                         LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
 set_target_properties(hostemu PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(hostemu PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 create_install_symlink(hostemu)
 
 #################### librxunixsys.so ################
@@ -1524,6 +1547,7 @@ target_include_directories(rxunixsys PUBLIC
 # Extra link library definitions
 target_link_libraries(rxunixsys rexx rexxapi ${platform_rxunixsys_libs} ${CMAKE_REQUIRED_LIBRARIES})
 set_target_properties(rxunixsys PROPERTIES SOVERSION ${ORX_API_LEVEL})
+set_target_properties(rxunixsys PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
 install(TARGETS rxunixsys RUNTIME DESTINATION ${INSTALL_LIB_DIR}
                           LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
    create_install_symlink(rxunixsys)
@@ -1545,6 +1569,7 @@ if (NOT WIN32)
    # Make sure ncurses.cls gets copied
    add_custom_target(ncurses_cls  ALL DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ncurses.cls)
    set_target_properties(orxncurses PROPERTIES SOVERSION ${ORX_API_LEVEL})
+   set_target_properties(orxncurses PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
    install(TARGETS orxncurses RUNTIME DESTINATION ${INSTALL_LIB_DIR}
                           LIBRARY DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core)
    install(FILES ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ncurses.cls COMPONENT Core DESTINATION ${INSTALL_CLS_DIR})
@@ -1715,6 +1740,7 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
           OOD_BIN_NAME="oodialog.exe")
    # This allows the executable to have the same name as the library.
    SET_TARGET_PROPERTIES(oodialog_exe PROPERTIES OUTPUT_NAME ooDialog)
+   set_target_properties(oodialog_exe PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
    # Include file definition
    target_include_directories(oodialog_exe PUBLIC
                 ${build_extensions_oodialog_dir})
@@ -1755,6 +1781,7 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
    # This allows the executable to have the same name as the library.
    SET_TARGET_PROPERTIES(oodialog_com PROPERTIES OUTPUT_NAME ooDialog)
    SET_TARGET_PROPERTIES(oodialog_com PROPERTIES SUFFIX .com)
+   set_target_properties(oodialog_com PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
    # Include file definition
    target_include_directories(oodialog_com PUBLIC
                 ${build_extensions_oodialog_dir})

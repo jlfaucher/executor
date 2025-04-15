@@ -1,6 +1,7 @@
 ================================================================================
 09/08/2020
 Mail Enrico
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/EF50446F-5B4F-442D-BCD2-CE2CFEDE8AC7%40mac.com/#msg37080771
 
 Re: [Oorexx-devel] ooRexx Performance
 To squeeze a bit of performance REXX should be built with the   Interprocedural optimization (IPO)  activated
