@@ -137,6 +137,23 @@ Watchpoint created: Watchpoint 1: addr = 0x10241ce74 size = 2 state = enabled ty
 print variable:
 p RexxBehaviour::primitiveBehaviours[0]
 
+
+(lldb) p &(this->waitingActivities)
+(ArrayClass **) 0x000000012c007c50
+
+(lldb) p sizeof(this->waitingActivities)
+(unsigned long) 8
+
+p &(waitingActivities->behaviour)
+
+waitingActivities	ArrayClass *	0x138651360	0x0000000138651360
+(lldb) w s e -s 8 -- 0x0000000138651378
+waitingActivities	ArrayClass *	0x138575370	0x0000000138575370
+(lldb) w s e -s 8 -- 0x0000000138575388
+waitingActivities	ArrayClass *	0x1410265d0	0x00000001410265d0
+(lldb) w s e -s 8 -- 0x00000001410265e8
+
+
 ================================================================================
 debug a RexxString field overwritten
 ================================================================================
