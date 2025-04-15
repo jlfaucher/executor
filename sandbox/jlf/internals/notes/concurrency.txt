@@ -1,3 +1,71 @@
+https://www.reddit.com/r/rust/comments/1jwp8jo/do_most_people_agree_that_the_multithreaded/
+Rust related
+
+https://www.reddit.com/r/rust/comments/1f920z8/async_rust_can_be_a_pleasure_to_work_with_without/
+Rust related
+
+https://bitbashing.io/async-rust.html
+Async Rust Is A Bad Language
+Sep 8, 2023
+After decades of mutex madness, many modern languages heed Hoare’s advice and
+provide channels in their standard library.
+Rust comes at this problem with an “async/await” model, seen previously in
+places like C# and Node.js.6 Here, functions marked async don’t block, but
+immediately return a future or promise that can be awaited to produce the result.
+    fn foo() -> i32 { /* returns an int when called */ }
+    async fn bar() -> i32 { /* returns a future we can .await to get an int */ }
+
+
+You can trick systems programmers into leveraging GC by calling it “deferred destruction”.
+https://www.kernel.org/doc/html/next/RCU/whatisRCU.html
+Related to the Linux kernel.
+What is RCU? -- “Read, Copy, Update”
+The basic idea behind RCU is to split updates into “removal” and “reclamation” phases.
+The removal phase removes references to data items within a data structure
+(possibly by replacing them with references to new versions of these data items),
+and can run concurrently with readers.
+The reclamation phase does the work of reclaiming (e.g., freeing) the data items
+removed from the data structure during the removal phase.
+Splitting the update into removal and reclamation phases permits the updater to
+perform the removal phase immediately, and to defer the reclamation phase until
+all readers active during the removal phase have completed, either by blocking
+until they finish or by registering a callback that is invoked after they finish.
+
+
+https://bitbashing.io/gc-for-systems-programmers.html
+Garbage Collection for Systems Programmers
+https://github.com/facebook/folly/blob/main/folly/synchronization/Rcu.h
+
+
+https://marabos.nl/atomics/
+Rust Atomics and Locks
+Low-Level Concurrency in Practice
+Code examples
+https://github.com/m-ou-se/rust-atomics-and-locks
+
+
+https://assets.bitbashing.io/papers/concurrency-primer.pdf
+What every systems programmer should know about concurrency
+Matt Kline April 28, 2020
+
+
+https://without.boats/blog/futures-and-segmented-stacks/
+Futures and Segmented Stacks
+June 8, 2020
+
+
+https://blog.cloudflare.com/how-stacks-are-handled-in-go/
+How Stacks are Handled in Go
+2014-09-15
+Segmented stacks give us stacks that grow and shrink on demand.
+This was how Go handled stack growing up until recently, but this approach had a flaw.
+Shrinking the stack is a relatively expensive operation. It was most felt when
+you had a stack split inside a loop.
+This was known as the hot split problem. It was the main reason that the Go developers
+switched over to a new method of managing stacks, called stack copying.
+
+================================================================================
+
 Python is 32 years old language, yet it still doesn't have proper, true parallelism/concurrency.
 This is going to change soon, thanks to introduction of a "Per-Interpreter GIL"
 (Global Interpreter Lock) which will land in Python 3.12.
