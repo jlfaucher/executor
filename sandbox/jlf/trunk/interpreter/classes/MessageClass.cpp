@@ -76,17 +76,17 @@ void RexxMessage::createInstance()
  * @param scope   The starting scope (can be OREF_NULL).
  * @param _args   An array of arguments to the message.
  */
-RexxMessage::RexxMessage(RexxObject *_target, RexxString *msgName, RexxObject *scope, RexxObject **_arglist, size_t _argcount, size_t _named_argcount)
+RexxMessage::RexxMessage(RexxObject *_target, RexxString *msgName, RexxObject *scope, RexxObject *_args, size_t _argcount, size_t _named_argcount)
  : waitResultSem("RexxMessage::waitResultSem")
 {
-                                         /* defult target is target specified */
+    // OrefSet not needed in this method because it's a constructor (i.e. this is a new object, so not in oldspace)
+                                         /* default target is target specified */
     OrefSet(this, this->receiver, _target);
     OrefSet(this, this->target, _target); /* Target specified on new           */
-    /* Args to be sent wuth tmessage     */
-    // OrefSet(this, this->args, _args);
-    OrefSet(this, this->arglist, _arglist);
-    OrefSet(this, this->argcount, _argcount);
-    OrefSet(this, this->named_argcount, _named_argcount);
+    /* Args to be sent with the message     */
+    OrefSet(this, this->args, _args);
+    this->argcount = _argcount;
+    this->named_argcount = _named_argcount;
     OrefSet(this, this->message, msgName);
     OrefSet(this, this->startscope, scope);
 
@@ -104,22 +104,13 @@ void RexxMessage::live(size_t liveMark)
     memory_mark(this->target);
     memory_mark(this->message);
     memory_mark(this->startscope);
-    // memory_mark(this->args);
+    memory_mark(this->args);
     memory_mark(this->resultObject);
     memory_mark(this->interestedParties);
     memory_mark(this->condition);
     memory_mark(this->startActivity);
     memory_mark(this->objectVariables);
     memory_mark(this->waitingActivities);
-
-    size_t i;
-    if (arglist != OREF_NULL)
-    {
-        for (i = 0; i < (argcount + (2 * named_argcount)); i++)
-        {
-            memory_mark(arglist[i]);
-        }
-    }
 }
 
 void RexxMessage::liveGeneral(int reason)
@@ -131,22 +122,13 @@ void RexxMessage::liveGeneral(int reason)
     memory_mark_general(this->target);
     memory_mark_general(this->message);
     memory_mark_general(this->startscope);
-    // memory_mark_general(this->args);
+    memory_mark_general(this->args);
     memory_mark_general(this->resultObject);
     memory_mark_general(this->interestedParties);
     memory_mark_general(this->condition);
     memory_mark_general(this->startActivity);
     memory_mark_general(this->objectVariables);
     memory_mark_general(this->waitingActivities);
-
-    size_t i;
-    if (arglist != OREF_NULL)
-    {
-        for (i = 0; i < (argcount + (2 * named_argcount)); i++)
-        {
-            memory_mark_general(arglist[i]);
-        }
-    }
 }
 
 void RexxMessage::flatten(RexxEnvelope *envelope)
@@ -160,22 +142,13 @@ void RexxMessage::flatten(RexxEnvelope *envelope)
    flatten_reference(newThis->target, envelope);
    flatten_reference(newThis->message, envelope);
    flatten_reference(newThis->startscope, envelope);
-   // flatten_reference(newThis->args, envelope);
+   flatten_reference(newThis->args, envelope);
    flatten_reference(newThis->resultObject, envelope);
    flatten_reference(newThis->interestedParties, envelope);
    flatten_reference(newThis->condition, envelope);
    flatten_reference(newThis->startActivity, envelope);
    flatten_reference(newThis->objectVariables, envelope);
    flatten_reference(newThis->waitingActivities, envelope);
-
-    size_t i;
-    if (arglist != OREF_NULL)
-    {
-        for (i = 0; i < (argcount + (2 * named_argcount)); i++)
-        {
-            flatten_reference(newThis->arglist[i], envelope);
-        }
-    }
 
   cleanUpFlatten
 }
@@ -318,12 +291,12 @@ RexxObject *RexxMessage::send(RexxObject *_receiver)
     {
         /* send it with an override          */
         // this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->args->size(), this->startscope, p);
-           this->receiver->messageSend(this->message,  this->arglist,                    this->argcount,     this->named_argcount, this->startscope, p);
+           this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->argcount,     this->named_argcount, this->startscope, p);
     }
     else                                 /* no over ride                      */
     {
         // this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->args->size(), p);
-           this->receiver->messageSend(this->message, this->arglist,                     this->argcount,     this->named_argcount, p);
+           this->receiver->messageSend(this->message, (RexxObject **)this->args->data(), this->argcount,     this->named_argcount, p);
     }
     this->resultObject = (RexxObject *)p;
     this->setResultReturned();           /* Indicate we have a result.        */
@@ -517,7 +490,7 @@ RexxString *RexxMessage::messageName()
 RexxArray *RexxMessage::arguments()
 {
     // return (RexxArray *)args->copy();
-    return new (this->argcount, this->arglist) RexxArray;
+    return new (this->argcount, (RexxObject **)this->args->data()) RexxArray;
 }
 
 
@@ -566,15 +539,18 @@ RexxObject *RexxMessage::newRexx(
     // decode the message argument into name and scope
     RexxObject::decodeMessageName(_target, _message, msgName, _startScope);
     ProtectedObject m(msgName);
+    ProtectedObject s(_startScope);
 
     /*
-        >>-new(target,messagename-+---------------------------------------------+-)--><
-                                  +-,Individual--| Arguments |------------------+
-                                  +--+-----------------+--+---------------------+
-                                     +-,Array,argument-+  +-,Directory,argument-+
+        >>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+                                     +-,-"Individual"--| Arguments |-------------------------+
+                                     +--+-------------------+--+--------------------------+--+
+                                        +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
+
+        use strict named arg namedArguments=.NIL
     */
 
-    // TODO named arguments : add support for named argumenst
+    // TODO named arguments : add support for NAMEDARGUMENTS : exprd
 
     /* are there arguments to be sent    */
     /*with the message?                  */
@@ -632,6 +608,7 @@ RexxObject *RexxMessage::newRexx(
 
                 p_argPtr = argPtr; // Protected against GC
                 argCountMsg = argPtr->size(); // count of positional arguments
+                named_argCountMsg = 0; // TODO named arguments : add support for NAMEDARGUMENTS : exprd
 
             }
             else if (option == 'i' )         /* specified as individual?          */
@@ -660,7 +637,7 @@ RexxObject *RexxMessage::newRexx(
     }
     /* all args are parcelled out, go    */
     /*create the new message object...   */
-    RexxMessage *newMessage = new RexxMessage(_target, msgName, _startScope, argPtr->data(), argCountMsg, named_argCountMsg);
+    RexxMessage *newMessage = new RexxMessage(_target, msgName, _startScope, argPtr, argCountMsg, named_argCountMsg);
     /* actually a subclassed item?       */
     if (classThis->isPrimitive())
     {

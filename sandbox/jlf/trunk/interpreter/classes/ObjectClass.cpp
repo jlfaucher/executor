@@ -1906,6 +1906,7 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
     // decode and validate the message input
     decodeMessageName(this, message, messageName, startScope);
     ProtectedObject m(messageName);
+    ProtectedObject s(startScope);
 
     arguments = arrayArgument(arguments, OREF_positional, ARG_TWO);
     ProtectedObject p(arguments);
@@ -1984,6 +1985,7 @@ RexxObject *RexxObject::send(RexxObject **arguments, size_t argCount, size_t nam
     // decode and validate the message input
     decodeMessageName(this, arguments[0], messageName, startScope);
     ProtectedObject m(messageName);
+    ProtectedObject s(startScope);
 
     ProtectedObject r;
     if (startScope == OREF_NULL)
@@ -2100,11 +2102,12 @@ RexxMessage *RexxObject::startCommon(RexxObject *message, RexxObject **arguments
     // decode and validate the message input
     decodeMessageName(this, message, messageName, startScope);
     ProtectedObject m(messageName);
+    ProtectedObject s(startScope);
 
     /* Create the new message object.    */
     RexxArray  *argPtr = new (argCount + 2 * named_argCount, arguments) RexxArray;
     ProtectedObject p_argPtr(argPtr);
-    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, argPtr->data(), argCount, named_argCount);
+    RexxMessage *newMessage = new RexxMessage(this, messageName, startScope, argPtr, argCount, named_argCount);
     ProtectedObject p(newMessage);
     newMessage->start(OREF_NULL);        /* Tell the message object to start  */
     return newMessage;                   /* return the new message object     */
