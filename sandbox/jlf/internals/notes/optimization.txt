@@ -1,4 +1,33 @@
 ================================================================================
+16/04/2025
+
+Add support for IPO in executor
+
+Test on macOS
+Using the new rexxcps provided by MFC early 2025:
+
+without IPO     18955172 REXX clauses per second
+with IPO        19030799 REXX clauses per second
+
+Disappointing...
+Apparently, the problem is
+set_target_properties(rexxapi PROPERTIES INTERPROCEDURAL_OPTIMIZATION $(IPO_SUPPORTED))
+
+https://stackoverflow.com/questions/31355692/how-do-i-enable-link-time-optimization-lto-with-cmake
+Better when using the global setting
+set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+
+with IPO        20062112 REXX clauses per second
+                (20062112 - 18955172) / 18955172= 0.0583977819
+                5.8 %
+
+
+For reference,
+oorexx5 without IPO:    24976605 REXX clauses per second
+oorexx4.2 without IPO:  24682257 REXX clauses per second
+
+
+================================================================================
 09/08/2020
 Mail Enrico
 https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/EF50446F-5B4F-442D-BCD2-CE2CFEDE8AC7%40mac.com/#msg37080771

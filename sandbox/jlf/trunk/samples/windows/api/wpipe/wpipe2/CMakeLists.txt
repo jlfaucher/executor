@@ -41,6 +41,12 @@
 cmake_minimum_required (VERSION 2.8.12)
 cmake_policy(VERSION 2.8...3.5)
 
+# Policy CMP0069 is not set: INTERPROCEDURAL_OPTIMIZATION is enforced when enabled.
+# The ``OLD`` behavior for this policy is to add IPO flags only for Intel compiler on Linux.
+# The ``NEW`` behavior for this policy is to add IPO flags for the current compiler or produce an error if CMake does not know the flags.
+# To use check_ipo_supported(), policy CMP0069 must be set to NEW; otherwise, a fatal error will occur.
+cmake_policy(SET CMP0069 NEW)
+
 #/*----------------------------------------------------------------------------*/
 #/* Project settings                                                           */
 #/*----------------------------------------------------------------------------*/
