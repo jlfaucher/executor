@@ -36,7 +36,7 @@ Named arguments are implemented.
 
 ==================================================================
 28/02/2020
-Simplification to pass named arguments to natives functions.
+old implementation
 Internally, the named arguments are passed as an array appended to the array of
 positional arguments. The count of named arguments is inserted between the two
 arrays.       +----+----+----+---+----+----+----+----+
@@ -44,6 +44,16 @@ arrays.       +----+----+----+---+----+----+----+----+
               +----+----+----+---+----+----+----+----+
                                |
                              count
+
+new implementation
+The count of named arguments is passed with an additional C++ parameter.
+count=3, named_count=2
+              +----+----+----+----+----+----+----+
+              | P1 | P2 | P3 | N1 | V1 | N2 | V2 |
+              +----+----+----+----+----+----+----+
+This reduces the need to make intermediate copies.
+
+Simplification to pass named arguments to natives functions.
 Before:
     The named arguments were passed to the C++ method as 2 C++ parameters per named argument.
         native_cpp_method(P1, P2, P3, N1, V1, N2, V2)
@@ -52,7 +62,7 @@ Before:
     Moreover, CPPCode::run had to support many cases to pass the C++ arguments.
 Now:
     The named arguments are passed as an array: ptr and count.
-        native_cpp_method(P1, P2, P3, N1, array_ptr, array_count)
+        native_cpp_method(P1, P2, P3, array_ptr, array_count)
     CPPCode::run has only two cases to support : with or without name arguments.
     The callee can use the helper NamedArguments.check to collect the named arguments in a useful order.
 Later ?
