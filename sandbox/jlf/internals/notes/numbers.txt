@@ -1,4 +1,44 @@
 ================================================================================
+[bugs:#2013] Some computations omit one digit
+================================================================================
+https://sourceforge.net/p/oorexx/bugs/2013/
+
+m-stgt
+------
+I use Abramowitz and Stegun 26.2.22 to compute the initial value for a root finder.
+I observed for results < 1 one digit was missing.
+Inquisitive I was able to boil down the problem:
+    numeric digits 16
+    t = 1 + 5 / 7
+    say t - t / 1.5
+    0.571428571428571
+    say t * (1 - 1 / 1.5)
+    0.5714285714285708
+Thus it depends the way a formula is written to make the result show as many digits as stipulated -- a bug me think.
+
+
+Rick
+----
+Under the rules with with which Rexx decimal arithmetic are performed, this is not a bug.
+For the first calculation, the last operator is a subtraction using the following values:
+    1.714285714285714
+  - 1.142857142857143
+  = 0.571428571428571
+The two operands have the same number of digits and the decimal points line up in the same position.
+The calculation is performed, and the result only has 15 significant digits (the leading 1s basically wipe each other out).
+No padding is performed to force 16 digits to be returned.
+
+In the second case, the last operation performed is a multiplication, which operates under different result rounding rules.
+    1.714285714285714
+  * 0.333333333333333
+  = 0.5714285714285708
+This operation is carried out to the using an internal digits value that's the sum of the length of the two operands
+(in this case, 32 digits), then the result is rounded to the current digits setting (ie, 16).
+The result is then rounded to the current digits setting starting from the first significant digit,
+the '5' immediately after the decimal point. Thus the result has 16 digits.
+
+
+================================================================================
 numeric digits for dummies
 ================================================================================
 
