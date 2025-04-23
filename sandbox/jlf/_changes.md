@@ -1421,7 +1421,15 @@ Native methods not `A_COUNT` which support named arguments:
 <!-- ------------------------------- -->
 
 `Message~new`  
-add support for named arguments: `option "Directory"`
+add support for the named argument `NAMEDARGUMENTS`  
+whose value `exprd` is a RexxDirectory.
+
+```
+>>-new(-target-,-messagename-+-------------------------------------------------------+-)--><
+                             +-,-"Individual"--| Arguments |-------------------------+
+                             +--+-------------------+--+--------------------------+--+
+                                +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
+```
 
 `Message~namedArguments`  
 to implement
@@ -1557,7 +1565,7 @@ Before, was possible only from methods of the target object.
 ## 19.   Routines search order
 <!-- ======================================================================= -->
 
-New entry `GLOBALROUTINES` in `.environment`, which gives access to `TheFunctionDirectory`.
+New entry `GLOBALROUTINES` in `.environment`, which gives access to `TheFunctionsDirectory`.
 
 ```C++
   kernel_public("GLOBALROUTINES", TheFunctionsDirectory, TheEnvironment); // give direct access to TheFunctionsDirectory
@@ -1566,11 +1574,11 @@ New entry `GLOBALROUTINES` in `.environment`, which gives access to `TheFunction
 This is a directory of global routines that are made available everywhere, like the builtin functions.  
 No need of ::requires directive to use them.
 
-`TheFunctionDirectory` is no longer supported in ooRexx5 (deprecated).
+`TheFunctionsDirectory` is no longer supported in ooRexx5 (deprecated).
 
 
 A global routine with the same name as a builtin function overrides this function.  
-This is done by searching in TheFunctionDirectory from
+This is done by searching in TheFunctionsDirectory from
 
 ```C++
     RexxExpressionFunction::evaluate
@@ -1579,7 +1587,7 @@ This is done by searching in TheFunctionDirectory from
 ```
 
 when the target is a builtin function.  
-If the call or function invocation uses a string literal, then the search in `TheFunctionDirectory` is bypassed.
+If the call or function invocation uses a string literal, then the search in `TheFunctionsDirectory` is bypassed.
 
 This new functionality is used to override the builtin function `XRANGE`, and make if compatible with ooRexx5.
 
