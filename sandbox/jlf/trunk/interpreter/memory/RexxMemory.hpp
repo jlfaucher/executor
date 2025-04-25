@@ -53,7 +53,7 @@
 
 // Keep this declaration here, before #include "MemorySegment.hpp"
 // Otherwise you will get a compilation error "redefinition of 'validateObject'".
-#define CHECKOREFS 1
+// #define CHECKOREFS
 
 #ifdef __REXX64__
 // The minimum allocation unit for an object.
