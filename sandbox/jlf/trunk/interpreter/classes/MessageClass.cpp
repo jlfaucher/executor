@@ -76,7 +76,7 @@ void RexxMessage::createInstance()
  * @param scope   The starting scope (can be OREF_NULL).
  * @param _args   An array of arguments to the message.
  */
-RexxMessage::RexxMessage(RexxObject *_target, RexxString *msgName, RexxObject *scope, RexxObject *_args, size_t _argcount, size_t _named_argcount)
+RexxMessage::RexxMessage(RexxObject *_target, RexxString *msgName, RexxObject *scope, RexxArray *_args, size_t _argcount, size_t _named_argcount)
  : waitResultSem("RexxMessage::waitResultSem")
 {
     // OrefSet not needed in this method because it's a constructor (i.e. this is a new object, so not in oldspace)
