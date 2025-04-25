@@ -1,0 +1,5 @@
+https://github.com/libyal/liblnk/blob/main/documentation/Windows%20Shortcut%20File%20(LNK)%20format.asciidoc
+
+https://stackoverflow.com/questions/3822915/how-do-i-programmatically-change-a-lnk-to-change-its-target
+
+https://www.linuxquestions.org/questions/linux-general-1/follow-windows-shortcuts-from-linux-617917/

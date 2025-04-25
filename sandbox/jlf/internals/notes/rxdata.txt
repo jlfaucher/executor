@@ -1,0 +1,32 @@
+rexxutil.cpp
+------------
+
+typedef struct RxStemData {
+    SHVBLOCK shvb;                     /* Request block for RxVar    */
+    char ibuf[IBUF_LEN];               /* Input buffer               */
+    char varname[MAX];                 /* Buffer for the variable    */
+                                       /* name                       */
+    char stemname[MAX];                /* Buffer for the variable    */
+                                       /* name                       */
+    size_t stemlen;                    /* Length of stem.            */
+    size_t vlen;                       /* Length of variable value   */
+    size_t j;                          /* Temp counter               */
+    size_t tlong;                      /* Temp counter               */
+    size_t count;                      /* Number of elements         */
+                                       /* processed                  */
+} RXSTEMDATA;
+
+
+
+typedef struct RxTreeData {
+    size_t         count;                         // Number of found file lines
+    RexxStemObject files;                         // Stem that holds results.
+    char           fNameSpec[FNAMESPEC_BUF_LEN];  // File name portion of the search for file spec, may contain glob characters.
+    char           foundFile[FOUNDFILE_BUF_LEN];  // Full path name of found file
+    char           fileTime[FILETIME_BUF_LEN];    // Time and size of found file
+    char           fileAttr[FILEATTR_BUF_LEN];    // File attribute string of found file
+    char           foundFileLine[FOUNDFILELINE_BUF_LEN]; // Buffer for found file line, includes foundFile, fileTime, and fileAttr
+    char          *dFNameSpec;                    // Starts out pointing at fNameSpec
+    size_t         nFNameSpec;                    // CouNt of bytes in dFNameSpec buffer
+} RXTREEDATA;
+

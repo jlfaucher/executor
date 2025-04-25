@@ -1,4 +1,12 @@
-.context~package~encoding = "utf32be"
+/*
+Not possible to have a package encoded UTF32-BE
+*/
+
+.context~package~encoding = "utf32be"   -- error
+
+-- The rest of this file is useless
+-- Will never be executed since the prolog raises an error.
+
 say "prolog of package_utf32be.cls"~left(30) .context~package~encoding
 
 ::class package_utf32be public

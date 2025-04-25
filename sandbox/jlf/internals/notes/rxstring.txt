@@ -1,0 +1,52 @@
+rexx.h
+------
+
+typedef struct _RXSTRING {             /* rxstr                      */
+        size_t  strlength;             /*   length of string         */
+        char   *strptr;                /*   pointer to string        */
+} RXSTRING;
+
+#define CONSTANT_RXSTRING RXSTRING
+
+typedef RXSTRING          *PRXSTRING;      /* pointer to a RXSTRING  */
+typedef CONSTANT_RXSTRING *PCONSTRXSTRING; /* pointer to a RXSTRING  */
+
+
+
+rexxutil.cpp
+------------
+
+#define RETVAL(retc) { \
+  sprintf(retstr->strptr, "%d", retc); \
+  retstr->strlength = strlen(retstr->strptr); \
+  return VALID_ROUTINE; \
+}
+
+size_t RexxEntry SysLoadFuncs(const char *name, size_t numargs, CONSTRXSTRING args[], const char *queuename, PRXSTRING retstr)
+{
+    // this is a NOP now
+    retstr->strlength = 0;               /* set return value           */
+    return VALID_ROUTINE;
+}
+
+
+RexxNativeActivation.cpp
+------------------------
+
+RexxNativeActivation::callRegisteredRoutine
+
+    RXSTRING funcresult;
+    int functionrc;                      /* Return code from function         */
+    /* default return code buffer        */
+    char default_return_buffer[DEFRXSTRING];
+
+    /* make the RXSTRING result          */
+    MAKERXSTRING(funcresult, default_return_buffer, sizeof(default_return_buffer));
+
+         functionrc = (int)(*methp)(functionName->getStringData(), count, argPtr, queuename, &funcresult);
+
+
+PlatformDefinitions.h
+---------------------
+
+#define DEFRXSTRING 256                 /* Default RXSTRING return size      */
