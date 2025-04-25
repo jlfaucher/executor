@@ -1918,7 +1918,7 @@ RexxObject *RexxObject::sendWith(RexxObject *message, RexxArray *arguments,
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // Default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
 
     RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
@@ -2026,7 +2026,7 @@ RexxMessage *RexxObject::startWith(RexxObject *message, RexxArray *arguments,
 
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // Default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     RexxDirectory *named_arguments_value = (RexxDirectory*)expectedNamedArguments[0].value;
 
@@ -2207,10 +2207,11 @@ RexxObject  *RexxObject::run(
 /****************************************************************************/
 {
     RexxArray  *arglist = OREF_NULL;     /* forwarded option string           */
+    bool arglistCOW = false;
     RexxDirectory *argdirectory = OREF_NULL;
     RexxObject **argumentPtr = OREF_NULL;     /* default to no arguments passed along */
-    size_t argcount = 0; // the number of arguments in the array expra
-    size_t named_argcount = 0; // the number of arguments in the directory exprd
+    size_t argcount = 0; // the number of arguments in | Arguments |, or in the array expra
+    size_t named_argcount = 0; // the number of named arguments in | Arguments |, or in the directory exprd
 
     ProtectedObject p_arglist;
     ProtectedObject p_argdirectory;
@@ -2288,12 +2289,8 @@ RexxObject  *RexxObject::run(
             argumentPtr = arglist->data();
             argcount = arglist->size();
 
-            if (arglist == arglistUser)
-            {
-                // To not impact the array passed by the user, must create a copy because will need to append the named arguments
-                arglist = (RexxArray *)arglist->copy();
-                p_arglist = arglist;
-            }
+            if (arglist == arglistUser) arglistCOW = true; // To not impact the array passed by the user, will need to create a copy if appending some named arguments
+
             break;
         }
 
@@ -2310,6 +2307,7 @@ RexxObject  *RexxObject::run(
         }
     }
 
+    // Named arguments
     if (option == 'I')
     {
         // Nothing to do, the named arguments are supported directly
@@ -2317,11 +2315,12 @@ RexxObject  *RexxObject::run(
     }
     else
     {
+        // Here, option can be ' ' (when no array of positional arguments) or 'a'.
         // The directory of named arguments is passed with the named argument 'NAMEDARGUMENT' (optional)
 
         // use strict named arg namedArguments=.NIL
         NamedArguments expectedNamedArguments(1); // At most, one named argument
-        expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 character, default value = .NIL
+        expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // Default value = .NIL
         expectedNamedArguments.match(arguments + argumentsCount, named_argumentsCount, /*strict*/ true, /*extraAllowed*/ false);
 
         argdirectory = (RexxDirectory *)expectedNamedArguments[0].value;
@@ -2342,6 +2341,12 @@ RexxObject  *RexxObject::run(
             {
                 // Here argcount == 0
                 arglist = new_array(2 * named_argcount);
+                p_arglist = arglist;
+            }
+            else if (arglistCOW)
+            {
+                // To not impact the array passed by the user, must create a copy because will need to append the named arguments
+                arglist = (RexxArray *)arglist->copy();
                 p_arglist = arglist;
             }
             argdirectory->appendAllIndexesItemsTo(arglist, /*from*/ argcount+1); // argcount+1 because array.put use 1-based index
@@ -2929,7 +2934,7 @@ RexxObject *RexxObject::unknownRexx(
 {
     // use strict named arg namedArguments=.NIL
     NamedArguments expectedNamedArguments(1); // At most, one named argument
-    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // At least 1 characters, default value = .NIL
+    expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // Default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
     RexxDirectory *namedArguments = (RexxDirectory*)expectedNamedArguments[0].value;
 

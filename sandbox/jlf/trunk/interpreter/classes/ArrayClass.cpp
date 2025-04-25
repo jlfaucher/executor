@@ -2779,7 +2779,7 @@ RexxObject * RexxArray::newRexx(RexxObject **arguments, size_t argCount, size_t 
 /* Function:  Exported ARRAY NEW method                                       */
 /******************************************************************************/
 {
-  return new (arguments, (argCount + (2 * named_argCount)), (RexxClass *) this) RexxArray;
+  return new (arguments, argCount, (RexxClass *) this) RexxArray;
 }
 
 RexxObject  *RexxArray::of(RexxObject **args, size_t argCount, size_t named_argCount)

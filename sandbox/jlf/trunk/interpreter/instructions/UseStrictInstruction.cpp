@@ -418,7 +418,7 @@ void RexxInstructionUseStrict::executeNamedArguments(RexxActivation *context, Re
 }
 
 
-// Helper to check that the abbreviated argument names are distinct from each other.
+// Helper to check that the argument names are distinct from each other.
 // This check is made at parse_time, not at run_time.
 void RexxInstructionUseStrict::checkNamedArguments()
 {
@@ -441,8 +441,7 @@ void RexxInstructionUseStrict::checkNamedArguments()
     // Iterate over the collected named arguments, and check each one with all the followings.
     // If there is a match (other than with a stem name) then an error is raised : the names are not unique
     // Examples:
-    // {use named arg normalization(1), nfl(2)}
-    // {use named arg nfl(2), normalization(1)}
+    // {use named arg n, n}
     for (size_t i = 0; i < this->variableCount; i++)
     {
         bool matched = expectedNamedArguments.match(expectedNamedArguments[i].name, expectedNamedArguments[i].nameLength, OREF_NULL, false, i+1, /*parse_time*/ true);
@@ -500,14 +499,14 @@ void NamedArguments::match(RexxObject **namedArglist, size_t namedArgCount, bool
 
 
 /*
-Store the value of the named argument in the right box, if recognized (abbreviation supported)
+Store the value of the named argument in the right box, if recognized.
 Assumption: you will not call this helper with the same name twice, because once a name has been matched, it is skipped.
 Example:
-    // USE NAMED ARG ITEM(2), INDEX(2)=0, MAXDEPTH(1)=10
+    // USE NAMED ARG ITEM, INDEX=0, MAXDEPTH=10
     NamedArguments namedArguments(3);
-    namedArguments[0] = NamedArgument("ITEM", 2, OREF_NULL);        // At least 2 characters, no default value
-    namedArguments[1] = NamedArgument("INDEX", 2, IntegerZero);     // At least 2 characters, default value = 0
-    namedArguments[2] = NamedArgument("MAXDEPTH", 1, IntegerTen);   // At least 1 character, default value = 10
+    namedArguments[0] = NamedArgument("ITEM", OREF_NULL);        // No default value
+    namedArguments[1] = NamedArgument("INDEX", IntegerZero);     // Default value = 0
+    namedArguments[2] = NamedArgument("MAXDEPTH", IntegerTen);   // Default value = 10
     // For each named argument passed by the caller
     namedArguments.match(name1, strlen(name1), value1);
     namedArguments.match(name2, strlen(name2), value2);
@@ -518,31 +517,6 @@ bool NamedArguments::match(RexxString *name, RexxObject *value, bool strict, siz
 {
     if (name == NULL) return false;
     return this->match(name->getStringData(), name->getLength(), value, strict, from, parse_time);
-}
-
-void nameCollision(const char *name1, const char *name2)
-{
-    char buffer[256];
-
-    // Report the shortest name first.
-    // Some examples where a swap is needed:
-    // {use named arg commands, command}        --> The name 'COMMAND' collides with 'COMMANDS'
-    ssize_t ml1 = strlen(name1);
-    ssize_t ml2 = strlen(name2);
-    if (ml1 > ml2)
-    {
-        std::swap(name1, name2);
-    }
-
-    if (strcmp(name1, name2) == 0)
-    {
-        Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' is declared more than once", name1);
-    }
-    else
-    {
-        Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' collides with '%s'", name1, name2);
-    }
-    reportException(Error_Translation_user_defined, buffer);
 }
 
 bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *value, bool strict, size_t from, bool parse_time)
@@ -561,18 +535,12 @@ bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *valu
     for (i = from; i < this->count; i++)
     {
         matched = NamedArguments::checkNameMatching(name, nameLength, i, parse_time);
-        if (matched) break;
-    }
-
-    if (matched)
-    {
-        if (parse_time) nameCollision(name, this->namedArguments[i].name);
-        else
+        if (matched)
         {
             if (value != OREF_NULL) this->namedArguments[i].value = value;
             this->namedArguments[i].assigned = true;
+            return true;
         }
-        return true;
     }
 
     // The name did not match an expected argument name
@@ -585,10 +553,19 @@ bool NamedArguments::match(const char *name, size_t nameLength, RexxObject *valu
     return false;
 }
 
+void nameCollision(const char *name)
+{
+    char buffer[256];
+
+    Utilities::snprintf(buffer, sizeof buffer - 1, "Use named arg: The name '%s' is declared more than once", name);
+    reportException(Error_Translation_user_defined, buffer);
+}
 
 bool NamedArguments::checkNameMatching(const char *name, size_t nameLen, size_t i, bool parse_time)
 {
     if (this->namedArguments[i].assigned) return false; // Already matched (assumption: you will not call this helper with the same name twice)
     const char *expectedName = this->namedArguments[i].name;
-    return strcmp(name, expectedName) == 0;
+    bool matched = (strcmp(name, expectedName) == 0);
+    if (matched && parse_time) nameCollision(name);
+    return matched;
 }
