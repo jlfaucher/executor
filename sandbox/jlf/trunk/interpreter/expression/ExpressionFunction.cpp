@@ -253,9 +253,11 @@ RexxObject *RexxExpressionFunction::evaluate(
                 // this is actually considered part of the built-in functions, but these are
                 // written in ooRexx.  The names are also case sensitive
                 RoutineClass *routine = OREF_NULL;
+#ifndef DISABLE_EXTENSIONS
                 // Ignore the overridings if the flag function_nointernal is set
                 // this->functionName should not be OREF_NULL, but just in case...
                 if (!(this->flags&function_nointernal) && this->functionName != OREF_NULL) routine = (RoutineClass *)TheFunctionsDirectory->get(this->functionName);
+#endif
                 if (routine != OREF_NULL)
                 {
                     // call the user-defined routine

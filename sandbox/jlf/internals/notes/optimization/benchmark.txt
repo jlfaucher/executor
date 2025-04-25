@@ -1,0 +1,186 @@
+Tested on Apple M1 Pro
+with rexxcps 2.2 15 Mar 2025
+
+To test the impact of extensions on performance
+replace
+#ifndef DISABLE_EXTENSIONS
+by
+#ifdef DISABLE_EXTENSIONS
+(DISABLE_EXTENSIONS is never defined)
+
+Extensions that can be disabled:
+    Messages String/Text polymorphism
+    BIFs String/Text polymorphism
+    Overriding using TheFunctionsDirectory
+
+rexxcps with #define CHECKOREFS
+    without IPO     18958514 REXX clauses per second
+    with IPO        20062112 REXX clauses per second
+(CHECKOREFS has an impact on performance)
+
+The rest of the tests are without CHECKOREFS.
+
+
+-----------------
+Executor with IPO
+-----------------
+rexx rexxcps
+24630643 REXX clauses per second
+24291754 REXX clauses per second
+24762384 REXX clauses per second
+24679597 REXX clauses per second
+24095689 REXX clauses per second
+average 24492013
+
+
+------------------------------------------
+Executor with IPO, with DISABLE_EXTENSIONS
+------------------------------------------
+rexx rexxcps
+25324320 REXX clauses per second
+25079586 REXX clauses per second
+24792589 REXX clauses per second
+24815969 REXX clauses per second
+25075519 REXX clauses per second
+average 25017596
+
+
+----------
+ooRexx 4.2
+----------
+rexx rexxcps
+24210828 REXX clauses per second
+24310159 REXX clauses per second
+24557997 REXX clauses per second
+24467865 REXX clauses per second
+24689042 REXX clauses per second
+average 24447178
+
+
+-----------------
+Executor with IPO
+-----------------
+rexx left.rex
+n = 10
+not interpreted
+0.365345
+0.366459
+0.369682
+0.365400
+0.365322
+0.366356
+0.369012
+0.365205
+0.364485
+0.365165
+average 0.3662431
+interpreted
+0.604550
+0.606689
+0.609708
+0.606319
+0.604822
+0.604726
+0.604321
+0.604486
+0.605314
+0.606055
+average 0.605699
+routine
+0.364870
+0.372025
+0.366159
+0.374095
+0.365928
+0.366272
+0.365550
+0.365857
+0.366633
+0.365138
+average 0.3672527
+
+
+------------------------------------------
+Executor with IPO, with DISABLE_EXTENSIONS
+------------------------------------------
+rexx left.rex
+n = 10
+not interpreted
+0.318788
+0.321475
+0.322139
+0.321129
+0.326858
+0.323525
+0.320610
+0.321082
+0.319911
+0.320067
+average 0.3215584   -0.045 (compared with "Executor with IPO")
+interpreted
+0.565298
+0.563756
+0.563523
+0.563348
+0.563432
+0.569508
+0.563514
+0.564325
+0.563736
+0.565391
+average 0.5645831   -0.041 (compared with "Executor with IPO")
+routine
+0.319543
+0.318734
+0.320916
+0.320883
+0.320170
+0.320072
+0.321808
+0.326469
+0.319203
+0.320172
+average 0.320797    -0.046 (compared with "Executor with IPO")
+
+
+----------
+ooRexx 4.2
+----------
+rexx left.rex
+n = 10
+not interpreted
+0.387509
+0.389149
+0.387714
+0.389972
+0.387753
+0.388420
+0.388747
+0.387036
+0.387896
+0.386419
+average 0.3880615   +0.021 (compared with "Executor with IPO")
+interpreted
+0.642423
+0.642801
+0.642746
+0.643415
+0.642430
+0.642569
+0.641288
+0.644577
+0.656480
+0.668995
+average 0.6467724   +0.041 (compared with "Executor with IPO")
+routine
+0.386292
+0.387018
+0.385869
+0.386931
+0.387394
+0.387444
+0.387378
+0.387198
+0.390136
+0.389929
+average 0.3875589   +0.020 (compared with "Executor with IPO")

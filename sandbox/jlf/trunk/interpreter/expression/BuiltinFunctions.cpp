@@ -341,6 +341,7 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
     }
 }
 
+#ifndef DISABLE_EXTENSIONS
 #define TEXT_BIF_TARGET1(x,n) \
     if (hasRexxTextArguments(arguments, argcount, named_argcount)) \
     { \
@@ -357,7 +358,10 @@ void checkPadArgument(const char *pFuncName, RexxObject *position, RexxString *p
         set_arg(x,n1,n2); \
         return text->sendMessage(OREF_##x, &arguments[x##_##n1 - 1], argcount-1, named_argcount); \
     }
-
+#else
+#define TEXT_BIF_TARGET1(x,n)
+#define TEXT_BIF_TARGET2(x,n1,n2)
+#endif
 
 #define CENTER_MIN 2
 #define CENTER_MAX 3

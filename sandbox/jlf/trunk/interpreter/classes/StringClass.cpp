@@ -225,11 +225,13 @@ RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size
 /* Function:  Return either a RexxText instance or a RexxString instace       */
 /******************************************************************************/
 {
+#ifndef DISABLE_EXTENSIONS
     if (hasRexxTextArguments(arguments, count, named_count))
     {
         RexxText *text = this->requestText();
         return text;
     }
+#endif
 
     return this;
 }
@@ -2283,6 +2285,7 @@ RexxObject *RexxString::evaluate(
 /******************************************************************************/
 {
     RexxObject *value = this;    // by default, evaluate to itself
+#ifndef DISABLE_EXTENSIONS
     if (this->text == OREF_NULL) // this->text can be the text counterpart, or this, or OREF_NULL
     {
         // First evaluation
@@ -2295,7 +2298,15 @@ RexxObject *RexxString::evaluate(
         ProtectedObject result;
         // OREF_SETENCODING instead of OREF_ENCODING:
         // With a single message, force the package's encoding to be stored, if not already done, and retrieve its encoding
+#if 1
         bool messageUnderstood = package->messageSend(OREF_SETENCODING, OREF_NULL, 0, 0, result, false);
+#else
+        // For analysis, pass the string being evaluated
+        RexxObject *args[2];
+        args[0] = OREF_NULL;
+        args[1] = this; // positional argument
+        bool messageUnderstood = package->messageSend(OREF_SETENCODING, args, 2, 0, result, false);
+#endif
         if (messageUnderstood && (RexxObject *)result != OREF_NULL) // the package has an encoding
         {
             packageEncoding = (RexxObject *)result;
@@ -2347,6 +2358,7 @@ RexxObject *RexxString::evaluate(
         // Not first evaluation
         if (this->evaluateAsText()) value = this->text;
     }
+#endif
     stack->push((RexxObject *)value);     /* place on the evaluation stack     */
                                           /* trace if necessary                */
     context->traceIntermediate((RexxObject *)value, TRACE_PREFIX_LITERAL);

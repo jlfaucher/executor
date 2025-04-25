@@ -843,8 +843,10 @@ bool RexxObject::messageSend(
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
 
     RexxObject *target = this;
+#ifndef DISABLE_EXTENSIONS
     if (dynamicTarget) target = this->dynamicTarget(arguments, count, named_count);
     ProtectedObject p_target(target);
+#endif
 
     /* grab the method from this level   */
     RexxMethod *method_save = target->behaviour->methodLookup(msgname);
@@ -903,8 +905,10 @@ bool RexxObject::messageSend(
     ActivityManager::currentActivity->checkStackSpace();       /* have enough stack space?          */
 
     RexxObject *target = this;
+#ifndef DISABLE_EXTENSIONS
     if (dynamicTarget) target = this->dynamicTarget(arguments, count, named_count);
     ProtectedObject p_target(target);
+#endif
 
     // to double check: if the target is different from this, maybe startscope will not be applicable
     /* go to the higher level            */

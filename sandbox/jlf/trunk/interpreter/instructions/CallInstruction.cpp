@@ -300,9 +300,11 @@ void RexxInstructionCall::execute(
                     // this is actually considered part of the built-in functions, but these are
                     // written in ooRexx.  The names are also case sensitive
                     RoutineClass *routine = OREF_NULL;
+#ifndef DISABLE_EXTENSIONS
                     // Ignore the overridings if the flag call_nointernal is set
                     // _name should not be OREF_NULL, but just in case...
                     if (!(instructionFlags&call_nointernal) && _name != OREF_NULL) routine = (RoutineClass *)TheFunctionsDirectory->get(_name);
+#endif
                     if (routine != OREF_NULL)
                     {
                         // call the user-defined routine
@@ -360,9 +362,11 @@ void RexxInstructionCall::trap(
                 // this is actually considered part of the built-in functions, but these are
                 // written in ooRexx.  The names are also case sensitive
                 RoutineClass *routine = OREF_NULL;
+#ifndef DISABLE_EXTENSIONS
                 // Ignore the overridings if the flag call_nointernal is set
                 // _name should not be OREF_NULL, but just in case...
                 if (!(instructionFlags&call_nointernal) && this->name != OREF_NULL) RoutineClass *routine = (RoutineClass *)TheFunctionsDirectory->get((RexxString *)this->name);
+#endif
                 if (routine != OREF_NULL)
                 {
                     // call the user-defined routine
