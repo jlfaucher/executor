@@ -15,6 +15,7 @@ Contents:
     <a href="#Segmentation__Grapheme">Segmentation, Grapheme</a>
     <a href="#Normalization__equivalence">Normalization, equivalence</a>
     <a href="#Character_set">Character set</a>
+    <a href="#Transliteration_title">Transliteration title</a>
     <a href="#String_matching___Lower_vs_Casefold">String matching - Lower vs Casefold</a>
     <a href="#String_matching___Collation">String matching - Collation</a>
     <a href="#Locale">Locale</a>
@@ -57,6 +58,7 @@ Contents:
     <a href="#Rope">Rope</a>
     <a href="#Encoding_title">Encoding title</a>
     <a href="#ICU_title">ICU title</a>
+    <a href="#ICU_design">ICU design</a>
     <a href="#ICU_demos">ICU demos</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#ICU4X_title">ICU4X title</a>
@@ -65,11 +67,12 @@ Contents:
     <a href="#terminal___console___cmd">terminal / console / cmd</a>
     <a href="#QT_Title">QT Title</a>
     <a href="#IBM_OS">IBM OS</a>
+    <a href="#DBCS_Title">DBCS Title</a>
     <a href="#IBM_RPG_Lang">IBM RPG Lang</a>
     <a href="#IBM_z_OS">IBM z/OS</a>
     <a href="#macOS_OS">macOS OS</a>
     <a href="#Windows_OS">Windows OS</a>
-    <a href="#Language_comparison">Language comparison</a>
+    <a href="#Microsoft_Word">Microsoft Word</a>
     <a href="#Regular_expressions">Regular expressions</a>
     <a href="#Test_cases__test_cases__tests_files">Test cases, test-cases, tests files</a>
     <a href="#font_bold__italic__strikethrough__underline__backwards__upside_down">font bold, italic, strikethrough, underline, backwards, upside down</a>
@@ -83,6 +86,7 @@ Contents:
     <a href="#Dafny_lang">Dafny lang</a>
     <a href="#Dart_lang">Dart lang</a>
     <a href="#Elixir_lang">Elixir lang</a>
+    <a href="#Erlang_lang">Erlang lang</a>
     <a href="#Factor_lang">Factor lang</a>
     <a href="#Fortran_lang">Fortran lang</a>
     <a href="#GO_lang">GO lang</a>
@@ -118,6 +122,8 @@ Don't know why, but the Unicode consortium has 2 different URLs:
     <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/">https://unicode.org/</a>
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/">https://www.unicode.org/</a>
 To avoid doubling URLs, I use the 2nd form.
+[later] also (sometimes)
+    <a target="_blank" rel="noopener noreferrer" href="https://home.unicode.org/">https://home.unicode.org/</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://home.unicode.org/">https://home.unicode.org/</a>
@@ -167,6 +173,8 @@ Unicode Standard Annex (UAX)
 
     UAX #14, Unicode Line Breaking Algorithm
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr14/">https://www.unicode.org/reports/tr14/</a>
+    TN #54, Annotated Line Breaking Algorithm
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn54/">https://www.unicode.org/notes/tn54/</a>
 
     UAX #15, Unicode Normalization Forms
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr15/">https://www.unicode.org/reports/tr15/</a>
@@ -245,6 +253,9 @@ UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish
           a means for systematic comparison of constructed sort keys.
 UTS10-D2. Collation Element: An ordered list of collation weights.
 UTS10-D3. Collation Level: The position of a collation weight in a collation element.
+---
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/6033#issuecomment-2627767833">https://github.com/unicode-org/icu4x/issues/6033#issuecomment-2627767833</a>
+ducet isn't supported by ICU4X (or ICU4C/J)
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr15/#Detecting_Normalization_Forms">https://www.unicode.org/reports/tr15/#Detecting_Normalization_Forms</a>
@@ -289,11 +300,6 @@ Unicode Technical Note #5
 CANONICAL EQUIVALENCE IN APPLICATIONS
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/normalizing-to-shortest-form">https://icu.unicode.org/design/normalizing-to-shortest-form</a>
-Canonically Equivalent Shortest Form (CESF)
-This is usually, but not always, the NFC form.
-
-
 Conformance
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/conformance">https://github.com/unicode-org/conformance</a>
 This repository provides tools and procedures for verifying that an
@@ -311,6 +317,17 @@ Unicode® Technical Site
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/faq/char_combmark.html">https://www.unicode.org/faq/char_combmark.html</a>
 Characters and Combining Marks
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/UCD/latest/ucd/auxiliary/">https://www.unicode.org/Public/UCD/latest/ucd/auxiliary/</a>
+test suites, test data:
+    GraphemeBreakProperty.txt
+    GraphemeBreakTest.txt
+    LineBreakTest.txt
+    SentenceBreakProperty.txt
+    SentenceBreakTest.txt
+    WordBreakProperty.txt
+    WordBreakTest.txt
 
 
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
@@ -1050,6 +1067,35 @@ Ligature, on the other hand is only a typographical ligature.
 <a target="_blank" rel="noopener noreferrer" href="https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling">https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling</a>
 
 
+<hr><h2 id="Transliteration_title">Transliteration title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/transforms/general/">https://unicode-org.github.io/icu/userguide/transforms/general/</a>
+ICU documentation
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://bartvanraaij.dev/2020-10-17-converting-utf8-strings-to-ascii-using-icu-transliterator/">https://bartvanraaij.dev/2020-10-17-converting-utf8-strings-to-ascii-using-icu-transliterator/</a>
+Converting UTF-8 strings to ASCII using the ICU Transliterator
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://tanzu.vmware.com/content/blog/unicode-transliteration-to-ascii">https://tanzu.vmware.com/content/blog/unicode-transliteration-to-ascii</a>
+Unicode Transliteration to Ascii
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://metacpan.org/pod/Text::Unidecode">https://metacpan.org/pod/Text::Unidecode</a>
+plain ASCII transliterations of Unicode text
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/anyascii/anyascii">https://github.com/anyascii/anyascii</a>
+Unicode to ASCII transliteration - C Elixir Go Java JS Julia PHP Python Ruby Rust Shell .NET
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://research.google.com/archive/papers/36450.pdf">https://research.google.com/archive/papers/36450.pdf</a>
+Proper Name Transliteration with ICU Transforms
+Case study: Google Maps
+Spanish-to-Russian
+Spanish-to-Japanese
+Spanish-to-Mandarin
+
+
 <hr><h2 id="String_matching___Lower_vs_Casefold">String matching - Lower vs Casefold</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase">https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase</a>
 
@@ -1144,6 +1190,82 @@ support for the turkish case.
 (ICU) String Search Service
 jlf: they give 3 issues applicable to text searching. Accented letters and
 conjoined letters are covered by Executor. But ignorable punctuation is not.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.postgresql.org/docs/current/collation.html">https://www.postgresql.org/docs/current/collation.html</a>
+<a target="_blank" rel="noopener noreferrer" href="https://www.postgresql.org/docs/current/collation.html#ICU-TAILORING-RULES">https://www.postgresql.org/docs/current/collation.html#ICU-TAILORING-RULES</a>
+This page is referenced in this question on ICU mailing list:
+---
+question jian he
+    I guess my real question is how to use the tailoring for pinyin.
+    for example, i want to order "赵" before any text in hanzi.
+    I am using the icu collation version:  153.112.40  in postgres dev branch.
+    CREATE COLLATION custom1 (provider = icu, locale =
+    'zh-u-co-pinyin-x-icu', rules = '&amp;赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄');
+    select '赵' &lt; '阿' collate custom1;
+    select '赵' &lt; '朝' collate custom1;
+
+    based on [1] info, the first query ('赵' &lt; '阿') returns true, which is
+    what i expected.
+    but i expect the second will also return true, which is false for now.
+
+    so how can i make sure "赵" letter sort before any other chinese letter
+    by using icu tailoring.
+
+    [1] <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/cldr/blob/release-43/common/collation/zh.xml">https://github.com/unicode-org/cldr/blob/release-43/common/collation/zh.xml</a>
+---
+Markus Scherer
+    What's a little misleading there is “The following statement sets up a collation
+    named ebcdic with rules to sort US-ASCII characters in the order of the EBCDIC encoding.”
+    -- mostly because there is not one single EBCDIC order of the characters in the US-ASCII repertoire.
+    Different EBCDIC codepages sort a dozen or so of those characters in different ways.
+    I am not sure why you are asking whether that page is outdated based on our discussion so far.
+    I am not sure what postgresql does with the combination of a locale ID (other than "und") and also a custom set of rules.
+    I assume that it fetches the tailoring rules of the selected locale and appends the custom rules.
+
+    Let's assume that the pinyin tailoring that's used is the
+            &lt;collation type='pinyin' alt='short'&gt;
+    tailoring which starts on line 2026 there.
+
+    With &amp;赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄
+    you are resetting to 赵 which you can find on line 3365:
+                   &lt;*召兆诏枛垗炤狣赵笊肁旐棹詔照罩肇肈趙曌燳鮡櫂瞾羄 # zhào
+    so 阿 and 嗄 sort primary-equal to that.
+
+    Then you compare these with 朝 which you can find on line 2158:
+                   &lt;*牊晁巢巣朝鄛鼌漅嘲樔潮窲罺轈鼂謿 # cháo
+    As you can see, 朝 (cháo) sorts much earlier than 赵 (zhào).
+
+    If you want it to sort before any other Chinese letter, then you need to reset to a much earlier point in the sort order.
+    Putting something at the very beginning of any CJK tailoring should be doable with
+    &amp;[last regular] &lt; 赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄
+
+    Just for Pinyin, you could also insert characters right at the start of the 'A' group (see line 2032 in the data file):
+    &amp;'\uFDD0A' &lt; 赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄
+---
+jian he
+    so far what I tried.
+    CREATE COLLATION custom2 (provider = icu, locale =
+    'zh-u-co-pinyin-x-icu', rules = '&amp;\uFDD0A &lt; 赵 &lt; 阿 &lt;&lt;&lt; 嗄');
+    CREATE COLLATION custom3 (provider = icu, locale =
+    'zh-u-co-pinyin-x-icu', rules = '&amp;\uFDD0A &lt; 赵 &lt; 阿 &lt;&lt; 嗄');
+    CREATE COLLATION custom4 (provider = icu, locale =
+    'zh-u-co-pinyin-x-icu', rules = '&amp;\uFDD0A &lt; 赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄');
+    CREATE COLLATION custom5 (provider = icu, locale = 'zh-Hans-x-icu',
+    rules = '&amp;\uFDD0A &lt; 赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄');
+    CREATE COLLATION custom6 (provider = icu, locale = 'zh-Hans-CN-x-icu',
+    rules = '&amp;\uFDD0A &lt; 赵 &lt;&lt; 阿 &lt;&lt;&lt; 嗄');
+    CREATE COLLATION custom7 (provider = icu, locale = 'zh-Hans-CN', rules
+    = '&amp;\uFDD0A &lt; 赵 &lt; 阿 &lt;&lt;&lt; 嗄');
+
+    they all return false for '赵' &lt; '朝' (not meet my expectation)
+    they all return true for '赵' &lt; '阿' (meet my expectation)
+    so, i am not sure how to use this icu-rules.
+
+    standard, no icu-rule, '赵' &lt; '朝' is false,  '赵' &lt; '阿'  is false, which
+    is what I expected.
+
+    Are there any python or C code examples using icu-rule for chinese?
 
 
 <hr><h2 id="Locale">Locale</h2><hr>
@@ -2789,6 +2911,13 @@ Confirmed by their text file:
 <a target="_blank" rel="noopener noreferrer" href="https://www.mobilefish.com/download/character_set/iso8859_1.txt">https://www.mobilefish.com/download/character_set/iso8859_1.txt</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://blog.glyphdrawing.club/why-is-there-a-small-house-in-ibm-s-code-page-437/">https://blog.glyphdrawing.club/why-is-there-a-small-house-in-ibm-s-code-page-437/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=43667010">https://news.ycombinator.com/item?id=43667010</a>
+Why is there a "small house" in IBM's Code page 437? 2025/01/06
+---
+jlf: not related to Unicode
+
+
 <hr><h2 id="ICU_title">ICU title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org">https://icu.unicode.org</a>
 
@@ -2816,32 +2945,47 @@ jlf: fork by Microsoft
 
 <a target="_blank" rel="noopener noreferrer" href="http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc">http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc</a>
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
+---
+jlf: code provided in an answer, seems not a good answer because takes an UTF-8, not an UTF-32.
+jlf: code can be optimized, see next note "normalize a std::string encoded with UTF8 using ICU4C".
+    std::string normalize(const std::string &amp;unnormalized_utf8) {
+        // FIXME: until ICU supports doing normalization over a UText
+        // interface directly on our UTF-8, we'll use the insanely less
+        // efficient approach of converting to UTF-16, normalizing, and
+        // converting back to UTF-8.
 
-std::string normalize(const std::string &amp;unnormalized_utf8) {
-    // FIXME: until ICU supports doing normalization over a UText
-    // interface directly on our UTF-8, we'll use the insanely less
-    // efficient approach of converting to UTF-16, normalizing, and
-    // converting back to UTF-8.
+        // Convert to UTF-16 string
+        auto unnormalized_utf16 = icu::UnicodeString::fromUTF8(unnormalized_utf8);
 
-    // Convert to UTF-16 string
-    auto unnormalized_utf16 = icu::UnicodeString::fromUTF8(unnormalized_utf8);
+        // Get a pointer to the global NFC normalizer
+        UErrorCode icu_error = U_ZERO_ERROR;
+        const auto *normalizer = icu::Normalizer2::getInstance(nullptr, "nfc", UNORM2_COMPOSE, icu_error);
+        assert(U_SUCCESS(icu_error));
 
-    // Get a pointer to the global NFC normalizer
-    UErrorCode icu_error = U_ZERO_ERROR;
-    const auto *normalizer = icu::Normalizer2::getInstance(nullptr, "nfc", UNORM2_COMPOSE, icu_error);
-    assert(U_SUCCESS(icu_error));
+        // Normalize our string
+        icu::UnicodeString normalized_utf16;
+        normalizer-&gt;normalize(unnormalized_utf16, normalized_utf16, icu_error);
+        assert(U_SUCCESS(icu_error));
 
-    // Normalize our string
-    icu::UnicodeString normalized_utf16;
-    normalizer-&gt;normalize(unnormalized_utf16, normalized_utf16, icu_error);
-    assert(U_SUCCESS(icu_error));
+        // Convert back to UTF-8
+        std::string normalized_utf8;
+        normalized_utf16.toUTF8String(normalized_utf8);
 
-    // Convert back to UTF-8
-    std::string normalized_utf8;
-    normalized_utf16.toUTF8String(normalized_utf8);
+        return normalized_utf8;
+    }
 
-    return normalized_utf8;
-}
+
+<a target="_blank" rel="noopener noreferrer" href="https://groups.google.com/a/unicode.org/g/icu-support/c/ICQ_0IEfPlM/m/u16GuH3yBgAJ">https://groups.google.com/a/unicode.org/g/icu-support/c/ICQ_0IEfPlM/m/u16GuH3yBgAJ</a>
+normalize a std::string encoded with UTF8 using ICU4C
+    There's no need to convert back and forth to and from
+    icu::UnicodeString, you'll waste less computing resources if you skip
+    that and work directly with UTF-8 instead, by calling the
+    normalizeUTF8() method instead of the normalize() method:
+
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/classicu_1_1Normalizer2.html#acf059465e9ced97d153fd21e5a048a37">https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/classicu_1_1Normalizer2.html#acf059465e9ced97d153fd21e5a048a37</a>
+
+    icu::StringByteSink&lt;std::string&gt; sink(&amp;normalized_utf8_string);
+    normalizer-&gt;normalizeUTF8(0, unnormalized_utf8_string, sink, nullptr, status);
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://begriffs.com/posts/2019-05-23-unicode-icu.html">https://begriffs.com/posts/2019-05-23-unicode-icu.html</a>
@@ -2854,32 +2998,6 @@ of words that can be searched on in a manner that allows for efficient generatio
 Tries can be efficacious on string-searching algorithms such as predictive text,
 approximate string matching, and spell checking in comparison to a binary search trees.
 A trie can be seen as a tree-shaped deterministic finite automaton.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/utrie">https://icu.unicode.org/design/struct/utrie</a>
-ICU Code Point Tries
-We use a form of "trie" adapted to single code points.
-The bits in the code point integer are divided into two or more parts.
-The first part is used as an array offset, the value there is used as a start offset into another array.
-The next code point bit field is used as an additional offset into that array, to fetch another value.
-The final part yields the data for the code point.
-Non-final arrays are called index arrays or tables.
----
-For a general-purpose structure, we want to be able to be able to store a unique value for every character.
-This determines the number of bits needed in the last index table.
-With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
-We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
-This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/bytestrie">https://icu.unicode.org/design/struct/tries/bytestrie</a>
-It maps from arbitrary byte sequences to 32-bit integers.
-(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
-The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/ucharstrie">https://icu.unicode.org/design/struct/tries/ucharstrie</a>
-Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/charts/charset">https://icu.unicode.org/charts/charset</a>
@@ -3149,6 +3267,43 @@ Markus Scherer
     Note that sort keys are not stable across Unicode/CLDR/ICU versions.
 
 
+<hr><h2 id="ICU_design">ICU design</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design">https://icu.unicode.org/design</a>
+Design Docs
+The older  design docs are in svn: <a target="_blank" rel="noopener noreferrer" href="http://source.icu-project.org/repos/icu/icuhtml/trunk/design/.">http://source.icu-project.org/repos/icu/icuhtml/trunk/design/.</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/normalizing-to-shortest-form">https://icu.unicode.org/design/normalizing-to-shortest-form</a>
+Canonically Equivalent Shortest Form (CESF)
+This is usually, but not always, the NFC form.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/utrie">https://icu.unicode.org/design/struct/utrie</a>
+ICU Code Point Tries
+We use a form of "trie" adapted to single code points.
+The bits in the code point integer are divided into two or more parts.
+The first part is used as an array offset, the value there is used as a start offset into another array.
+The next code point bit field is used as an additional offset into that array, to fetch another value.
+The final part yields the data for the code point.
+Non-final arrays are called index arrays or tables.
+---
+For a general-purpose structure, we want to be able to be able to store a unique value for every character.
+This determines the number of bits needed in the last index table.
+With 136,690 characters assigned in Unicode 10, we need at least 18 bits.
+We allocate data values in blocks aligned at multiples of 4, and we use 16-bit index words shifted left by 2 bits.
+This leads to a small loss in how densely the data table can be used, and how well it can be compacted, but not nearly as much as if we were using 32-bit index words.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/bytestrie">https://icu.unicode.org/design/struct/tries/bytestrie</a>
+It maps from arbitrary byte sequences to 32-bit integers.
+(Small non-negative integers are stored more efficiently. Negative integers are the least efficient.)
+The BytesTrie and UCharsTrie structures are nearly the same, except that the UCharsTrie uses fewer, larger units.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/ucharstrie">https://icu.unicode.org/design/struct/tries/ucharstrie</a>
+Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
+
 <hr><h2 id="ICU_demos">ICU demos</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/icudemos">https://icu4c-demos.unicode.org/icu-bin/icudemos</a>
 todo: review
@@ -3165,6 +3320,10 @@ Demo Converter Explorer
 <a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/scompare">https://icu4c-demos.unicode.org/icu-bin/scompare</a>
 ICU Unicode String Comparison
 Interactive demo application
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://icu4c-demos.unicode.org/icu-bin/translit">https://icu4c-demos.unicode.org/icu-bin/translit</a>
+ICU Transform Demonstration
 
 
 <hr><h2 id="ICU_bindings">ICU bindings</h2><hr>
@@ -4148,11 +4307,49 @@ jlf: they have this reference
 See topic 5.1 in <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/L2/L2024/24009r-utc178-properties-recs.pdf">https://www.unicode.org/L2/L2024/24009r-utc178-properties-recs.pdf</a>
 
 
+#5595
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x/issues/5595">https://github.com/unicode-org/icu4x/issues/5595</a>
+Allow line segmenter break around quotation mark for CJ
+---
+#5565 Recently brings locale option to LineSegmenter, but it do not take effect in some situation.
+In UAX#14 says:
+    Note: If language information is available, it can be used to determine which
+    character is used as the opening quote and which as the closing quote. See the
+    information in Section 6.2, General Punctuation, in [Unicode].
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/reports/tr41/tr41-34.html#Unicode">https://unicode.org/reports/tr41/tr41-34.html#Unicode</a>
+    In such a case, the quotation marks could be tailored to either OP or CL
+    depending on their actual usage.
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/reports/tr14/#OP">https://unicode.org/reports/tr14/#OP</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode.org/reports/tr14/#CL">https://unicode.org/reports/tr14/#CL</a>
+In Chinese and Japanese, quotation mark U+201C and U+201D meets the above condition
+and should be classified to OP and CL respectively instead of QU. This is implemented
+in icu4c and mainstream browsers. In icu4c text like 你“好 will have break opportunity
+in 你|“好 if zh locale is given. But in icu4x it doesn't:
+jlf: see code example in the ticket.
+The above code gives 你“好”啊 instead of 你|“好”|啊.
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
 jlf tag: character width
 jlf: to read?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/pull/270#issuecomment-2288220121">https://github.com/JuliaStrings/utf8proc/pull/270#issuecomment-2288220121</a>
+properties: add "ambiwidth" property for ambiguous East Asian Width
+Some characters have their width defined as "Ambiguous" in UAX#11.
+These are typically rendered as single-width by modern monospace fonts,
+and utf8proc correctly returns charwidth==1 for these.
+However some applications might need to support older CJK fonts where two-byte
+characters in legacy encodings were rendered as double-width. An example of this
+is the 'ambiwidth' option of vim and neovim which supports rendering in
+terminals using such wideness rules.
+Add an 'ambiwidth' property to utf8proc_property_t for such characters, by using
+a previously unused padding bit.
+---
+This is an example how this property will be used in neovim: neovim/neovim#30042
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/neovim/neovim/pull/30042">https://github.com/neovim/neovim/pull/30042</a>
 
 
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
@@ -4302,6 +4499,20 @@ Table 1. EBCDIC Collating Sequence
 
     Packed decimal, zoned decimal, fixed-point, and normalized floating-point data
     are collated algebraically, that is, each quantity is interpreted as having a sign.
+
+
+<hr><h2 id="DBCS_Title">DBCS Title</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://groups.io/g/rexxla-arb/message/515">https://groups.io/g/rexxla-arb/message/515</a>
+RMG:
+For the curious, here is the old code for processing ASCII DBCS characters from the original oorexx code base.
+This was removed in the 4.0.0 release.
+<a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/p/oorexx/code-0/HEAD/tree/main/releases/3.1.2/trunk/kernel/classes/ASCIIDBCSStrings.cpp">https://sourceforge.net/p/oorexx/code-0/HEAD/tree/main/releases/3.1.2/trunk/kernel/classes/ASCIIDBCSStrings.cpp</a>
+Triggering the usage of the DBCS support was done via OPTIONS EXMODE, which really was not a very good solution.
+One side effect of turning that on was that valid Rexx strings could suddenly become invalid DBCS strings
+and it was very difficult to work with both types at the same time.
+The processing is actually quite similar to how a UTF-8 encoding would be processed.
+A table of DBCS first bytes is obtained from the OS, and the presence of any of these bytes in a string
+is the signal that the next byte is the second byte of a DBCS pair.
 
 
 <hr><h2 id="IBM_RPG_Lang">IBM RPG Lang</h2><hr>
@@ -4611,6 +4822,27 @@ jlf: I search which functionalities are available only to unicode apps...
 - other?
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://blog.keyman.com/2011/06/accepting-unicode-input-in-your-windows-application/">https://blog.keyman.com/2011/06/accepting-unicode-input-in-your-windows-application/</a>
+Accepting Unicode input in your Windows application
+jlf: old article (2011)
+- If the window is created as an ANSI window, WM_CHAR will always be received by
+the window class as codepage characters.
+- If the window is created as a Unicode window, all WM_CHAR messages will contain
+Unicode (UTF-16) characters.
+- The IsWindowUnicode(HWND) function will tell you whether the window supports
+Unicode input.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://medium.com/@rdavidson1911/how-to-enable-or-use-and-display-unicode-in-a-windows-environment-124d9a8b36c4">https://medium.com/@rdavidson1911/how-to-enable-or-use-and-display-unicode-in-a-windows-environment-124d9a8b36c4</a>
+How to Enable or Use and Display Unicode in a Windows Environment
+jlf: the title is misleading, the article is about entering a Unicode character
+- Universal Method
+- Input-language Specific Method
+- Code-page Specific Method
+- Application-specific Method
+- Unicode IME Method
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin">https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin</a>
 What is the difference in using CStringW/CStringA and CT2W/CT2A to convert strings?
     CString offers a number of conversion constructors to convert between ANSI and
@@ -4751,6 +4983,15 @@ by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: <a tar
 
 <a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page">https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page</a>
 Use UTF-8 code pages in Windows apps
+This is a beta setting...
+And you may have troubles.
+<a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/p/oorexx/discussion/408478/thread/ec4123a46d/">https://sourceforge.net/p/oorexx/discussion/408478/thread/ec4123a46d/</a>
+Output text in Russian in RxMessageBox()
+---
+jlf: RxMessageBox is not part of ooDialog.
+interpreter/platform/windows/ExternalFunctions.cpp
+If the changes applied to ooDialogW were applied to RxMessageBox then the
+display would be correct.
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://mastodon.gamedev.place/@AshleyGullen/111109299141510319">https://mastodon.gamedev.place/@AshleyGullen/111109299141510319</a>
@@ -4804,9 +5045,59 @@ you can build your own copy from their fork of the ICU repo,
 but the job of servicing the project is now on you.
 
 
-<hr><h2 id="Language_comparison">Language comparison</h2><hr>
-<a target="_blank" rel="noopener noreferrer" href="https://blog.kdheepak.com/my-unicode-cheat-sheet">https://blog.kdheepak.com/my-unicode-cheat-sheet</a>
-Vim, Python, Julia and Rust.
+<a target="_blank" rel="noopener noreferrer" href="https://superuser.com/questions/1715715/can-i-enable-unicode-utf-8-worldwide-support-in-windows-11-but-set-another-enco">https://superuser.com/questions/1715715/can-i-enable-unicode-utf-8-worldwide-support-in-windows-11-but-set-another-enco</a>
+Can I enable Unicode UTF-8 WorldWide Support in WIndows 11, but set another encoding for a specific app?
+Self answer:
+- Control Panel &gt; Clock and Region &gt; Region &gt; Administrative tab &gt; Change system locale button &gt; enable Beta:Use Unicode UTF-8 for worldwide language support.
+- The same GUI window can also be launched from
+  Settings &gt; Time &amp; Language &gt; Language &amp; region &gt; Administrative language settings &gt; Administrative tab &gt; Change system locale button &gt; enable Beta:Use Unicode UTF-8 for worldwide language support.
+
+
+<hr><h2 id="Microsoft_Word">Microsoft Word</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://medium.com/@turgenev.e9g/microsoft-word-find-and-replace-for-unicode-ranges-u-10000-79ab2b32e138">https://medium.com/@turgenev.e9g/microsoft-word-find-and-replace-for-unicode-ranges-u-10000-79ab2b32e138</a>
+[Microsoft Word] Find and Replace for Unicode Ranges ≥ U+10000
+jlf: interesting!
+----------------
+Grapheme Cluster
+----------------
+Find and Replace in MS Word seems to recognize characters only according to “grapheme cluster” in Unicode.
+Therefore, when MS Word is ordered to replace “R” with “X”, it won’t change “R͆” to “X͆”. We must specify the whole “R͆” to replace “R͆”.
+    "R͆"~unicodecharacters==
+        an Array (shape [2], 2 items)
+         1 : ( "R"   U+0052 Lu 1 "LATIN CAPITAL LETTER R" )
+         2 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+    "X͆"~unicodecharacters==
+        an Array (shape [2], 2 items)
+         1 : ( "X"   U+0058 Lu 1 "LATIN CAPITAL LETTER X" )
+         2 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+It is not that the character(s) “R͆” itself must be present at the specification.
+jlf: next is subtle... The character "COMBINING BRIDGE ABOVE" is applied to the whole range!
+For example, a specification [A-Z]͆ can be used to change the font of all characters A͆, B͆, …, Z͆.
+    "[A-Z]͆"~unicodecharacters==
+        an Array (shape [6], 6 items)
+         1 : ( "["   U+005B Ps 1 "LEFT SQUARE BRACKET" )
+         2 : ( "A"   U+0041 Lu 1 "LATIN CAPITAL LETTER A" )
+         3 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         4 : ( "Z"   U+005A Lu 1 "LATIN CAPITAL LETTER Z" )
+         5 : ( "]"   U+005D Pe 1 "RIGHT SQUARE BRACKET" )
+         6 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+-------------------------
+Surrogate pairs in UTF-16
+-------------------------
+MS Word seems to use UTF-16 encoding, so a Unicode character outside BMP (above U+10000)
+is internally a kind of “ligature” of two characters from 0xD800–0xD8FF (high surrogate)
+and 0xDC00–0xDCFF (low surrogate).
+For example, [𐀀-𐀏] (10000–1000F) appears to MS Word like [{D800}{DC00}-{D800}{DC0F}]
+    "[𐀀-𐀏]"~unicodecharacters==
+        an Array (shape [5], 5 items)
+         1 : ( "["   U+005B Ps 1 "LEFT SQUARE BRACKET" )
+         2 : ( "𐀀"   U+10000 Lo 1 "LINEAR B SYLLABLE B008 A" )
+         3 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         4 : ( "𐀏"   U+1000F Lo 1 "LINEAR B SYLLABLE B077 KA" )
+         5 : ( "]"   U+005D Pe 1 "RIGHT SQUARE BRACKET" )
+Word VBA:
+U+10000 — U+107FF
+UniRange = "[" &amp; ChrW(&amp;HD800) &amp; "-" &amp; ChrW(&amp;HD801) &amp; "][" &amp; ChrW(&amp;HDC00) &amp; "-" &amp; ChrW(&amp;HDFFF) &amp; "]"
 
 
 <hr><h2 id="Regular_expressions">Regular expressions</h2><hr>
@@ -4969,7 +5260,16 @@ but there is maybe something to learn. [later] After review, no so many things
 to learn, the articles are very very short...
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://blog.kdheepak.com/my-unicode-cheat-sheet">https://blog.kdheepak.com/my-unicode-cheat-sheet</a>
+Language comparison
+Vim, Python, Julia and Rust.
+
+
 <hr><h2 id="Ada_lang">Ada lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://learn.adacore.com/courses/advanced-ada/parts/data_types/strings.html">https://learn.adacore.com/courses/advanced-ada/parts/data_types/strings.html</a>
+jlf: good overview, Ada is not the easiest language...
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html">https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html</a>
 
 
@@ -5005,6 +5305,10 @@ High level string and text processing library
 <a target="_blank" rel="noopener noreferrer" href="https://blog.adacore.com/vss-cursors-iterators-and-markers">https://blog.adacore.com/vss-cursors-iterators-and-markers</a>
 VSS (Virtual String Subsystem): Cursors, Iterators and Markers
 jlf: bof...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://ada-lang.io/docs/learn/how-tos/gnat_and_utf_8/">https://ada-lang.io/docs/learn/how-tos/gnat_and_utf_8/</a>
+UTF-8 encoding in GNAT
 
 
 <hr><h2 id="Awk_lang">Awk lang</h2><hr>
@@ -5082,30 +5386,11 @@ Zach's library was last discussed at the 2023-05-10 SG16 meeting; see
 Applying the Lessons of std::ranges to Unicode in the C++ Standard Library - Zach Laine CppNow 2023
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://isocpp.org/files/papers/P2728R0.html">https://isocpp.org/files/papers/P2728R0.html</a> (see more recent version below)
-Unicode in the Library, Part 1: UTF Transcoding
-Document #: P2728R0
-Date:       2022-11-20
-Reply-to:   Zach Laine  &lt;whatwasthataddress@gmail.com&gt;
----
-New version:
-<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2728r5.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2728r5.html</a>
-Document #: P2728R5
-Date:       2023-07-05
----
-latest published version:
-<a target="_blank" rel="noopener noreferrer" href="https://wg21.link/p2728">https://wg21.link/p2728</a>
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html</a>
 Unicode in the Library, Part 2: Normalization
 Document #: P2729R0
 Date:       2022-11-20
 Reply-to:   Zach Laine  &lt;whatwasthataddress@gmail.com&gt;
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf</a>
-paper D2773R0 by Corentin Jabot
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1949r7.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1949r7.html</a>
@@ -5267,6 +5552,71 @@ jlf: they don't want to support UAX44-LM2
 jlf: todo, read the section "Design considerations"
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r6.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r6.html</a>
+char8_t: A type for UTF-8 characters and strings (Revision 6)
+Date: 2018-11-09
+jlf: maybe to read
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1423r3.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1423r3.html</a>
+char8_t backward compatibility remediation
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1747r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1747r0.html</a>
+Don't use `char8_t` and `std::u8string` yet in P1389
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf</a>
+Considerations for Unicode algorithms
+(pdf...)
+    Generally speaking, reducing the size of the tables has a direct impact on
+    performance, if only because increasing cache locality is the most effective
+    way to improve the performance of anything.
+    I landed on a set of strategies developed by the rust team
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src">https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/</a>
+JTC1/SC22/WG21 - Papers 2022
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2513r4.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2513r4.html</a>
+    char8_t Compatibility and Portability Fixes
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/</a>
+JTC1/SC22/WG21 - Papers 2023
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2047r6.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2047r6.html</a>
+    An allocator-aware optional type
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2843r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2843r0.pdf</a>
+    Preprocessing is never undefined
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2727r3.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2727r3.html</a>
+    std::iterator_interface
+    Zach Laine
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/</a>
+JTC1/SC22/WG21 - Papers 2024
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3263r0.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3263r0.html</a>
+    Encoded annotated char
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2873r2.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2873r2.pdf</a>
+    Remove Deprecated locale category facets for Unicode from C++26
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3364r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3364r0.pdf</a>
+    Remove Deprecated u8path overloads From C++26
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p1729r5.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p1729r5.html</a>
+    Text Parsing
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2728r7.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2728r7.html</a>
+    Unicode in the Library, Part 1: UTF Transcoding
+    Zach Laine
+
+    <a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3094r4.html">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3094r4.html</a>
+    std::basic_fixed_string
+
+
 <hr><h2 id="cRexx_lang">cRexx lang</h2><hr>
 cRexx uses this library:
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/sheredom/utf8.h">https://github.com/sheredom/utf8.h</a>
@@ -5282,6 +5632,14 @@ the following categories are the only ones that will be checked in case insensit
     Latin Extended-B
     Greek and Coptic
     Cyrillic
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://groups.io/g/rexxla-arb/message/986">https://groups.io/g/rexxla-arb/message/986</a>
+The cREXX project aims to define valid symbols while adhering to three key principles:
+1. Unicode codepoint class-based lexing rules
+2. Unicode-based comparison with case folding and Normalization Form KD (NFKD)
+3. Safeguarding against nefarious obfuscation attempts
+&lt;go to the message for the rest&gt;
 
 
 <hr><h2 id="DotNet__CoreFx">DotNet, CoreFx</h2><hr>
@@ -5464,6 +5822,15 @@ R1b is guaranteed for backwards compatibility purposes.
 Elixir supports only code points \t (0009), \n (000A), \r (000D) and \s (0020)
 as whitespace and therefore does not follow requirement R3.
 R3 requires a wider variety of whitespace and syntax characters to be supported.
+
+
+<hr><h2 id="Erlang_lang">Erlang lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://www.erlang.org/doc/apps/stdlib/unicode_usage.html">https://www.erlang.org/doc/apps/stdlib/unicode_usage.html</a>
+jlf: good overview
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://blog.r-project.org/2022/11/07/issues-while-switching-r-to-utf-8-and-ucrt-on-windows/">https://blog.r-project.org/2022/11/07/issues-while-switching-r-to-utf-8-and-ucrt-on-windows/</a>
+Issues While Switching R to UTF-8 and UCRT on Windows
 
 
 <hr><h2 id="Factor_lang">Factor lang</h2><hr>
@@ -5927,6 +6294,56 @@ java.text.BreakIterator
 The default implementation of the character boundary analysis conforms to the
 Unicode Consortium's Extended Grapheme Cluster breaks. For more detail, refer to
 Grapheme Cluster Boundaries section in the Unicode Standard Annex #29.
+---
+    // <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/40878804/how-to-count-grapheme-clusters-or-perceived-emoji-characters-in-java">https://stackoverflow.com/questions/40878804/how-to-count-grapheme-clusters-or-perceived-emoji-characters-in-java</a>
+    // grapheme.java
+    import java.nio.charset.Charset;
+    import java.text.BreakIterator;
+
+    public class grapheme {
+
+        public static void main(String[] args) throws java.io.UnsupportedEncodingException {
+            System.out.println("System.getProperty(\"java.version\"): " + System.getProperty("java.version"));
+            System.out.println("Charset.defaultCharset():" + Charset.defaultCharset());
+            grapheme.printStringInfo("👩‍👩‍👦‍👦");
+            grapheme.printStringInfo("👻👩‍👩‍👦‍👦");
+        }
+
+        static void printStringInfo(String s) {
+            System.out.print("\nCode points for the String " + s + ":");
+            s.codePoints().mapToObj(Integer::toHexString).forEach(x -&gt; System.out.print(x + " "));
+            System.out.println("\nThe length of the String " + s + " using String.length() is " + s.length());
+            System.out.println("The length of the String " + s + " using BreakIterator is " + grapheme.getLength(s));
+        }
+
+        // Returns the correct number of perceived characters in a String.
+        // Requires JDK 20+ to work correctly.
+        // Earlier Java releases will incorrectly just count the code points instead.
+        // JDK-8291660 "Grapheme support in BreakIterator" (<a target="_blank" rel="noopener noreferrer" href="https://bugs.openjdk.org/browse/JDK-8291660)">https://bugs.openjdk.org/browse/JDK-8291660)</a> refers.
+        public static int getLength(String emoji) {
+            BreakIterator it = BreakIterator.getCharacterInstance();
+            it.setText(emoji);
+            int count = 0;
+            while (it.next() != BreakIterator.DONE) {
+                count++;
+            }
+            return count;
+        }
+    }
+---
+javac grapheme.java
+java grapheme
+Output:
+    System.getProperty("java.version"): 23.0.2
+    Charset.defaultCharset():UTF-8
+
+    Code points for the String 👩‍👩‍👦‍👦:1f469 200d 1f469 200d 1f466 200d 1f466
+    The length of the String 👩‍👩‍👦‍👦 using String.length() is 11
+    The length of the String 👩‍👩‍👦‍👦 using BreakIterator is 1
+
+    Code points for the String 👻👩‍👩‍👦‍👦:1f47b 1f469 200d 1f469 200d 1f466 200d 1f466
+    The length of the String 👻👩‍👩‍👦‍👦 using String.length() is 13
+    The length of the String 👻👩‍👩‍👦‍👦 using BreakIterator is 2
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/en/java/javase/20/intl/internationalization-overview.html">https://docs.oracle.com/en/java/javase/20/intl/internationalization-overview.html</a>
@@ -6274,6 +6691,52 @@ in PDF documents.
 A big list of homoglyphs and some code to detect them
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://dev.to/cometkim/dealing-with-unicode-string-done-right-and-better-2nei">https://dev.to/cometkim/dealing-with-unicode-string-done-right-and-better-2nei</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/cometkim/unicode-segmenter">https://github.com/cometkim/unicode-segmenter</a>
+Dealing with Unicode strings, done right and better.
+jlf: maybe to read.
+A little too self-praise for my taste, but there's some useful information inside...
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter</a>
+The Intl.Segmenter object enables locale-sensitive text segmentation, enabling
+you to get meaningful items (graphemes, words or sentences) from a string.
+Specification: <a target="_blank" rel="noopener noreferrer" href="https://tc39.es/ecma402/#segmenter-objects">https://tc39.es/ecma402/#segmenter-objects</a>
+---
+    const str = "吾輩は猫である。名前はたぬき。";
+    const segmenterJa = new Intl.Segmenter("ja-JP", { granularity: "word" });
+
+    const segments = segmenterJa.segment(str);
+    console.table(Array.from(segments));
+    // [{segment: '吾輩', index: 0, input: '吾輩は猫である。名前はたぬき。', isWordLike: true},
+    // etc.
+    // ]
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.npmjs.com/package/graphemer">https://www.npmjs.com/package/graphemer</a>
+No longer maintained.
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/flmnt/graphemer">https://github.com/flmnt/graphemer</a>  archived on Jul 13, 2024.
+---
+    import Graphemer from 'graphemer';
+
+    const splitter = new Graphemer();
+
+    // plain latin alphabet - nothing spectacular
+    splitter.splitGraphemes('abcd'); // returns ["a", "b", "c", "d"]
+
+    // two-char emojis and six-char combined emoji
+    splitter.splitGraphemes('🌷🎁💩😜👍🏳️‍🌈'); // returns ["🌷","🎁","💩","😜","👍","🏳️‍🌈"]
+
+    // diacritics as combining marks, 10 JavaScript chars
+    splitter.splitGraphemes('Ĺo͂řȩm̅'); // returns ["Ĺ","o͂","ř","ȩ","m̅"]
+
+    // individual Korean characters (Jamo), 4 JavaScript chars
+    splitter.splitGraphemes('뎌쉐'); // returns ["뎌","쉐"]
+
+    // Hindi text with combining marks, 8 JavaScript chars
+    splitter.splitGraphemes('अनुच्छेद'); // returns ["अ","नु","च्","छे","द"]
+
+
 <hr><h2 id="Julia_lang">Julia lang</h2><hr>
 Remember: search in issues with "utf8proc in:title,body"
 
@@ -6529,6 +6992,13 @@ Note that such a function was implemented in Julia, and could be ported to C:
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340">https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/issues/11315">https://github.com/JuliaLang/julia/issues/11315</a>
+RFC: rewrite functions used from utf8proc.c in Julia
+May 2015 ScottPJones proposes to rewrite utf8proc in Julia.
+June 2015 rejected: "As long as we utf8proc is needed by the scheme frontend,
+I think we are going to stick to utf8proc for the immediate future."
+
+
 <hr><h2 id="Kotlin_lang">Kotlin lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/">https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/jvm/src/kotlin/text">https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/jvm/src/kotlin/text</a>
@@ -6734,7 +7204,27 @@ Out= {246}
 Unicode Examples
 
 
-(this not NetRexx, but this answer is useful for NetRexx)
+Netrexx string API  doesn't support surrogates.
+Not to mention the lack of support for grapheme cluster...
+OK for BMP:
+( "ᴔ"   U+1D14 Ll 1 "LATIN SMALL LETTER TURNED OE" )
+( "￥"  U+FFE5 Sc 2 "FULLWIDTH YEN SIGN" )
+say length("ᴔ￥")       --&gt; 2
+say left("ᴔ￥", 1)      --&gt; ᴔ
+say left("ᴔ￥", 2)      --&gt; ᴔ￥
+say reverse("ᴔ￥")      --&gt; ￥ᴔ
+---
+If Netrexx supported UTF-16 then the following characters would be supported.
+But they are not:
+( "𐀏"   U+1000F Lo 1 "LINEAR B SYLLABLE B077 KA" )     \uD800\uDC0F
+( "😀"  U+1F600 So 2 "GRINNING FACE" )                  \uD83D\uDE00
+say length("𐀏😀")      --&gt; 4       should be 2
+say left("𐀏😀", 1)     --&gt; ?       should be 𐀏
+say left("𐀏😀", 2)     --&gt; 𐀏      should be 𐀏😀
+say reverse("𐀏😀")     --&gt; ?🐏?    should be 😀𐀏
+
+
+(this is not NetRexx, but this answer is useful for NetRexx)
 <a target="_blank" rel="noopener noreferrer" href="https://stackoverflow.com/questions/63410278/code-point-and-utf-16-code-units-are-the-same-thing">https://stackoverflow.com/questions/63410278/code-point-and-utf-16-code-units-are-the-same-thing</a>
     code point and UTF-16 code units are the same thing?
 
@@ -6916,6 +7406,27 @@ engineering solution to this problem.
 (this is Python, but this link could be useful for NetRexx c2x and x2c)
 <a target="_blank" rel="noopener noreferrer" href="https://docs.python.org/3/library/struct.html">https://docs.python.org/3/library/struct.html</a>
 Interpret bytes as packed binary data
+
+
+Updated RexxStream.nrx
+Mail Josep Maria Apr 24, 2025
+    It would be nice if there was an option to read and write files encoded in Latin-1.
+    This would also allow mixing pure binary data with text.
+    One could select UTF-8 or Latin-1 at file open time, like we do in TUTOR.
+    But of course, since NetRexx has a single concept of character and a single
+    concept of string, these binary bytes would be converted to whatever format Java
+    is using nowadays when read with CHARIN, which is somehow ugly and complicates
+    things (e.g., if you really want to handle your input as an array of bytes, you
+    have to convert the string first).
+Mail Marc Remes Apr 24, 2025
+    Internally NetRexx treats the char primitive as a Java char, which is UTF-16 encoded.
+    That is sixteen or thirty-two bits per character, not a byte.
+    There are other ways to handle binary files in NetRexx, Java's RandomAccessFile class being one of them.
+    As Java has more or less standardised on UTF-8 for input/output, the choice was
+    to default to UTF-8 encoding for streams.
+    The 'legacy' ISO-8859-1 (Latin-1) character set could be possibly added in the
+    future by your ENCODING syntax on STREAM OPEN, but that will not make it into
+    upcoming release.
 
 
 <hr><h2 id="Oracle">Oracle</h2><hr>
@@ -8629,15 +9140,6 @@ Slides: <a target="_blank" rel="noopener noreferrer" href="https://hsivonen.fi/r
 Video: <a target="_blank" rel="noopener noreferrer" href="https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library">https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library</a>
 
 
-<a target="_blank" rel="noopener noreferrer" href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf">https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf</a>
-(pdf...)
-    Generally speaking, reducing the size of the tables has a direct impact on
-    performance, if only because increasing cache locality is the most effective
-    way to improve the performance of anything.
-    I landed on a set of strategies developed by the rust team
-    <a target="_blank" rel="noopener noreferrer" href="https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src">https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src</a>
-
-
 <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=Mcuqzx3rBWc">https://www.youtube.com/watch?v=Mcuqzx3rBWc</a>
 Strings in Rust FINALLY EXPLAINED!
 jlf: is there something to learn from 15:29 Indexing into a string? no.
@@ -8737,6 +9239,29 @@ jlf: this crate is referenced by Stefan Karpinski in the section Filenames
 <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/qr0rem/how_many_string_types_does_rust_have_maybe_its/">https://www.reddit.com/r/rust/comments/qr0rem/how_many_string_types_does_rust_have_maybe_its/</a>
 How many String types does Rust have? Maybe it's just 1
 jlf: to read?
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-segmentation">https://github.com/unicode-rs/unicode-segmentation</a>
+Grapheme Cluster and Word boundaries according to UAX#29 rules
+---
+    use unicode_segmentation::UnicodeSegmentation;
+
+    fn main() {
+        let s = "a̐éö̲\r\n";
+        let g = s.graphemes(true).collect::&lt;Vec&lt;&amp;str&gt;&gt;();
+        let b: &amp;[_] = &amp;["a̐", "é", "ö̲", "\r\n"];
+        assert_eq!(g, b);
+
+        let s = "The quick (\"brown\") fox can't jump 32.3 feet, right?";
+        let w = s.unicode_words().collect::&lt;Vec&lt;&amp;str&gt;&gt;();
+        let b: &amp;[_] = &amp;["The", "quick", "brown", "fox", "can't", "jump", "32.3", "feet", "right"];
+        assert_eq!(w, b);
+
+        let s = "The quick (\"brown\")  fox";
+        let w = s.split_word_bounds().collect::&lt;Vec&lt;&amp;str&gt;&gt;();
+        let b: &amp;[_] = &amp;["The", " ", "quick", " ", "(", "\"", "brown", "\"", ")", "  ", "fox"];
+        assert_eq!(w, b);
+    }
 
 
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
@@ -9528,6 +10053,25 @@ jlf: this is related to Unicode properties of a character.
 But what is the impacts on file I/O?
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://forums.swift.org/t/pitch-unicode-named-character-escape-sequence/18396/16">https://forums.swift.org/t/pitch-unicode-named-character-escape-sequence/18396/16</a>
+Pitch: Unicode Named Character Escape Sequence
+Nov 2018
+This proposal adds a new \N{name} escape sequence to Swift string literals,
+where name is the name of a Unicode character.
+---
+jlf: this guy has interesting comments.
+SDGGiesbrecht Jeremy David Giesbrecht
+Background: I speak five human languages which use three different scripts in
+two different writing directions. I spoke Unicode long before I spoke Swift.
+This pitch sounds like bad idea to me.
+...
+The hex code carries a lot more useful information:
+Which block are we dealing in, latin‐1 (008x) or punctuation (20xx)?
+Is this ASCII (00xx), BMP (xxxx), or extended (xxxxx) (ergo how many bytes in UTF‐x)?
+Is it spacing (02xx) or combining (03xx)?
+Is it a modifier (02xx) or punctuation (20xx)?
+
+
 <hr><h2 id="Typst_lang">Typst lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/typst/typst">https://github.com/typst/typst</a>
 A new markup-based typesetting system that is powerful and easy to learn.
@@ -9570,9 +10114,24 @@ Referenced in <a target="_blank" rel="noopener noreferrer" href="https://github.
 
 
 <hr><h2 id="Zig_lang__Ziglyph">Zig lang, Ziglyph</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://ziglang.org/documentation/master/#Source-Encoding">https://ziglang.org/documentation/master/#Source-Encoding</a>
+Zig source code is encoded in UTF-8. An invalid UTF-8 byte sequence results in a compile error.
+For compatibility with other tools, the compiler ignores a UTF-8-encoded byte order mark (U+FEFF)
+if it is the first Unicode code point in the source text. A byte order mark is not allowed anywhere
+else in the source.
+
+<a target="_blank" rel="noopener noreferrer" href="https://ziglang.org/documentation/master/#String-Literals-and-Unicode-Code-Point-Literals">https://ziglang.org/documentation/master/#String-Literals-and-Unicode-Code-Point-Literals</a>
+String Literals and Unicode Code Point Literals
+\xNN        hexadecimal 8-bit byte value (2 digits)
+\u{NNNNNN}  hexadecimal Unicode scalar value UTF-8 encoded (1 or more digits)
+
+01/10/2024
+<a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dude_the_builder/zg.git">https://codeberg.org/dude_the_builder/zg.git</a>
+
 04/07/2021
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/jecolon/ziglyph">https://github.com/jecolon/ziglyph</a>
 Unicode text processing for the Zig programming language.
+01/01/2024 deprecated, replaced by zg
 
 <a target="_blank" rel="noopener noreferrer" href="https://devlog.hexops.com/2021/unicode-data-file-compression/">https://devlog.hexops.com/2021/unicode-data-file-compression/</a>
 achieving 40-70% reduction over gzip alone

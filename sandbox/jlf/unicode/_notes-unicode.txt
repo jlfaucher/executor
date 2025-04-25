@@ -10,6 +10,8 @@ Don't know why, but the Unicode consortium has 2 different URLs:
     https://unicode.org/
     https://www.unicode.org/
 To avoid doubling URLs, I use the 2nd form.
+[later] also (sometimes)
+    https://home.unicode.org/
 
 
 https://home.unicode.org/
@@ -59,6 +61,8 @@ Unicode Standard Annex (UAX)
 
     UAX #14, Unicode Line Breaking Algorithm
     https://www.unicode.org/reports/tr14/
+    TN #54, Annotated Line Breaking Algorithm
+    https://www.unicode.org/notes/tn54/
 
     UAX #15, Unicode Normalization Forms
     https://www.unicode.org/reports/tr15/
@@ -137,6 +141,9 @@ UTS10-D1. Collation Weight: A non-negative integer used in the UCA to establish
           a means for systematic comparison of constructed sort keys.
 UTS10-D2. Collation Element: An ordered list of collation weights.
 UTS10-D3. Collation Level: The position of a collation weight in a collation element.
+---
+https://github.com/unicode-org/icu4x/issues/6033#issuecomment-2627767833
+ducet isn't supported by ICU4X (or ICU4C/J)
 
 
 https://www.unicode.org/reports/tr15/#Detecting_Normalization_Forms
@@ -198,6 +205,17 @@ Unicode® Technical Site
 
 https://www.unicode.org/faq/char_combmark.html
 Characters and Combining Marks
+
+
+https://www.unicode.org/Public/UCD/latest/ucd/auxiliary/
+test suites, test data:
+    GraphemeBreakProperty.txt
+    GraphemeBreakTest.txt
+    LineBreakTest.txt
+    SentenceBreakProperty.txt
+    SentenceBreakTest.txt
+    WordBreakProperty.txt
+    WordBreakTest.txt
 
 
 ================================================================================
@@ -2925,6 +2943,13 @@ Confirmed by their text file:
 https://www.mobilefish.com/download/character_set/iso8859_1.txt
 
 
+https://blog.glyphdrawing.club/why-is-there-a-small-house-in-ibm-s-code-page-437/
+https://news.ycombinator.com/item?id=43667010
+Why is there a "small house" in IBM's Code page 437? 2025/01/06
+---
+jlf: not related to Unicode
+
+
 ================================================================================
 ICU title
 ================================================================================
@@ -2955,32 +2980,47 @@ jlf: fork by Microsoft
 
 http://stackoverflow.com/questions/8253033/what-open-source-c-or-c-libraries-can-convert-arbitrary-utf-32-to-nfc
 What open source C or C++ libraries can convert arbitrary UTF-32 to NFC?
+---
+jlf: code provided in an answer, seems not a good answer because takes an UTF-8, not an UTF-32.
+jlf: code can be optimized, see next note "normalize a std::string encoded with UTF8 using ICU4C".
+    std::string normalize(const std::string &unnormalized_utf8) {
+        // FIXME: until ICU supports doing normalization over a UText
+        // interface directly on our UTF-8, we'll use the insanely less
+        // efficient approach of converting to UTF-16, normalizing, and
+        // converting back to UTF-8.
 
-std::string normalize(const std::string &unnormalized_utf8) {
-    // FIXME: until ICU supports doing normalization over a UText
-    // interface directly on our UTF-8, we'll use the insanely less
-    // efficient approach of converting to UTF-16, normalizing, and
-    // converting back to UTF-8.
+        // Convert to UTF-16 string
+        auto unnormalized_utf16 = icu::UnicodeString::fromUTF8(unnormalized_utf8);
 
-    // Convert to UTF-16 string
-    auto unnormalized_utf16 = icu::UnicodeString::fromUTF8(unnormalized_utf8);
+        // Get a pointer to the global NFC normalizer
+        UErrorCode icu_error = U_ZERO_ERROR;
+        const auto *normalizer = icu::Normalizer2::getInstance(nullptr, "nfc", UNORM2_COMPOSE, icu_error);
+        assert(U_SUCCESS(icu_error));
 
-    // Get a pointer to the global NFC normalizer
-    UErrorCode icu_error = U_ZERO_ERROR;
-    const auto *normalizer = icu::Normalizer2::getInstance(nullptr, "nfc", UNORM2_COMPOSE, icu_error);
-    assert(U_SUCCESS(icu_error));
+        // Normalize our string
+        icu::UnicodeString normalized_utf16;
+        normalizer->normalize(unnormalized_utf16, normalized_utf16, icu_error);
+        assert(U_SUCCESS(icu_error));
 
-    // Normalize our string
-    icu::UnicodeString normalized_utf16;
-    normalizer->normalize(unnormalized_utf16, normalized_utf16, icu_error);
-    assert(U_SUCCESS(icu_error));
+        // Convert back to UTF-8
+        std::string normalized_utf8;
+        normalized_utf16.toUTF8String(normalized_utf8);
 
-    // Convert back to UTF-8
-    std::string normalized_utf8;
-    normalized_utf16.toUTF8String(normalized_utf8);
+        return normalized_utf8;
+    }
 
-    return normalized_utf8;
-}
+
+https://groups.google.com/a/unicode.org/g/icu-support/c/ICQ_0IEfPlM/m/u16GuH3yBgAJ
+normalize a std::string encoded with UTF8 using ICU4C
+    There's no need to convert back and forth to and from
+    icu::UnicodeString, you'll waste less computing resources if you skip
+    that and work directly with UTF-8 instead, by calling the
+    normalizeUTF8() method instead of the normalize() method:
+
+    https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/classicu_1_1Normalizer2.html#acf059465e9ced97d153fd21e5a048a37
+
+    icu::StringByteSink<std::string> sink(&normalized_utf8_string);
+    normalizer->normalizeUTF8(0, unnormalized_utf8_string, sink, nullptr, status);
 
 
 https://begriffs.com/posts/2019-05-23-unicode-icu.html
@@ -4314,6 +4354,28 @@ jlf: they have this reference
 See topic 5.1 in https://www.unicode.org/L2/L2024/24009r-utc178-properties-recs.pdf
 
 
+#5595
+https://github.com/unicode-org/icu4x/issues/5595
+Allow line segmenter break around quotation mark for CJ
+---
+#5565 Recently brings locale option to LineSegmenter, but it do not take effect in some situation.
+In UAX#14 says:
+    Note: If language information is available, it can be used to determine which
+    character is used as the opening quote and which as the closing quote. See the
+    information in Section 6.2, General Punctuation, in [Unicode].
+    https://unicode.org/reports/tr41/tr41-34.html#Unicode
+    In such a case, the quotation marks could be tailored to either OP or CL
+    depending on their actual usage.
+    https://unicode.org/reports/tr14/#OP
+    https://unicode.org/reports/tr14/#CL
+In Chinese and Japanese, quotation mark U+201C and U+201D meets the above condition
+and should be classified to OP and CL respectively instead of QU. This is implemented
+in icu4c and mainstream browsers. In icu4c text like 你“好 will have break opportunity
+in 你|“好 if zh locale is given. But in icu4x it doesn't:
+jlf: see code example in the ticket.
+The above code gives 你“好”啊 instead of 你|“好”|啊.
+
+
 ================================================================================
 utf8proc title
 ================================================================================
@@ -4499,6 +4561,23 @@ Table 1. EBCDIC Collating Sequence
 
     Packed decimal, zoned decimal, fixed-point, and normalized floating-point data
     are collated algebraically, that is, each quantity is interpreted as having a sign.
+
+
+================================================================================
+DBCS Title
+================================================================================
+
+https://groups.io/g/rexxla-arb/message/515
+RMG:
+For the curious, here is the old code for processing ASCII DBCS characters from the original oorexx code base.
+This was removed in the 4.0.0 release.
+https://sourceforge.net/p/oorexx/code-0/HEAD/tree/main/releases/3.1.2/trunk/kernel/classes/ASCIIDBCSStrings.cpp
+Triggering the usage of the DBCS support was done via OPTIONS EXMODE, which really was not a very good solution.
+One side effect of turning that on was that valid Rexx strings could suddenly become invalid DBCS strings
+and it was very difficult to work with both types at the same time.
+The processing is actually quite similar to how a UTF-8 encoding would be processed.
+A table of DBCS first bytes is obtained from the OS, and the presence of any of these bytes in a string
+is the signal that the next byte is the second byte of a DBCS pair.
 
 
 ================================================================================
@@ -4820,6 +4899,27 @@ jlf: I search which functionalities are available only to unicode apps...
 - other?
 
 
+https://blog.keyman.com/2011/06/accepting-unicode-input-in-your-windows-application/
+Accepting Unicode input in your Windows application
+jlf: old article (2011)
+- If the window is created as an ANSI window, WM_CHAR will always be received by
+the window class as codepage characters.
+- If the window is created as a Unicode window, all WM_CHAR messages will contain
+Unicode (UTF-16) characters.
+- The IsWindowUnicode(HWND) function will tell you whether the window supports
+Unicode input.
+
+
+https://medium.com/@rdavidson1911/how-to-enable-or-use-and-display-unicode-in-a-windows-environment-124d9a8b36c4
+How to Enable or Use and Display Unicode in a Windows Environment
+jlf: the title is misleading, the article is about entering a Unicode character
+- Universal Method
+- Input-language Specific Method
+- Code-page Specific Method
+- Application-specific Method
+- Unicode IME Method
+
+
 https://stackoverflow.com/questions/59404120/what-is-the-difference-in-using-cstringw-cstringa-and-ct2w-ct2a-to-convert-strin
 What is the difference in using CStringW/CStringA and CT2W/CT2A to convert strings?
     CString offers a number of conversion constructors to convert between ANSI and
@@ -4960,6 +5060,15 @@ by Michael S. Kaplan, published on 2005/02/26 15:26 -05:00, original URI: http:/
 
 https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page
 Use UTF-8 code pages in Windows apps
+This is a beta setting...
+And you may have troubles.
+https://sourceforge.net/p/oorexx/discussion/408478/thread/ec4123a46d/
+Output text in Russian in RxMessageBox()
+---
+jlf: RxMessageBox is not part of ooDialog.
+interpreter/platform/windows/ExternalFunctions.cpp
+If the changes applied to ooDialogW were applied to RxMessageBox then the
+display would be correct.
 
 
 https://mastodon.gamedev.place/@AshleyGullen/111109299141510319
@@ -5013,12 +5122,62 @@ https://github.com/microsoft/icu
 but the job of servicing the project is now on you.
 
 
+https://superuser.com/questions/1715715/can-i-enable-unicode-utf-8-worldwide-support-in-windows-11-but-set-another-enco
+Can I enable Unicode UTF-8 WorldWide Support in WIndows 11, but set another encoding for a specific app?
+Self answer:
+- Control Panel > Clock and Region > Region > Administrative tab > Change system locale button > enable Beta:Use Unicode UTF-8 for worldwide language support.
+- The same GUI window can also be launched from
+  Settings > Time & Language > Language & region > Administrative language settings > Administrative tab > Change system locale button > enable Beta:Use Unicode UTF-8 for worldwide language support.
+
+
 ================================================================================
-Language comparison
+Microsoft Word
 ================================================================================
 
-https://blog.kdheepak.com/my-unicode-cheat-sheet
-Vim, Python, Julia and Rust.
+https://medium.com/@turgenev.e9g/microsoft-word-find-and-replace-for-unicode-ranges-u-10000-79ab2b32e138
+[Microsoft Word] Find and Replace for Unicode Ranges ≥ U+10000
+jlf: interesting!
+----------------
+Grapheme Cluster
+----------------
+Find and Replace in MS Word seems to recognize characters only according to “grapheme cluster” in Unicode.
+Therefore, when MS Word is ordered to replace “R” with “X”, it won’t change “R͆” to “X͆”. We must specify the whole “R͆” to replace “R͆”.
+    "R͆"~unicodecharacters==
+        an Array (shape [2], 2 items)
+         1 : ( "R"   U+0052 Lu 1 "LATIN CAPITAL LETTER R" )
+         2 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+    "X͆"~unicodecharacters==
+        an Array (shape [2], 2 items)
+         1 : ( "X"   U+0058 Lu 1 "LATIN CAPITAL LETTER X" )
+         2 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+It is not that the character(s) “R͆” itself must be present at the specification.
+jlf: next is subtle... The character "COMBINING BRIDGE ABOVE" is applied to the whole range!
+For example, a specification [A-Z]͆ can be used to change the font of all characters A͆, B͆, …, Z͆.
+    "[A-Z]͆"~unicodecharacters==
+        an Array (shape [6], 6 items)
+         1 : ( "["   U+005B Ps 1 "LEFT SQUARE BRACKET" )
+         2 : ( "A"   U+0041 Lu 1 "LATIN CAPITAL LETTER A" )
+         3 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         4 : ( "Z"   U+005A Lu 1 "LATIN CAPITAL LETTER Z" )
+         5 : ( "]"   U+005D Pe 1 "RIGHT SQUARE BRACKET" )
+         6 : ( "͆"    U+0346 Mn 0 "COMBINING BRIDGE ABOVE" )
+-------------------------
+Surrogate pairs in UTF-16
+-------------------------
+MS Word seems to use UTF-16 encoding, so a Unicode character outside BMP (above U+10000)
+is internally a kind of “ligature” of two characters from 0xD800–0xD8FF (high surrogate)
+and 0xDC00–0xDCFF (low surrogate).
+For example, [𐀀-𐀏] (10000–1000F) appears to MS Word like [{D800}{DC00}-{D800}{DC0F}]
+    "[𐀀-𐀏]"~unicodecharacters==
+        an Array (shape [5], 5 items)
+         1 : ( "["   U+005B Ps 1 "LEFT SQUARE BRACKET" )
+         2 : ( "𐀀"   U+10000 Lo 1 "LINEAR B SYLLABLE B008 A" )
+         3 : ( "-"   U+002D Pd 1 "HYPHEN-MINUS" )
+         4 : ( "𐀏"   U+1000F Lo 1 "LINEAR B SYLLABLE B077 KA" )
+         5 : ( "]"   U+005D Pe 1 "RIGHT SQUARE BRACKET" )
+Word VBA:
+U+10000 — U+107FF
+UniRange = "[" & ChrW(&HD800) & "-" & ChrW(&HD801) & "][" & ChrW(&HDC00) & "-" & ChrW(&HDFFF) & "]"
 
 
 ================================================================================
@@ -5196,9 +5355,18 @@ but there is maybe something to learn. [later] After review, no so many things
 to learn, the articles are very very short...
 
 
+https://blog.kdheepak.com/my-unicode-cheat-sheet
+Language comparison
+Vim, Python, Julia and Rust.
+
+
 ================================================================================
 Ada lang
 ================================================================================
+
+https://learn.adacore.com/courses/advanced-ada/parts/data_types/strings.html
+jlf: good overview, Ada is not the easiest language...
+
 
 https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
 
@@ -5235,6 +5403,10 @@ High level string and text processing library
 https://blog.adacore.com/vss-cursors-iterators-and-markers
 VSS (Virtual String Subsystem): Cursors, Iterators and Markers
 jlf: bof...
+
+
+https://ada-lang.io/docs/learn/how-tos/gnat_and_utf_8/
+UTF-8 encoding in GNAT
 
 
 ================================================================================
@@ -5318,30 +5490,11 @@ https://www.youtube.com/watch?v=AoLl\_ZZqyOk
 Applying the Lessons of std::ranges to Unicode in the C++ Standard Library - Zach Laine CppNow 2023
 
 
-https://isocpp.org/files/papers/P2728R0.html (see more recent version below)
-Unicode in the Library, Part 1: UTF Transcoding
-Document #: P2728R0
-Date:       2022-11-20
-Reply-to:   Zach Laine  <whatwasthataddress@gmail.com>
----
-New version:
-https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2728r5.html
-Document #: P2728R5
-Date:       2023-07-05
----
-latest published version:
-https://wg21.link/p2728
-
-
 https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2729r0.html
 Unicode in the Library, Part 2: Normalization
 Document #: P2729R0
 Date:       2022-11-20
 Reply-to:   Zach Laine  <whatwasthataddress@gmail.com>
-
-
-https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
-paper D2773R0 by Corentin Jabot
 
 
 https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1949r7.html
@@ -5503,6 +5656,71 @@ jlf: they don't want to support UAX44-LM2
 jlf: todo, read the section "Design considerations"
 
 
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r6.html
+char8_t: A type for UTF-8 characters and strings (Revision 6)
+Date: 2018-11-09
+jlf: maybe to read
+
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1423r3.html
+char8_t backward compatibility remediation
+
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1747r0.html
+Don't use `char8_t` and `std::u8string` yet in P1389
+
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
+Considerations for Unicode algorithms
+(pdf...)
+    Generally speaking, reducing the size of the tables has a direct impact on
+    performance, if only because increasing cache locality is the most effective
+    way to improve the performance of anything.
+    I landed on a set of strategies developed by the rust team
+    https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src
+
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/
+JTC1/SC22/WG21 - Papers 2022
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2513r4.html
+    char8_t Compatibility and Portability Fixes
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/
+JTC1/SC22/WG21 - Papers 2023
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2047r6.html
+    An allocator-aware optional type
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2843r0.pdf
+    Preprocessing is never undefined
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2727r3.html
+    std::iterator_interface
+    Zach Laine
+
+https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/
+JTC1/SC22/WG21 - Papers 2024
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3263r0.html
+    Encoded annotated char
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2873r2.pdf
+    Remove Deprecated locale category facets for Unicode from C++26
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3364r0.pdf
+    Remove Deprecated u8path overloads From C++26
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p1729r5.html
+    Text Parsing
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p2728r7.html
+    Unicode in the Library, Part 1: UTF Transcoding
+    Zach Laine
+
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2024/p3094r4.html
+    std::basic_fixed_string
+
+
 ================================================================================
 cRexx lang
 ================================================================================
@@ -5521,6 +5739,14 @@ the following categories are the only ones that will be checked in case insensit
     Latin Extended-B
     Greek and Coptic
     Cyrillic
+
+
+https://groups.io/g/rexxla-arb/message/986
+The cREXX project aims to define valid symbols while adhering to three key principles:
+1. Unicode codepoint class-based lexing rules
+2. Unicode-based comparison with case folding and Normalization Form KD (NFKD)
+3. Safeguarding against nefarious obfuscation attempts
+<go to the message for the rest>
 
 
 ================================================================================
@@ -5715,6 +5941,18 @@ R1b is guaranteed for backwards compatibility purposes.
 Elixir supports only code points \t (0009), \n (000A), \r (000D) and \s (0020)
 as whitespace and therefore does not follow requirement R3.
 R3 requires a wider variety of whitespace and syntax characters to be supported.
+
+
+================================================================================
+Erlang lang
+================================================================================
+
+https://www.erlang.org/doc/apps/stdlib/unicode_usage.html
+jlf: good overview
+
+
+https://blog.r-project.org/2022/11/07/issues-while-switching-r-to-utf-8-and-ucrt-on-windows/
+Issues While Switching R to UTF-8 and UCRT on Windows
 
 
 ================================================================================
@@ -6193,6 +6431,56 @@ java.text.BreakIterator
 The default implementation of the character boundary analysis conforms to the
 Unicode Consortium's Extended Grapheme Cluster breaks. For more detail, refer to
 Grapheme Cluster Boundaries section in the Unicode Standard Annex #29.
+---
+    // https://stackoverflow.com/questions/40878804/how-to-count-grapheme-clusters-or-perceived-emoji-characters-in-java
+    // grapheme.java
+    import java.nio.charset.Charset;
+    import java.text.BreakIterator;
+
+    public class grapheme {
+
+        public static void main(String[] args) throws java.io.UnsupportedEncodingException {
+            System.out.println("System.getProperty(\"java.version\"): " + System.getProperty("java.version"));
+            System.out.println("Charset.defaultCharset():" + Charset.defaultCharset());
+            grapheme.printStringInfo("👩‍👩‍👦‍👦");
+            grapheme.printStringInfo("👻👩‍👩‍👦‍👦");
+        }
+
+        static void printStringInfo(String s) {
+            System.out.print("\nCode points for the String " + s + ":");
+            s.codePoints().mapToObj(Integer::toHexString).forEach(x -> System.out.print(x + " "));
+            System.out.println("\nThe length of the String " + s + " using String.length() is " + s.length());
+            System.out.println("The length of the String " + s + " using BreakIterator is " + grapheme.getLength(s));
+        }
+
+        // Returns the correct number of perceived characters in a String.
+        // Requires JDK 20+ to work correctly.
+        // Earlier Java releases will incorrectly just count the code points instead.
+        // JDK-8291660 "Grapheme support in BreakIterator" (https://bugs.openjdk.org/browse/JDK-8291660) refers.
+        public static int getLength(String emoji) {
+            BreakIterator it = BreakIterator.getCharacterInstance();
+            it.setText(emoji);
+            int count = 0;
+            while (it.next() != BreakIterator.DONE) {
+                count++;
+            }
+            return count;
+        }
+    }
+---
+javac grapheme.java
+java grapheme
+Output:
+    System.getProperty("java.version"): 23.0.2
+    Charset.defaultCharset():UTF-8
+
+    Code points for the String 👩‍👩‍👦‍👦:1f469 200d 1f469 200d 1f466 200d 1f466
+    The length of the String 👩‍👩‍👦‍👦 using String.length() is 11
+    The length of the String 👩‍👩‍👦‍👦 using BreakIterator is 1
+
+    Code points for the String 👻👩‍👩‍👦‍👦:1f47b 1f469 200d 1f469 200d 1f466 200d 1f466
+    The length of the String 👻👩‍👩‍👦‍👦 using String.length() is 13
+    The length of the String 👻👩‍👩‍👦‍👦 using BreakIterator is 2
 
 
 https://docs.oracle.com/en/java/javase/20/intl/internationalization-overview.html
@@ -6543,6 +6831,52 @@ https://github.com/codebox/homoglyph
 A big list of homoglyphs and some code to detect them
 
 
+https://dev.to/cometkim/dealing-with-unicode-string-done-right-and-better-2nei
+https://github.com/cometkim/unicode-segmenter
+Dealing with Unicode strings, done right and better.
+jlf: maybe to read.
+A little too self-praise for my taste, but there's some useful information inside...
+
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter
+The Intl.Segmenter object enables locale-sensitive text segmentation, enabling
+you to get meaningful items (graphemes, words or sentences) from a string.
+Specification: https://tc39.es/ecma402/#segmenter-objects
+---
+    const str = "吾輩は猫である。名前はたぬき。";
+    const segmenterJa = new Intl.Segmenter("ja-JP", { granularity: "word" });
+
+    const segments = segmenterJa.segment(str);
+    console.table(Array.from(segments));
+    // [{segment: '吾輩', index: 0, input: '吾輩は猫である。名前はたぬき。', isWordLike: true},
+    // etc.
+    // ]
+
+
+https://www.npmjs.com/package/graphemer
+No longer maintained.
+https://github.com/flmnt/graphemer  archived on Jul 13, 2024.
+---
+    import Graphemer from 'graphemer';
+
+    const splitter = new Graphemer();
+
+    // plain latin alphabet - nothing spectacular
+    splitter.splitGraphemes('abcd'); // returns ["a", "b", "c", "d"]
+
+    // two-char emojis and six-char combined emoji
+    splitter.splitGraphemes('🌷🎁💩😜👍🏳️‍🌈'); // returns ["🌷","🎁","💩","😜","👍","🏳️‍🌈"]
+
+    // diacritics as combining marks, 10 JavaScript chars
+    splitter.splitGraphemes('Ĺo͂řȩm̅'); // returns ["Ĺ","o͂","ř","ȩ","m̅"]
+
+    // individual Korean characters (Jamo), 4 JavaScript chars
+    splitter.splitGraphemes('뎌쉐'); // returns ["뎌","쉐"]
+
+    // Hindi text with combining marks, 8 JavaScript chars
+    splitter.splitGraphemes('अनुच्छेद'); // returns ["अ","नु","च्","छे","द"]
+
+
 ================================================================================
 Julia lang
 ================================================================================
@@ -6801,6 +7135,13 @@ Note that such a function was implemented in Julia, and could be ported to C:
 https://github.com/JuliaLang/julia/blob/0f6c72c71bc947282ae18715c09f93a22828aab7/stdlib/Unicode/src/Unicode.jl#L268-L340
 
 
+https://github.com/JuliaLang/julia/issues/11315
+RFC: rewrite functions used from utf8proc.c in Julia
+May 2015 ScottPJones proposes to rewrite utf8proc in Julia.
+June 2015 rejected: "As long as we utf8proc is needed by the scheme frontend,
+I think we are going to stick to utf8proc for the immediate future."
+
+
 ================================================================================
 Kotlin lang
 ================================================================================
@@ -7018,7 +7359,27 @@ https://groups.io/g/netrexx/topic/93734685
 Unicode Examples
 
 
-(this not NetRexx, but this answer is useful for NetRexx)
+Netrexx string API  doesn't support surrogates.
+Not to mention the lack of support for grapheme cluster...
+OK for BMP:
+( "ᴔ"   U+1D14 Ll 1 "LATIN SMALL LETTER TURNED OE" )
+( "￥"  U+FFE5 Sc 2 "FULLWIDTH YEN SIGN" )
+say length("ᴔ￥")       --> 2
+say left("ᴔ￥", 1)      --> ᴔ
+say left("ᴔ￥", 2)      --> ᴔ￥
+say reverse("ᴔ￥")      --> ￥ᴔ
+---
+If Netrexx supported UTF-16 then the following characters would be supported.
+But they are not:
+( "𐀏"   U+1000F Lo 1 "LINEAR B SYLLABLE B077 KA" )     \uD800\uDC0F
+( "😀"  U+1F600 So 2 "GRINNING FACE" )                  \uD83D\uDE00
+say length("𐀏😀")      --> 4       should be 2
+say left("𐀏😀", 1)     --> ?       should be 𐀏
+say left("𐀏😀", 2)     --> 𐀏      should be 𐀏😀
+say reverse("𐀏😀")     --> ?🐏?    should be 😀𐀏
+
+
+(this is not NetRexx, but this answer is useful for NetRexx)
 https://stackoverflow.com/questions/63410278/code-point-and-utf-16-code-units-are-the-same-thing
     code point and UTF-16 code units are the same thing?
 
@@ -7200,6 +7561,27 @@ engineering solution to this problem.
 (this is Python, but this link could be useful for NetRexx c2x and x2c)
 https://docs.python.org/3/library/struct.html
 Interpret bytes as packed binary data
+
+
+Updated RexxStream.nrx
+Mail Josep Maria Apr 24, 2025
+    It would be nice if there was an option to read and write files encoded in Latin-1.
+    This would also allow mixing pure binary data with text.
+    One could select UTF-8 or Latin-1 at file open time, like we do in TUTOR.
+    But of course, since NetRexx has a single concept of character and a single
+    concept of string, these binary bytes would be converted to whatever format Java
+    is using nowadays when read with CHARIN, which is somehow ugly and complicates
+    things (e.g., if you really want to handle your input as an array of bytes, you
+    have to convert the string first).
+Mail Marc Remes Apr 24, 2025
+    Internally NetRexx treats the char primitive as a Java char, which is UTF-16 encoded.
+    That is sixteen or thirty-two bits per character, not a byte.
+    There are other ways to handle binary files in NetRexx, Java's RandomAccessFile class being one of them.
+    As Java has more or less standardised on UTF-8 for input/output, the choice was
+    to default to UTF-8 encoding for streams.
+    The 'legacy' ISO-8859-1 (Latin-1) character set could be possibly added in the
+    future by your ENCODING syntax on STREAM OPEN, but that will not make it into
+    upcoming release.
 
 
 ================================================================================
@@ -8940,15 +9322,6 @@ Slides: https://hsivonen.fi/rustfest2018/
 Video: https://media.ccc.de/v/rustfest18-5-a_rust_crate_that_also_quacks_like_a_modern_c_library
 
 
-https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2773r0.pdf
-(pdf...)
-    Generally speaking, reducing the size of the tables has a direct impact on
-    performance, if only because increasing cache locality is the most effective
-    way to improve the performance of anything.
-    I landed on a set of strategies developed by the rust team
-    https://github.com/rust-lang/rust/tree/master/src/tools/unicode-table-generator/src
-
-
 https://www.youtube.com/watch?v=Mcuqzx3rBWc
 Strings in Rust FINALLY EXPLAINED!
 jlf: is there something to learn from 15:29 Indexing into a string? no.
@@ -9048,6 +9421,29 @@ jlf: this crate is referenced by Stefan Karpinski in the section Filenames
 https://www.reddit.com/r/rust/comments/qr0rem/how_many_string_types_does_rust_have_maybe_its/
 How many String types does Rust have? Maybe it's just 1
 jlf: to read?
+
+
+https://github.com/unicode-rs/unicode-segmentation
+Grapheme Cluster and Word boundaries according to UAX#29 rules
+---
+    use unicode_segmentation::UnicodeSegmentation;
+
+    fn main() {
+        let s = "a̐éö̲\r\n";
+        let g = s.graphemes(true).collect::<Vec<&str>>();
+        let b: &[_] = &["a̐", "é", "ö̲", "\r\n"];
+        assert_eq!(g, b);
+
+        let s = "The quick (\"brown\") fox can't jump 32.3 feet, right?";
+        let w = s.unicode_words().collect::<Vec<&str>>();
+        let b: &[_] = &["The", "quick", "brown", "fox", "can't", "jump", "32.3", "feet", "right"];
+        assert_eq!(w, b);
+
+        let s = "The quick (\"brown\")  fox";
+        let w = s.split_word_bounds().collect::<Vec<&str>>();
+        let b: &[_] = &["The", " ", "quick", " ", "(", "\"", "brown", "\"", ")", "  ", "fox"];
+        assert_eq!(w, b);
+    }
 
 
 ================================================================================
@@ -9848,6 +10244,25 @@ jlf: this is related to Unicode properties of a character.
 But what is the impacts on file I/O?
 
 
+https://forums.swift.org/t/pitch-unicode-named-character-escape-sequence/18396/16
+Pitch: Unicode Named Character Escape Sequence
+Nov 2018
+This proposal adds a new \N{name} escape sequence to Swift string literals,
+where name is the name of a Unicode character.
+---
+jlf: this guy has interesting comments.
+SDGGiesbrecht Jeremy David Giesbrecht
+Background: I speak five human languages which use three different scripts in
+two different writing directions. I spoke Unicode long before I spoke Swift.
+This pitch sounds like bad idea to me.
+...
+The hex code carries a lot more useful information:
+Which block are we dealing in, latin‐1 (008x) or punctuation (20xx)?
+Is this ASCII (00xx), BMP (xxxx), or extended (xxxxx) (ergo how many bytes in UTF‐x)?
+Is it spacing (02xx) or combining (03xx)?
+Is it a modifier (02xx) or punctuation (20xx)?
+
+
 ================================================================================
 Typst lang
 ================================================================================
@@ -9899,9 +10314,24 @@ Referenced in https://github.com/unicode-org/icu4x/issues/2689#issuecomment-1743
 Zig lang, Ziglyph
 ================================================================================
 
+https://ziglang.org/documentation/master/#Source-Encoding
+Zig source code is encoded in UTF-8. An invalid UTF-8 byte sequence results in a compile error.
+For compatibility with other tools, the compiler ignores a UTF-8-encoded byte order mark (U+FEFF)
+if it is the first Unicode code point in the source text. A byte order mark is not allowed anywhere
+else in the source.
+
+https://ziglang.org/documentation/master/#String-Literals-and-Unicode-Code-Point-Literals
+String Literals and Unicode Code Point Literals
+\xNN        hexadecimal 8-bit byte value (2 digits)
+\u{NNNNNN}  hexadecimal Unicode scalar value UTF-8 encoded (1 or more digits)
+
+01/10/2024
+https://codeberg.org/dude_the_builder/zg.git
+
 04/07/2021
 https://github.com/jecolon/ziglyph
 Unicode text processing for the Zig programming language.
+01/01/2024 deprecated, replaced by zg
 
 https://devlog.hexops.com/2021/unicode-data-file-compression/
 achieving 40-70% reduction over gzip alone
