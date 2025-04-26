@@ -57,6 +57,18 @@ rexx rexxcps
 average 24447178
 
 
+---------------
+ooRexx 5.1 beta
+---------------
+rexx rexxcps
+24500656 REXX clauses per second
+24747269 REXX clauses per second
+24680795 REXX clauses per second
+24738534 REXX clauses per second
+24716950 REXX clauses per second
+average 24676840
+
+
 -----------------
 Executor with IPO
 -----------------
@@ -184,3 +196,46 @@ routine
 0.390136
 0.389929
 average 0.3875589   +0.020 (compared with "Executor with IPO")
+
+
+---------------
+ooRexx 5.1 beta
+---------------
+rexx left.rex
+n = 10
+not interpreted
+0.399206
+0.399144
+0.397951
+0.399500
+0.404042
+0.398455
+0.403712
+0.405731
+0.401223
+0.398559
+average 0.4007523   +0.035 (compared with "Executor with IPO")
+interpreted
+0.654119
+0.651910
+0.652009
+0.651330
+0.656566
+0.654294
+0.652895
+0.656932
+0.653612
+0.653089
+average 0.6536756   +0.048 (compared with "Executor with IPO")
+routine
+0.397375
+0.398737
+0.399881
+0.405972
+0.398064
+0.397729
+0.398711
+0.398979
+0.398298
+0.398240
+average 0.3991986   +0.032 (compared with "Executor with IPO")
