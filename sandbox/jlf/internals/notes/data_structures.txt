@@ -1,5 +1,14 @@
 http://stackoverflow.com/questions/500607/what-are-the-lesser-known-but-cool-data-structures
-
+    https://en.wikipedia.org/wiki/Splay_tree
+    A splay tree is a binary search tree with the additional property that recently accessed elements are quick to access again.
 
 http://xlinux.nist.gov/dads/
+Dictionary of Algorithms and Data Structures
+
+https://github.com/google/guava
+Guava is a set of core Java libraries from Google that includes new collection types (such as multimap and multiset),
+immutable collections, a graph library, and utilities for concurrency, I/O, hashing, primitives, strings, and more!
+It is widely used on most Java projects within Google, and widely used by many other companies as well.
+
+https://xlinux.nist.gov/dads/
 Dictionary of Algorithms and Data Structures
