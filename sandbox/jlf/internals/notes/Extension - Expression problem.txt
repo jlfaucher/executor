@@ -5,8 +5,127 @@ https://en.wikipedia.org/wiki/Expression_problem
 Adding "Extension" in the title.
 
 
+https://homepages.inf.ed.ac.uk/wadler/papers/expression/expression.txt
+The Expression Problem
+Philip Wadler, 12 November 1998
+---
+jlf: "original formulation"
+The Expression Problem is a new name for an old problem.  The goal is
+to define a datatype by cases, where one can add new cases to the
+datatype and new functions over the datatype, without recompiling
+existing code, and while retaining static type safety (e.g., no
+casts).
+
+
+https://gavinhoward.com/2025/04/how-i-solved-the-expression-problem/
+How I Solved the Expression Problem
+28 Apr 2025
+According to the original formulation, there are only four prongs:
+“add new cases to [a] datatype”
+“add new functions over [a] datatype”
+“without recompiling existing code”
+“while retaining static type safety (e.g., no casts)”
+---
+jlf: hum, this author created the Yao language, but impossible to consult the
+sources. Lot of blah-blah in his blog, even if some links are interesting.
+
+
 --------------------------------------------------------------------------------
-Monkey-patching
+C++
+--------------------------------------------------------------------------------
+
+https://github.com/jll63/yomm2
+Fast, orthogonal, open multi-methods.
+Solve the Expression Problem in C++17.
+
+
+--------------------------------------------------------------------------------
+C#
+--------------------------------------------------------------------------------
+
+http://msdn.microsoft.com/en-us/library/bb383977.aspx
+Extension Methods (C# Programming Guide)
+
+
+--------------------------------------------------------------------------------
+Clojure
+--------------------------------------------------------------------------------
+
+https://clojure.org/reference/protocols
+http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
+Structured clojure: Protocols and multimethods
+http://clojure.org/multimethods
+http://stackoverflow.com/questions/4509782/simple-explanation-of-clojure-protocols
+
+http://www.ibm.com/developerworks/java/library/j-clojure-protocols/index.html
+http://www.reddit.com/r/programming/comments/fp0re/solving_the_expression_problem_with_clojure/
+
+
+--------------------------------------------------------------------------------
+Haskell
+--------------------------------------------------------------------------------
+
+https://eli.thegreenplace.net/2018/more-thoughts-on-the-expression-problem-in-haskell/
+More thoughts on the Expression Problem in Haskell
+February 05, 2018
+Tags Haskell , Multiple dispatch
+
+
+--------------------------------------------------------------------------------
+Java
+--------------------------------------------------------------------------------
+
+http://www.wiki.jvmlangsummit.com/images/7/71/2011_Goetz_Extension.pdf
+Virtual extension methods
+
+
+--------------------------------------------------------------------------------
+Javascript
+--------------------------------------------------------------------------------
+
+http://perfectionkills.com/extending-native-builtins/
+
+http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/
+
+
+--------------------------------------------------------------------------------
+Kotlin
+--------------------------------------------------------------------------------
+
+https://www.reddit.com/r/Kotlin/comments/de6o4e/kotlin_extension_functions_vs_ruby_and_java/
+kotlin extension functions vs ruby and java script monkey patching?
+It is not the same.
+First, for you to use an extension function, you need to import it.
+Second, they don't show up if you use reflection to look at the class.
+Third, since you are actually not modifying the class, you can have 2 extension
+methods with the same name and signature in the same program, and not have any
+error (let's say they are private, and are in libraries you are using).
+The way monkey patch works is like you said, by adding a new method to a class.
+The way extension functions work, is by creating a regular function, and just
+giving you a nice syntactic sugar for accessing it.
+
+
+--------------------------------------------------------------------------------
+Magpie
+--------------------------------------------------------------------------------
+
+http://journal.stuffwithstuff.com/2011/04/21/multimethods-multiple-inheritance-multiawesome/
+http://journal.stuffwithstuff.com/2010/10/01/solving-the-expression-problem/
+
+
+--------------------------------------------------------------------------------
+Python Monkey-patching
+--------------------------------------------------------------------------------
+
+https://www.pythonforthelab.com/blog/monkey-patching-and-its-consequences/
+Python
+
+https://machinelearningmastery.com/monkey-patching-python-code/
+Python
+
+
+--------------------------------------------------------------------------------
+Ruby Monkey-patching
 --------------------------------------------------------------------------------
 
 https://blog.appsignal.com/2021/08/24/responsible-monkeypatching-in-ruby.html
@@ -32,12 +151,6 @@ This is actually a pretty common practice in Ruby.
 Basically, what it's saying is: when some object performs include MyModule, make
 it also extend MyModule::ClassMethods. Such a feat is useful if you want a mixin
 that adds some methods not just to the instances of a class, but to the class itself.
-
-https://www.pythonforthelab.com/blog/monkey-patching-and-its-consequences/
-Python
-
-https://machinelearningmastery.com/monkey-patching-python-code/
-Python
 
 http://blog.headius.com/2012/11/refining-ruby.html
 Ruby
@@ -82,6 +195,23 @@ jlf: very minimal
 
 
 --------------------------------------------------------------------------------
+Rust
+--------------------------------------------------------------------------------
+
+http://xion.io/post/code/rust-extension-traits.html
+
+
+--------------------------------------------------------------------------------
+Shen
+--------------------------------------------------------------------------------
+
+https://groups.google.com/forum/?hl=en&fromgroups#!topic/qilang/uGNHTS9LII4
+The expression problem
+
+
+--------------------------------------------------------------------------------
+Swift
+--------------------------------------------------------------------------------
 
 https://docs.swift.org/swift-book/documentation/the-swift-programming-language/extensions/
 Extensions add new functionality to an existing class, structure, enumeration, or protocol type.
@@ -104,63 +234,23 @@ Swift extensions are not monkey patching.
 
 
 --------------------------------------------------------------------------------
-
-
-https://www.reddit.com/r/Kotlin/comments/de6o4e/kotlin_extension_functions_vs_ruby_and_java/
-kotlin extension functions vs ruby and java script monkey patching?
-It is not the same.
-First, for you to use an extension function, you need to import it.
-Second, they don't show up if you use reflection to look at the class.
-Third, since you are actually not modifying the class, you can have 2 extension
-methods with the same name and signature in the same program, and not have any
-error (let's say they are private, and are in libraries you are using).
-The way monkey patch works is like you said, by adding a new method to a class.
-The way extension functions work, is by creating a regular function, and just
-giving you a nice syntactic sugar for accessing it.
-
-
+Unsorted
 --------------------------------------------------------------------------------
 
-
-http://adambard.com/blog/structured-clojure-protocols-and-multimethods/
-Structured clojure: Protocols and multimethods
-http://clojure.org/multimethods
-http://stackoverflow.com/questions/4509782/simple-explanation-of-clojure-protocols
-
-http://perfectionkills.com/extending-native-builtins/
-
-http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Laemmel-Advanced-Functional-Programming-The-Expression-Problem/
-http://channel9.msdn.com/shows/Going+Deep/C9-Lectures-Dr-Ralf-Lmmel-Advanced-Functional-Programming-Type-Classes/
-
-http://msdn.microsoft.com/en-us/library/bb383977.aspx
-Extension Methods (C# Programming Guide)
 
 http://lambda-the-ultimate.org/node/4136
 
-http://journal.stuffwithstuff.com/2011/04/21/multimethods-multiple-inheritance-multiawesome/
-http://journal.stuffwithstuff.com/2010/10/01/solving-the-expression-problem/
 
-http://www.ibm.com/developerworks/java/library/j-clojure-protocols/index.html
-http://www.reddit.com/r/programming/comments/fp0re/solving_the_expression_problem_with_clojure/
-http://www.javarants.com/2011/01/22/using-closures-method-handles-and-extension-methods-in-java-8-jsr-335/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+javarants+%28java+rants%29&utm_content=Google+Reader
-
-http://cr.openjdk.java.net/~briangoetz/lambda/lambda-state-4.html
-http://cr.openjdk.java.net/~briangoetz/lambda/Defender%20Methods%20v4.pdf
-
-http://www.wiki.jvmlangsummit.com/images/7/71/2011_Goetz_Extension.pdf
-Virtual extension methods
-
-http://javascriptweblog.wordpress.com/2011/12/05/extending-javascript-natives/
-
-https://groups.google.com/forum/?hl=en&fromgroups#!topic/qilang/uGNHTS9LII4
-The expression problem
-
-https://github.com/jll63/yomm2
-Fast, orthogonal, open multi-methods.
-Solve the Expression Problem in C++17.
+https://eli.thegreenplace.net/2016/the-expression-problem-and-its-solutions/
+The Expression Problem and its solutions
+May 12, 2016
+Tags C & C++ , Clojure , Multiple dispatch , Haskell
 
 
 --------------------------------------------------------------------------------
+ooRexx
+--------------------------------------------------------------------------------
+
 Some discussions in February 2011 about a better way to support extensions.
 At today 2024.02.01, nothing has been started to explore these ideas.
 
