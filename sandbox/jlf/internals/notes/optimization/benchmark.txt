@@ -69,6 +69,18 @@ rexx rexxcps
 average 24676840
 
 
+------------
+regina 3.9.7
+------------
+rexx rexxcps
+23268639 REXX clauses per second
+23246371 REXX clauses per second
+23225387 REXX clauses per second
+23230261 REXX clauses per second
+23230027 REXX clauses per second
+average 23240137
+
+
 -----------------
 Executor with IPO
 -----------------
@@ -97,7 +109,7 @@ interpreted
 0.604486
 0.605314
 0.606055
-average 0.605699
+average 0.605699    WHY 65% slower??? should be equivalent to "not interpreted". ooRexx 4.2 and 5.1 have the same problem.
 routine
 0.364870
 0.372025
@@ -239,3 +251,36 @@ routine
 0.398298
 0.398240
 average 0.3991986   +0.032 (compared with "Executor with IPO")
+
+
+------------
+regina 3.9.7
+------------
+rexx left.rex
+n = 10
+not interpreted
+0.509628
+0.512369
+0.510351
+0.509995
+0.510558
+0.510135
+0.513680
+0.510970
+0.511724
+0.510382
+average 0.5109792
+interpreted
+0.512786
+0.510175
+0.520869
+0.514462
+0.515635
+0.527295
+0.520410
+0.511604
+0.512675
+0.512839
+average 0.515875
+
+Note: unlike ooRexx, interpreted is as fast as not interpreted.

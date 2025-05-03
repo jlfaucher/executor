@@ -22,6 +22,7 @@ do i = 1 to n+1
 end
 say "average" d / n
 
+/*
 say "routine"
 r = .routine~new("r", 't=time("r");do 10000000; x = left("noël",3); end; t = time("e"); return t')
 d = 0
@@ -32,3 +33,4 @@ do i = 1 to n+1
     d = d + t
 end
 say "average" d / n
+*/
