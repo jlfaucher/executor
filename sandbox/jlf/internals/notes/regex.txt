@@ -40,3 +40,37 @@ the intersection of the two FSMs as a third FSM, and converting the third FSM ba
 
 https://qntm.org/re
 Learn regular expressions in about 55 minutes
+
+
+Russ Cox's articles on regular expression theory and praxis:
+- https://swtch.com/~rsc/regexp/regexp1.html
+  Regular Expression Matching Can Be Simple And Fast
+- https://swtch.com/~rsc/regexp/regexp2.html
+  Regular Expression Matching: the Virtual Machine Approach
+- https://swtch.com/~rsc/regexp/regexp3.html
+  Regular Expression Matching in the Wild
+
+
+https://github.com/kkos/oniguruma
+regular expression library
+This repository was archived by the owner on Apr 24, 2025.
+---
+Character encoding can be specified per regular expression object.
+
+
+https://github.com/google/re2
+RE2 is a fast, safe, thread-friendly alternative to backtracking regular
+expression engines like those used in PCRE, Perl, and Python.
+RE2 is developed by Google, and it's widely used in various Google products.
+It is a C++ library.
+Ruby bindings to RE2: https://github.com/mudge/re2
+
+
+https://github.com/k-takata/Onigmo
+Onigmo is a regular expressions library forked from Oniguruma.
+
+
+https://serpapi.com/blog/faster-regular-expression-engines-in-ruby/
+Fast(er) regular expression engines in Ruby
+Performance-oriented comparison of alternative regexp engines that may
+(or may not) speed up your Ruby code.
