@@ -66,6 +66,11 @@ switched over to a new method of managing stacks, called stack copying.
 
 ================================================================================
 
+https://tenthousandmeters.com/blog/python-behind-the-scenes-12-how-asyncawait-works-in-python/
+
+
+================================================================================
+
 Python is 32 years old language, yet it still doesn't have proper, true parallelism/concurrency.
 This is going to change soon, thanks to introduction of a "Per-Interpreter GIL"
 (Global Interpreter Lock) which will land in Python 3.12.
