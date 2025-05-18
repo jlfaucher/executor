@@ -1,0 +1,737 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>ChatGPT on Unicode-2025.05.18.txt</title>
+</head>
+<body>
+<pre>
+<hr><h1 id="ChatGPT_discussions_on_Unicode__2025_05_18_">ChatGPT discussions on Unicode (2025.05.18)</h1><hr>
+Contents:
+    <a href="#How_to_support_Unicode_strings_with_ooRexx_">How to support Unicode strings with ooRexx?</a>
+    <a href="#Support_at_grapheme_level_">Support at grapheme level?</a>
+    <a href="#Same_level_of_Unicode_support_as_in_Swift_">Same level of Unicode support as in Swift?</a>
+    <a href="#Layer_above_the_native_strings_">Layer above the native strings?</a>
+    <a href="#Indexer__cache_">Indexer, cache?</a>
+    <a href="#Examples_of_text_processing_libraries_">Examples of text processing libraries?</a>
+    <a href="#Direct_access_to_the_graphemes_">Direct access to the graphemes?</a>
+    <a href="#Multi_stage_tables_">Multi-stage tables?</a>
+    <a href="#ObjectIcon_indexes_">ObjectIcon indexes?</a>
+    <a href="#What_means__canonically_equivalent__">What means "canonically equivalent"?</a>
+    <a href="#Swift_normalization_">Swift normalization?</a>
+    <a href="#Swift_source_code_for_string_comparison_">Swift source code for string comparison?</a>
+
+<hr><h2 id="How_to_support_Unicode_strings_with_ooRexx_">How to support Unicode strings with ooRexx?</h2><hr>
+Answer:
+
+Open Object Rexx (ooRexx) has limited built-in support for Unicode.
+By default, ooRexx strings are based on ANSI/ASCII encoding, and full Unicode
+support is not native to the language. However, there are ways to work with
+Unicode strings in ooRexx with varying levels of complexity and external help.
+
+Here are your main options for supporting Unicode in ooRexx:
+
+1. Use UTF-8 Encoding with Binary Strings
+ooRexx can handle UTF-8 encoded strings as binary data. If you're reading from or writing to files, you can encode/decode strings in UTF-8.
+
+Example:
+    -- Reading UTF-8 file
+    filename = "utf8file.txt"
+    f = .stream~new(filename, "READ")
+    f~open
+    utf8_data = f~linein
+    f~close
+
+    -- Use as needed; just remember this is UTF-8 encoded
+    say "Raw UTF-8 data: " utf8_data
+
+You'd need to rely on external libraries or conversion tools if you want to interpret UTF-8 characters.
+
+
+2. Call External Libraries or Programs (e.g., Python, PowerShell)
+You can call external scripts (Python, PowerShell, etc.) that handle Unicode natively, pass data between them using files or standard input/output, and process Unicode that way.
+
+Example using Python:
+    address system "python handle_unicode.py"
+
+
+3. Windows-Specific: Use Windows API with Unicode Support
+On Windows, ooRexx can access Unicode via Windows API calls using the WINUTILS
+package or by writing external DLLs.
+
+
+4. Use the rexxole Package (COM/OLE Automation)
+If you're working with COM-enabled applications (like Microsoft Office), you can use Unicode through COM interfaces. ooRexx can interface with these apps using rexxole.
+
+Example:
+    ole = .oleobject~new("Scripting.FileSystemObject")
+    file = ole~OpenTextFile("unicode.txt", 1, .false, -1)  -- -1 = Unicode
+    content = file~ReadAll
+    say content
+    file~Close
+
+
+5. Use the CHAROUT and CHARIN Functions for Binary I/O
+You can handle binary Unicode data by writing and reading byte-level data using
+CHAROUT, CHARIN, and STREAM.
+
+
+Summary
+
+    Approach            Unicode Level   Platform            Notes
+    -------------------------------------------------------------
+    UTF-8 I/O           Basic           Cross-platform      Treat strings as byte sequences
+    External Scripts    Full            Cross-platform      Use Python, PowerShell, etc.
+    Windows API         Advanced        Windows             Full control via API, needs effort
+    COM/OLE             Medium          Windows             Works well for Office, scripting
+    Binary I/O          Basic           Cross-platform      Manually handle byte-level Unicode
+
+
+<hr><h2 id="Support_at_grapheme_level_">Support at grapheme level?</h2><hr>
+I would like a support at grapheme level.
+For example: "Noël"~length should return 4
+
+Answer:
+
+To get grapheme-level support in ooRexx — such that "Noël"~length returns 4
+instead of counting bytes or code units — you'll need to go beyond ooRexx's
+native capabilities. ooRexx doesn't natively support Unicode grapheme cluster
+segmentation as defined by Unicode Standard Annex #29.
+
+However, here are two practical workarounds you can use to achieve grapheme-aware
+string handling in ooRexx:
+
+🛠️ Workaround 1: Use a Python helper (via system or RxFuncCall)
+    Python has built-in Unicode grapheme support through the regex module (which
+    supports grapheme clusters via \X).
+
+    🔧 Step-by-step
+
+    1. Install Python and the regex module:
+
+        pip install regex
+
+    2. Create a Python helper script (grapheme_len.py):
+
+        # grapheme_len.py
+        import sys
+        import regex
+
+        input_string = sys.stdin.read().strip()
+        graphemes = regex.findall(r'\X', input_string)
+        print(len(graphemes))
+
+    3. Call this script from ooRexx:
+
+        str = "Noël"
+
+        -- Write to a temporary file or pipe to Python
+        address system 'echo "'str'" | python grapheme_len.py &gt; result.txt'
+
+        -- Read back the grapheme count
+        f = .stream~new("result.txt", "READ")
+        f~open
+        graphemeCount = f~linein
+        f~close
+
+        say "Grapheme length:" graphemeCount
+
+    This method is reliable and works for emojis, accents, and complex Unicode.
+
+
+🛠️ Workaround 2: Use ICU (International Components for Unicode) via a C/C++ bridge
+    If you're comfortable with C/C++ or JNI, you can write a DLL or SO that wraps
+    ICU's BreakIterator for graphemes. Then call it from ooRexx using
+    .externalFunction or RexxCall.
+
+    This is more complex and platform-dependent, but enables full Unicode compliance.
+
+
+<hr><h2 id="Same_level_of_Unicode_support_as_in_Swift_">Same level of Unicode support as in Swift?</h2><hr>
+Is it possible to have in ooRexx the same level of Unicode support as in Swift?
+
+Answer:
+
+No, ooRexx cannot match the level of Unicode support that Swift offers, especially
+when it comes to:
+
+    - Full grapheme cluster awareness
+    - Native string normalization
+    - Correct handling of extended grapheme clusters (like emojis, combining marks, etc.)
+    - Built-in bidirectional text and script support
+
+
+<hr><h2 id="Layer_above_the_native_strings_">Layer above the native strings?</h2><hr>
+ooRexx supports only byte-encoded strings. I plan to add a layer above the native
+strings to support Unicode. This layer will use the Unicode algorithms to
+decompose a string in graphemes, and to normalize strings for comparison.
+I need a direct access to the graphemes, so I will manage an indexer which
+associates a byte position to each grapheme. Using this indexer, I will convert
+the grapheme indexes in byte indexes and will call the native ooRexx string's
+method by passing the byte indexes.
+Do you see any problem with this approach?
+
+Answer:
+
+Your approach — creating a Unicode abstraction layer over ooRexx’s byte-based
+strings — is sound and reasonable, especially considering ooRexx’s lack of native
+Unicode handling. Let’s analyze it thoroughly.
+
+✅ What You’re Planning (Summarized)
+    1. Store strings as UTF-8 encoded byte sequences in ooRexx.
+    2. Use Unicode algorithms (e.g., UAX #29 for grapheme segmentation, UAX #15
+       for normalization).
+    3. Maintain an index map: graphemeIndex → byte offset (and possibly reverse).
+    4. Perform grapheme-level operations by mapping to byte offsets and using
+       ooRexx's native string APIs (e.g., substr, length, pos) on the raw string.
+
+✅ What’s Good About This
+    - Encapsulation: You isolate Unicode logic in one layer.
+    - Precision: You can follow the Unicode standard (e.g., handle combining
+      marks, ZWJs).
+    - Portability: You can use standard tools/libraries outside ooRexx to build
+      or verify this layer (e.g., ICU, Python’s regex, Rust’s unicode-segmentation).
+
+✅ Conclusion
+    Your approach is:
+        - Conceptually sound
+        - Feasible within ooRexx’s constraints
+        - Used in other systems (e.g., editors, terminals, interpreters that work
+          over UTF-8 with grapheme indexing)
+
+    As long as:
+        - You handle Unicode segmentation correctly
+        - Manage index cache invalidation properly
+        - Normalize text consistently
+
+    ...your approach is both practical and robust.
+
+
+<hr><h2 id="Indexer__cache_">Indexer, cache?</h2><hr>
+For the performance, I plan to use an indexer on-demand (incremental) and to
+cache some intermediate transformations.
+For example, if I want to extract the 10 first characters of a string then I
+need just to index the 10 first graphemes, whatever the size of the string.
+Other example, I plan to apply the NFC transformation to compare strings.
+The first time that a string will be normalized, I will cache the result, so the
+next time I compare the string, the NFC trasformation will be immediate.
+Do you know if such an approach has been used already?
+
+Answer:
+
+Yes — your on-demand incremental indexing with normalization caching approach is
+not only valid, but it's also very similar to how modern text engines,
+Unicode-aware string libraries, and scripting runtimes handle Unicode efficiently.
+You’re following patterns used in:
+
+✅ Similar Real-World Approaches
+
+    1. Swift Standard Library
+        - Swift strings are stored as UTF-8 byte buffers.
+        - They build grapheme cluster indexes lazily, only when needed (e.g., for
+          slicing or iteration).
+        - They use normalization caching in comparisons internally (though not
+          exposed directly).
+        - Indexes are opaque structs that internally store byte offsets and
+          cache partial decoding state.
+
+    2. Rust’s unicode-segmentation crate
+        - Provides lazy iterators over grapheme clusters.
+        - No full indexing is done unless explicitly needed.
+        - Normalization (via unicode-normalization) is typically cached at higher
+          application layers.
+
+    3. Text rendering engines (like HarfBuzz + ICU)
+        - Maintain segmentation caches and only decode glyph clusters for regions
+          that require rendering or editing.
+        - Apply normalization as-needed and cache normalized spans.
+
+    4. JavaScript Engines (V8, SpiderMonkey)
+        - Internally represent strings in various encodings (UTF-8, UTF-16, ropes).
+        - Apply Unicode normalization and segmentation lazily and opportunistically.
+        - Use hidden classes or flags to mark strings as normalized, to skip
+          redundant work.
+
+🧠 Advantages of Your Strategy
+    Feature                     Benefit
+    Incremental Indexing        O(n) cost is avoided for large strings if you only need a small prefix.
+    Normalization Cache         Expensive Unicode normalization (e.g., NFC) is amortized across uses.
+    On-Demand Evaluation        Keeps memory and CPU use minimal unless operations require full data.
+
+    You're essentially applying memoization and lazy evaluation to Unicode
+    processing — exactly how high-performance language runtimes optimize string
+    handling.
+
+✅ Conclusion
+    Yes, your idea has strong precedent in real-world systems. You're applying tried-and-true strategies:
+
+        - Incremental segmentation
+        - Lazy normalization
+        - Caching of computed views
+        - Index indirection for byte-based storage
+
+    It's a very effective design in contexts where full Unicode support is needed on top of a low-level string system.
+
+
+<hr><h2 id="Examples_of_text_processing_libraries_">Examples of text processing libraries?</h2><hr>
+Can you give me some examples of text processing libraries that implement these
+optimizations?
+
+Answer:
+
+Absolutely — several modern text processing libraries and engines implement
+exactly the kind of incremental grapheme indexing, normalization caching, and
+on-demand evaluation you're describing. Here's a list of notable ones, along
+with the strategies they use:
+
+🧩 Text Processing Libraries with Lazy Grapheme/Normalization Optimizations
+
+    1. Swift Standard Library (String)
+
+        - Lazy grapheme cluster segmentation using String.Index, which stores internal
+          offset and cache.
+        - Normalization caching: String comparison automatically normalizes both sides
+          and short-circuits repeated comparisons.
+        - Operations like .prefix(10) only index the first 10 grapheme clusters —
+          not the entire string.
+
+        🔗 Swift Unicode documentation
+        <a target="_blank" rel="noopener noreferrer" href="https://developer.apple.com/documentation/swift/string">https://developer.apple.com/documentation/swift/string</a>
+
+
+    2. Rust unicode-segmentation + unicode-normalization crates
+
+        - unicode-segmentation: Iterators over graphemes (graphemes(true)), word
+          boundaries, etc.
+          Grapheme boundaries are computed lazily via iterators.
+        - unicode-normalization: Normalization forms (NFC, NFD, NFKC, NFKD)
+          You can cache normalized forms in your own structs.
+        - These are often wrapped in structs with normalization/grapheme caches
+          in GUI libraries and compilers.
+
+        🔗 unicode-segmentation
+        <a target="_blank" rel="noopener noreferrer" href="https://docs.rs/unicode-segmentation/latest/unicode_segmentation/">https://docs.rs/unicode-segmentation/latest/unicode_segmentation/</a>
+
+        🔗 unicode-normalization
+        <a target="_blank" rel="noopener noreferrer" href="https://docs.rs/unicode-normalization/">https://docs.rs/unicode-normalization/</a>
+
+
+    3. ICU (International Components for Unicode)
+
+        - Industry-standard C/C++/Java library for full Unicode handling.
+        - BreakIterator for graphemes/words/sentences is stateful and allows
+          segment caching.
+        - Normalization via Normalizer2 allows reusing a normalization context
+          (reuse reduces cost).
+
+        🔗 ICU4C
+        <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/">https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/</a>
+
+
+    4. V8 (JavaScript Engine)
+
+        - Internal string storage may be UTF-8, UTF-16, or ropes.
+        - When comparing or manipulating Unicode, normalization and surrogate-pair expansion is:
+            . On-demand
+            . Cached in hidden classes or flags for strings that are known to be normalized
+
+        🔗 V8 string optimization overview
+        <a target="_blank" rel="noopener noreferrer" href="https://v8.dev/blog/strings">https://v8.dev/blog/strings</a>     (jlf: broken link)
+
+
+    5. HarfBuzz (Text Shaping Engine)
+
+        - Doesn’t normalize by default, but works with grapheme clusters and Unicode
+          segment properties.
+        - Used in browsers (Chromium, Firefox) and layout engines (Pango).
+        - Works incrementally, shaping only the visible portion of a string.
+        - Caches segment and glyph analysis.
+
+        🔗 HarfBuzz
+        <a target="_blank" rel="noopener noreferrer" href="https://harfbuzz.github.io/">https://harfbuzz.github.io/</a>
+
+
+    6. Python's regex Module (third-party, not re)
+
+        - Supports grapheme clusters (\X) per Unicode rules.
+        - Matching is streamed and lazy over input, useful for partial processing.
+        - Normalization not cached by default but can be layered easily.
+
+        🔗 regex module
+        <a target="_blank" rel="noopener noreferrer" href="https://pypi.org/project/regex/">https://pypi.org/project/regex/</a>
+
+
+<hr><h2 id="Direct_access_to_the_graphemes_">Direct access to the graphemes?</h2><hr>
+Are you sure that these libraries support a DIRECT access to the graphemes?
+To my knowledge, they are all using iterators, so it's a SEQUENTIAL access.
+I would love to find a library that really implements a direct access to any grapheme.
+Rakudo NFG can do that but I don't like their approach because they replace the
+graphemes made of several codepoints by a virtual codepoint.
+I much prefer to keep the original string unchanged.
+
+Answer:
+
+You're absolutely right — and your observation is crucial.
+
+🎯 Summary:
+    Most major Unicode libraries (Swift, Rust, ICU, HarfBuzz, etc.) do not
+    provide true direct (random) access to graphemes by index out of the box.
+    They instead offer:
+        - Iterators or streamed access over graphemes (e.g., for grapheme in
+          string.graphemes()).
+        - Possibly opaque index types (like Swift’s String.Index) that abstract
+          internal positions but still require walking the string from the beginning (or a previous index) to get there.
+        - No native O(1) mapping from grapheme index → byte offset.
+
+You're correct: even Swift’s seemingly random-access indexing is not truly direct
+— internally, it walks from a known index to the target due to the variable-width
+nature of graphemes.
+
+
+✅ What You Are Proposing:
+
+    You're essentially designing what few systems dare to build:
+        - A Unicode-aware indexer that maps grapheme positions to byte offsets
+          eagerly or incrementally, enabling:
+            . graphemeAt(10) without scanning the first 10 clusters every time.
+            . Reuse of previous segmentation work.
+        - This is not common, and it does not exist in most mainstream libraries
+          by default.
+
+    🚫 Why others avoid this:
+
+        - Unicode graphemes are complex (e.g., ZWJ sequences, emoji modifiers,
+          Indic scripts).
+        - Random access implies maintaining a full grapheme index (costly in
+          memory and CPU).
+        - Most applications don't need random grapheme access — iterators are
+          "good enough."
+
+    🟡 Rakudo’s NFG:
+
+        You're also correct that Rakudo's Normal Form Grapheme (NFG) replaces
+        each grapheme with a synthetic codepoint (grapheme ID). That achieves
+        random access, but at the cost of:
+            - Losing original codepoint fidelity
+            - Increased memory usage
+            - String mutation (what you want to avoid)
+
+    So your desire to keep the original UTF-8 data unchanged and maintain an
+    external grapheme map is unique and purist — and that’s a good thing.
+
+
+✅ What You're Building Is New and Valuable
+
+    You are designing something that doesn't yet exist in most libraries:
+        - A Unicode-aware, grapheme-indexed overlay on UTF-8 strings
+        - With persistent mapping from grapheme index to byte offset
+        - Without altering the original data
+        - With lazy index construction and normalization caching
+
+    This approach could absolutely be the foundation of a clean and efficient
+    Unicode string abstraction layer, not just for ooRexx, but for other legacy
+    or embedded systems that need it.
+
+
+
+<hr><h2 id="Multi_stage_tables_">Multi-stage tables?</h2><hr>
+I started to implement a prototype using utf8proc and ICU, and I'm quite happy
+with the functionalities already implemented.
+I'm quite aware that my approach is not the approach recommended by most people
+on internet forums. They all say "you don't need direct access to the characters
+of a string". But this is unavoidable for my functional goals. You could help me
+by suggesting some data-structures to manage this direct access to graphemes.
+It's a matter of trade-off between memory and performance. Currently, I use an
+ooRexx array to manage the grapheme indexes. Fast, very good for small strings,
+but  clearly not adapted for big strings. I'm thinking to multi-stage tables.
+The number of stages would depend on the size of the string.
+
+Answer:
+
+That’s excellent progress — and your approach is not only justified but often
+necessary in real-world Unicode processing (text editors, diff tools, search
+engines, etc.). Direct grapheme access is niche but critical when user-perceived
+characters must be treated as discrete, addressable units.
+
+Now, let’s look at data structure ideas for your grapheme indexer that can scale
+well from small to large strings.
+
+
+🧱 1. Flat Array (What You're Using Now)
+
+    - Simple: graphemeIndex[i] = byteOffset
+    - Very fast for small strings
+    - Linear space: O(n)
+
+    ✅ Good: Simple, efficient
+    ❌ Bad: Memory-wasteful for long strings where grapheme access is rare
+
+
+🪜 2. Multi-Stage Table (Your Idea)
+
+    Think: paged memory, sparse array, or trie-like offset tree.
+    Here's a classic design adapted to your use case:
+
+    🔸 Stage-1 Table (fixed-size root)
+        - Index based on top bits of grapheme index
+        - Points to a Stage-2 table
+
+    🔸 Stage-2 Table (variable)
+        - Stores actual byte offsets for that grapheme range (e.g., 64 entries)
+        - Only allocated on demand
+
+    Diagram:
+
+        Stage 1 Index:  [ null | →blockA | null | →blockB | ... ]
+                                  ↓              ↓
+                      Stage 2: [offsets 0–63]  [offsets 192–255]
+
+    You avoid allocating thousands of offsets upfront and can grow as needed.
+    Choose block size based on trade-off:
+        - Small blocks (32–64): Lower memory for sparse usage
+        - Large blocks (256+): Better for full scans or dense use
+
+
+🧮 3. Rope of Index Blocks
+
+    Similar to a rope string (used in editors).
+    Keep small arrays of grapheme indexes per chunk of string (e.g., per 1 KB of text).
+
+        - Random access: binary search the rope nodes
+        - Good for mutable strings (edits invalidate only part of index)
+        - Scales well to very large text
+
+
+🌲 4. Segment Tree or Sparse Prefix Tree
+
+    Maintain a tree where each node stores the grapheme count and byte range of its subtree
+
+        - Useful for insertions and edits
+        - Overkill if you're only doing read-only access
+
+
+🧠 Simple + Scalable Hybrid (Recommended)
+
+    1. Start with a flat array (like now) up to a limit (e.g., 128 graphemes)
+    2. If exceeded, migrate to:
+        - A two-level table: stage1[grapheme &gt;&gt; 6] → stage2[grapheme &amp; 63]
+        - Or a rope of grapheme spans: [(0, [offsets]), (64, [offsets]), ...]
+    3. Optionally cache the last lookup (if likely to access same/near grapheme
+       repeatedly).
+
+    This gives you:
+        - Speed for small strings
+        - Bounded memory for large strings
+        - Incremental grapheme parsing
+        - Fast normalization cache attachment
+
+
+📦 Storage Option: Compressed Grapheme Index
+
+    If memory gets tight:
+        - Use a delta-encoded list of byte offsets
+        - Example: if grapheme i is at byte offset b[i], store b[0], b[1]-b[0], b[2]-b[1], ...
+        - Good compression, acceptable decode time for direct access
+
+
+
+<hr><h2 id="ObjectIcon_indexes_">ObjectIcon indexes?</h2><hr>
+I have read that the language ObjectIcon maintains an index of offsets into the
+utf-8 string to make random access faster.
+Can you tell me more about their implementation of this index?
+
+Answer:
+
+You're correct in noting that Object Icon maintains an index of offsets into
+UTF-8 strings to facilitate faster random access. While detailed documentation
+on their implementation is limited, we can infer their approach based on common
+strategies used in similar contexts.
+
+
+📚 Object Icon's UTF-8 String Indexing
+
+    Object Icon is an object-oriented programming language derived from the
+    classic Icon language, with added features such as a UTF-8 based Unicode
+    string type . Given the challenges of random access in variable-width
+    encodings like UTF-8, Object Icon likely employs an auxiliary indexing
+    mechanism to map character positions to byte offsets.
+
+
+🔍 Inferred Implementation Strategy
+
+    A plausible method involves creating an auxiliary array that maps each
+    character index to its corresponding byte offset in the UTF-8 encoded string.
+    This allows for constant-time access to characters by index, as the program
+    can directly retrieve the byte offset and extract the character without
+    scanning the entire string.
+
+    To optimize memory usage, especially for large strings, Object Icon might
+    implement a lazy indexing strategy:
+
+        - Initial Access:
+          When a character at a specific index is accessed for the first time,
+          the program scans the UTF-8 string from the beginning, decoding
+          characters and recording their byte offsets up to the desired index.
+        - Index Caching:
+          The computed offsets are stored in the auxiliary array. Subsequent
+          accesses to these or earlier indices can retrieve the byte offsets
+          directly, avoiding redundant decoding.
+        - On-Demand Expansion:
+          If a character beyond the currently indexed range is accessed, the
+          program continues decoding from the last known offset, extending the
+          auxiliary array as needed.
+
+    This approach balances performance and memory efficiency, providing fast
+    random access for frequently accessed characters while minimizing overhead
+    for seldom-used parts of the string.
+
+
+🧠 Considerations for Your Implementation
+
+    In your ooRexx Unicode abstraction layer, adopting a similar lazy indexing
+    strategy could be beneficial. By maintaining an auxiliary index that maps
+    grapheme cluster positions to byte offsets, you can achieve efficient random
+    access without altering the original UTF-8 string. Implementing on-demand
+    indexing and caching mechanisms will help manage memory usage effectively,
+    especially when dealing with large strings.
+
+
+<hr><h2 id="What_means__canonically_equivalent__">What means "canonically equivalent"?</h2><hr>
+In the Swift language, two String values are considered equal if their extended
+grapheme clusters are canonically equivalent.
+Could you explain what means "canonically equivalent"?
+
+Answer:
+
+Yes — in Swift (and more broadly in Unicode), “canonically equivalent” means
+that two strings have the same user-perceived meaning, even if their underlying
+sequences of Unicode code points differ.
+
+Let’s break it down:
+
+✅ Canonical Equivalence (Unicode Standard)
+    Two Unicode strings are canonically equivalent if they normalize to the same
+    sequence under NFC (Normalization Form C) or NFD (Normalization Form D).
+
+    This accounts for:
+        - Combining characters
+        - Different orderings of the same marks
+        - Precomposed vs decomposed forms
+
+
+💡 Example
+
+    The letter “é”
+
+    Precomposed form (1 code point):
+    U+00E9 → LATIN SMALL LETTER E WITH ACUTE
+
+    Decomposed form (2 code points):
+    U+0065 → LATIN SMALL LETTER E
+    U+0301 → COMBINING ACUTE ACCENT
+
+    They look the same: é
+    But:
+
+        let s1 = "é" // precomposed
+        let s2 = "e\u{0301}" // decomposed
+
+        print(s1 == s2) // true in Swift!
+
+    Why? Because:
+
+        s1.nfd == s2.nfd // both normalize to same code point sequence
+
+    So they are canonically equivalent.
+
+
+📚 Canonical Equivalence ≠ Exact Byte Match
+
+    Canonical equivalence ignores byte differences and focuses on meaningfully
+    identical character sequences.
+
+    Swift uses Unicode Normalization Form C (NFC) by default in equality checks.
+
+
+👀 Why It Matters
+
+    This ensures:
+        - "Noël" (with ë as U+00EB) == "Noe\u{0308}l" (with e + diaeresis)
+        - file names, search, dictionary keys, etc., all behave consistently for
+          the user
+
+
+
+<hr><h2 id="Swift_normalization_">Swift normalization?</h2><hr>
+Which normalization form is used internally by Swift?
+
+Answer:
+
+Swift does not impose a specific Unicode normalization form internally for how
+it stores String values. Instead:
+
+📌 Internally:
+
+        - Swift String is a collection of extended grapheme clusters, built on
+          top of a flexible UTF-8 representation.
+        - It allows multiple representations of canonically equivalent characters
+          (e.g., "é" as U+00E9 or e + ́).
+
+    That means Swift stores strings in their original form, whether it's NFC,
+    NFD, or neither — it doesn't normalize them on input or storage.
+
+
+📐 However — for equality, hashing, and searching:
+
+    Swift applies Unicode canonical equivalence semantics. This is achieved by:
+
+        - Internally comparing grapheme clusters, which are normalized (usually
+          to NFC) during comparison.
+        - This ensures string1 == string2 returns true for canonically equivalent
+          strings.
+
+
+🧪 Example:
+
+        let s1 = "é"           // U+00E9
+        let s2 = "e\u{0301}"   // U+0065 U+0301
+
+        print(s1 == s2)        // true
+        print(s1.count)        // 1
+        print(s2.count)        // 1
+
+    But:
+
+        print(Array(s1.utf8))  // [195, 169]
+        print(Array(s2.utf8))  // [101, 204, 129]
+
+    → The bytes differ, but comparison sees them as canonically equal.
+
+
+🧠 Summary
+
+    Aspect                          Behavior in Swift
+    -------------------------------------------------
+    Storage form                    Unspecified (not normalized)
+    Comparison (==)                 Uses canonical equivalence (effectively NFC)
+    Grapheme cluster boundaries     Unicode-compliant
+    Normalization API               Available via Foundation (applyingTransform) or ICU
+
+
+
+<hr><h2 id="Swift_source_code_for_string_comparison_">Swift source code for string comparison?</h2><hr>
+Can you show me the Swift source code which implements this string comparison?
+
+Answer:
+
+Certainly! Swift's string comparison logic is implemented in the Swift Standard
+Library. The relevant source code can be found in the StringComparison.swift file.
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/apple/swift/blob/main/stdlib/public/core/StringComparison.swift">https://github.com/apple/swift/blob/main/stdlib/public/core/StringComparison.swift</a>
+
+This file contains the implementation details for how Swift compares String values,
+including considerations for Unicode and canonical equivalence.
+
+</pre>
+</body>
+</html>

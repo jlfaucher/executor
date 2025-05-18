@@ -1,4 +1,4 @@
-Accumulation of URLs about Unicode
+Accumulation of URLs on Unicode
 
 
 ================================================================================
@@ -1286,6 +1286,17 @@ that locale being used for the indicated category.
 CLDR Common Locale Data Repository
 ================================================================================
 
+Unicode CLDR Project
+https://cldr.unicode.org/
+The Unicode Common Locale Data Repository (CLDR) provides key building blocks
+for software to support the world’s languages with the largest and most
+extensive standard repository of locale data available.
+
+
+Information Hub for Linguists
+https://cldr.unicode.org/translation
+
+
 19/06/2021
 https://github.com/twitter/twitter-cldr-rb
 Ruby implementation of the ICU (International Components for Unicode) that uses
@@ -1299,6 +1310,8 @@ the Common Locale Data Repository to format dates, plurals, and more. Based on t
 
 https://unicode-org.atlassian.net/jira/software/c/projects/CLDR/issues/?filter=allissues
 CLDR tickets
+
+
 
 
 ================================================================================
@@ -5721,6 +5734,13 @@ JTC1/SC22/WG21 - Papers 2024
     std::basic_fixed_string
 
 
+https://github.com/antonmilev/CText
+Advanced text processing library in C++ and Python
+---
+jlf: not sure it's worth reviewing that. Nothing about grapheme.
+Last update 3 years ago. Only 48 commits.
+
+
 ================================================================================
 cRexx lang
 ================================================================================
@@ -5953,6 +5973,16 @@ jlf: good overview
 
 https://blog.r-project.org/2022/11/07/issues-while-switching-r-to-utf-8-and-ucrt-on-windows/
 Issues While Switching R to UTF-8 and UCRT on Windows
+
+
+================================================================================
+Executor lang
+================================================================================
+
+Some discussions on Unicode with AI (each time the same questions).
+ChatGPT January 1, 2023: https://jlfaucher.github.io/executor.master/unicode/ChatGPT%20on%20Unicode-2023.01.26.html
+ChatGPT May 18, 2025: https://jlfaucher.github.io/executor.master/unicode/ChatGPT%20on%20Unicode-2025.05.18.html
+Copilot May 18, 2025: https://jlfaucher.github.io/executor.master/unicode/Copilot%20on%20Unicode-2025.05.18.html
 
 
 ================================================================================
@@ -6875,6 +6905,11 @@ https://github.com/flmnt/graphemer  archived on Jul 13, 2024.
 
     // Hindi text with combining marks, 8 JavaScript chars
     splitter.splitGraphemes('अनुच्छेद'); // returns ["अ","नु","च्","छे","द"]
+
+
+https://messageformat.github.io/
+https://github.com/messageformat/messageformat/tree/main
+ICU MessageFormat for Javascript - i18n Plural and Gender Capable Messages
 
 
 ================================================================================
@@ -8722,13 +8757,12 @@ jlf: this article explains why the Ruby team consider that Unicode is not a
      good solution for CJK.
 
 
-https://ruby-doc.org/current/Encoding.html
-
-
 https://github.com/ruby/ruby/blob/master/encoding.c
 jlf: search "compat"
 
 
+https://ruby-doc.org/current/Encoding.html
+https://ruby-doc.org/current/encodings_rdoc.html
 https://docs.ruby-lang.org/en/master/encodings_rdoc.html
 Encodings
 ---
@@ -9786,6 +9820,7 @@ swift/stdlib/public/core/StringObject.swift
 jlf: the link above is a frozen link
 To have an up-to-date view, go to
 https://github.com/apple/swift/tree/main/stdlib/public/core
+https://github.com/apple/swift/blob/main/stdlib/public/core/StringComparison.swift
 Many code to review!
     String.swift
     StringBreadcrumbs.swift
@@ -9794,6 +9829,9 @@ Many code to review!
     StringComparable.swift
     StringComparison.swift
     StringCreate.swift
+        ChatGPT: This file contains the implementation details for how Swift
+        compares String values, including considerations for Unicode and
+        canonical equivalence.
     StringGraphemeBreaking.swift
         jlf: Apparently, there are some difficulties when going backwards .
           // When walking backwards, it's impossible to know whether we were in an emoji
@@ -10261,6 +10299,17 @@ Which block are we dealing in, latin‐1 (008x) or punctuation (20xx)?
 Is this ASCII (00xx), BMP (xxxx), or extended (xxxxx) (ergo how many bytes in UTF‐x)?
 Is it spacing (02xx) or combining (03xx)?
 Is it a modifier (02xx) or punctuation (20xx)?
+
+
+https://forums.swift.org/t/the-array-sorted-results-of-the-macos-and-ubuntu-were-inconsistent/12955
+The Array.sorted() results of the macOS and Ubuntu were inconsistent
+3 May 2018
+---
+This is the old behavior. Prior to Swift 4.1, Linux used UCA with DUCET ordering
+and comparisons. To improve performance on both Darwin and Linux (especially
+older Ubuntu's), we implemented a new comparison implementation for Swift 4.2.
+This new implementation is the same across Linux and Darwin, so both platforms
+get the same answer.
 
 
 ================================================================================
