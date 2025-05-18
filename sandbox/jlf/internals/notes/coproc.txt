@@ -1,0 +1,36 @@
+https://www.gnu.org/software/bash/manual/html_node/Coprocesses.html
+bash Coprocesses
+---
+coproc NAME { command; }
+coproc NAME compound-command
+coproc compound-command
+coproc simple-command
+
+
+https://copyconstruct.medium.com/bash-coprocess-2092a93ad912
+Bash coprocess
+---
+read -r output <&"${print[0]}"
+read -ru ${print[0]} output
+
+
+https://www.ibm.com/docs/en/aix/7.3.0?topic=shell-coprocess-facility
+Coprocess facility
+---
+Korn shell
+./FileB.sh |&
+
+
+https://www.geeksforgeeks.org/coproc-command-in-linux-with-examples/
+coproc Command in Linux with Examples
+
+
+https://unix.stackexchange.com/questions/86270/how-do-you-use-the-command-coproc-in-various-shells
+How do you use the command coproc in various shells?
+---
+co-processes are a ksh feature (already in ksh88).
+zsh has had the feature from the start (early 90s),
+while it has just only been added to bash in 4.0 (2009).
+    jlf: 2009!!!
+    I still have
+    GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
