@@ -42,14 +42,16 @@
 message(STATUS "CMake version is ${CMAKE_VERSION}")
 # check_ipo_supported added in 3.9
 if (APPLE)
-    # apple builds with prior cmake version have an @rpath problem
-    cmake_minimum_required (VERSION 3.12)
+    # macOS builds with cmake prior version 3.12 have an alleged @rpath issue
+    cmake_minimum_required (VERSION 3.12...99.99)
+elseif (WIN32)
+    # Windows
+    # CMP0091 introduced in 3.15 must stay OLD for our /MD -> /MT hack to work
+    cmake_minimum_required (VERSION 2.8.12...3.14)
 else ()
     # for other platforms
-    cmake_minimum_required (VERSION 3.9)
+    cmake_minimum_required (VERSION 2.8.12...99.99)
 endif ()
-# CMP0091 introduced in 3.15 must stay OLD for our /MD -> /MT hack to work
-cmake_policy(VERSION 2.8...3.3)
 
 # Policy CMP0069 is not set: INTERPROCEDURAL_OPTIMIZATION is enforced when enabled.
 # The ``OLD`` behavior for this policy is to add IPO flags only for Intel compiler on Linux.
@@ -68,8 +70,7 @@ cmake_policy(SET CMP0075 NEW)
 # "MacBook Pro 2021 runs macOS 13.5.2, which is lower than rexx’s minimum deployment target of 14.0. "
 # From where is coming this 14.0?
 # The change below is has no effect :-(
-#if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
-if( APPLE )
+if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
   set( CMAKE_OSX_DEPLOYMENT_TARGET 10.13.6 CACHE STRING  "" FORCE)
 endif()
 
@@ -423,7 +424,6 @@ if (NOT WIN32) # Unix header files, libraries, and functions
   message(STATUS "CURSES_HAVE_NCURSES_NCURSES_H is ${CURSES_HAVE_NCURSES_NCURSES_H}")
 
   message(STATUS "-- determine available libraries --")
-  # this requires -ldl on the link
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_DL_LIBS})
   check_library_exists(rt nanosleep "" HAVE_LIBRT)
   if (HAVE_LIBRT)
@@ -529,8 +529,6 @@ set (PACKAGE_TARNAME "oorexx.tar")
 set (PACKAGE_URL "https://www.oorexx.org/")
 set (PACKAGE_VERSION ${ORX_VER_STR})
 set (VERSION ${ORX_VER_STR})
-set (STDC_HEADERS 1)
-
 
 # Configure files config.h
 configure_file(config.h.in.cmake ${PROJECT_BINARY_DIR}/config.h)
@@ -651,7 +649,6 @@ macro(create_install_symlink target)
              TARGET ${target}
              POST_BUILD
              COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ln -sf ${targetName} ${linkName}
-             DEPENDS ${target}
              # COMMENT "--> ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}: [ln -sf ${targetName} ${linkName} DEPENDS ${target}]"
          )
 
@@ -816,7 +813,7 @@ set (classes_sources ${build_classes_dir}/ArrayClass.cpp
             ${build_classes_dir}/StringClassWord.cpp
 #            ${build_classes_dir}/StringTableClass.cpp                                              # official only
             ${build_classes_dir}/SupplierClass.cpp
-            ${build_classes_dir}/TextClass.cpp
+            ${build_classes_dir}/TextClass.cpp                                                      # executor
             ${build_classes_dir}/TableClass.cpp
             ${build_classes_dir}/IdentityTableClass.cpp
             ${build_classes_dir}/WeakReferenceClass.cpp
@@ -1078,8 +1075,7 @@ create_install_symlink(rexx)
 
 #################### orexx (executable) ##########################
 if (WIN32)
-   set (platform_rexx_exe_sources
-            ${build_platform_dir}/rexx.rc)
+   set (platform_rexx_exe_sources ${build_platform_dir}/rexx.rc)
 else ()
    set (platform_rexx_exe_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 endif ()
@@ -1115,7 +1111,6 @@ target_link_libraries(rexx_exe rexx rexxapi ${platform_rexx_exe_libs} ${CMAKE_RE
 # Merge in extra manifest information on Windows
 if (WIN32)
 add_custom_command(TARGET rexx_exe POST_BUILD
-   DEPENDS ${EXE_MANIFEST_FILE}
    COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexx.exe;#1" "-outputresource:bin\\rexx.exe;#1"
    COMMENT "Adding custom manifest to rexx.exe...")
 endif ()
@@ -1130,8 +1125,7 @@ set (core_classes ${build_rexx_classes_dir}/CoreClasses.orx
             ${build_rexx_classes_dir}/StreamClasses.orx)
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rexximage_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rexximage_sources ${build_platform_dir}/verinfo.rc)
 endif ()
 # Sources for rexximg
 add_executable(rexximage ${build_utilities_rexximage_dir}/rexximage.cpp
@@ -1349,8 +1343,7 @@ endif ()
 #################### rexxc (executable) #########################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rexxc_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rexxc_sources ${build_platform_dir}/verinfo.rc)
 else ()
    set (platform_rexxc_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 endif ()
@@ -1370,8 +1363,7 @@ install(TARGETS rexxc RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DI
 #################### rxqueue (executable) #########################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rxqueue_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rxqueue_sources ${build_platform_dir}/verinfo.rc)
 else ()
    set (platform_rxqueue_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 endif ()
@@ -1392,8 +1384,7 @@ install(TARGETS rxqueue RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_
 #################### rxsubcom (executable) #########################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_subcom_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_subcom_sources ${build_platform_dir}/verinfo.rc)
 else ()
    set (platform_subcom_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 endif ()
@@ -1438,8 +1429,7 @@ set_target_properties(rexxutil PROPERTIES VERSION ${ORX_VERSION})
 #################### librxmath.so ################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rxmath_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rxmath_sources ${build_platform_dir}/verinfo.rc)
 endif ()
 # Sources for librxmath.so
 add_library(rxmath SHARED ${build_extensions_rxmath_dir}/rxmath.cpp
@@ -1460,8 +1450,7 @@ create_install_symlink(rxmath)
 #################### librxsock.so ################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rxsock_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rxsock_sources ${build_platform_dir}/verinfo.rc)
 endif ()
 
 # Sources for librxsock.so
@@ -1479,8 +1468,7 @@ create_install_symlink(rxsock)
 #################### librxregexp.so ################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_rxregexp_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_rxregexp_sources ${build_platform_dir}/verinfo.rc)
 endif ()
 
 # Sources for librxregexp.so
@@ -1504,8 +1492,7 @@ create_install_symlink(rxregexp)
 #################### libhostemu.so ################
 # additional source files required by specific platforms
 if (WIN32)
-   set (platform_hostemu_sources
-            ${build_platform_dir}/verinfo.rc)
+   set (platform_hostemu_sources ${build_platform_dir}/verinfo.rc)
 else ()
    set (platform_hostemu_libs ${ORX_SYSLIB_DL} ${ORX_SYSLIB_PTHREAD})
 endif ()
@@ -1738,7 +1725,6 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
                 ${build_extensions_oodialog_dir})
    target_link_libraries(oodialog_exe rexx rexxapi shlwapi)
    add_custom_command(TARGET oodialog_exe POST_BUILD
-      DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.exe;#1" "-outputresource:bin\\ooDialog.exe;#1"
       COMMENT "Adding custom manifest to ooDialog.exe...")
    install(TARGETS oodialog_exe RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1778,7 +1764,7 @@ if (FALSE)                 # jlf : not existing in oodialog wchar
                 ${build_extensions_oodialog_dir})
    target_link_libraries(oodialog_com rexx rexxapi shell32 Advapi32)
    add_custom_command(TARGET oodialog_com POST_BUILD
-      DEPENDS ${EXE_MANIFEST_FILE}
+      # DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\ooDialog.com;#1" "-outputresource:bin\\ooDialog.com;#1"
       COMMENT "Adding custom manifest to ooDialog.com...")
    install(TARGETS oodialog_com RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1843,7 +1829,7 @@ if (WIN32)
                ${build_messages_dir})
    target_link_libraries(rexxhide rexx rexxapi)
    add_custom_command(TARGET rexxhide POST_BUILD
-      DEPENDS ${EXE_MANIFEST_FILE}
+      # DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexxhide.exe;#1" "-outputresource:bin\\rexxhide.exe;#1"
       COMMENT "Adding custom manifest to rexxhide.exe...")
    install(TARGETS rexxhide RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -1863,7 +1849,7 @@ if (WIN32)
                ${build_messages_dir})
    target_link_libraries(rexxpaws rexx rexxapi)
    add_custom_command(TARGET rexxpaws POST_BUILD
-      DEPENDS ${EXE_MANIFEST_FILE}
+      # DEPENDS ${EXE_MANIFEST_FILE}
       COMMAND "mt.exe" -nologo -manifest \"${EXE_MANIFEST_FILE}\" "-inputresource:bin\\rexxpaws.exe;#1" "-outputresource:bin\\rexxpaws.exe;#1"
       COMMENT "Adding custom manifest to rexxpaws.exe...")
    install(TARGETS rexxpaws RUNTIME COMPONENT Core DESTINATION ${INSTALL_EXECUTABLE_DIR})
@@ -2390,9 +2376,9 @@ if (BUILD_RPM)
    find_program(XDG-MIME_EXECUTABLE xdg-mime)
    find_program(XDG-DESKTOP-MENU_EXECUTABLE xdg-desktop-menu)
    INSTALL(CODE "
-     #execute_process(COMMAND ${XDG-MIME_EXECUTABLE} install --novendor ${ORX_DESKTOP_DIR}/rexxtry.xml)
-     execute_process(COMMAND ${XDG-DESKTOP-MENU_EXECUTABLE} install --novendor ${ORX_DESKTOP_DIR}/rexxtry.desktop)
-     execute_process(COMMAND ${XDG-MIME_EXECUTABLE} default ${ORX_DESKTOP_DIR}/rexxtry.desktop application/x-ooRexx-item)
+     #execute_process(COMMAND ${XDG-MIME_EXECUTABLE} install --novendor ${CMAKE_INSTALL_PREFIX}/${ORX_DESKTOP_DIR}/rexxtry.xml)
+     execute_process(COMMAND ${XDG-DESKTOP-MENU_EXECUTABLE} install --novendor ${CMAKE_INSTALL_PREFIX}/${ORX_DESKTOP_DIR}/rexxtry.desktop)
+     execute_process(COMMAND ${XDG-MIME_EXECUTABLE} default ${CMAKE_INSTALL_PREFIX}/${ORX_DESKTOP_DIR}/rexxtry.desktop application/x-ooRexx-item)
      ")
    # This prevents the rpm from generating these subdirectories in the install.
    set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
@@ -2561,10 +2547,8 @@ set (run_rexx_create_script ${CMAKE_CURRENT_SOURCE_DIR}/support/portable/createP
 
 if (WIN32)
    set (rexx_exe_cpu ${NSIS_CPU})
-   set (rexx_exe_opsys win)
    set (rexx_exe_shell_ft cmd)
 else  () # Unix
-   exec_program("uname" ARGS "-s" OUTPUT_VARIABLE rexx_exe_opsys) # execute_process() did not work out
    set (rexx_exe_shell_ft sh)
 
    if( APPLE AND BUILD_OSX_UNIVERSAL_BINARIES )
@@ -2573,15 +2557,13 @@ else  () # Unix
       set(rexx_exe_cpu ${CMAKE_SYSTEM_PROCESSOR})
    endif ()
 endif ()
-string(TOLOWER ${rexx_exe_opsys} rexx_exe_opsys) # make sure operating system is lowercase
 string(TOLOWER "${CMAKE_BUILD_TYPE}" rexx_build_type)
 
 if (DEFINED CPACK_PACKAGE_FILE_NAME)
-   # 2023-01-05: use the installation package name, if defined
+   # use the installation package name, if defined
    set (zip_name "${CPACK_PACKAGE_FILE_NAME}-portable-${rexx_build_type}")
 else ()
-   # 2023-01-05: field sequence should follow as close as possible the installation package name
-   # set (zip_name "${CPACK_PACKAGE_NAME}-${ORX_VER_STR}-${ORX_BLD_LVL}.${rexx_exe_opsys}.${ORX_ARCHITECTURE}-${rexx_exe_cpu}-portable-${rexx_build_type}")
+   # field sequence should follow as closely as possible the installation package name
    set (zip_name "${CPACK_PACKAGE_NAME}-${ORX_VER_STR}-${ORX_BLD_LVL}.${OS_DIST}.${rexx_exe_cpu}-portable-${rexx_build_type}")
 endif ()
 
@@ -2590,32 +2572,19 @@ add_custom_target(portable
   # Rexx program that does a DESTDIR local install and creates the zip directory structure
   COMMAND ${run_rexx_exe}  ${run_rexx_create_script} -portable_dirname ${zip_dir_name} -zip_name ${zip_name}
 
-  # change into temporary directory and create runtime archive
-  COMMAND ${CMAKE_COMMAND} -E chdir "${zip_dir_name}"
-          ${CMAKE_COMMAND} -E tar "cfv" "${zip_name}-runtime.zip" --format=zip
-                                 "${zip_name}/bin"
-                                 "${zip_name}/lib"
-                                 "${zip_name}/include"
-                                 "${zip_name}/setupoorexx.${rexx_exe_shell_ft}"
-                                 "${zip_name}/setupoorexx.rex"
-                                 "${zip_name}/testoorexx.rex"
-                                 "${zip_name}/readme.txt"
-
   # change into temporary directory and create full archive
   COMMAND ${CMAKE_COMMAND} -E chdir "${zip_dir_name}"
           ${CMAKE_COMMAND} -E tar "cfv" "${zip_name}.zip" --format=zip
                                  "${zip_name}"
 
   # copy archives
-  COMMAND ${CMAKE_COMMAND} -E copy "${zip_dir_name}/${zip_name}-runtime.zip" "${CMAKE_CURRENT_BINARY_DIR}"
   COMMAND ${CMAKE_COMMAND} -E copy "${zip_dir_name}/${zip_name}.zip" "${CMAKE_CURRENT_BINARY_DIR}"
 
   # delete archives
-  COMMAND ${CMAKE_COMMAND} -E remove "${zip_dir_name}/${zip_name}-runtime.zip"
-                                     "${zip_dir_name}/${zip_name}.zip"
+  COMMAND ${CMAKE_COMMAND} -E remove "${zip_dir_name}/${zip_name}.zip"
 
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMENT "Creating portable Rexx Home ENVironment zip archives ...")
+  COMMENT "Creating portable Rexx Home ENVironment zip archive ...")
 # <-- portable Rexx Home ENVironment archive <--
 
 # Create a source package

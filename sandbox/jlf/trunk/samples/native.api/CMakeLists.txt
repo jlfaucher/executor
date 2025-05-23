@@ -38,14 +38,7 @@
 #/*----------------------------------------------------------------------------*/
 #/* Global settings                                                            */
 #/*----------------------------------------------------------------------------*/
-if (APPLE)
-# apple build with lower cmake version have an @rpath problem
-    cmake_minimum_required (VERSION 3.12)
-else()
-#for other platforms
-    cmake_minimum_required (VERSION 2.8.12)
-endif()
-cmake_policy(VERSION 2.8...3.5)
+cmake_minimum_required (VERSION 2.8.12...99.99)
 
 #/*----------------------------------------------------------------------------*/
 #/* Project settings                                                           */
