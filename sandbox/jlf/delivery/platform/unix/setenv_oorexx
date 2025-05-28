@@ -7,7 +7,7 @@ echo Setting environment for running $version
 prepend_path()
 {
   if eval test -z "\"\$$1\"" || ! eval test -z "\"\${$1##*:$2:*}\"" -o -z "\"\${$1%%*:$2}\"" -o -z "\"\${$1##$2:*}\"" -o -z "\"\${$1##$2}\"" ; then
-    eval "$1=$2:\$$1"
+    eval "$1=\"$2\":\$$1"
   fi
 }
 
