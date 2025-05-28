@@ -1015,6 +1015,7 @@ Helpers
         call loadPackage "ncurses.cls"
     end
     call loadPackage "csvStream.cls"
+    call loadPackage "dateparser.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true -- ooRexx5 only
     if loadLibrary("hostemu") then .ooRexxShell~interpreters~setEntry("hostemu", "HostEmu")
     call loadPackage "json.cls"
     call loadPackage "mime.cls"
