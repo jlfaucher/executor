@@ -70,8 +70,14 @@ say a~shape~ppRepresentation -- [4]
 --------------------------------------------------------------------------------
 -- more tests
 
+-- [oorexx:bugs] #2025 a[1] = 1,2,3 fails (fixed)
+a = .array~new
+a[1] = 1,2,3
+say a~ppRepresentation -- [[1,2,3]]
+say a~shape~ppRepresentation -- [1]
+
 a = 1 + 10,20
-say a~ppRepresentation -- 11,20]
+say a~ppRepresentation -- [11,20]
 say a~shape~ppRepresentation -- [2]
 
 a = 1 + (10,20)

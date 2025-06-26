@@ -4309,7 +4309,7 @@ RexxInstruction *RexxSource::instruction()
             {
                 this->saveObject(term);      /* protect this                      */
                 // we need an expression following the op token
-                subexpression = this->subExpression(TERM_EOC);
+                subexpression = this->expression(TERM_EOC);
                 if (subexpression == OREF_NULL)
                 {
                     syntaxError(Error_Invalid_expression_general, second);
@@ -4324,7 +4324,7 @@ RexxInstruction *RexxSource::instruction()
             {
                 this->saveObject(term);      /* protect this                      */
                 // we need an expression following the op token
-                subexpression = this->subExpression(TERM_EOC);
+                subexpression = this->expression(TERM_EOC);
                 if (subexpression == OREF_NULL)
                 {
                     syntaxError(Error_Invalid_expression_general, second);
