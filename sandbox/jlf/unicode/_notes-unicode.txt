@@ -3315,6 +3315,83 @@ Markus Scherer
     Note that sort keys are not stable across Unicode/CLDR/ICU versions.
 
 
+https://groups.google.com/a/unicode.org/g/icu-support/c/n09HXzVZCWk/m/_vHYjTCTBAAJ
+Uppercasing with U+0345 in non-Greek locales
+Thu, Jun 12, 2025
+    ---
+    Jeff Davis question
+    SpecialCasing.txt, under "Unconditional Mappings", says:
+
+    # IMPORTANT-when iota-subscript (0345) is uppercased or titlecased,
+    #  the result will be incorrect unless the iota-subscript is moved to the end
+    #  of any sequence of combining marks. Otherwise, the accents will go on the capital iota.
+    #  This process can be achieved by first transforming the text to NFC before casing.
+    #  E.g. <alpha><iota_subscript><acute> is uppercased to <ALPHA><acute><IOTA>
+
+    But it appears that ICU only follows that rule when uppercasing in a Greek locale. Is that right?
+
+    I am seeing, with u_strToUpper(03B1 0301 0345):
+       el-GR: 0391 0399
+       en-US: 0391 0301 0399
+
+    and with u_strToUpper(03B1 0345 0301):
+       el-GR: 0391 0399
+       en-US: 0391 0399 0301
+
+    There seems to be some specific tailoring for the Greek result as well,
+    which makes it harder to see exactly what's going on. Regardless, the rule
+    about moving 0345 to the end doesn't seem to be applied at all for non-Greek
+    locales.
+
+    While the rule to move 0345 to the end is specific to Greek, it doesn't
+    interfere with other language rules, so it seems reasonable to apply it in
+    any locale. Is there a reason it's only applied in a Greek locale?
+    ---
+    Markus Scherer answer
+    | it appears that ICU only follows that rule when uppercasing in a Greek
+    | locale. Is that right?
+    Yes. Normally, the uppercase functions do what the spec says:
+    https://www.unicode.org/versions/Unicode16.0.0/core-spec/chapter-3/#G34078
+    R1 toUppercase(X): Map each character C in X to Uppercase_Mapping(C).
+
+    So in order to get Greek right when there is an implicit or explicit iota
+    subscript (ypogegrammeni) followed by another combining mark, you need to
+    normalize first.
+    I don't actually think that NFC will do the trick, and might make it worse,
+    because it pulls the iota subscript into a composite letter despite a
+    following lower-ccc combining mark.
+    NFD would work, or (with ICU), FCD.
+    https://www.unicode.org/notes/tn5/#FCD
+
+    | There seems to be some specific tailoring for the Greek result as well
+    Yes. Greek uppercasing is very special; it drops most of the combining marks:
+    https://unicode-org.atlassian.net/browse/ICU-5456
+    ---
+    Mark Davis
+    And I believe one has to distinguish Greek titlecasing accent behavior;
+    that it is different from uppercasing the first grapheme cluster.
+    ---
+    Markus Scherer answer
+            | | So in order to get Greek right when there is an implicit or
+            | | explicit iota subscript (ypogegrammeni) followed by another
+            | | combining mark, you need to normalize first.
+        | You mean it's essentially a warning that you should normalize before
+        | uppercasing? And they put it in "Unconditional mappings" because
+        | that's always an OK thing to do?
+    It's related to the unconditional mappings. They are unconditional -- in
+    terms of this file -- because they are not language-specific and not
+    context-sensitive.
+    I read it as a recommendation, not a warning.
+    This is basically one character in Unicode -- plus a few dozen which have it
+    in their Decomposition_Mapping -- for which one would want to do some
+    normalization-related processing before the regular uppercase mapping.
+
+        | Hmm. I thought that NFC(NFD(X)) = NFC(X). Is that not the case?
+    It is, but NFC was designed to favor compact representation over ease of
+    processing, so NFC text does not always fit the FCD test for canonical order.
+    (jlf: remember!)
+
+
 ================================================================================
 ICU design
 ================================================================================
@@ -4429,7 +4506,7 @@ The library has methods to parse Tweets and calculate length, validity, parse @m
 
 
 ================================================================================
-terminal / console / cmd
+terminal title / console title / cmd title
 ================================================================================
 
 https://www.reddit.com/r/bash/comments/wfbf3w/determine_if_the_termconsole_supports_utf8/
@@ -4466,34 +4543,10 @@ https://stackoverflow.com/questions/10651975/unicode-utf-8-with-git-bash
 git-bash (Windows)
 
 
-https://stackoverflow.com/questions/57131654/using-utf-8-encoding-chcp-65001-in-command-prompt-windows-powershell-window
-Using UTF-8 Encoding (CHCP 65001) in Command Prompt / Windows Powershell (Windows 10)
-Describes how to set the system locale (language for non-Unicode programs) to UTF-8.
-Optional reading: Why the Windows PowerShell ISE is a poor choice
----
-jlf: this is a clear description of the UTF-8 input bug.
-For ReadFile from the console, even in Windows 10, you'll be limited to 7-bit ASCII if the
-input codepage is set to UTF-8, due to buggy assumptions in the console host, conhost.exe.
-In Windows 10, it returns non-ASCII characters as null ("\0") in the buffer.
-In older versions, the read succeeds with 0 bytes read, which looks like EOF.
-Eryk Sun Jul 21, 2019 at 13:31
-
-
-https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
-Displaying Unicode in Powershell
-
-
 https://akr.am/blog/posts/using-utf-8-in-the-windows-terminal
 Using UTF-8 in the Windows Terminal
 https://github.com/microsoft/terminal
 https://github.com/Microsoft/Cascadia-Code
-
-
-https://github.com/PowerShell/PowerShell/issues/7233
-Make console windows fully UTF-8 by default on Windows, in line with the behavior on Unix-like platforms
-mklement0 opened this issue on Jul 5, 2018
----
-jlf still opened on 2023.08.08
 
 
 https://github.com/contour-terminal/terminal-unicode-core
@@ -4501,6 +4554,130 @@ Unicode Core specification for Terminal (grapheme clusters, character widths, ..
 jlf: only a poor tex file... dead? no commit since 2 years.
 https://news.ycombinator.com/item?id=37804829
 ZERO comment in HN
+
+
+https://archives.miloush.net/michkap/archive/2010/10/07/10072032.html
+by Michael S. Kaplan, published on 2010/10/07
+Myths about console
+Myth #1: You can not detect within a console application whether a console handle has been redirected to a file.
+Myth #2: You cannot detect whether a console handle that has been redirected to a file is appending to an existing file or is creating a new file of its own.
+Myth #3: You should never add a BOM (byte order mark) to console application output.
+Myth #4: When appending console output to an existing file you don't/can't know what the encoding is.
+Myth #5: The console does not support Unicode.
+Myth #6: The console is able to support Unicode, but sometimes it doesn't work and for some characters it doesn't work -- and you can't ever tell what's what.
+Myth #7: The Microsoft Visual C Run-time library (mvcrt*) doesn't support Unicode output to a Unicode console.
+Myth #8: The Microsoft Visual C Run-time library (mvcrt*) completely supports Unicode text processing in a Unicode console.
+Myth #9: You should really use resource fallback to handle the scenario of a console that cannot fully support the text.
+Myth #10: Okay, I am convinced. You can support Unicode in pretty much all of the console.
+Myth #11: All of the defaults in CMD.EXE like whether you are using a TrueType font are out of your control.
+Myth #12: You can't change the setting of whether a console window is using a TrueType font.
+Myth #13: There are thirteen incorrect myths about support of Unicode text within the console that this blog will talk about.
+
+
+https://bugs.openjdk.org/browse/JDK-8124977
+created 2015-06-17
+updated 2024-04-12
+---
+jlf: ok, it's openjdk, but talking about cmd.
+---
+how the command arguments are passed to an app. Powershell appears to pass them
+differently than cmd.exe. With cmd.exe after calling chcp 65001, I see that the
+args are kept in wchar_t as ucs2. With powershell [Console].OutputEncoding as
+437, 1252 and utf8 they appeared to be in char as utf8 encoding.
+NOTE: Chcp is a commandline tool to call SetConsoleOutputCP(). As far as I can
+see a process should not call SetConsoleOutputCP
+jlf: chcp also change the input code page (GetConsoleCP).
+---
+how the command arguments are retrieved by an app
+    int main(int argc, char**argv)
+    vs
+    int wmain(int argc, wchar_t**argv)
+    vs
+    char* GetCommandLineA()
+    vs
+    wchar_t* GetCommandLineW()
+The JDK uses GetCommandLineA and should use GetCommandLineW to support Unicode args.
+This change should be controlled by the java commandline to ensure compatibility.
+
+
+https://learn.microsoft.com/en-gb/windows/win32/api/processenv/nf-processenv-getcommandlinea
+LPSTR GetCommandLineA();
+The command line returned by GetCommandLineA is a conversion of the Unicode
+command line to the 8-bit process code page.
+For most code pages this conversion is lossy and the converted command line can
+differ from the Unicode command line, creating possible security issues like the
+following:
+- The conversion may alter strings intended for use as file names. For example,
+  if the ANSI code page is Windows-1252, the Unicode character U+0100 (Latin
+  capital letter A with macron: Ā) converts to 0x41 (the Latin capital letter A).
+  If a user passes a file name containing the character Ā, a program that uses
+  GetCommandLineA will receive it with the character A and operate on the wrong
+  file.
+- The conversion may alter how the command line is parsed. For example, if the
+  ANSI code page is Windows-1252, the Unicode character U+FF02 (Fullwidth
+  quotation mark: ＂) converts to 0x22 (the ASCII quotation mark) and the
+  Unicode character U+2010 (Hyphen: ‐) converts to 0x2D (the ASCII minus sign).
+  Both of these can result in command line file arguments being misinterpreted
+  as command line options.
+To avoid this problem, use the GetCommandLineW function to receive the Unicode
+command line, or use an application manifest (on Windows Version 1903 or later)
+to set UTF-8 as the process code page.
+
+
+https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getoemcp
+GetOEMCP function (winnls.h)
+    Header: winnls.h (include Windows.h)
+    UINT GetOEMCP();
+Returns the current original equipment manufacturer (OEM) code page identifier
+for the operating system.
+
+
+https://learn.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getacp
+GetACP function (winnls.h)
+    Header: winnls.h (include Windows.h)
+    UINT GetACP();
+Retrieves the current Windows ANSI code page identifier for the operating system.
+
+
+https://learn.microsoft.com/en-us/windows/console/
+Windows Console documentation
+
+
+https://learn.microsoft.com/en-us/windows/console/setconsoleoutputcp
+SetConsoleOutputCP function
+    Header: ConsoleApi2.h (via WinCon.h, include Windows.h)
+    BOOL WINAPI SetConsoleOutputCP(_In_ UINT wCodePageID);
+Sets the output code page used by the console associated with the calling process.
+A console uses its output code page to translate the character values written by
+the various output functions into the images displayed in the console window.
+
+
+https://learn.microsoft.com/en-us/windows/console/getconsoleoutputcp
+GetConsoleOutputCP function
+    Header: ConsoleApi2.h (via WinCon.h, include Windows.h)
+    UINT WINAPI GetConsoleOutputCP(void);
+Retrieves the output code page used by the console associated with the calling
+process. A console uses its output code page to translate the character values
+written by the various output functions into the images displayed in the console
+window.
+
+
+https://learn.microsoft.com/en-us/windows/console/setconsolecp
+SetConsoleCP function
+    Header: ConsoleApi2.h (via WinCon.h, include Windows.h)
+    BOOL WINAPI SetConsoleCP(_In_ UINT wCodePageID);
+Sets the input code page used by the console associated with the calling process.
+A console uses its input code page to translate keyboard input into the
+corresponding character value.
+
+
+https://learn.microsoft.com/en-us/windows/console/getconsolecp
+GetConsoleCP function
+    Header: ConsoleApi2.h (via WinCon.h, include Windows.h)
+    UINT WINAPI GetConsoleCP(void);
+Retrieves the input code page used by the console associated with the calling
+process. A console uses its input code page to translate keyboard input into
+the corresponding character value.
 
 
 ================================================================================
@@ -4923,6 +5100,43 @@ Unicode (UTF-16) characters.
 Unicode input.
 
 
+https://en.wikipedia.org/wiki/Windows_code_page
+Windows code page
+---
+Jlf: this is a must-read.
+---
+There are two groups of system code pages in Windows systems:
+OEM and Windows-native ("ANSI") code pages.
+---
+ANSI code pages (officially called "Windows code pages" after Microsoft accepted
+the former term being a misnomer) are used for native non-Unicode applications
+using a graphical user interface on Windows systems. The term "ANSI" is a
+misnomer because these Windows code pages do not comply with any ANSI standard.
+Most legacy "ANSI" code pages have code page numbers in the pattern 125x.
+However, 874 (Thai) and the East Asian multi-byte "ANSI" code pages (932, 936,
+949, 950), all of which are also used as OEM code pages, are numbered to match
+IBM encodings, none of which are identical to the Windows encodings.
+---
+The OEM code pages (original equipment manufacturer) are used by Win32 console
+applications, and by virtual DOS, and can be considered a holdover from DOS and
+the original IBM PC architecture. A separate suite of code pages was implemented
+not only due to compatibility, but also because the fonts of VGA (and
+descendant) hardware suggest encoding of line-drawing characters to be
+compatible with code page 437.
+
+
+https://stackoverflow.com/questions/53691278/how-to-see-which-ansi-code-page-is-used-in-windows
+How to see which ANSI code page is used in Windows?
+Check system-wide ANSI codepage:
+    REG QUERY "HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage" -v ACP|find /I "ACP"
+        ACP    REG_SZ    1252
+Check system-wide ANSI, OEM and MAC codepages:
+    REG QUERY "HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage" | findstr /I "CP.*REG_SZ"
+        ACP    REG_SZ    1252
+        OEMCP    REG_SZ    437
+        MACCP    REG_SZ    10000
+
+
 https://medium.com/@rdavidson1911/how-to-enable-or-use-and-display-unicode-in-a-windows-environment-124d9a8b36c4
 How to Enable or Use and Display Unicode in a Windows Environment
 jlf: the title is misleading, the article is about entering a Unicode character
@@ -5141,6 +5355,100 @@ Self answer:
 - Control Panel > Clock and Region > Region > Administrative tab > Change system locale button > enable Beta:Use Unicode UTF-8 for worldwide language support.
 - The same GUI window can also be launched from
   Settings > Time & Language > Language & region > Administrative language settings > Administrative tab > Change system locale button > enable Beta:Use Unicode UTF-8 for worldwide language support.
+
+
+https://stackoverflow.com/questions/56419639/what-does-beta-use-unicode-utf-8-for-worldwide-language-support-actually-do
+What does "Beta: Use Unicode UTF-8 for worldwide language support" actually do?
+---
+2019-06-02
+It seems to set the REG_SZ values ACP, MACCP, and OEMCP in HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage to 65001.
+I see references to an undocumented function named SetCPGlobal that would've done the job.
+    https://patents.google.com/patent/US20040172601A1/en
+    (Language-based character set conversions per-application program)
+---
+2021-07-14
+Enable via reg file:
+    Windows Registry Editor Version 5.00
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage]
+    "ACP"="65001"
+    "OEMCP"="65001"
+    "MACCP"="65001"
+---
+if GetACP() == 65001
+
+
+https://superuser.com/questions/716696/how-to-set-different-ansi-codepages-for-different-legacy-windows-applications
+How to set different ANSI codepages for different legacy Windows applications?
+2014-02-14
+---
+Ivan question:
+I use legacy apps written in different languages (Russian, Czech and others) and
+would like to choose different codepages independently for every non-unicode app.
+I can remember there was a special tool for this (by Microsoft) but can't
+remember what was its name and where could it be downloaded.
+---
+Ivan self answer:
+It's Microsoft AppLocale and it can be downloaded from
+    http://www.microsoft.com/en-us/download/details.aspx?id=13209
+    (jlf 2025-06-07: this download is no longer available)
+There also is a quick introduction into installing and using it
+    http://users.wfu.edu/yipcw/atg/microsoft/applocale/
+    (jlf: lot of infos!)
+
+
+https://softradar.com/applocale/
+Run applications that conflict with your system locale parameters
+---
+jlf: interesting to read, it helps to understand the purpose of AppLocale.
+
+
+https://github.com/xupefei/Locale-Emulator
+Locale-Emulator
+Yet Another System Region and Language Simulator
+This repository was archived by the owner on Apr 15, 2022.
+---
+jlf: was an alternative to AppLocale
+
+
+https://utf8everywhere.org/#windows
+UTF-8 Everywhere
+This section is dedicated to developing multi-platform library development and
+to Windows programming. The problem with Windows platform is that it does not
+(yet) support Unicode-compatible narrow string system APIs. The only way to pass
+Unicode strings to Windows API is by converting to UTF-16 (also known as wide
+strings).
+---
+jlf: a critic
+https://www.nu42.com/2021/07/windows-utf-8-everywhere-argv.html
+nowide::args.
+    https://www.boost.org/doc/libs/master/libs/nowide/doc/html/classboost_1_1nowide_1_1args.html
+    It temporarily replaces standard main() function arguments with their equal, but
+    UTF-8 encoded values under Microsoft Windows for the lifetime of the instance.
+    The class uses GetCommandLineW(), CommandLineToArgvW() and GetEnvironmentStringsW()
+    in order to obtain Unicode-encoded values. It does not relate to actual values
+    of argc, argv and env under Windows.
+This is not wrong per se, but it interacts badly with another dimension of
+handling command line arguments on Windows: cmd.exe does not do glob expansion.
+Instead, if you want prog *.txt to give you file1.txt, file2.txt, etc in argv,
+you need to explicitly link with setargv.obj or wsetargv.obj.
+https://learn.microsoft.com/en-us/cpp/c-language/expanding-wildcard-arguments?view=msvc-160
+That way, the runtime sets up an expanded argv using either the OEM charset or
+the “Unicode” charset depending on whether the program has a main or wmain.
+Since boost::nowide::args bypasses the actual argv, but instead reparses the
+“Unicode” version of the command line as originally given, it is oblivious to
+the now expanded arguments. Since there is no Win32 API function you can call
+to the filename expansion on the result of CommandLineToArgvW() (at least, I
+could not find it), this means the Windows version of my utility will need to
+have a wmain instead of main.
+---
+jlf: on Windows, rexx is not doing glob extension.
+rexx -e "say arg() arg(1)" *.*          -- output: 1 *.*
+
+
+https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale
+Set or retrieve the run-time locale.
+char *setlocale(int category, const char *locale);
+wchar_t *_wsetlocale(int category, const wchar_t *locale);
 
 
 ================================================================================
@@ -5381,6 +5689,17 @@ https://learn.adacore.com/courses/advanced-ada/parts/data_types/strings.html
 jlf: good overview, Ada is not the easiest language...
 
 
+http://www.ada-auth.org/standards/22rm/html/RM-A-4-11.html
+A.4.11 String Encoding
+Facilities for encoding, decoding, and converting strings in various character
+encoding schemes are provided by packages
+    Strings.UTF_Encoding,
+    Strings.UTF_Encoding.Conversions,
+    Strings.UTF_Encoding.Strings,
+    Strings.UTF_Encoding.Wide_Strings,
+    Strings.UTF_Encoding.Wide_Wide_Strings.
+
+
 https://docs.adacore.com/live/wave/xmlada/html/xmlada_ug/unicode.html
 
 
@@ -5420,6 +5739,253 @@ jlf: bof...
 
 https://ada-lang.io/docs/learn/how-tos/gnat_and_utf_8/
 UTF-8 encoding in GNAT
+---
+The predefined type Character is a character type whose values correspond to the
+256 code points of Row 00 (also known as Latin-1) of the ISO/IEC 10646:2017
+Basic Multilingual Plane (BMP).
+    with Ada.Text_IO;
+    procedure Main is
+    begin
+        Ada.Text_IO.Put_Line ("Привіт");
+    end Main;
+From the compiler's point of view the string "Привіт" contains not 6, but 12
+characters.
+In the case of the GNAT compiler, the compiler by default uses the Latin-1
+(ISO-8859-1) encoding and a build switch -gnatW8 is needed to enable UTF-8
+encoding of string literals and identifiers.
+Now the compiler will see the Cyrillic alphabet and correctly refuses to build the program:
+        Ada.Text_IO.Put_Line ("Привіт");
+                               |
+     >>> literal out of range of type Standard.Character
+To work with text containing UTF-8 characters, the type String is insufficient.
+    with Ada.Wide_Text_IO;
+    procedure Main is
+        Hello : constant Wide_String := "Привіт";
+    begin
+        Ada.Wide_Text_IO.Put_Line (Hello);
+    end Main;
+Now the program will compile and print a string of 6 characters to the screen.
+---
+jlf:
+No magic comment.
+Compiler option -gnatW8
+-gnatW?   Wide character encoding method (?=h/u/s/e/8/b)
+    -gnatWh         Hex encoding (brackets coding also recognized)
+    -gnatWu         Upper half encoding (brackets encoding also recognized)
+    -gnatWs         Shift/JIS encoding (brackets encoding also recognized)
+    -gnatWe         EUC encoding (brackets encoding also recognized)
+    -gnatW8         UTF-8 encoding (brackets encoding also recognized)
+    -gnatWb         Brackets encoding only (default value)
+
+
+https://docs.adacore.com/gnat_rm-docs/html/gnat_rm/gnat_rm/the_implementation_of_standard_i_o.html
+The Implementation of Standard I/O
+---
+FORM string
+    TEXT_TRANSLATION=[YES|NO|TEXT|BINARY|U8TEXT|WTEXT|U16TEXT]
+    SHARED=[YES|NO]
+    WCEM=[n|h|u|s|e|8|b]
+    ENCODING=[UTF8|8BITS]
+---
+TEXT_TRANSLATION
+Text_Translation=xxx may be used as the Form parameter passed to Text_IO.Create
+and Text_IO.Open. Text_Translation=xxx has no effect on Unix systems.
+Possible values are:
+    Yes or Text is the default, which means to translate LF to/from CR/LF on
+                Windows systems.
+    No          disables this translation; i.e. it uses binary mode.
+                For output files, Text_Translation=No may be used to create
+                Unix-style files on Windows.
+    wtext       translation enabled in Unicode mode. (corresponds to _O_WTEXT).
+    u8text      translation enabled in Unicode UTF-8 mode. (corresponds to O_U8TEXT).
+    u16text     translation enabled in Unicode UTF-16 mode. (corresponds to_O_U16TEXT).
+---
+SHARED
+Section A.14 of the Ada Reference Manual allows implementations to provide a
+wide variety of behavior if an attempt is made to access the same external file
+with two or more internal files.
+GNAT handles file sharing as follows:
+    - In the absence of a shared=xxx form parameter, an attempt to open two or
+      more files with the same full name is considered an error and is not
+      supported. The exception Use_Error will be raised.
+      Note that a file that is not explicitly closed by the program remains open
+      until the program terminates.
+    - If the form parameter shared=no appears in the form string, the file can
+      be opened or created with its own separate stream identifier, regardless
+      of whether other files sharing the same external file are opened.
+      The exact effect depends on how the C stream routines handle multiple
+      accesses to the same external files using separate streams.
+    - If the form parameter shared=yes appears in the form string for each of
+      two or more files opened using the same full name, the same stream is
+      shared between these files, and the semantics are as described in Ada
+      Reference Manual, Section A.14.
+---
+WCEM
+Wide_Text_IO
+both input and output files may contain special sequences that represent wide
+character values. The encoding scheme for a given file may be specified using a
+FORM parameter:
+WCEM = wide character encoding method, where x is one of the following characters
+    Character   Encoding
+    h           Hex ESC encoding
+                ESC a b c d where a, b, c, d are the four hexadecimal characters
+                (using upper case letters) of the wide character code.
+                For example, ESC A345 is used to represent the wide character
+                with code 16#A345#. This scheme is compatible with use of the
+                full Wide_Character set.
+    u           Upper half encoding
+                The wide character with encoding 16#abcd#, where the upper bit
+                is on (i.e., a is in the range 8-F) is represented as two bytes
+                16#ab# and 16#cd#. The second byte may never be a format control
+                character, but is not required to be in the upper half.
+    s           Shift-JIS encoding
+                A wide character is represented by a two character sequence
+                16#ab# and 16#cd#, with the restrictions described for upper
+                half encoding as described above. The internal character code is
+                the corresponding JIS character according to the standard
+                algorithm for Shift-JIS conversion. Only characters defined in
+                the JIS code set table can be used with this encoding method.
+    e           EUC Encoding
+                A wide character is represented by a two character sequence
+                16#ab# and 16#cd#, with both characters being in the upper half.
+                The internal character code is the corresponding JIS character
+                according to the EUC encoding algorithm. Only characters defined
+                in the JIS code set table can be used with this encoding method.
+    8           UTF-8 encoding
+                A wide character is represented using UCS Transformation Format
+                8 (UTF-8) as defined in Annex R of ISO 10646-1/Am.2. Depending
+                on the character value, the representation is a one, two, or
+                three byte sequence:
+                    16#0000#-16#007f#: 2#0xxxxxxx#
+                    16#0080#-16#07ff#: 2#110xxxxx# 2#10xxxxxx#
+                    16#0800#-16#ffff#: 2#1110xxxx# 2#10xxxxxx# 2#10xxxxxx#
+    b           Brackets encoding
+                In this encoding, a wide character is represented by the
+                following eight character sequence:
+                    [ " a b c d " ]
+                where a, b, c, d are the four hexadecimal characters (using
+                uppercase letters) of the wide character code. For example,
+                ["A345"] is used to represent the wide character with code
+                16#A345#. This scheme is compatible with use of the full
+                Wide_Character set. On input, brackets coding can also be used
+                for upper half characters, e.g., ["C1"] for lower case a.
+---
+WCEM
+Wide_Wide_Text_IO
+WCEM = wide character encoding method, where x is one of the following characters
+    Character   Encoding
+    h           Hex ESC encoding
+    u           Upper half encoding
+    s           Shift-JIS encoding
+    e           EUC Encoding
+    8           UTF-8 encoding
+                A wide character is represented using UCS Transformation Format
+                8 (UTF-8) as defined in Annex R of ISO 10646-1/Am.2. Depending
+                on the character value, the representation is a one, two, three
+                or four byte sequence:
+                    16#000000#-16#00007f#: 2#0xxxxxxx#
+                    16#000080#-16#0007ff#: 2#110xxxxx# 2#10xxxxxx#
+                    16#000800#-16#00ffff#: 2#1110xxxx# 2#10xxxxxx# 2#10xxxxxx#
+                    16#010000#-16#10ffff#: 2#11110xxx# 2#10xxxxxx# 2#10xxxxxx# 2#10xxxxxx#
+    b           Brackets encoding
+                In this encoding, a wide wide character is represented by the
+                following eight character sequence if is in wide character range
+                    [ " a b c d " ]
+                and by the following ten character sequence if not
+                    [ " a b c d e f " ]
+                where a, b, c, d, e, and f are the four or six hexadecimal
+                characters (using uppercase letters) of the wide wide character
+                code. For example, ["01A345"] is used to represent the wide wide
+                character with code 16#01A345#.
+---
+ENCODING
+An encoding form parameter can be used to specify the filename encoding.
+    encoding=utf8   the filename must be encoded in UTF-8.
+    encoding=8bits  the filename must be a standard 8bits string.
+In the absence of a encoding=xxx form parameter, the encoding is controlled by
+the GNAT_CODE_PAGE environment variable. And if not set utf8 is assumed.
+    CP_ACP      The current system Windows ANSI code page.
+    CP_UTF8     UTF-8 encoding
+This encoding form parameter is only supported on the Windows platform.
+On the other Operating Systems the run-time is supporting UTF-8 natively.
+---
+File content encoding
+For text files it is possible to specify the encoding to use.
+This is controlled by the by the GNAT_CCS_ENCODING environment variable.
+And if not set TEXT is assumed.
+The possible values are those supported on Windows:
+    TEXT        Translated text mode
+    WTEXT       Translated unicode encoding
+    U16TEXT     Unicode 16-bit encoding
+    U8TEXT      Unicode 8-bit encoding
+
+
+https://www.adacore.com/gems/gem-144-a-bit-of-bytes-characters-and-encoding-schemes
+Gem #144: A Bit of Bytes: Characters and Encoding Schemes
+2013, March 25
+---
+On Unix systems: with GNATCOLL.Iconv;
+    with GNATCOLL.Iconv;   use GNATCOLL.Iconv;
+    procedure Main is
+       EAcute : constant Character := Character'Val (16#E9#);
+       --  in ISO-8859-1
+
+       Result : constant String := Iconv
+          ("Some string " & EAcute,
+           To_Code   => UTF8,
+           From_Code => ISO_8859_1);
+    begin
+       null;
+    end Main;
+---
+XML/Ada has also included such conversion tables for a while, but supports many
+fewer character sets. Check the Unicode.CSS.* packages.
+---
+Manipulating UTF-8 and UTF-16 strings
+XML/Ada's Unicode module includes such a set of subprograms in its
+    Unicode.CES.*
+packages. In general, going forward is relatively easy and can be done
+efficiently, whereas going backward in a string is more complex and less efficient.
+The GNAT run-time library also contains such packages, for instance
+    GNAT.Encode_UTF8_String
+    GNAT.Decode_UTF8_String.
+The latter provides
+    Decode_Wide_Character
+    Next_Wide_Character
+    Prev_Wide_Character
+to find all the characters in a string.
+
+
+https://alire.ada.dev/docs/unicode.html
+Alire v2.0 and onwards expects sources to be UTF-8 (through the -gnatW8 switch).
+Input/Output must be done using specialized crates (e.g. vss, uxstrings) or with
+Wide_Wide_Text_IO (for unencoded/UTF-32 strings) or with Streams_IO/GNAT.IO (for
+UTF-8-encoded strings). Avoid Text_IO unless you are sure of what you’re doing
+(using Latin-1 strings).
+Some friction may happen with older sources not using UTF-8.
+---
+jlf: Ada is a mess... see the section Common pitfalls.
+
+
+https://github.com/mosteo/utf8test/blob/main/src/utf8test.adb
+Test unicode output with `-gnatW8`
+---
+jlf: this part is interesting! To display the bytes of a string, they use a
+Stream_Element_Array which is directly allocated at the string address.
+   procedure Print_Bytes (S : String)
+   is
+      Bytes : Stream_Element_Array (1 .. S'Length);
+      for Bytes'Address use S'Address;
+
+      use Ada.Text_IO;
+   begin
+      Put (S'Length'Image & " bytes: ");
+      for B of Bytes loop
+         Put (Byte_Image (B) & ":");
+      end loop;
+      New_Line;
+   end Print_Bytes;
+
 
 
 ================================================================================
@@ -5741,6 +6307,33 @@ jlf: not sure it's worth reviewing that. Nothing about grapheme.
 Last update 3 years ago. Only 48 commits.
 
 
+https://github.com/boostorg/nowide?tab=readme-ov-file
+Boost.Nowide - Standard library functions with UTF-8 API on Windows
+https://www.boost.org/doc/libs/master/libs/nowide/doc/html/index.html
+---
+Alternatives
+Since the May 2019 update Windows 10 does support UTF-8 for narrow strings via a
+manifest file. So setting "UTF-8" as the active code page would allow using the
+narrow API without any other changes with UTF-8 encoded strings.
+    https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page
+Since April 2018 there is a (Beta) function available in Windows 10 to use UTF-8
+code pages by default via a user setting.
+Both methods do work but have a major drawback: They are not fully reliable for
+the app developer. The code page via manifest method falls back to a legacy code
+page when an older Windows version than 1903 is used. Hence it is only usable if
+the targeted system is Windows 10 after May 2019.
+The second method relies on user interaction prior to starting the program.
+Obviously this is not reliable when expecting only UTF-8 in the code.
+Also since Windows 10 1803 (i.e. since April 2018) it is possible to
+programmatically set the current code page to UTF-8 with e.g.
+    setlocale(LC_ALL, ".UTF8");.
+This makes many functions accept or produce UTF-8 encoded strings which is
+especially useful for std::filesystem::path and its string() function.
+    https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support
+While this works for most functions, it doesn't work for e.g. the program
+arguments (argv and env parameters of main).
+
+
 ================================================================================
 cRexx lang
 ================================================================================
@@ -5767,6 +6360,20 @@ The cREXX project aims to define valid symbols while adhering to three key princ
 2. Unicode-based comparison with case folding and Normalization Form KD (NFKD)
 3. Safeguarding against nefarious obfuscation attempts
 <go to the message for the rest>
+
+
+https://github.com/adesutherland/CREXX/issues/252#issuecomment-3020611205
+F0038 C2X testcase fails #252
+---
+jlf: two years (or three years, I don't remember) after the ARB video calls on
+Unicode, the c2x saga continues... I don't understand why c2x is a problem for
+them, why they are considering returning only the first byte when the UTF-8
+character is 2 bytes long.
+Why don't they accept to return that:
+    say c2x('René')                 -- 52 65 6E C3A9
+    say c2x(substr('René', 4, 1))   -- C3A9
+It's the only way to keep the invariant x2c(c2x(string) == string
+    say x2c('52 65 6E C3A9')        -- René
 
 
 ================================================================================
@@ -7066,7 +7673,7 @@ is wrong, i.e. the lowercase sigma at the end is the non-final form σ but shoul
 
 https://github.com/JuliaStrings/utf8proc/issues/54
 Feature request: Full Case Folding #54
-opened in 2015, still opened in 2022
+opened in 2015, still opened in 2022, close on Jun 23, 2024 ("This seems solved in bdc8b9e.")
 jlf: related to utf8proc
 ---
 https://github.com/JuliaStrings/utf8proc/issues/54#issuecomment-141545196
@@ -7085,6 +7692,11 @@ Now we have our own highly-optimized implementation for NFKD and Case Folding.
 jlf: made a search in https://github.com/mapsme/omim, but could not find where
 they handle Ł=>L
 Found NormalizeAndSimplifyString, but it doesn't simplify Ł=>L.
+---
+This seems solved in bdc8b9e.
+https://github.com/JuliaStrings/utf8proc/commit/bdc8b9e4b2063e4b4563938d5077ee3b826cf342
+jlf: this commit was done on May 2, 2018...
+And they realize that it fixes the issue 54 only on Jun 23, 2024???
 
 
 https://github.com/JuliaStrings/utf8proc/pull/102
@@ -7668,6 +8280,11 @@ An article about NFG.
 Unless one specifies otherwise, Perl 6 normalizes a text string to NFC when it's not NFG.
 
 
+https://www.nu42.com/2017/02/for-your-eyes-only.html
+For your 'İ's and 'ı's only
+jlf: maybe something interesting, did not read in depth
+
+
 ================================================================================
 PHP lang
 ================================================================================
@@ -7744,6 +8361,91 @@ Dead? last commit was on May 18, 2016
 
 https://blog.internet-formation.fr/2022/08/nettoyer-et-remplacer-les-homographes-et-homoglyphes-dun-texte-en-php/
 Nettoyer et remplacer les homographes (et homoglyphes) d’un texte en PHP
+
+
+================================================================================
+Powershell lang
+================================================================================
+
+https://stackoverflow.com/questions/68062063/how-to-save-to-file-non-ascii-output-of-program-in-powershell
+How to save to file non-ascii output of program in Powershell?
+---
+It is the character encoding stored in [Console]::OutputEncoding that determines
+how PowerShell decodes text received from external programs
+By contrast, it is the $OutputEncoding preference variable that determines the
+encoding used for sending text to external programs, via the pipeline.
+    https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_preference_variables?view=powershell-7.5#outputencoding
+[Console]::OutputEncoding by default reflects a console's active code page,
+which itself defaults to the system's active OEM code page, such as 437 (CP437)
+on US-English systems.
+The standard chcp program also reports the active OEM code page, and while it
+can in principle also be used to change it for the active console (e.g., chcp
+65001), this does not work from inside PowerShell, due to .NET caching the
+encodings.
+The following snippet shows how to set [Console]::OutputEncoding temporarily
+as needed:
+    # Save the original encoding.
+    $orig = [Console]::OutputEncoding
+
+    # Work with console programs that use UTF-8 encoding,
+    # such as Go and Node.js
+    [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+
+    # Piping to Write-Output is a dummy operation that forces
+    # decoding of the external program's output, so that encoding problems would show.
+    go run hello.go | Write-Output
+
+    # Work with console programs that use ANSI encoding, such as Python.
+    # As noted, the alternative is to configure Python to use UTF-8.
+    [Console]::OutputEncoding = [System.Text.Encoding]::GetEncoding([int] (Get-ItemPropertyValue HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage ACP))
+
+    python hello.py | Write-Output
+
+    # Restore the original encoding.
+    [Console]::OutputEncoding = $orig
+
+
+https://stackoverflow.com/questions/57131654/using-utf-8-encoding-chcp-65001-in-command-prompt-windows-powershell-window/57134096#57134096
+Using UTF-8 Encoding (CHCP 65001) in Command Prompt / Windows Powershell (Windows 10)
+---
+This sets both the system's active OEM and the ANSI code page to 65001, the
+UTF-8 code page, which therefore
+(a) makes all future console windows, which use the OEM code page, default to
+    UTF-8 (as if chcp 65001 had been executed in a cmd.exe window)
+(b) also makes legacy, non-Unicode GUI-subsystem applications, which use the
+    ANSI code page, use UTF-8.
+For Windows PowerShell, that is not enough:
+- You must additionally set the $OutputEncoding preference variable to UTF-8 as
+  well: $OutputEncoding = [System.Text.UTF8Encoding]::new()[2]; it's simplest to
+  add that command to your $PROFILE (current user only)
+  or $PROFILE.AllUsersCurrentHost (all users) file.
+- Fortunately, this is no longer necessary in PowerShell Core, which internally
+  consistently defaults to BOM-less UTF-8.
+
+
+https://stackoverflow.com/questions/57131654/using-utf-8-encoding-chcp-65001-in-command-prompt-windows-powershell-window
+Using UTF-8 Encoding (CHCP 65001) in Command Prompt / Windows Powershell (Windows 10)
+Describes how to set the system locale (language for non-Unicode programs) to UTF-8.
+Optional reading: Why the Windows PowerShell ISE is a poor choice
+---
+jlf: this is a clear description of the UTF-8 input bug.
+For ReadFile from the console, even in Windows 10, you'll be limited to 7-bit ASCII if the
+input codepage is set to UTF-8, due to buggy assumptions in the console host, conhost.exe.
+In Windows 10, it returns non-ASCII characters as null ("\0") in the buffer.
+In older versions, the read succeeds with 0 bytes read, which looks like EOF.
+Eryk Sun Jul 21, 2019 at 13:31
+
+
+https://stackoverflow.com/questions/49476326/displaying-unicode-in-powershell/49481797#49481797
+Displaying Unicode in Powershell
+
+
+https://github.com/PowerShell/PowerShell/issues/7233
+Make console windows fully UTF-8 by default on Windows, in line with the behavior on Unix-like platforms
+mklement0 opened this issue on Jul 5, 2018
+---
+jlf still opened on 2023.08.08
+jlf still opened on 2025.05.30
 
 
 ================================================================================
@@ -8213,6 +8915,33 @@ Fast string construction for CPython extensions
 https://python.developpez.com/tutoriels/plonger-au-coeur-de-python/?page=chapitre-4-moins-strings
 jlf: todo read (french)
 Translation from english, could not find the original article.
+
+
+PEP-528 PEP 528
+Aug 31,2016
+Issue #1602: Windows console doesn't input or print Unicode (PEP 528)
+    * PEP 528: :ref:`Change Windows console encoding to UTF-8 <pep-528>`
+    PEP 528: Change Windows console encoding to UTF-8
+    -------------------------------------------------
+
+    The default console on Windows will now accept all Unicode characters and
+    provide correctly read str objects to Python code. ``sys.stdin``,
+    ``sys.stdout`` and ``sys.stderr`` now default to utf-8 encoding.
+
+    This change only applies when using an interactive console, and not when
+    redirecting files or pipes. To revert to the previous behaviour for interactive
+    console use, set :envvar:`PYTHONLEGACYWINDOWSIOENCODING`.
+---
+jlf: these files are impacted by the commit
+Modules_io/_iomodule.c              modified    now in Modules/_io
+Modules_io/_iomodule.h              modified    now in Modules/_io
+Modules_io/winconsoleio.c           added       now in Modules/_io
+Modules_io/clinic/winconsoleio.c.h  added       now in Modules/_io
+Parser/myreadline.c
+---
+jlf: we don't want that for oorexx.
+I don't see how it could fix the encoding of the string passed to rexx main.
+Unless argc() is converted to UTF-8?
 
 
 ================================================================================
@@ -8717,6 +9446,83 @@ Regina doc
         IMPORT('0004 0000'x,10) 'The answer' /* maybe */
 
 
+Erich
+The Windows CHCP command queries the active console's code page, but
+rexxhide provides no console at all, so the command cannot return its code
+page.
+Based on
+https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/chcp
+the default OEMCP is likely to be found in Windows registry
+    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Nls\CodePage\OEMCP
+You might retrieve its value with code similar like below (error checking
+not shown):
+    r = .WindowsRegistry~new
+    cp = r~open(, "SYSTEM\CurrentControlSet\Control\Nls\CodePage", "read")
+    k. = r~getValue(cp, "OEMCP")
+    say k.type "=" k.data
+    ::requires winsystm
+
+
+What must be changed in oorexx?
+    On Windows 11 ARM, from the cmd console:
+        E:\portable\net-oo-rexx.windows.x86_64-portable-release-20250503> chcp 437
+        Active code page: 437
+
+        E:\portable\net-oo-rexx.windows.x86_64-portable-release-20250503> rexx -e "say 'Père Noël 🎅'; say 'Père Noël 🎅'~c2x"
+        PΦre Noδl ??
+        50E87265204E6FEB6C203F3F
+
+        E:\Ruby34-arm\bin> ruby -e "puts 'Père Noël 🎅'"
+        Père Noël ?
+
+        E:\Python313-arm64> python -c "print('Père Noël 🎅')"
+        Père Noël 🎅
+
+    On Windows 11 ARM, from the cmd console:
+        E:\portable\net-oo-rexx.windows.x86_64-portable-release-20250503> chcp 65001
+        Active code page: 65001
+
+        E:\portable\net-oo-rexx.windows.x86_64-portable-release-20250503> rexx -e "say 'Père Noël 🎅'; say 'Père Noël 🎅'~c2x"
+        P�re No�l ??
+        50E87265204E6FEB6C203F3F
+
+        E:\Ruby34-arm\bin> ruby -e "puts 'Père Noël 🎅'"
+        Père Noël 🎅
+
+        E:\Python313-arm64> python -c "print('Père Noël 🎅')"
+        Père Noël 🎅
+    ---
+    jlf: see section "cmd title" JDK-8124977
+    They must replace GetCommandLineA by GetCommandLineW.
+    ---
+    jlf: see February 18, 2017  https://www.nu42.com/2017/02/perl-unicode-windows-trilogy-one.html
+    It's the same problem with Perl. They propose a fix using wmain.
+    Also: February 8, 2017  https://www.nu42.com/2017/02/unicode-windows-command-line.html
+    Also: July 22, 2021 https://www.nu42.com/2021/07/windows-utf-8-everywhere-argv.html
+
+
+oodWinMain
+(simplified, no error management)
+static char **commandLineToArgv(int32_t *count, char *exeName)
+    LPWSTR  *szArglist = NULL;
+    char   **args      = NULL;
+    int32_t nArgs      = 0;
+    int32_t i;
+    szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+    args = (char **)LocalAlloc(LPTR, nArgs * sizeof(char **));
+    for ( i = 0; i < nArgs; i++)
+    {
+        LPWSTR a = szArglist[i + 1];
+        tmp = unicode2ansi(a);
+        args[i] = tmp;
+    }
+
+oodShared.cpp
+char *unicode2ansi(LPWSTR wstr)
+    converts a wide character (Unicode) string to an Ansi string.
+    WideCharToMultiByte(CP_ACP, 0, wstr, -1, ansiStr, neededLen, NULL, NULL)
+
+
 ================================================================================
 Ruby lang
 ================================================================================
@@ -8977,8 +9783,8 @@ jlf: Has been fixed in a later version:
     "baﬄe".upcase                         # => "BAFFLE"
 BUT
 other things are still not good in Ruby 3.2.2 (March 30, 2023):
-"noël".reverse                             # => "l̈eon"
-"noël"[0..2]                               # => "noe"
+"noël".reverse                             # => "l̈eon"             OK in Ruby 3.4: lëon
+"noël"[0..2]                               # => "noe"              OK in Ruby 3.4: noë
 ---
 "baﬄe"~text~upper=                        -- T'BAﬄE'      30/05/2023 Executor not good because utf8proc upper is not good
 "baﬄe"~text~caselessEquals("baffle")=     -- 1             30/05/2023 Executor is good because utf8proc casefold is good
@@ -9169,6 +9975,7 @@ Encoding-free String comparison
     https://bugs.ruby-lang.org/issues/10084
     ---
     jlf 09/08/2023: ticket still opened...
+    jlf 30/05/2025: ticket still opened...
     The test [128].pack("C") == "\x80" still returns false, so I assume they made
     no change.
 
