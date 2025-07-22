@@ -1,5 +1,15 @@
 FFI = Foreign Function Interface
 
+https://ashvardanian.com/posts/porting-cpp-library-to-ten-languages/
+Binding a C++ Library to 10 Programming Languages
+Same author as for StringZilla
+
+
+https://www.swig.org/
+SWIG is a software development tool that connects programs written in C and C++
+with a variety of high-level programming languages.
+
+
 https://dyncall.org
 The dyncall library encapsulates architecture-, OS- and compiler-specific function call semantics
 in a virtual bind argument parameters from left to right and then call interface allowing programmers

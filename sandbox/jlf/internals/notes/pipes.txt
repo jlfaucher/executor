@@ -111,6 +111,22 @@ http://en.wikipedia.org/wiki/Pipeline_%28Unix%29
 
 http://lorgonblog.wordpress.com/2008/03/30/pipelining-in-f/
 
+https://rescript-lang.org/docs/manual/v11.0.0/pipe
+    validateAge(getAge(parseData(person)))
+    is the same as
+    person
+      ->parseData
+      ->getAge
+      ->validateAge
+
+    This works when the function takes more than one argument too.
+    a(one, two, three)
+    is the same as
+    one->a(two, three)
+
+    This also works with labeled arguments.
+
+
 
 ============================================================================
 http://groups.google.com/group/comp.lang.rexx/browse_thread/thread/356f08d60008ac05?hl=en

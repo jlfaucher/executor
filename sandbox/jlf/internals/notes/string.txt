@@ -1,3 +1,24 @@
+22/09/2025
+StringZilla
+https://ashvardanian.com/posts/stringwars-on-gpus/
+https://www.reddit.com/r/programming/comments/1nm3ath/processing_strings_109x_faster_than_nvidia_on_h100/
+Processing Strings 109x Faster than Nvidia on H100
+Up to 100x faster strings for C, C++, CUDA, Python, Rust, Swift, JS, & Go,
+leveraging NEON, AVX2, AVX-512, SVE, GPGPU, & SWAR to accelerate search, hashing,
+sorting, edit distances, sketches, and memory ops
+
+
+https://github.com/unum-cloud/usearch/
+https://unum-cloud.github.io/usearch/
+Fast Open-Source Search & Clustering engine × for Vectors & Arbitrary Objects ×
+in C++, C, Python, JavaScript, Rust, Java, Objective-C, Swift, C#, GoLang, and Wolfram
+---
+jlf:
+Same author as for StringZilla.
+Maybe not directly related to strings.
+
+
+--------------------------------------------------------------------------------
 15/12/2018
 [bugs:#1404] Some method args don't honor REQUEST("STRING")
 
