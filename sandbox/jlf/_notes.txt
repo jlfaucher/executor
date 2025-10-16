@@ -1878,3 +1878,30 @@ p = .Pattern~compile("(.)*foo")
 p~matches("xfooxxxxxxfooXXXX")=
 Invalid position argument specified; found "0".
 
+
+===============================================================================
+CLI arguments under windows
+===============================================================================
+
+On Windows: I never noticed that strings passed to rexx are encoded in the ACP
+code page (why not the OEM code page? I'm lost...), regardless of the console
+code page (chcp) value.
+Examples, when OEM = 437 and ACP = 1252:
+    chcp 437 &   rexx -e "s = 'Père Noël 🎅'; say s s~c2x"      -- PΦre Noδl ?? 50E87265204E6FEB6C203F3F
+    chcp 850 &   rexx -e "s = 'Père Noël 🎅'; say s s~c2x"      -- PÞre NoÙl ?? 50E87265204E6FEB6C203F3F
+    chcp 1252 &  rexx -e "s = 'Père Noël 🎅'; say s s~c2x"      -- Père Noël ?? 50E87265204E6FEB6C203F3F
+    chcp 65001 & rexx -e "s = 'Père Noël 🎅'; say s s~c2x"      -- P�re No�l ?? 50E87265204E6FEB6C203F3F
+    chcp 65001 & rexx -e "s = 'PÈRE NOËL 🎅'; say s s~c2x"      -- P�RE NO�L ?? 50C85245204E4FCB4C203F3F
+    echo say hello > "Père Noël 🎅.rex"
+    dir                         -- 06/23/2025  01:45 PM                12 Père Noël 🎅.rex
+    rexx "Père Noël 🎅.rex"     -- Error 3.901:  Failure during initialization: Program "Père Noël ??.rex" was not found.
+
+TODO
+arguments passed to rexx on Windows take into account the console code page.
+
+rexxhide has the same problem, but chcp has no impact because the process is not
+attached to a console. A new -cp <codePage> argument could allow specifying the
+encoding.
+
+Tests:
+~/software/do/do_cpp/args-windows.c
