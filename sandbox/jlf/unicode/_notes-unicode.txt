@@ -218,6 +218,19 @@ test suites, test data:
     WordBreakTest.txt
 
 
+Unicode charts
+https://www.unicode.org/charts/
+jlf: some sub-entries are not listed on the main page.
+     For example, the "collation charts" which is referenced by Markus Scherer
+     in his response to "Applying tailoring"
+     https://groups.google.com/a/unicode.org/g/icu-support/c/eGraFbVvfnE/m/uHiF6uuMAwAJ
+- collation charts      https://www.unicode.org/charts/collation/index.html
+- normalization charts  https://www.unicode.org/charts/normalization/index.html
+- case charts           https://www.unicode.org/charts/case/index.html
+- script charts         https://www.unicode.org/charts/script/index.html
+- names list charts     https://www.unicode.org/charts/nameslist/index.html
+
+
 ================================================================================
 Unicode general informations
 ================================================================================
@@ -1183,6 +1196,17 @@ jian he
     Are there any python or C code examples using icu-rule for chinese?
 
 
+https://unicode-org.atlassian.net/browse/ICU-23016
+Comparing strings using ucol_strcoll and strcmp(ucol_getSortKey) is inconsistent with each other using some locales
+jlf:
+this ticket is referenced by this mail
+https://groups.google.com/a/unicode.org/g/icu-support/c/zOBP2UW7_Lc/m/Dg5z4Zo0BQAJ?utm_medium=email&utm_source=footer
+discussion in PostgreSQL's hackers thread :
+https://www.postgresql.org/message-id/flat/CADrsxdbyWg75xV6sBeVCw76UE38JTW=1GJha4GAWP7jB0AK1ow@mail.gmail.com
+jlf:
+The postgresql thread above is interesting, illustration of the collation in SQL.
+
+
 ================================================================================
 Locale
 ================================================================================
@@ -1800,6 +1824,10 @@ which is called the letter–digit–hyphen (LDH) subset. For example, München
 (German name for Munich) is encoded as Mnchen-3ya.
 
 
+https://www.ietf.org/rfc/rfc3492.txt
+Punycode: A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)
+
+
 ================================================================================
 All languages
 ================================================================================
@@ -1848,7 +1876,7 @@ Arabic script in Unicode
 
 
 ================================================================================
-Indic languages
+Indic languages, Indic title
 ================================================================================
 
 https://www.unicode.org/faq/indic.html
@@ -2113,6 +2141,37 @@ encoding of conjunct forms that users perceive as base-level units, such as
 Khmer coengs (see subsection Subscript Consonant Signs of section 16.4 Khmer of
 the Unicode Standard). In Unicode 15.1, this is being corrected for six scripts,
 while leaving the others broken.
+
+
+https://huggingface.co/datasets/ai4bharat/sangraha
+Sangraha is the largest high-quality, cleaned Indic language pretraining data
+containing 251B tokens summed up over 22 languages, extracted from curated
+sources, existing multilingual corpora and large scale translations.
+---
+jlf: not sure it's interesting... I understand nothing
+
+
+https://github.com/google-research/nisaba
+Finite-state script normalization and processing utilities
+Collection of finite-state transducer-based (FST) tools for visual normalization,
+well-formedness, transliteration and NFC normalization of various scripts from
+South Asia and beyond. Nisaba provides these APIs in Python and C++.
+Currently supported script families:
+- Brahmic scripts (documentation).
+  https://github.com/google-research/nisaba/blob/main/nisaba/scripts/brahmic/README.md
+- Alphabets and abjads (documentation).
+  https://github.com/google-research/nisaba/blob/main/nisaba/scripts/abjad_alphabet/README.md
+- Natural transliteration for Brahmic scripts (documentation).
+---
+jlf: not sure it's interesting... did not investigate
+
+
+https://en.wikipedia.org/wiki/Devanagari_conjuncts
+Conjunct consonants are a form of orthographic ligature characteristic of the Brahmic scripts.
+jlf: according to ugrapheme
+    (Python library https://github.com/Z4JC/ugrapheme?tab=readme-ov-file#correctness)
+    Additionally, there's explicit tests for complicated graphemes known to have
+    caused issues with other libraries, such as Devanagari conjuncts.
 
 
 ================================================================================
@@ -2964,7 +3023,7 @@ jlf: not related to Unicode
 
 
 ================================================================================
-ICU title
+ICU title, ICU4C title
 ================================================================================
 
 https://icu.unicode.org
@@ -3390,6 +3449,179 @@ Thu, Jun 12, 2025
     It is, but NFC was designed to favor compact representation over ease of
     processing, so NFC text does not always fit the FCD test for canonical order.
     (jlf: remember!)
+
+
+https://groups.google.com/a/unicode.org/g/icu-design/c/D3zz4WLkCsE/m/lK151TcOAQAJ
+Overriding number formatters in SimpleDateFormat
+Rich Gillam
+    In CLDR, the dateFormats and timeFormats elements have an optional “numbers”
+    attribute that can be used to specify alternate numbering systems for any
+    numeric fields in a formatted date.  The Chinese and Hebrew calendars, for
+    example, use this to get an alternate numbering system for the day and year
+    fields in some number formats.  The values of the “numbers” attribute
+    eventually end up in the fDateOverride and fTimeOverride properties on
+    SimpleDateFormat.
+
+    The availableFormats and intervalFormats elements do _not_ (as far as I know)
+    have a similar attribute.  So that raises a question: If all formats (or all
+    formats of a particular type) for a calendar in a locale should have a
+    particular non-default numbering system, how do you get that?
+
+    I kind of thought there was code in ICU that would infer the correct numbering
+    systems from the dateFormats elements, but it looks like I’m wrong about that.
+    So what’s the party line here (if there is one)?  You can kind of fake the
+    desired behavior by initializing a date formatter with one of the standard
+    formats and then applying the pattern you want on top of that.  There’s also
+    a constructor for SimpleDateFormat that lets the client pass in a number-override
+    string.  But in either case, you’re relying on the client code to know what
+    they’re asking for— it’s not an inherent part of the pattern you’re asking
+    for (which you hopefully got out of a DateTimePatternGenerator).
+    Am I missing something, or is that the answer— that the client has to know
+    which overrides they want and ask for the right thing?  Is there a better answer?
+
+    If that’s the party line, I think we need something better.  I’d propose
+    something like this:
+    1. In the long term, I think we need some kind of enhancement to the pattern
+       language for date/time formats that lets the numbering system be part of
+       the pattern.
+    2. In the medium term, the area where my team is feeling the pain right now
+       is with day-of-the-month names.  We have calendars that use names, not
+       numbers, for days of the month, and the current mechanisms suck for that.
+       I think we should have day-name resources that work like the current
+       month-name and day-of-the-week-name resources and use “ddd” and “dddd” in
+       patterns to get them.
+    3. In the short term, we can probably add code to SimpleDateFormat to infer
+       the correct override string.  I’m thinking something similar to what Peter
+       did for date+time patterns, where he used the length of the month field
+       in the date pattern to decide which length of date+time pattern to use.
+       We’d use the length of the month field to decide which dateFormats element
+       to get the “numbers” attribute from.
+Shane Carr
+    Applying the attribute to the whole pattern seems like the wrong thing. It
+    should be a field-specific override: it makes sense that certain fields
+    (like month) would use a different numbering system than other fields (like
+    year). I think I recall us discussing syntax such as "y{hanidec}M{latn}d{latn}".
+    This might be what you're referring to in your "long term" solution.
+
+    In ICU4X, we model this as a private-use field length. For example, we might
+    define field length 16 to be numeric hanidec. Note: ICU4X doesn't ship RBNF
+    for date formatting; we instead pre-compute the strings at build time (for
+    days and months, there aren't very many strings, and I believe no one
+    currently uses an algorithmic numbering system for years). This sounds a bit
+    like your "medium term" solution, just formalizing the specific widths into
+    the CLDR spec.
+
+    As far as it not being currently supported in interval formats, I think it's probably just an oversight.
+Shane Carr
+    This was approved by ICU TC with the following changes
+    Add the “DtContextType unusedContext” parameter before the width, in both
+    C++ and in Java. example:
+    const UnicodeString* getAmPmStrings(int32_t& count, DtContextType unusedContext, DtWidthType width) const
+
+    Add UDateFormatSymbolType constants UDAT_AM_PMS_NARROW & UDAT_AM_PMS_WIDE
+
+
+https://groups.google.com/a/unicode.org/g/icu-support/c/eGraFbVvfnE/m/uHiF6uuMAwAJ
+Applying tailoring
+OP:
+    I'm attempting to get a collator that gives me a case-insensitive, accent-sensitive locale,
+    but with a twist - whitespace sensitivity.
+    I thought maybe I could do this via a `ucol_open` on the base locale I'm interested
+    in "en-u-ks-level2", and then ask for whatever tailoring it may have via `col_getRules`.
+    Then, I append my tailoring I'm after to the returned rules with `& \u0020 < \u00a0`
+    (for example) and then re-open the collator with `ucol_openRules`, but this gives
+    me a collator with only the tailoring rule I've supplied against the default collation.
+    Is there a way to "stack" the tailoring against a specified locale?
+----
+Markus Scherrer
+    -u-ks-level2 should be all you need.
+    Spaces have primary weights. See https://www.unicode.org/charts/collation/ and click "Whitespace" on the left.
+    The collator only ignores spaces if you also turn on alternate=shifted (-ka-shifted).
+    https://www.unicode.org/reports/tr35/tr35-collation.html#Collation_Settings
+    getRules() returns the tailoring rules that build on top of the root sort order.
+    English has no tailoring (same sort order as CLDR root), so its rule string is empty.
+---
+OP
+    I will admit, though, that " See https://www.unicode.org/charts/collation/ and
+    click "Whitespace" on the left." is a little confusing to me.  I'm not exactly
+    an expert and that chart has left me scratching my head.  :D
+---
+Markus Scherer
+    There is a "help" page link... --> https://www.unicode.org/charts/collation/help.html
+    Basically, on each chart, the characters in the left vertical column have primary differences.
+    To the right of each character are others that are only secondary-different or even less.
+    > Just to confirm - a -u-ks-level2 collation will treat a space and a non-breaking space as different?
+    No.
+    You were asking about "whitespace sensitivity". Whitespace characters do have primary weights,
+    so they are not ignored on any level, which is what "insensitive" usually means here.
+    However, by using secondary strength, you ignore all tertiary and lower differences.
+    Tertiary includes case, but also differences of compatibility variants and other minor differences.
+    The difference between U+0020 space and U+00A0 nbsp is on tertiary level.
+    Your additional tailoring changes this to a primary difference; a primary or
+    secondary difference distinguishes these characters under -ks-level2.
+    Why do you want to ignore all minor differences except for these?
+---
+OP
+    What I'm specifically looking for is a collator that is case-insensitive, but
+    accent-sensitive and whitespace-sensitive.  That is, two strings like 'test string`
+    and `Test(nbsp)String` would end up being not equal, but `test string` and `Test String`
+    would be equal.  I'm building a small harness app to test out various permutations.
+    This is part of a larger project, so it's been more challenging for me to pick this up
+    and isolate the various interactions, so I really hope I haven't been wasting your time.
+    Once I get this smaller app coded up I can speak more coherently about what I'm seeing.
+---
+Markus Scherer
+    > What I'm trying to do is create a collation where everything is distinct _except_ case.
+    > Is such a thing possible?
+    You want to pick an arbitrary collator / sort order, and keep every tertiary and
+    quaternary distinction that it makes, except for ones made only because of case distinctions?
+    That sounds like a research project which would add a couple of thousand overrides
+    for every collator, and you would incur the time and heap memory for building collators
+    at runtime unless you add the mappings into your ICU collation tailoring data files and rebuild.
+    This use case is not, and cannot be, covered by parametric settings.
+---
+David Rowe
+    Have you tried using https://icu4c-demos.unicode.org/icu-bin/collation.html ?
+    You could put your test cases in the "Input" box then try adding collation information
+    in the "Append rules" box and/or select options under "Settings" until the "sort" button
+    sorts the list correctly.
+    In fact, if you put the lines in the "Input" box in the order you want them sorted,
+    the "Output" box will display "The input is already in sorted order." when your sort
+    options and tailoring are correctly set to sort the input lines into that order.
+---
+OP
+    I appreciate that link.  I've played around with it, and it confirms (to no one's suprrise)
+    what Markus has pointed out.  I am trying to create a difference at a level that is explicitly
+    ignored, it seems.  As soon as you no longer are interested in case, the differences
+    in whitespace also seem to fall away.
+---
+Markus Scherer
+    Right. To do what you want, you would need to use tertiary or better strength,
+    and tailor any character that sorts tertiary-after its (usually lowercase) peer
+    to instead sort the same. For example, "&a=A". Across Unicode, that would be something
+    like a couple of thousand such rules, and you would want to adjust it for each new Unicode version.
+---
+Rich Gillam
+    You guys probably already discussed this and eliminated it, but this seems like
+    a situation where the simplest solution would be to preprocess the string— apply
+    a case-folding transformation to the string first, and then compare the resulting
+    case-folded strings with tertiary strength.
+---
+Markus Scherer
+    I just tried this:
+            UErrorCode errorCode = U_ZERO_ERROR;
+            UCollator *coll = ucol_openRules(u"[strength 2]&a=b", -1, UCOL_DEFAULT, UCOL_DEFAULT, NULL, &errorCode);
+            UCollationResult result = ucol_strcoll(coll, u"a", -1, u"A", -1);
+            printf("a vs. A: %d\n", result);
+            ucol_close(coll);
+    It prints, as expected: (0 = UCOL_EQUAL = case-insensitive)
+        a vs. A: 0
+    When I change the code to say "[strength 3]" I get: (-1 = UCOL_LESS)
+        a vs. A: -1
+    Seems to work...?
+    Did you pass UCOL_DEFAULT into the UCollationStrength argument of ucol_openRules() (fourth argument)?
+    If not, then that overrides what the rules say.
+    Maybe we can clarify -- https://github.com/unicode-org/icu/pull/3684/files
 
 
 ================================================================================
@@ -4466,6 +4698,30 @@ jlf: see code example in the ticket.
 The above code gives 你“好”啊 instead of 你|“好”|啊.
 
 
+https://github.com/unicode-org/icu4x/discussions/3981#discussioncomment-11493153
+String search with collators #3981
+What I actually want to do here is prefix matching using the asymmetric search
+described in TR10, where unmarked characters act as wildcards that match any
+form of the primary character.
+https://www.unicode.org/reports/tr10/#Asymmetric_Search
+...
+The implementation in ICU4C ends up working as follows:
+1. The initial list of candidates for the asymmetric string search matching can
+   be obtained with a primary-strength search collator, with U+FFFF appended to
+   the prefix to set an upper bound on the range of candidate strings, as
+   described in the ICU collation service architecture.
+   https://unicode-org.github.io/icu/userguide/collation/architecture.html#generating-bounds-for-a-sort-key-prefix-matching
+2. The asymmetric search can then be done via the APIs in usearch.h, generated
+   using a default-strength search collator using either
+   USEARCH_PATTERN_BASE_WEIGHT_IS_WILDCARD
+   or
+   USEARCH_ANY_BASE_WEIGHT_IS_WILDCARD
+   (I'm still experimenting to see which of these feels better).
+3. Sort the filtered results with a default-strength non-search collator with
+   numeric sorting turned on and display the result as a list of possible
+   completions to the user.
+
+
 ================================================================================
 utf8proc title
 ================================================================================
@@ -4490,6 +4746,18 @@ a previously unused padding bit.
 ---
 This is an example how this property will be used in neovim: neovim/neovim#30042
 https://github.com/neovim/neovim/pull/30042
+
+
+https://github.com/JuliaStrings/utf8proc/discussions/297#discussioncomment-13778394
+    | I reimplemented the utf8proc_map function to support reusing allocations and
+      to use the Rust allocator instead of malloc.
+      https://github.com/Techcable/utf8proc.rs
+
+    Right, this is what Julia does as well — you want to call the lower level
+    utf8proc_decompose and utf8proc_reencode functions directly if you want to have
+    more control over allocations. See also #101 (comment)
+    https://github.com/JuliaStrings/utf8proc/issues/101#issuecomment-3078920894
+    https://github.com/JuliaLang/julia/blob/master/base/strings/unicode.jl#L168-L175
 
 
 ================================================================================
@@ -4678,6 +4946,10 @@ GetConsoleCP function
 Retrieves the input code page used by the console associated with the calling
 process. A console uses its input code page to translate keyboard input into
 the corresponding character value.
+
+
+https://gist.github.com/XVilka/a0e49e1c65370ba11c17
+This gist will show the support of BiDirectional text in the terminal emulators and console programs.
 
 
 ================================================================================
@@ -6065,7 +6337,7 @@ Restart working on 22/03/2022
 Zach's library was last discussed at the 2023-05-10 SG16 meeting; see
 https://github.com/sg16-unicode/sg16-meetings#may-10th-2023.
 ---
-https://www.youtube.com/watch?v=AoLl\_ZZqyOk
+https://www.youtube.com/watch?v=AoLl_ZZqyOk
 Applying the Lessons of std::ranges to Unicode in the C++ Standard Library - Zach Laine CppNow 2023
 
 
@@ -6154,6 +6426,18 @@ jlf: see the critics of Zach Laine's library... mg152 has good arguments.
 jlf: this library is referenced in the comments
 https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode
 https://github.com/hikogui/hikogui/tree/main/tools/ucd
+
+
+https://github.com/HarryPehkonen/uni-algo-conan-example
+Example project that uses Conan to install uni-algo
+---
+    https://github.com/uni-algo/uni-algo/issues/25#issuecomment-3114818141
+    I made this: https://github.com/HarryPehkonen/uni-algo-conan-example. It may be useful for this use-case.
+    It demonstrates how to install uni-algo with Conan and then compile your project with CMake or even just g++.
+    GitHub Actions compile and test in Linux, macOS, and Windows, but that's through CMake. There are instructions for building with g++ manually.
+    I'm not sure if I did everything correctly, but the documentation seems to confirm my findings:
+        The header-only form is missing a lot of functionality that the other forms provide
+        The shared library form can't be built in Windows
 
 
 https://github.com/hikogui/hikogui/tree/main/src/hikogui/unicode
@@ -7517,6 +7801,12 @@ https://github.com/flmnt/graphemer  archived on Jul 13, 2024.
 https://messageformat.github.io/
 https://github.com/messageformat/messageformat/tree/main
 ICU MessageFormat for Javascript - i18n Plural and Gender Capable Messages
+
+
+https://github.com/joshaven/string_score
+JavaScript string ranking 0 for no match upto 1 for perfect... "String".score("str")
+jlf: not related to Unicode.
+jlf: then why do you reference it?
 
 
 ================================================================================
@@ -8944,6 +9234,76 @@ I don't see how it could fix the encoding of the string passed to rexx main.
 Unless argc() is converted to UTF-8?
 
 
+https://pypi.org/project/ugrapheme
+https://github.com/Z4JC/ugrapheme
+Python’s `ugrapheme
+jlf: maybe to investigate... implemented in cython, and apparently very fast.
+     (Cython translates Python code to C/C++ code)
+Performance explained
+    - Using custom sparse bitmap datastructures, ugrapheme stores properties for
+      every possible unicode codepoint in less than 11KB of data, comfortably
+      fitting into L1 cache of most CPUs
+    - Simpler LL(1) parser / DFA
+    - An unsigned comparison is used as an early Bloom filter for properties.
+      https://en.wikipedia.org/wiki/Bloom_filter
+AI-generated description:
+
+    Python's `ugrapheme` is a library designed to handle Unicode extended
+    grapheme clusters efficiently, allowing Python and Cython code to treat
+    strings as sequences of grapheme characters rather than individual code
+    points  This is particularly useful for correctly processing complex text,
+    including emojis, combining characters, and scripts like Devanagari, Hangul,
+    Tamil, Bengali, and Arabic, where a single visible character can be composed
+    of multiple code points
+    For example, the string "👩🏽\u200d🔬🏴\U000e0067\U000e0062\U000e0073\U000e0063\U000e0074\U000e007fHi"
+    has a length of 13 when measured by code points but only 4 graphemes when processed with `ugrapheme`
+    jlf: executor ok
+    "👩🏽\u200d🔬🏴\U000e0067\U000e0062\U000e0073\U000e0063\U000e0074\U000e007fHi"~unescape~codepoints~count=   -- 13
+    "👩🏽\u200d🔬🏴\U000e0067\U000e0062\U000e0073\U000e0063\U000e0074\U000e007fHi"~unescape~length=             -- 4
+
+    The library provides a `graphemes` class that offers an interface nearly
+    identical to Python's native strings, supporting common operations like
+    indexing, slicing, reversing, joining, and centering, all while respecting
+    grapheme boundaries  It is optimized for performance, processing strings at
+    hundreds of megabytes or even gigabytes per second, and is significantly
+    faster than other popular Python grapheme libraries  Benchmarks show it to
+    be orders of magnitude faster than alternatives like `pyuegc`,
+    `uniseg.graphemecluster`, `grapheme`, and `icu` BreakIterator, while also
+    providing correct results on complex cases that other libraries fail to
+    parse accurately
+
+    `ugrapheme` is built on the Unicode 16.0 standard for extended grapheme
+    clusters (UAX #29) and correctly handles difficult edge cases that break
+    other implementations  It is also compatible with Cython, allowing for even
+    lower overhead in performance-critical applications  The library is released
+    under the Zero-Clause BSD license and is available via PyPI, with the latest
+    version (0.7) released on October 10, 2024  It is considered among the
+    fastest and most correct implementations of grapheme cluster handling across
+    all programming languages and operating systems as of October 2024
+
+
+https://gist.github.com/andjc/43a98c6d6f5e419303604081d57a401e
+https://gist.github.com/andjc/43a98c6d6f5e419303604081d57a401e#ugrapheme
+Grapheme tokenisation in Python
+jlf: the discussion about ugrapheme may be interesting to watch.
+Telugu
+
+
+https://www.opengrm.org/twiki/bin/view/GRM/Pynini
+Pynini: Finite-state grammar development in Python
+OpenGrm Pynini, like Thrax, compiles grammars expressed as strings, regular
+expressions, and context-dependent rewrite rules into weighted finite-state
+transducers. It uses the OpenFst library and its Python extension to create,
+access and manipulate compiled grammars. Pynini is embedded in a Python module,
+allowing users to write Thrax-like grammars using Python's flexible syntax
+(including imperative programming constructs not available in Thrax) and
+powerful toolchain.
+https://www.opengrm.org/twiki/bin/view/GRM/Thrax
+https://www.openfst.org/twiki/bin/view/FST/WebHome
+---
+jlf: not sure it's interesting... did not investigate
+
+
 ================================================================================
 R lang
 ================================================================================
@@ -9322,6 +9682,10 @@ Raku provides a collate method that implements the Unicode Collation Algorithm.
 Rexx lang
 ================================================================================
 
+https://groups.io/g/rexxla-arb/message/31
+How to kill all motivation.
+
+
 11/08/2021
 http://nokix.sourceforge.net/help/learn_rexx/funcs5.htm#VALUEIN
 Reads in a numeric value from a binary (ie, non-text) file.
@@ -9521,6 +9885,63 @@ oodShared.cpp
 char *unicode2ansi(LPWSTR wstr)
     converts a wide character (Unicode) string to an Ansi string.
     WideCharToMultiByte(CP_ACP, 0, wstr, -1, ansiStr, neededLen, NULL, NULL)
+
+
+https://sourceforge.net/p/oorexx/bugs/2032/
+DBCS(DoubleByteCharacterSet) bug found Win64 rel-5.1.0
+I've been suffering file copy of DBCSfile name file, I made test rexx routine,
+greatly appreciate if it fixed.
+Usually we Japanese use DBCSfilename file.
+---
+Erich:
+In general, ooRexx does not support DBCS or Unicode on Windows, that is, it
+does not call the Windows "Wide" (W-) APIs.
+You might be able to achieve what you want, by enabling the Windows Beta UTF-8.
+Once Beta UTF-8 is enabled,
+    say SysFileCopy('あ.tmp', 'utf.tmp')
+will work.
+---
+OP:
+I set my win 11 PC as you suggested for dbcs character support, then confirmed
+sysfilecopy of dbcs character(s) filename copied successfully.
+I believe that the malfunction of C2X will be corrected in future release.
+---
+jlf review attached script "submitunit.rex".
+Convert code page 932 to Unicode.
+BUT the character あ is NOT encoded MS932, it's UTF-8.
+0070: 65 6E 74 27 29 27 5C E3 81 82 2E 74 6D 70 27 3B 	ent')'\....tmp';
+      e  n  t  '  )  '  \  ******** .  t  m  p  '  ;
+x2c("E3 81 82")~text~UNICODECHARACTERS=     -- [( "あ"  U+3042 Lo 2 "HIRAGANA LETTER A" )]
+Hence the error returned by systounicode(tst932f,'932',,tstunif.)
+---
+https://en.wikipedia.org/wiki/Code_page_932_(Microsoft_Windows)
+Code page 932 (Microsoft Windows)
+Microsoft Windows code page 932 (abbreviated MS932, Windows-932 or ambiguously
+CP932), also called Windows-31J amongst other names, is the Microsoft Windows
+code page for the Japanese language, which is an extended variant of the Shift
+JIS Japanese character encoding. It contains standard 7-bit ASCII codes, and
+Japanese characters are indicated by the high bit of the first byte being set to
+1. Some code points in this page require a second byte, so characters use either
+8 or 16 bits for encoding.
+IBM offer the same extended double-byte codes in their code page 943 (IBM-943 or
+CP943), which is a combination of the single-byte Code page 897 and the double-
+byte Code page 941.
+---
+https://en.wikipedia.org/wiki/Code_page_932_(IBM)
+Code page 932 (IBM)
+IBM code page 932 (abbreviated as IBM-932 or ambiguously as CP932) is one of
+IBM's extensions of Shift JIS. The coded character sets are JIS X 0201:1976,
+JIS X 0208:1983, IBM extensions and IBM extensions for IBM 1880 UDC. It is the
+combination of the single-byte Code page 897 and the double-byte Code page 301.
+Code page 301 is designed to encode the same repertoire as IBM Japanese DBCS-Host.
+IBM-932 resembles IBM-943. One difference is that IBM-932 encodes the JIS X 0208:1983
+characters but preserves the 1978 ordering, whereas IBM-943 uses the 1983 ordering
+(i.e. the character variant swaps made in JIS X 0208:1983). Another difference is
+that IBM-932 does not incorporate the NEC selected extensions, which IBM-943
+includes for Microsoft compatibility.
+IBM-942 includes the same double-byte codes as IBM-932 (those from Code page 301)
+but includes additional single-byte extensions. International Components for
+Unicode treats "ibm-932" and "ibm-942" as aliases for the same decoder.
 
 
 ================================================================================
@@ -10533,6 +10954,8 @@ aboveBeforeBelow == belowBeforeAbove=               -- .true
 15/07/2017
 String Processing For Swift 4
 https://github.com/apple/swift/blob/master/docs/StringManifesto.md
+now (2025):
+https://github.com/swiftlang/swift/blob/main/docs/StringManifesto.md
 
 
 https://swift.org/blog/utf8-string/
@@ -11117,6 +11540,53 @@ and comparisons. To improve performance on both Darwin and Linux (especially
 older Ubuntu's), we implemented a new comparison implementation for Swift 4.2.
 This new implementation is the same across Linux and Darwin, so both platforms
 get the same answer.
+
+
+https://www.reddit.com/r/Unicode/comments/1hvxsv5/new_swift_api_for_normalisation_feedback_wanted/
+New Swift API for normalisation - feedback wanted about novel APIs for stable normalisation
+jlf:
+Among the points listed, this one caught my attention:
+    An interesting feature of Swift is that its default String type is designed
+    for correct Unicode processing - for instance, canonically-equivalent Strings
+    compare as being equal to each other and produce the same hash value, so you
+    can do things like insert a String in a Set (a hash table) and retrieve it
+    using any canonically-equivalent string.
+        var strings: Set<String> = []
+        strings.insert("\u{00E9}")            // precomposed e + acute accent
+        assert(strings.contains("e\u{0301}")) // decomposed e + acute accent
+oorexx
+    The MapCollection classes such as Table and Relation use the == operator combined with
+    the hashCode method to determine index and item equivalence. It is generally necessary for a
+    class to override both the hashCode method and the == operator method to maintain the contract
+    specified for the hashCode method.
+    Object implementations are expected to abide by a general contract for hash code usage:
+    • Whenever hashCode is invoked on the same object more than once, hashCode must return the
+      same hashcode value, provided than none of the internal information the object uses for an "=="
+      comparison has changed.
+    • If two object instances compare equal using the "==" operator, the hashCode methods for both
+      object instances must return the same value.
+    • It is not required that two object instances that compare unequal using "==" return different hash
+      code values.
+    • Returning a wide range of hash values will produce better performance when an object is used as
+      an index for a MapCollection. A return value of 4 string characters is recommended. The characters
+      in the hash value may be any characters from '00'x to 'ff'x, inclusive.
+executor
+    ("\u{00E9}"~unescape =  "e\u{0301}"~unescape)=      -- 1
+    ("\u{00E9}"~unescape == "e\u{0301}"~unescape)=      -- 1
+    "\u{00E9}"~unescape~hashcode=                       -- 'F?[FFFFFFFFFFFF]'
+    "\u{00E9}"~unescape~hashcode~c2x=                   -- '46F8FFFFFFFFFFFF'
+    "e\u{0301}"~unescape~hashcode=                      -- 'Zt[010000000000]'
+    "e\u{0301}"~unescape~hashcode~c2x=                  -- '5A74010000000000'
+conclusion:
+    The current Text hashcode is not good.
+    The hashcode of a Text must be the hashcode of its normalized representation.
+
+
+https://forums.swift.org/t/pitch-unicode-normalization/73240
+stability for normalization across multiple Unicode versions.
+jlf:
+I don't grasp everything, but this comment is a good overview:
+https://forums.swift.org/t/pitch-unicode-normalization/73240/29
 
 
 ================================================================================
