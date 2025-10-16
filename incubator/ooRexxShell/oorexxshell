@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # macOS: The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
 [ $EXECUTOR_DYLD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
@@ -42,4 +42,10 @@ done
 
 exit $status
 
-
+# Remember
+#   -- When possible, use a history file specific for ooRexxShell
+#   -- For the moment, don't use portableStateHome or stateHome because it doesn't work with rlwrap
+#   -- Maybe will work if the environment variable RLWRAP_HOME is defined
+# Problem:
+#   The variables portableStateHome and stateHome are not yet defined.
+#   They will be defined by oorexxshell.rex
