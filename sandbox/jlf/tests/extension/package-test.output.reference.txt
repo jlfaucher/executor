@@ -1,0 +1,8 @@
+Package P1
+a Directory (2 items)
+'VAR1' : 'p1 var1'
+'VAR2' : 'p1 var2'
+Package P2
+a Directory (2 items)
+'VAR1' : 'p2 var1'
+'VAR2' : 'p2 var2'

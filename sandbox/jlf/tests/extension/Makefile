@@ -12,6 +12,7 @@ scriptsFiles = doers-info \
                functional-test \
                named_arguments-test \
                named_arguments-test_with_extensions \
+               package-test \
                test_extension_order
 
 # The demos can be used as non-regression tests

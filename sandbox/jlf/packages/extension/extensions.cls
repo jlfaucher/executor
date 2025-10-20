@@ -15,6 +15,7 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "extension/logical.cls"
 ::requires "extension/notrace.cls"
 ::requires "extension/object.cls"
+::requires "extension/package.cls"
 ::requires "extension/rexxinfo.cls"
 ::requires "extension/string.cls"
 ::requires "extension/text.cls"

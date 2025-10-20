@@ -3,6 +3,25 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2025 Oct 20
+
+[Compatibility with ooRexx5]
+
+Add support for .Package~local
+
+p1 = .Package~new("P1", "say 'Package P1'")
+p1~local~var1 = "p1 var1"
+p1~local~var2 = "p1 var2"
+p1~local=
+
+output
+    Package P1
+    a Directory (2 items)
+    'VAR1' : 'p1 var1'
+    'VAR2' : 'p1 var2'
+
+
+===============================================================================
 2024 Jul 02
 
 Align the result of the C2X BIF with the result of the C2X BIM
