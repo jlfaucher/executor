@@ -1904,4 +1904,7 @@ attached to a console. A new -cp <codePage> argument could allow specifying the
 encoding.
 
 Tests:
-~/software/do/do_cpp/args-windows.c
+args-windows.c
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/args-windows.c
+args-windows-output.txt
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/args-windows-output.txt

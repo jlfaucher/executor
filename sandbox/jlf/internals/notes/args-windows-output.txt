@@ -1,0 +1,120 @@
+================================================================================
+Windows 10 x86
+================================================================================
+
+E:\tmp>chcp
+Active code page: 850
+
+E:\tmp>args-windows.exe -e "say 'Père Noël ��'"
+
+Original equipment manufacturer (GetOEMCP) = 850
+Windows ANSI code page code page (GetACP) = 1252
+
+input code page (GetConsoleCP) = 850
+output code page (GetConsoleOutputCP) = 850
+
+current implementation: chcp has no impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'PÞre NoÙl ??'
+    73 61 79 20 27 50 e8 72 65 20 4e 6f eb 6c 20 3f 3f 27
+
+new implementation: chcp has an impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'Père Noël ??'
+    73 61 79 20 27 50 8a 72 65 20 4e 6f 89 6c 20 3f 3f 27
+
+--------------------------------------------------------------------------------
+
+E:\tmp>chcp 65001
+Active code page: 65001
+
+E:\tmp>args-windows.exe -e "say 'Père Noël 🎅'"
+
+Original equipment manufacturer (GetOEMCP) = 850
+Windows ANSI code page code page (GetACP) = 1252
+
+input code page (GetConsoleCP) = 65001
+output code page (GetConsoleOutputCP) = 65001
+
+current implementation: chcp has no impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'Pre Nol ??'
+    73 61 79 20 27 50 e8 72 65 20 4e 6f eb 6c 20 3f 3f 27
+
+new implementation: chcp has an impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'Père Noël 🎅'
+    73 61 79 20 27 50 c3 a8 72 65 20 4e 6f c3 ab 6c 20 f0 9f 8e 85 27
+
+
+================================================================================
+Windows 11 ARM
+================================================================================
+
+Z:\software\do\do_cpp>chcp
+Active code page: 437
+
+Z:\software\do\do_cpp>args-windows.exe -e "say 'Père Noël 🎅'"
+
+Original equipment manufacturer (GetOEMCP) = 437
+Windows ANSI code page code page (GetACP) = 1252
+
+input code page (GetConsoleCP) = 437
+output code page (GetConsoleOutputCP) = 437
+
+current implementation: chcp has no impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'PΦre Noδl ??'
+    73 61 79 20 27 50 e8 72 65 20 4e 6f eb 6c 20 3f 3f 27
+
+new implementation: chcp has an impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'Père Noël ??'
+    73 61 79 20 27 50 8a 72 65 20 4e 6f 89 6c 20 3f 3f 27
+
+--------------------------------------------------------------------------------
+
+Z:\software\do\do_cpp>chcp 65001
+Active code page: 65001
+
+Z:\software\do\do_cpp>args-windows.exe -e "say 'Père Noël 🎅'"
+
+Original equipment manufacturer (GetOEMCP) = 437
+Windows ANSI code page code page (GetACP) = 1252
+
+input code page (GetConsoleCP) = 65001
+output code page (GetConsoleOutputCP) = 65001
+
+current implementation: chcp has no impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'P�re No�l ??'
+    73 61 79 20 27 50 e8 72 65 20 4e 6f eb 6c 20 3f 3f 27
+
+new implementation: chcp has an impact
+0 : args-windows.exe
+    61 72 67 73 2d 77 69 6e 64 6f 77 73 2e 65 78 65
+1 : -e
+    2d 65
+2 : say 'Père Noël 🎅'
+    73 61 79 20 27 50 c3 a8 72 65 20 4e 6f c3 ab 6c 20 f0 9f 8e 85 27
