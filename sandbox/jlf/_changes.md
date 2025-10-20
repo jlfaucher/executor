@@ -29,53 +29,401 @@ Internal classes
 See [Extension - Expression problem.txt](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/Extension%20-%20Expression%20problem.txt)
 for the critics of Rick regarding these extensions (2011).
 
+Two types of extensions are possible:
+- Standard extensions, usable in production (not implemented in Executor).
+- Unlocked extensions, that should not be used in production.
 
-unlock the define method  
-unlock the inherit method
+Two forms of extensions are possible:
+- Direct extensions (using `.class~define`)
+- Inherited extensions (using `.class~inherit`)
+
+Overview:
+
+```
+                       +-------------------------------------------------------------------------------------+
+                       |           Standard extensions            |           Unlocked extensions            |
+                       |          (not yet implemented)           |        (implemented in Executor)         |
++----------------------|------------------------------------------|----------------------------------------- |
+|                      | ::extension myClass                      | ::extension myClass                      |
+|                      | ::method myMethod                        | ::method myMethod                        |
+|                      |                                          |                                          |
+|                      | or                                       |                                          |
+|                      |                                          |                                          |
+|                      | ::Method myClass:myMethod                |                                          |
+|  Direct extensions   |                                          |                                          |
+|                      | or                                       |                                          |
+|                      |                                          |                                          |
+|                      | ::Method myMethod Extends myClass        |                                          |
+|                      |                                          |                                          |
+|                      | or                                       |                                          |
+|                      | ...                                      |                                          |
+|----------------------|------------------------------------------|------------------------------------------|
+|                      | ::extension myClass inherit myMixinClass | ::extension myClass inherit myMixinClass |
+|                      |                                          |                                          |
+| Inherited extensions | or                                       |                                          |
+|                      |                                          |                                          |
+|                      | ...                                      |                                          |
++------------------------------------------------------------------------------------------------------------+
+```
 
 
-Add `::extension` directive
+
+<!-- ------------------------------- -->
+### 2.1.   Standard extensions
+<!-- ------------------------------- -->
+
+Standard extensions are useful for modularizing class design.  
+
+__First need expressed by Josep Maria (JMB)__    
+[Syntax sugar for adding new methods to an existing class: a proposal](https://groups.io/g/rexxla-arb/topic/115749344)  
+*Assume that C is a class (a non-predefined one: these cannot be altered), defined somewhere*.  
+*We want to add a new method "newM" to C, without altering the package that defined C.*  
+*This can currently be done in several ways, using pure ooRexx primitives.*  
+*It would be nice if the language offered some syntax sugar to add methods to existing (non-predefined) classes.*  
+*A syntax which could be acceptable and doesn't break anything could be:*
+```REXX
+    ::Method Class:Method
+```
+*This would add the method "Method" to class "Class".*
+
+__[Alternative syntax proposed by Gil:](https://groups.io/g/rexxla-arb/message/1156)__  
+*As an alternative syntax, I'd suggest adding a new sub-keyword to the ::Method directive.*  
+*Perhaps Extends <classname> ?*   
+```REXX
+    ::Method Foo <other sub-keywords> Extends MyArray
+```
+*where MyArray is a class defined in another package.*
+
+__Another alternative syntax__  
+The `::extension` directive described later can be used as is.  
+This would also enable support for inherited extensions.
+
+
+<!-- ------------------------------- -->
+### 2.2.   Unlocked extensions
+<!-- ------------------------------- -->
+
+Unlocked extensions are extensions applicable to the predefined classes.  
+They are useful for creating prototypes and proofs of concept (no need to be an ooRexx developer).  
+They are not designed for production use; therefore, they should not be enabled by default.  
+
+If a prototype becomes candidate for official delivery then it should be re-implemented without unlocked extensions.  
+This may involve some changes to the interpreter, either natively or in rexx.img (ooRexx developer profile).
+
+
+<!-- ------------------------------- -->
+### 2.2.1.   Unleash the potential
+<!-- ------------------------------- -->
+
+ooRexx supports natively the extension of predefined classes during the image building.  
+  
+Executor does not limit such extensions to the image building:
+- Unlock the `define` method.  
+- Unlock the `inherit` method.
+  
+Modifications are allowed on predefined classes and are propagated to existing instances.
+
+```REXX
+    s = '"he said ""hello"" "'
+    say s                           -- "he said ""hello"" "
+    
+    -- Direct extension
+    say s~hasMethod("quoted")       -- 0
+    .string~define("quoted", "use strict arg quote='""'; return quote || self~changeStr(quote, quote||quote) || quote")
+    say s~hasMethod("quoted")       -- 1 (the new method has been propagated to the old instances)
+    say s~quoted                    -- """he said """"hello"""" """
+
+    -- Inherited extension
+    say s~hasMethod("unquoted")     -- 0
+    .string~inherit(.StringHelpers)
+    say s~hasMethod("unquoted")     -- 1 (the new inherited methods have been propagated to the old instances)
+    say s~unquoted                  -- he said "hello"
+
+    ::class "StringHelpers" mixinclass Object public
+
+    ::method unquoted
+        use strict arg quote='"'
+        if self~left(1) == quote & self~right(1) == quote then
+            return self~substr(2, self~length - 2)~changeStr(quote||quote, quote)
+        else
+            return self
+```
+
+<!-- ------------------------------- -->
+### 2.3.   ::extension directive
+<!-- ------------------------------- -->
 
 ```
 >>-::EXTENSION--classname----+-------------------+-----------------><
                              +-INHERIT--iclasses-+
 ```
 
-
-This directive delegates to the methods `.class~define` and `.class~inherit`.  
-The changes are allowed on predefined classes, and are propagated to existing instances.
-
-If the same method appears several times in a given `::extension` directive, this is an error (because it's like that with `::class`).  
-It's possible to extend a class several times in a same package.  
-It's possible to extend a class in different packages.  
-If the same method appears in several `::extension` directives, there is no error:  
-the most recent replaces the older (because `define` works like that).
+This directive delegates to the `.class~define` and `.class~inherit` methods.  
+  
+Two forms of extension are possible:
+- Direct extension (using `.class~define`)
+- Inherited extension (using `.class~inherit`)
 
 When the extensions of a package are installed, the `extension` methods and the `inherit` declarations of each `::extension` are processed in the order of declaration.  
 Each package is installed separately, this is the standard behaviour.  
-The visibility rules for classes are also standard, nothing special for extensions. Each package has its own visibility on classes.
+  
+The visibility rules for classes are also standard, nothing special for extensions.  
+Each package has its own visibility on classes.
 
-Currently, if the same method is extended several times, then it's the "last" extension who wins...  
-The definition of "last" depends on the order of resolution of `::requires`.  
+Implementation (copy-paste of the ::class directive, with adaptations):  
+[ExtensionDirective.hpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/instructions/ExtensionDirective.hpp)  
+[ExtensionDirective.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/instructions/ExtensionDirective.cpp)
+
+@JMB  
+The equivalent of your
+[Load.Parser.Module.rex](https://rexx.epbcn.com/rexx-parser/bin/modules/Load.Parser.Module.rex)
+is
+[ExtensionDirective::install](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/trunk/interpreter/instructions/ExtensionDirective.cpp#L175-L183).
+
+
+<!-- ------------------------------- -->
+#### 2.3.1.   Direct extension
+<!-- ------------------------------- -->
+
+```REXX
+    ::extension myClass
+    ::method myMethod
+```
+
+The following rules describe the current implementation in Executor (no collision detection).  
+They probably need to be modified to meet the JMB's requirement for collisions:  
+*For every such method "C::newM", it picks the class object corresponding to C, checks if C already has a method "newM", complains if this is the case, and uses the define method of the C class to add newM to C.*  
+In [rare cases](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/string.cls#L8-L10),
+nevertheless, the collision is not an error (method override). Can still be done using ~define.  
+Collision detection would not generate any errors with current Executor packages, so it could be enabled unconditionally.
+
+__Executor rules__
+
+If the same method appears multiple times in a given ::extension directive, it's an error (because that's how it is with ::class).
+
+```REXX
+    ::class myClass
+    ::extension myClass
+    ::method myMethod
+    ::method myMethod   -- Error 99.902:  Duplicate ::METHOD directive instruction.
+```
+
+If the same method appears in multiple `::extension` directives in the same package, there is no error.  
+The newer one replaces the older one (because `define` works like that).
+
+```REXX
+    .myclass~new~myMethod   -- 2
+    ::class myClass
+    ::extension myClass
+    ::method myMethod; say 1
+    ::extension myClass
+    ::method myMethod; say 2
+```
+
+If the same method appears in multiple `::extension` directives in different packages, there is no error.  
+The "last" extension wins.  
+The definition of "last" depends on the resolution order of `::requires`.  
 See [test_extension_order.rex](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.rex)  
 See [test_extension_order.output.reference.txt](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/tests/extension/test_extension_order.output.reference.txt)
 
-Unlike `::class`, you can have several `::extension` in the same source for the same class.  
-So the current check for duplicate method in an ExtensionDirective is not very useful.  
-The interpreter will complain for that:
+
+<!-- ------------------------------- -->
+#### 2.3.2.   Inherited extension
+<!-- ------------------------------- -->
 
 ```REXX
-    ::extension object
-    ::method m
-    ::method m
+    ::extension myClass inherit myExtension
 ```
-but not for that:
+
+It's possible to extend a class multiple times in the same package.  
 
 ```REXX
-    ::extension object
-    ::method m
-    ::extension object
-    ::method m
+SourceFile.cls
+    ::class myExtension1 mixinclass Object
+    ::extension myClass inherit myExtension1
+
+    ::class myExtension2 mixinclass Object
+    ::extension myClass inherit myExtension2
+```
+
+It's possible to extend a class in different packages.  
+
+```REXX
+    main.rex
+        .myClass~new
+
+        ::requires "SourceFile1.cls"
+        ::requires "SourceFile2.cls"
+
+    SourceFile1.cls
+        ::class myExtension mixinclass Object
+        ::method init
+            say "init myExtension from SourceFile1"
+            forward class (super)
+    
+        ::requires "myClass.cls"
+        ::extension myClass inherit myExtension
+
+    SourceFile2.cls
+        ::class myExtension mixinclass Object
+        ::method init
+            say "init myExtension from SourceFile2"
+            forward class (super)
+
+        ::requires "myClass.cls"
+        ::extension myClass inherit myExtension
+
+    myClass.cls
+        ::class myClass public
+
+        ::method init
+            say "init myClass"
+            forward class (super)
+```
+
+display  
+
+```
+    init myClass
+    init myExtension from SourceFile1
+    init myExtension from SourceFile2
+```
+
+
+<!-- ------------------------------- -->
+##### 2.3.2.1.   The class 'Object' cannot inherit from itself"
+<!-- ------------------------------- -->
+
+I would like to write
+```REXX
+    ::extension Object inherit ObjectUserData ObjectPrettyPrinter
+```
+instead of 
+[that](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/object.cls#L2),
+but the `Object` class cannot inherit from a mixin class.  
+Error "Class 'Object' cannot inherit from itself".
+
+For the classes other than `Object`, Executor uses only inherited extensions.  
+Example:  
+[String](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/string.cls#L15-L17) in `string.cls`  
+[String](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/text.cls#L11-L12) in `text.cls`  
+
+
+<!-- ------------------------------- -->
+### 2.4.   Extensions capabilities
+<!-- ------------------------------- -->
+
+Extensions belong to the extended classes.  
+They have access to encapsulated datas and private methods.
+
+
+<!-- ------------------------------- -->
+#### 2.4.1   Access to encapsulated datas
+<!-- ------------------------------- -->
+
+The main variables pool is accessible from a direct extension method.  
+The inherited extension methods have their own variables pool.  
+This is a standard feature.
+
+```REXX
+    o = .myClass~new
+    say o~myVar                         -- 0
+    o~update                            -- direct extension
+    say o~myVar                         -- 1 (main pool updated)
+    o~update:.myExtension               -- inherited extension
+    say o~myVar                         -- 1 (main pool unchanged)
+    say o~myVar:.myExtension            -- 2
+
+    ::class myClass
+    ::method init
+        expose myVar
+        myVar = 0
+    ::attribute myVar get
+
+    -- Direct extension
+    ::extension myClass
+    ::method update
+        -- direct access to the main pool
+        expose myVar
+        myVar = 1
+
+    -- Inherited extension
+    ::class myExtension mixinclass Object
+    ::method update
+        -- the variable pool is specific to this mixin class
+        expose myVar
+        myVar = 2
+    ::attribute myVar get
+
+    ::extension myClass inherit myExtension
+```
+
+<!-- ------------------------------- -->
+#### 2.4.2.   Access to private methods
+<!-- ------------------------------- -->
+
+Private methods are accessible from a method added by extension.  
+This is a standard feature.
+
+```REXX
+    main.rex
+        o = .myClass~new
+        o~publicMethod
+        -- o~packageMethod                  -- not accessible
+        -- o~privateMethod                  -- not accessible
+        o~extendedMethod
+
+        ::extension myClass
+        ::method extendedMethod
+            say "execute extendedMethod"
+            -- self~packageMethod           -- not accessible
+            self~privateMethod
+
+        ::requires "SourceFile.cls"
+
+    SourceFile.cls
+        ::class myClass public
+
+        ::method publicMethod public
+            say "execute publicMethod"
+
+        ::method packageMethod package
+            say "execute packageMethod"
+
+        ::method privateMethod private
+            say "execute privateMethod"
+```
+
+display
+
+```
+    execute publicMethod
+    execute extendedMethod
+    execute privateMethod
+```
+
+__Private methods of predefined classes__
+
+When using an unlocked extension method, the private methods of a predefined class are
+[accessible](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/doers.cls#L421-L424).
+
+__Package-scope methods__
+
+Package-scope methods are not accessible when the extension is made from a different package.  
+This is a standard feature but surprising when the extension method and the package-scope method are in the same class...  
+A method defined in a C class should have access to all methods in the C class.  
+Reproductible without extensions:
+
+```
+    main.rex
+        .myClass~define("extendedMethod", .methods["EXTENDEDMETHOD"])
+        o = .myClass~new
+        o~extendedMethod
+
+        ::method extendedMethod
+            say "execute extendedMethod"
+            -- self~packageMethod           -- not accessible
+            self~privateMethod
 ```
 
 
@@ -2149,3 +2497,101 @@ To investigate:
   
 - The reference operator supports stems but doesn't support compound symbols.  
   Will compound symbols be supported with `LazyRexxExpression` ?
+
+
+<!-- ======================================================================= -->
+## 28.   Thoughts about tail recursion
+<!-- ======================================================================= -->
+
+Not yet implemented.
+
+See if it's possible to modify the implementation of FORWARD to reduce the
+comsumption of stack frames.  
+Should be possible when the option CONTINUE is not used.  
+Could be used to emulate tail recursion.
+  
+Under MacOs, last value before stack overflow when calculating the factorial:
+
+
+<!-- ------------------------------- -->
+### 28.1.   Internal procedure
+<!-- ------------------------------- -->
+
+```REXX
+x86_64  Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
+arm64   Executor: 4282      ooRexx5: 20079 and then seg fault
+    use arg n
+    say factorial(n)
+    return
+    factorial:
+    use arg n
+    if n==0 then return 1
+    else return n * factorial(n-1)
+``` 
+
+
+<!-- ------------------------------- -->
+### 28.2.   Routine, recursion by name
+<!-- ------------------------------- -->
+
+```REXX
+x86_64  Executor:  736      ooRexx5: 793
+arm64   Executor: 3778      ooRexx5: 886        bizarre!
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n
+    if n==0 then return 1
+    else return n * factorial(n-1)
+```
+
+
+<!-- ------------------------------- -->
+### 28.3.   Routine, recursion by calling the executable
+<!-- ------------------------------- -->
+
+```REXX
+x86_64  Executor:  487      ooRexx5: 511
+arm64   Executor: 2293      ooRexx5: 591        bizarre!
+    use arg n
+    say factorial(n)
+    return
+    ::routine factorial
+    use arg n
+    if n==0 then return 1
+    else return n * .context~executable~call(n-1)
+```
+
+
+<!-- ------------------------------- -->
+### 28.4.   Block, recursion by calling the executable with ~call
+<!-- ------------------------------- -->
+
+```REXX
+x86_64   484
+arm64   2290
+    {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
+```
+
+
+<!-- ------------------------------- -->
+### 28.5.   Block, recursion by calling the executable with ~()
+<!-- ------------------------------- -->
+
+```REXX
+x86_64  197
+arm64   890
+    {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
+```
+
+I would like to support the same limit 484 when using the doer method ~().
+
+```REXX
+    ::class "Doer" mixinclass Object public inherit DoerFactory
+    ::method "~()" unguarded
+        forward message "do"
+    ::class "RoutineDoer" mixinclass Object public inherit Doer
+    ::method do unguarded
+        forward message "call"
+```
