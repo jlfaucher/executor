@@ -8,3 +8,29 @@ Python
 Scheme
 RFC
 Apache
+
+
+================================================================================
+Github
+================================================================================
+
+https://docs.github.com/en/apps
+GitHub Apps documentation
+
+
+https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+About protected branches
+
+
+https://github.com/palantir/bulldozer
+GitHub Pull Request Auto-Merge Bot
+bulldozer is a GitHub App that automatically merges pull requests (PRs) when
+(and only when) all required status checks are successful and required reviews
+are provided.
+
+
+https://github.com/palantir/policy-bot
+A GitHub App that enforces approval policies on pull requests
+policy-bot is a GitHub App for enforcing approval policies on pull requests.
+It does this by creating a status check, which can be configured as a required
+status check.
