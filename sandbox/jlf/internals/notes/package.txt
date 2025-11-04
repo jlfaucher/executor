@@ -1,0 +1,4 @@
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/5d74c5720903250904i7f79014en3d155b0527bc1783%40mail.gmail.com/#msg21929050
+[Oorexx-devel] Problem with prologue of ::requires file not executing
+2009
+jlf: could be useful to read
