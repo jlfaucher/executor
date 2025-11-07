@@ -3,6 +3,20 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2025 Nov 7
+
+Reactivate the declaration of the Buffer class.
+The Buffer class is used by ooDialog.
+I had the error "postionnal argument 1 must be an instance of the Buffer class"
+when running oodtree.rex. It's because the Buffer class was not found.
+oodResources.cpp
+RexxMethod1(RexxObjectPtr, image_init, RexxObjectPtr, cselfObj)
+{
+    if ( requiredClass(context->threadContext, cselfObj, "Buffer", 1) )     -- false because Buffer class not found
+    ...
+
+
+===============================================================================
 2025 Oct 20
 
 [Compatibility with ooRexx5]
@@ -6770,6 +6784,12 @@ instance can only be created using the native code API...
 Could be fixed by renaming the "Buffer" class in pipe.rex.
 This collision has been fixed in Executor by not declaring the native Buffer class
 in .environment.
+[jlf 2025 nov 5]
+Bad idea!
+The Buffer class is used by ooDialog.
+I have the error "positionnal argument 1 must be an instance of the Buffer class"
+when running oodtree.rex. It's because the Buffer class is not found.
+
 
 Another collision with the "System" class has been fixed the same way in Executor
 (this class was no longer declared by official ooRexx5 in rev 10319 on 2014 July 21).

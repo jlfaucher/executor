@@ -1634,7 +1634,7 @@ void RexxMemory::createImage(const char *imageTarget)
   kernel_public(CHAR_TABLE            ,TheTableClass   ,TheEnvironment);
   kernel_public(CHAR_IDENTITYTABLE    ,TheIdentityTableClass,TheEnvironment);
   kernel_public(CHAR_POINTER          ,ThePointerClass ,TheEnvironment);
-  //kernel_public(CHAR_BUFFER           ,TheBufferClass  ,TheEnvironment); // jlf: not sure why this class is declared in TheEnvironment... This class is used only internally for the API (see RexxObject::getCSelf)
+  kernel_public(CHAR_BUFFER           ,TheBufferClass  ,TheEnvironment);
   kernel_public(CHAR_WEAKREFERENCE    ,TheWeakReferenceClass  ,TheEnvironment);
   kernel_public("STACKFRAME"          ,TheStackFrameClass  ,TheEnvironment);
   kernel_public(CHAR_TRUE             ,TheTrueObject   ,TheEnvironment);
