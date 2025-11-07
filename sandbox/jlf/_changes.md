@@ -2519,7 +2519,7 @@ Under MacOs, last value before stack overflow when calculating the factorial:
 
 ```REXX
 x86_64  Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
-arm64   Executor: 4282      ooRexx5: 20079 and then seg fault
+arm64   Executor: 3568      ooRexx5: 20073 and then seg fault
     use arg n
     say factorial(n)
     return
@@ -2536,7 +2536,7 @@ arm64   Executor: 4282      ooRexx5: 20079 and then seg fault
 
 ```REXX
 x86_64  Executor:  736      ooRexx5: 793
-arm64   Executor: 3778      ooRexx5: 886        bizarre!
+arm64   Executor: 3568      ooRexx5: 15230
     use arg n
     say factorial(n)
     return
@@ -2553,7 +2553,7 @@ arm64   Executor: 3778      ooRexx5: 886        bizarre!
 
 ```REXX
 x86_64  Executor:  487      ooRexx5: 511
-arm64   Executor: 2293      ooRexx5: 591        bizarre!
+arm64   Executor: 2214      ooRexx5: 10153
     use arg n
     say factorial(n)
     return
@@ -2570,7 +2570,7 @@ arm64   Executor: 2293      ooRexx5: 591        bizarre!
 
 ```REXX
 x86_64   484
-arm64   2290
+arm64   2211
     {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
 ```
 
@@ -2581,7 +2581,7 @@ arm64   2290
 
 ```REXX
 x86_64  197
-arm64   890
+arm64   832
     {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
 ```
 
