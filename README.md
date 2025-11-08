@@ -402,7 +402,7 @@ He gave me a punch
 I gave up my extensions.
 
 
-[apl_glimpse_heaven]: http://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
+[apl_glimpse_heaven]: https://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [demo_unicode_checks]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-internal_checks-output.html
 [demo_unicode_intro]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-output.html
@@ -419,7 +419,7 @@ I gave up my extensions.
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [laisse_beton]:https://www.youtube.com/watch?v=9eU7wv4eOo8 "Laisse béton"
-[mike_vanier_article]: http://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
+[mike_vanier_article]: https://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
 [monkey_patching]: https://youtu.be/ud5J7Ye332I?t=57
 [named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
@@ -428,10 +428,10 @@ I gave up my extensions.
 [overview_changes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.md "Overview of changes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/pipeline/pipe_readme.txt
 [rexx_cub]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/RexxCub/RexxCub.md "Rexx Cub"
-[rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
-[rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
-[rosetta_code_function_composition]: http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
-[rosetta_code_y_combinator]: http://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
+[rosetta_code_accumulator_factory]: https://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
+[rosetta_code_closures_value_capture]: https://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
+[rosetta_code_function_composition]: https://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
+[rosetta_code_y_combinator]: https://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [sandbox_notes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_notes.txt "Sandbox notes"
 [slides]: https://www.dropbox.com/s/d42l8sdodne81eb/slides-sandbox-jlf.pdf?dl=0 "slides-sandbox-jlf.pdf"
@@ -440,6 +440,6 @@ I gave up my extensions.
 [thoughts_on_ooRexx_and_unicode]: https://docs.google.com/viewer?url=https://jlfaucher.github.io/executor.master/unicode/Thoughts%20on%20ooRexx%20and%20Unicode.pdf
 [uni_algo]: https://github.com/uni-algo/uni-algo
 [utf8proc]: https://juliastrings.github.io/utf8proc/
-[wikipedia_breadth_first_search]: http://en.wikipedia.org/wiki/Breadth-first_search
-[wikipedia_fixed_point_combinator]: http://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
+[wikipedia_breadth_first_search]: https://en.wikipedia.org/wiki/Breadth-first_search
+[wikipedia_fixed_point_combinator]: https://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"
 [wikipedia_memoization]: https://en.wikipedia.org/wiki/Memoization
