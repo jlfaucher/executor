@@ -388,7 +388,7 @@ Laisse béton
 I was at ease, I was laid-back, leaning at the keyboard.  
 The guy went into the office and looked at me, like:  
   
-*You got extensions, Rexx Cub, quit showing off.  
+*You got extensions, [Rexx Cub][rexx_cub], quit showing off.  
 I bet that's [monkey patching][monkey_patching].  
 Follow me to the waste lot,  
 I'll teach you a funny game  
@@ -427,6 +427,7 @@ I gave up my extensions.
 [notes_unicode]: https://jlfaucher.github.io/executor.master/unicode/_notes-unicode.html
 [overview_changes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.md "Overview of changes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/pipeline/pipe_readme.txt
+[rexx_cub]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/RexxCub/RexxCub.md "Rexx Cub"
 [rosetta_code_accumulator_factory]: http://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: http://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
 [rosetta_code_function_composition]: http://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
