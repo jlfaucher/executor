@@ -10,7 +10,7 @@ A-baba-beep-beep-bee-boo-doo    <br/>
 You strut with extensions clean and tight   <br/>
 Loops are lean, scope just right            <br/>
 You’ve got metaclass heavenward             <br/>
-I just crash with missing INIT              <br/>
+I just crashed, missing INIT forward        <br/>
 </p>
 
 <p align="center">
