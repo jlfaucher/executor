@@ -1,5 +1,5 @@
 <p align="center">
-<img width="400" src="RexxCub.png" alt="Rexx Cub">
+<img width="400" src="https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/RexxCub/RexxCub.png" alt="Rexx Cub">
 </p>
 
 <p align="center">
@@ -62,6 +62,6 @@ So I can extend like you            <br/>
 </p>
 
 <p align="center">
-    <img width="400" src="King_Louie_wants_to_be_like_Rexx_Cub.png" alt="King Louie wants to be like Rexx Cub">
-    <img width="400" src="King_Louie_unlocked.png" alt="King Louie unlocked">
+    <img width="400" src="https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/RexxCub/King_Louie_wants_to_be_like_Rexx_Cub.png" alt="King Louie wants to be like Rexx Cub">
+    <img width="400" src="https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/RexxCub/King_Louie_unlocked.png" alt="King Louie unlocked">
 </p>
