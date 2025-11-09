@@ -60,3 +60,12 @@ Give me the power                   <br/>
 Of unlocked extensions              <br/>
 So I can extend like you            <br/>
 </p>
+
+<p align="center">
+<table style="border:0px">
+    <tr>
+        <td><img width="400" src="King_Louie_wants_to_be_like_Rexx_Cub.png" alt="King Louie wants to be like Rexx Cub"></td>
+        <td><img width="400" src="King_Louie_unlocked.png" alt="King Louie unlocked"></td>
+    </tr>
+</table>
+</p>
