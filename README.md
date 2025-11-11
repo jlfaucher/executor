@@ -420,7 +420,7 @@ I gave up my extensions.
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [laisse_beton]:https://www.youtube.com/watch?v=9eU7wv4eOo8 "Laisse béton"
 [mike_vanier_article]: https://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
-[monkey_patching]: https://youtu.be/ud5J7Ye332I?t=57
+[monkey_patching]: https://youtu.be/ud5J7Ye332I?t=15
 [named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
 [named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.rex "Test cases of named arguments (script)"
