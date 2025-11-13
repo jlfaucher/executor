@@ -40,6 +40,7 @@
 #/* Global settings                                                            */
 #/*----------------------------------------------------------------------------*/
 message(STATUS "CMake version is ${CMAKE_VERSION}")
+message(STATUS "CMAKE_BUILD_TYPE is ${CMAKE_BUILD_TYPE}")
 # check_ipo_supported added in 3.9
 if (APPLE)
     # macOS builds with cmake prior version 3.12 have an alleged @rpath issue
@@ -328,12 +329,18 @@ else ()
   set (CMAKE_CXX_STANDARD 11)
 endif ()
 
+# Interprocedural optimization (IPO), also known as link-time optimization (LTO)
 # Optional IPO. Do not use IPO if it's not supported by compiler.
 include(CheckIPOSupported)
 check_ipo_supported (RESULT result OUTPUT output)
 if (result)
   message (STATUS "IPO is supported")
-  set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    message (STATUS "IPO is not activated for a Debug build")
+    set (CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+  else ()
+    set (CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  endif ()
 else ()
   message (WARNING "IPO is not supported: ${output}")
   set (CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
