@@ -1788,6 +1788,14 @@ The method .string~"[]"
     .string~"[]" should behave like .string~subchar which takes only one argument: the character's position.
 
 
+RexxContext::interpreter should have been called interpreterId
+because it returns an identifier, not an interpreter instance.
+Idem for
+RexxContext::invocation
+RexxContext::thread
+StackFrame::invocation
+
+
 ================================================================================
 Error messages to fix
 ================================================================================
