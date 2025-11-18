@@ -1,0 +1,662 @@
+Code review of ooRexx5 sources
+==============================
+
+First need:
+No message REQUIRES sent to the security manager.
+
+Using this code for test
+routine=.Routine~newFile(program)   -- create routine object
+say "setSecurityManager"
+routine~setSecurityManager(.monitoringSupervisor~new)
+say "calling routine"
+routine~call         -- execute program
+
+Put a breakpoint in PackageManager::loadRequires
+
+ooRexx 5 calls PackageManager::loadRequires during the creation of the routine (RoutineClass::newFileRexx is in the stack).
+At that moment, the security manager is not yet assigned.
+The console contains no display.
+
+ooRexx 4.2 does not call PackageManager::loadRequires during the creation of the routine (RoutineClass::newFileRexx is not in the stack).
+ooRexx 4.2 calls PackageManager::loadRequires when the routine is called (RoutineClass::callRexx is in the stack)
+In the console, you see
+setSecurityManager
+calling routine
+
+---------------------------------------
+
+It's possible to receive the REQUIRES message by setting a security manager on the interpreter instance.
+
+BUILTIN(SETSECURITYMANAGER)
+{
+    const size_t SETSECURITYMANAGER_Min = 0;
+    const size_t SETSECURITYMANAGER_Max = 1;
+    const size_t SETSECURITYMANAGER_manager = 1;
+
+    check_args(SETSECURITYMANAGER);
+    RexxObject *manager = optional_argument(SETSECURITYMANAGER, manager);
+
+    Activity * activity = context->getActivity();
+    if (activity == OREF_NULL) return TheFalseObject;
+    InterpreterInstance *interpreter = activity->getInstance();
+    if (interpreter == OREF_NULL) return TheFalseObject;
+    interpreter->setSecurityManager(manager); // OREF_NULL is supported (when no argument given)
+    return TheTrueObject;
+}
+
+
+Test:
+call setSecurityManager .monitoringSupervisor~new
+routine=.Routine~newFile(program)   -- create routine object
+
+I noticed that when used alone (i.e. no security manager on routine, the LOCAL and ENVIRONMENT checkpoints are missing.
+It's probably because there is no fallback to the default (i.e. interpreter's) security manager.
+Same remark for NativeCode.
+
+When setting also the security manager on the routine, then the LOCAL and ENVIRONMENT checkpoints are triggered.
+
+
+------------------------------------
+
+Still a WIP.
+
+Preliminary note:
+The setSecurityManager methods are protected, allowing a security manager to prohibit its own replacement by the monitored agent program.
+The new setSecurityManager BIF is not protected.
+
+The setSecurityManager BIF must be replaced by something that can be monitored.
+Could be a Sys function.
+Could be a method, but where?
+
+Or could call directly the checkFunctionCall of the security manager from the setSecurityManager BIF.
+
+
+
+On 14 Nov 2025, at 23:18, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+    Just to see whether I understood what this means:
+
+    If one implements the above BIF and sets a security manager for an interpreter instance, then all code executed by that instance will be supervised with that security manager?
+    yes but additional changes are needed.
+    Would this also include any called (not required) program?
+
+yes, with the changes below.
+
+SM = SecurityManager
+An SM is a wrapper of a manager, a manager is the RexxObject you pass to setSecurityManager.
+
+Some classes like Activity, RexxActivation and PackageClass have a securityManager (an attribute).
+Some classes like MethodClass and RoutineClass delegate to their Code object.
+The Code object delegates to its PackageClass.
+
+Activity and RexxActivation have an effective SecurityManager (a method).
+The effective SM returns the stored SM if it is not NULL, otherwise the interpreter's SM.
+
+Changes applied:
+Added an effective SM on PackageClass: getEffectiveSecurityManager()
+Replaced the use of getSecurityManager() by the new getEffectiveSecurityManager() of PackageClass.
+Modified the implementation of the effective SM to test if the stored SM is not NULL and active.
+An active SM is an SM with a non NULL manager attribute.
+
+
+main.rex
+    -- the activation has a NULL SM
+    call "program1.rex"    -- this call is not monitored.
+    call setSecurityManager .monitoringSupervisor~new
+    -- the activation has still a NULL SM, but its effective SM is now non NULL
+    call "program1.rex"    -- this call is monitored.
+    -- The calls made from "program1.rex" are also monitored
+
+
+Implementation (current code, unchanged).
+
+Activity::callObjectFunctionExit
+{
+    // give the security manager the first pass
+    SecurityManager *manager = activation->getEffectiveSecurityManager();
+    if (manager != OREF_NULL)
+    {
+        if (manager->checkFunctionCall(rname, argcount, arguments, funcresult))
+
+
+
+On 14 Nov 2025, at 23:18, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+    If one sets the security manager to the interpreter it may be the case that
+    the LOCAL, ENVIRONMENT and REQUIRES checkpoints do not get called.
+    However, if one sets a security manager to the routine object (result of
+    .routine~newFile(...)), then these checkpoints get called by sending the
+    appropriate messages to the security manager?
+
+The REQUIRES checkpoints are called, that was the objective of this WIP.
+I made minor changes to have the LOCAL and ENVIRONMENT called:
+Use the new getEffectiveSecurityManager() of PackageClass, instead of getSecurityManager().
+
+RexxClass *PackageClass::findClass(RexxString *className, RexxObject *&cachedValue)
+{
+    ...
+    SecurityManager *effectiveSecurityManager = getEffectiveSecurityManager();
+    // give the security manager a go
+    if (effectiveSecurityManager != OREF_NULL)
+    {
+        classObject = (RexxClass *)effectiveSecurityManager->checkLocalAccess(internalName);
+
+
+
+On 14 Nov 2025, at 23:18, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+    So to get a fully functional security manager one needs to do two things,
+    a) set the interpreter instance to a security manager, and
+    b) set the routine object to a security manager?
+
+b) is no longer needed.
+
+On 14 Nov 2025, at 23:18, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+    It will be possible to remove the security manager from the instance by
+    invoking the BIF without an argument?
+
+yes
+
+On 14 Nov 2025, at 23:18, Rony G. Flatscher <Rony.Flatscher@wu.ac.at> wrote:
+    If one does this, then the requires, local and environment checkpoints do
+    not get sent anymore?
+
+yes, if there are not more specialized SMs (on routine or method or package).
+The interpreter SM is just a default SM, it never replaces more specialized SMs.
+
+
+================================================================================
+Related links
+
+https://sourceforge.net/p/oorexx/bugs/1422/
+#1422 SecurityManager cannot supervise "::requires" directives
+by Rony
+status unread
+
+https://sourceforge.net/p/oorexx/bugs/1487/
+#1487 Security Manager doesn't trigger when set while executable is running
+by Erich
+status unread
+
+https://sourceforge.net/p/oorexx/bugs/1886
+#1886 REQUIRES method not triggered in Security Manager
+by JMB
+status invalid
+
+
+https://chatgpt.com/share/691720e1-dffc-8007-9a7e-296adf71784f
+
+
+================================================================================
+Code review of ooRexx5 sources
+
+
+ActivationBase.hpp
+class ActivationBase : public RexxInternalObject
+{
+    virtual SecurityManager *getSecurityManager() = 0;
+
+
+ActivationSettings.hpp
+class ActivationSettings
+{
+      SecurityManager *securityManager;    // security manager object
+
+
+Activity.hpp
+class Activity : public RexxInternalObject
+{
+    SecurityManager *getEffectiveSecurityManager();
+    SecurityManager *getInstanceSecurityManager();
+    ActivationBase     *topStackFrame;  // top-most activation frame (can be either native or Rexx).
+
+
+Activity.cpp
+SecurityManager* Activity::getEffectiveSecurityManager()
+{
+    // get the security manager for the top stack frame. If there is none defined, default to
+    // ghe global security manager.
+    SecurityManager *manager = topStackFrame->getSecurityManager();
+
+    if (manager != OREF_NULL)
+    {
+        return manager;
+    }
+
+    // return the manager from the instance
+    return instance->getSecurityManager();
+}
+
+
+Activity.cpp
+SecurityManager* Activity::getInstanceSecurityManager()
+{
+    // return the manager from the instance
+    return instance->getSecurityManager();
+}
+
+
+getInstanceSecurityManager is used by NativeActivation and RexxActivation
+
+
+BaseCode.hpp
+class BaseCode : public RexxInternalObject
+{
+    virtual RexxObject *setSecurityManager(RexxObject *manager);
+
+
+BaseCode.cpp
+ * Set the security manager in the code source context.
+ * @return Returns true if the manager could be set.  Non-Rexx code objects
+ *         just return false unconditionally.
+RexxObject *BaseCode::setSecurityManager(RexxObject *manager)
+{
+    // the default is just to return a failure
+    return TheFalseObject;
+}
+
+
+CPPCode.cpp
+PCPPM CPPCode::exportedMethods[] =
+{
+    CPPM(MethodClass::setSecurityManager),
+    CPPM(RoutineClass::setSecurityManager),
+    CPPM(PackageClass::setSecurityManagerRexx),
+
+
+InterpreterInstance.hpp
+class InterpreterInstance : public RexxInternalObject
+{
+    inline SecurityManager *getSecurityManager() { return securityManager; }
+    void setSecurityManager(RexxObject *m);
+    SecurityManager     *securityManager;    // the security manager for our instance
+
+
+InterpreterInstance.cpp
+void InterpreterInstance::initialize(Activity *activity, RexxOption *options)
+{
+    // create a default wrapper for this security manager
+    securityManager = new SecurityManager(OREF_NULL);
+
+
+InterpreterInstance.cpp
+void InterpreterInstance::setSecurityManager(RexxObject *m)
+{
+    securityManager = new SecurityManager(m);
+}
+
+
+InterpreterInstance.cpp
+bool InterpreterInstance::terminate()
+{
+    securityManager = OREF_NULL;
+
+
+MethodClass.hpp
+class MethodClass : public BaseExecutable
+{
+    RexxObject  *setSecurityManager(RexxObject *);
+
+
+MethodClass.cpp
+RexxObject *MethodClass::setSecurityManager(RexxObject *manager)
+{
+    return code->setSecurityManager(manager);
+}
+
+
+NativeActivation.hpp
+class NativeActivation : public ActivationBase
+{
+    SecurityManager *getSecurityManager() override;
+    SecurityManager *securityManager;    // our active security manager
+
+
+NativeActivation.cpp
+void NativeActivation::run(MethodClass *_method, NativeMethod *_code, RexxObject  *_receiver,
+                           RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, ProtectedObject &resultObj)
+{
+    // sort out our active security manager
+    securityManager = _code->getSecurityManager();
+    if (securityManager == OREF_NULL)
+    {
+        securityManager = activity->getInstanceSecurityManager();
+    }
+
+
+NativeActivation.cpp
+void NativeActivation::callNativeRoutine(RoutineClass *_routine, NativeRoutine *_code, RexxString *functionName,
+                                         RexxObject **list, size_t count, ProtectedObject &resultObj)
+{
+    // sort out our active security manager
+    securityManager = _code->getSecurityManager();
+    if (securityManager == OREF_NULL)
+    {
+        securityManager = activity->getInstanceSecurityManager();
+    }
+
+
+NativeActivation.cpp
+void NativeActivation::callRegisteredRoutine(RoutineClass *_routine, RegisteredRoutine *_code, RexxString *functionName,
+                                             RexxObject **list, size_t count, ProtectedObject &resultObj)
+{
+    // use the default security manager
+    securityManager = activity->getInstanceSecurityManager();
+
+
+NativeActivation.cpp
+void NativeActivation::run(ActivityDispatcher &dispatcher)
+{
+    // use the default security manager
+    securityManager = activity->getInstanceSecurityManager();
+
+
+NativeActivation.cpp
+void NativeActivation::run(CallbackDispatcher &dispatcher)
+{
+    // use the default security manager
+    securityManager = activity->getInstanceSecurityManager();
+
+
+TODO? package security manager
+NativeActivation.cpp
+SecurityManager *NativeActivation::getSecurityManager()
+{
+    PackageClass *s = getPackageObject();
+    if (s != OREF_NULL)
+    {
+        return s->getSecurityManager();
+    }
+    return OREF_NULL;     // no security manager on this context.
+}
+
+
+NativeCode.hpp
+class NativeCode : public BaseCode
+{
+    SecurityManager *getSecurityManager();
+
+
+TODO? package security manager
+NativeCode.cpp
+ * Get the security manager associated with native code.  Generally,
+ * only native methods and routines defined with directives
+ * will have an associated security manager.
+SecurityManager* NativeCode::getSecurityManager()
+{
+    if (package != OREF_NULL)
+    {
+        return package->getSecurityManager();
+    }
+    return OREF_NULL;
+}
+
+
+ObjectClass.cpp
+void RexxObject::processProtectedMethod(RexxString *messageName, MethodClass *targetMethod,
+    RexxObject  **arguments, size_t count, ProtectedObject &result)
+{
+    // get the current security manager
+    SecurityManager *manager = ActivityManager::currentActivity->getEffectiveSecurityManager();
+    // the security manager can provide a new result
+    if (manager->checkProtectedMethod(this, messageName, count, arguments, result))
+    {
+        return;
+    }
+
+
+TODO? no default security manager?
+PackageClass.hpp
+class PackageClass : public RexxObject
+{
+    void             setSecurityManager(RexxObject *manager) { setField(securityManager, new SecurityManager(manager)); }
+    SecurityManager *getSecurityManager() { return securityManager; }
+           RexxObject    *setSecurityManagerRexx(RexxObject *manager);
+    SecurityManager *securityManager;    // source execution time security
+
+
+TODO!
+PackageClass.cpp
+RexxClass *PackageClass::findClass(RexxString *className, RexxObject *&cachedValue)
+{
+    // give the security manager a go
+    if (securityManager != OREF_NULL)
+    {
+        classObject = (RexxClass *)securityManager->checkLocalAccess(internalName);
+        if (classObject != OREF_NULL)
+        {
+            return classObject;
+        }
+    }
+    ...
+    if (securityManager != OREF_NULL)
+    {
+        classObject = (RexxClass *)securityManager->checkEnvironmentAccess(internalName);
+        if (classObject != OREF_NULL)
+        {
+            return classObject;
+        }
+    }
+
+
+PackageClass.cpp
+ * Check for an invalid attempt to make additions to the REXX
+ * package.
+void PackageClass::checkRexxPackage()
+{
+    // If this is marked as internal code, reject the addition attempt.
+    if (isInternalCode())
+    {
+        reportException(Error_Execution_rexx_package_update);
+    }
+}
+
+
+PackageClass.cpp
+RexxObject *PackageClass::setSecurityManagerRexx(RexxObject *manager)
+{
+    // unable to add to the external packages
+    checkRexxPackage();
+    setSecurityManager(manager);
+    return TheTrueObject;
+}
+
+
+PackageManager.hpp
+class PackageManager
+{
+    static PackageClass *getMacroSpaceRequires(Activity *activity, RexxString *name, Protected<PackageClass> &package, RexxObject *securityManager);
+    static PackageClass *getRequiresFile(Activity *activity, RexxString *name, RexxObject *securityManager, Protected<PackageClass> &result);
+
+
+PackageManager.cpp
+ * Retrieve a ::REQUIRES file.  This will cache the entries so
+ * that the same requires entry is returned for every request.
+ *
+ * @param activity  The current activity.
+ * @param shortName The short name of the package.
+ * @param resolvedName
+ *                  The fully resolved name of a potential package file.  The short
+ *                  name is used for checking in the MacroSpace, the long name
+ *                  is used for file searches.
+ * @param result    The return package routine.
+ *
+ * @return The package routine (also returned in the result protected object).
+PackageClass *PackageManager::loadRequires(Activity *activity, RexxString *shortName, RexxString *resolvedName, Protected<PackageClass> &package)
+{
+    SecurityManager *manager = activity->getEffectiveSecurityManager();
+    RexxObject *securityManager = OREF_NULL;
+
+    shortName = manager->checkRequiresAccess(shortName, securityManager);
+    ...
+        return getMacroSpaceRequires(activity, shortName, package, securityManager);
+    ...
+        resolvedName = manager->checkRequiresAccess(resolvedName, securityManager);
+    ...
+        return getRequiresFile(activity, resolvedName, securityManager, package);
+    ...
+        return getMacroSpaceRequires(activity, shortName, package, securityManager);
+
+
+TODO? No.
+PackageManager.cpp
+ * Retrieve a ::REQUIRES file from the macrospace.
+ *
+ * @param activity The current activity.
+ * @param name     The target name.
+ * @param result   The returned Routine object for the package.
+ * @param securityManager
+ *                 A security manager to associated with the package.
+ *
+ * @return The located ::REQUIRES file.
+ */
+PackageClass *PackageManager::getMacroSpaceRequires(Activity *activity, RexxString *name, Protected<PackageClass> &package, RexxObject *securityManager)
+{
+    ...
+    if (securityManager != OREF_NULL)
+    {
+        package->setSecurityManager(securityManager);
+    }
+
+
+TODO? No.
+PackageManager.cpp
+/**
+ * Retrieve a file version of a ::REQUIRES file.
+ *
+ * @param activity The current activity.
+ * @param name     The fully resolved file name.
+ * @param result   The return routine object.
+ *
+ * @return The loaded Package instance.
+ */
+PackageClass *PackageManager::getRequiresFile(Activity *activity, RexxString *name, RexxObject *securityManager, Protected<PackageClass> &package)
+{
+    ...
+    if (securityManager != OREF_NULL)
+    {
+        package->setSecurityManager(securityManager);
+    }
+
+
+RexxActivation.hpp
+class RexxActivation : public ActivationBase
+{
+   SecurityManager *getSecurityManager() override;
+          SecurityManager  *getEffectiveSecurityManager();
+
+
+RexxActivation.cpp
+RexxActivation::RexxActivation(Activity* _activity, RexxActivation *_parent, MethodClass * _method, RexxCode *_code)
+{
+    // copy the security manager, and pick up the instance one if nothing is set.
+    settings.securityManager = code->getSecurityManager();
+    if (settings.securityManager == OREF_NULL)
+    {
+        settings.securityManager = activity->getInstanceSecurityManager();
+    }
+
+
+RexxActivation.cpp
+RexxActivation::RexxActivation(Activity *_activity, RexxActivation *_parent, RoutineClass *_routine, RexxCode *_code,
+    RexxString *calltype, RexxString *env, ActivationContext context)
+{
+    // copy the source security manager
+    settings.securityManager = code->getSecurityManager();
+    // but use the default if not set
+    if (settings.securityManager == OREF_NULL)
+    {
+        settings.securityManager = activity->getInstanceSecurityManager();
+    }
+
+
+RexxActivation.cpp
+RexxObject* RexxActivation::resolveStream(RexxString *name, bool input, Protected<RexxString> &fullName, bool *added)
+{
+            // do the security manager check first.
+            SecurityManager *manager = getEffectiveSecurityManager();
+            stream = manager->checkStreamAccess(qualifiedName);
+
+
+RexxActivation.cpp
+SecurityManager *RexxActivation::getSecurityManager()
+{
+    return settings.securityManager;
+}
+
+
+RexxActivation.cpp
+SecurityManager *RexxActivation::getEffectiveSecurityManager()
+{
+    SecurityManager *manager = settings.securityManager;
+    if (manager != OREF_NULL)
+    {
+        return manager;
+    }
+    return activity->getInstanceSecurityManager();
+}
+
+
+RexxCode.hpp
+class RexxCode : public BaseCode
+{
+   RexxObject *setSecurityManager(RexxObject *) override;
+   inline SecurityManager *getSecurityManager() { return package->getSecurityManager(); }
+
+
+RexxCode.cpp
+ * Set a security manager on this code object (actually sets it on the package.)
+ *
+ * @param manager The security manager object.
+ *
+ * @return always returns true.
+RexxObject *RexxCode::setSecurityManager(RexxObject *manager)
+{
+    package->setSecurityManager(manager);
+    return TheTrueObject;
+}
+
+
+RoutineClass.hpp
+class RoutineClass : public BaseExecutable
+{
+    RexxObject  *setSecurityManager(RexxObject *);
+
+
+RoutineClass.cpp
+ * Associate a security manager with a routine's source package.
+ *
+ * @param manager The security manager object.
+ *
+ * @return The return value from the code object.
+RexxObject *RoutineClass::setSecurityManager(RexxObject *manager)
+{
+    return code->setSecurityManager(manager);
+}
+
+
+SecurityManager.hpp
+class SecurityManager : public RexxInternalObject
+{
+public:
+    void *operator new(size_t);
+    inline void  operator delete(void *) {;}
+
+    inline SecurityManager(RexxObject *m) { manager = m; }
+    inline SecurityManager(RESTORETYPE restoreType) { ; };
+
+    void live(size_t) override;
+    void liveGeneral(MarkReason reason) override;
+
+    RexxObject  *checkLocalAccess(RexxString *index);
+    RexxObject  *checkEnvironmentAccess(RexxString *index);
+    bool         checkProtectedMethod(RexxObject *target, RexxString *messageName, size_t count, RexxObject **arguments, ProtectedObject &result);
+    bool         checkFunctionCall(RexxString *functionName, size_t count, RexxObject **arguments, ProtectedObject &result);
+    bool         checkCommand(Activity *, RexxString *address, RexxString *command, ProtectedObject &result, ProtectedObject &condition);
+    RexxObject  *checkStreamAccess(RexxString *name);
+    RexxString  *checkRequiresAccess(RexxString *name, RexxObject *&securityManager);
+
+
+protected:
+
+    bool         callSecurityManager(RexxString *methodName, DirectoryClass *arguments);
+    RexxObject *manager;       // the wrappered manager object
+};
+

@@ -1,0 +1,86 @@
+routine=.Routine~newFile(program)   -- create routine object
+say "setSecurityManager"
+routine~setSecurityManager(.monitoringSupervisor~new)
+say "calling routine"
+routine~call         -- execute program
+
+ooRexx 5
+#0	0x0000000100752534 in SecurityManager::checkRequiresAccess at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/SecurityManager.cpp:323
+#1	0x0000000100775998 in PackageManager::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/package/PackageManager.cpp:723
+#2	0x00000001007ea7ac in InterpreterInstance::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/runtime/InterpreterInstance.cpp:970
+#3	0x00000001006ee6a0 in PackageClass::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/PackageClass.cpp:1323
+#4	0x00000001007b3950 in RequiresDirective::install at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/instructions/RequiresDirective.cpp:136
+#5	0x00000001006ee3fc in PackageClass::processInstall at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/PackageClass.cpp:1264
+#6	0x00000001007436d8 in PackageClass::install at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/PackageClass.hpp:122
+#7	0x0000000100737cb0 in RexxCode::install at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxCode.hpp:93
+#8	0x00000001007371c4 in RexxActivation::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxActivation.cpp:508
+#9	0x0000000100744fc0 in RexxCode::call at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxCode.cpp:187
+#10	0x0000000100744f08 in RexxCode::call at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxCode.cpp:158
+#11	0x00000001006f5948 in RoutineClass::call at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/RoutineClass.cpp:169
+#12	0x00000001006ee210 in PackageClass::install at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/PackageClass.cpp:1215
+#13	0x00000001007cc624 in LanguageParser::installPackage at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/parser/LanguageParser.cpp:857
+#14	0x00000001007cac8c in LanguageParser::generateRoutine at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/parser/LanguageParser.cpp:640
+#15	0x00000001007caf64 in LanguageParser::createRoutine at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/parser/LanguageParser.cpp:276
+#16	0x00000001007cadf8 in LanguageParser::createRoutine at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/parser/LanguageParser.cpp:249
+#17	0x00000001006f66c4 in RoutineClass::newFileRexx at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/RoutineClass.cpp:485
+#18	0x0000000100733a94 in CPPCode::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/CPPCode.cpp:178
+#19	0x00000001006d1788 in MethodClass::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/MethodClass.cpp:171
+#20	0x00000001006e5408 in RexxObject::messageSend at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/ObjectClass.cpp:899
+#21	0x0000000100795728 in ExpressionStack::send at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/expression/ExpressionStack.hpp:80
+#22	0x0000000100795520 in RexxExpressionMessage::evaluate at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/expression/ExpressionMessage.cpp:189
+#23	0x000000010079a824 in RexxInstructionAssignment::execute at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/instructions/AssignmentInstruction.cpp:129
+#24	0x00000001007375b8 in RexxActivation::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxActivation.cpp:627
+#25	0x0000000100744fc0 in RexxCode::call at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/RexxCode.cpp:187
+#26	0x00000001006f5cd8 in RoutineClass::runProgram at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/classes/RoutineClass.cpp:264
+#27	0x00000001007899a0 in CallProgramDispatcher::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/concurrency/RexxStartDispatcher.cpp:242
+#28	0x000000010074a708 in NativeActivation::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/execution/NativeActivation.cpp:1641
+#29	0x000000010077fab8 in Activity::run at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/concurrency/Activity.cpp:3379
+#30	0x000000010071e4c4 in ::CallProgram(RexxThreadContext *, const char *, RexxArrayObject) at /Users/Shared/local/rexx/oorexx/official/main/trunk/interpreter/api/ThreadContextStubs.cpp:511
+#31	0x000000010000236c in RexxThreadContext_::CallProgram at /Users/Shared/local/rexx/oorexx/official/main/trunk/api/oorexxapi.h:1001
+#32	0x0000000100002028 in main at /Users/Shared/local/rexx/oorexx/official/main/trunk/utilities/rexx/platform/unix/rexx.cpp:217
+---
+Console:
+<nothing>
+
+ooRexx 4.2
+#0	0x00000001005850f0 in PackageManager::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/package/PackageManager.cpp:702
+#1	0x00000001005c4568 in InterpreterInstance::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/runtime/InterpreterInstance.cpp:914
+#2	0x00000001005b8580 in RexxSource::loadRequires at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/parser/SourceFile.cpp:6083
+#3	0x00000001005afd14 in RexxSource::processInstall at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/parser/SourceFile.cpp:1720
+#4	0x0000000100566120 in RexxSource::install [inlined] at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/parser/SourceFile.hpp:284
+#5	0x0000000100566110 in RexxCode::install [inlined] at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxCode.hpp:87
+#6	0x000000010056610c in RexxActivation::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxActivation.cpp:423
+#7	0x000000010056d058 in RexxCode::call at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxCode.cpp:91
+#8	0x000000010053ef64 in RoutineClass::callRexx at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/RoutineClass.cpp:268
+#9	0x0000000100564fa4 in CPPCode::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/CPPCode.cpp:121
+#10	0x0000000100528918 in RexxMethod::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/MethodClass.cpp:324
+#11	0x000000010059f09c in RexxExpressionStack::send [inlined] at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/expression/ExpressionStack.hpp:76
+#12	0x000000010059f090 in RexxInstructionMessage::execute at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/instructions/MessageInstruction.cpp:227
+#13	0x0000000100566350 in RexxActivation::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxActivation.cpp:529
+#14	0x000000010053f1d8 in RoutineClass::runProgram at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/RoutineClass.cpp:319
+#15	0x000000010058e338 in CallProgramDispatcher::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/concurrency/RexxStartDispatcher.cpp:237
+#16	0x0000000100570620 in RexxNativeActivation::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxNativeActivation.cpp:1569
+#17	0x0000000100587f74 in RexxActivity::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/concurrency/RexxActivity.cpp:3039
+#18	0x000000010055dc78 in ::CallProgram(RexxThreadContext *, const char *, RexxArrayObject) at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/api/ThreadContextStubs.cpp:494
+#19	0x0000000100000c90 in RexxThreadContext_::CallProgram at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/api/oorexxapi.h:849
+#20	0x0000000100000a64 in main at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/utilities/rexx/platform/unix/rexx.cpp:170
+---
+Console:
+setSecurityManager
+calling routine
+
+ooRexx 4.2
+#0	0x000000010053fbc4 in RoutineClass::newFileRexx at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/RoutineClass.cpp:616
+#1	0x0000000100565124 in CPPCode::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/CPPCode.cpp:148
+#2	0x0000000100528918 in RexxMethod::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/MethodClass.cpp:324
+#3	0x00000001005952b8 in RexxExpressionStack::send [inlined] at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/expression/ExpressionStack.hpp:76
+#4	0x00000001005952ac in RexxExpressionMessage::evaluate at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/expression/ExpressionMessage.cpp:137
+#5	0x0000000100598890 in RexxInstructionAssignment::execute at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/instructions/AssignmentInstruction.cpp:122
+#6	0x0000000100566350 in RexxActivation::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxActivation.cpp:529
+#7	0x000000010053f1d8 in RoutineClass::runProgram at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/classes/RoutineClass.cpp:319
+#8	0x000000010058e338 in CallProgramDispatcher::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/concurrency/RexxStartDispatcher.cpp:237
+#9	0x0000000100570620 in RexxNativeActivation::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/execution/RexxNativeActivation.cpp:1569
+#10	0x0000000100587f74 in RexxActivity::run at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/concurrency/RexxActivity.cpp:3039
+#11	0x000000010055dc78 in ::CallProgram(RexxThreadContext *, const char *, RexxArrayObject) at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/interpreter/api/ThreadContextStubs.cpp:494
+#12	0x0000000100000c90 in RexxThreadContext_::CallProgram at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/api/oorexxapi.h:849
+#13	0x0000000100000a64 in main at /Users/Shared/local/rexx/oorexx/official/main/releases/4.2.0/trunk/utilities/rexx/platform/unix/rexx.cpp:170
