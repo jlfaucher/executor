@@ -7,6 +7,8 @@ https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/Ex
 See also
 https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/ooRexx5/cmake used by jenkins.txt
 
+--------------------------------------------------------------------------------
+VERBOSE
 
 # To see the executed commands during compilation and during install
 cdbuild
@@ -20,3 +22,17 @@ rm -fr ../delivery
 make clean
 make install VERBOSE=1 > out.txt 2>&1
 open out.txt
+
+--------------------------------------------------------------------------------
+CMAKE_BUILD_TYPE
+
+For single-config generators (e.g. Unix Makefiles, Ninja, NMake Makefiles) CMAKE_BUILD_TYPE is unset.
+until:
+- you pass -DCMAKE_BUILD_TYPE=..., or
+- you set it inside your CMakeLists.txt.
+So the initial value is literally empty.
+
+For multi-config generators (e.g. Visual Studio, Xcode, Ninja Multi-Config)
+These generators do not use CMAKE_BUILD_TYPE at all.
+Instead they support multiple configurations simultaneously: Debug, Release, RelWithDebInfo, MinSizeRel.
+The real configurations are stored in CMAKE_CONFIGURATION_TYPES
