@@ -1,0 +1,183 @@
+Windows
+    interpreter/platform/windows/SysNativeMethods.h
+        // list of REXX system-specific native methods.
+        INTERNAL_ROUTINE(RxMessageBox, sysMessageBox)
+    included by
+    interpreter/runtime/InternalPackage.cpp
+
+    interpreter/platform/windows/TimeSupport.cpp
+
+Unix
+    interpreter/platform/unix/SysNativeMethods.h
+        // list of REXX system-specific native methods.
+        // Unix doesn't currently have any of these.
+    included by
+    interpreter/runtime/InternalPackage.cpp
+
+    interpreter/platform/unix/TimeSupport.cpp
+
+interpreter/runtime/NativeMethods.h
+    INTERNAL_METHOD(alarm_startTimer)
+    INTERNAL_METHOD(alarm_stopTimer)
+
+    INTERNAL_METHOD(ticker_createTimer)
+    INTERNAL_METHOD(ticker_waitTimer)
+    INTERNAL_METHOD(ticker_stopTimer)
+
+    INTERNAL_METHOD(stream_init)
+    INTERNAL_METHOD(stream_chars)
+    INTERNAL_METHOD(stream_lines)
+    INTERNAL_METHOD(stream_position)        2 methods: position, seek
+    INTERNAL_METHOD(stream_state)
+    INTERNAL_METHOD(stream_description)
+    INTERNAL_METHOD(stream_query_position)
+    INTERNAL_METHOD(stream_charout)
+    INTERNAL_METHOD(stream_charin)
+    INTERNAL_METHOD(stream_linein)
+    INTERNAL_METHOD(stream_lineout)
+    INTERNAL_METHOD(stream_arrayin)
+    INTERNAL_METHOD(stream_flush)
+    INTERNAL_METHOD(stream_close)
+    INTERNAL_METHOD(stream_uninit)
+    INTERNAL_METHOD(stream_open)
+    INTERNAL_METHOD(qualify)
+    INTERNAL_METHOD(query_exists)
+    INTERNAL_METHOD(query_size)
+    INTERNAL_METHOD(query_time)
+    INTERNAL_METHOD(handle_set)
+    INTERNAL_METHOD(std_set)
+    INTERNAL_METHOD(query_handle)
+    INTERNAL_METHOD(query_streamtype)
+
+    INTERNAL_METHOD(rexx_create_queue)
+    INTERNAL_METHOD(rexx_open_queue)
+    INTERNAL_METHOD(rexx_queue_exists)
+    INTERNAL_METHOD(rexx_delete_queue)
+    INTERNAL_METHOD(rexx_query_queue)
+    INTERNAL_METHOD(rexx_push_queue)
+    INTERNAL_METHOD(rexx_queue_queue)
+    INTERNAL_METHOD(rexx_pull_queue)
+    INTERNAL_METHOD(rexx_linein_queue)
+    INTERNAL_METHOD(rexx_clear_queue)
+
+    INTERNAL_METHOD(file_separator)
+    INTERNAL_METHOD(file_path_separator)
+    INTERNAL_METHOD(file_case_sensitive)
+    INTERNAL_METHOD(file_list_roots)
+    INTERNAL_METHOD(file_qualify)
+    INTERNAL_METHOD(file_exists)
+    INTERNAL_METHOD(file_delete_file)
+    INTERNAL_METHOD(file_delete_directory)
+    INTERNAL_METHOD(file_isDirectory)
+    INTERNAL_METHOD(file_isFile)
+    INTERNAL_METHOD(file_isHidden)
+    INTERNAL_METHOD(file_get_last_modified)
+    INTERNAL_METHOD(file_set_last_modified)
+    INTERNAL_METHOD(file_set_read_only)
+    INTERNAL_METHOD(file_length)
+    INTERNAL_METHOD(file_list)
+    INTERNAL_METHOD(file_make_dir)
+    INTERNAL_METHOD(file_can_read)
+    INTERNAL_METHOD(file_can_write)
+    INTERNAL_METHOD(file_rename)
+    INTERNAL_METHOD(this_file_case_sensitive)
+    INTERNAL_METHOD(file_get_last_accessed)
+    INTERNAL_METHOD(file_set_last_accessed)
+    INTERNAL_METHOD(file_set_writable)
+    INTERNAL_METHOD(file_temporary_path)
+    INTERNAL_METHOD(file_search_path_impl)
+included by
+interpreter/runtime/InternalPackage.cpp
+
+    The macro INTERNAL_METHOD is defined in InternalPackage.cpp
+
+    1st include
+    #define INTERNAL_METHOD(name) REXX_METHOD_PROTOTYPE(name)
+
+    2nd include
+    #define INTERNAL_METHOD(name) REXX_METHOD(name, name),
+
+
+CoreClasses.orx
+---------------
+
+::CLASS 'Alarm' SUBCLASS object Public
+::METHOD !startTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX alarm_startTimer'
+::METHOD !stopTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX alarm_stopTimer'
+
+::class Ticker public
+::METHOD !createTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX ticker_createTimer'
+::METHOD !waitTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX ticker_waitTimer'
+::METHOD !stopTimer PRIVATE unguarded EXTERNAL 'LIBRARY REXX ticker_stopTimer'
+
+
+StreamClasses.orx
+-----------------
+
+::CLASS 'Stream' public MIXINCLASS InputOutputStream
+::METHOD !c_stream_init          EXTERNAL 'LIBRARY REXX stream_init'
+::METHOD chars                   EXTERNAL 'LIBRARY REXX stream_chars'
+::METHOD lines                   EXTERNAL 'LIBRARY REXX stream_lines'
+::METHOD position                EXTERNAL 'LIBRARY REXX stream_position'
+::METHOD seek                    EXTERNAL 'LIBRARY REXX stream_position'
+::METHOD state                   EXTERNAL 'LIBRARY REXX stream_state'
+::METHOD description             EXTERNAL 'LIBRARY REXX stream_description'
+::METHOD !query_position         EXTERNAL 'LIBRARY REXX stream_query_position'
+::METHOD charout                 EXTERNAL 'LIBRARY REXX stream_charout'
+::METHOD charin                  EXTERNAL 'LIBRARY REXX stream_charin'
+::METHOD linein                  EXTERNAL 'LIBRARY REXX stream_linein'
+::METHOD lineout                 EXTERNAL 'LIBRARY REXX stream_lineout'
+::METHOD qualify                 EXTERNAL 'LIBRARY REXX qualify'
+::METHOD !query_exists           EXTERNAL 'LIBRARY REXX query_exists'
+::METHOD !query_size             EXTERNAL 'LIBRARY REXX query_size'
+::METHOD !query_time             EXTERNAL 'LIBRARY REXX query_time'
+::METHOD !handle_set             EXTERNAL 'LIBRARY REXX handle_set'
+::METHOD !std_set                EXTERNAL 'LIBRARY REXX std_set'
+::METHOD flush                   EXTERNAL 'LIBRARY REXX stream_flush'
+::METHOD !query_handle           EXTERNAL 'LIBRARY REXX query_handle'
+::METHOD !query_streamtype       EXTERNAL 'LIBRARY REXX query_streamtype'
+::METHOD close        EXTERNAL 'LIBRARY REXX stream_close'
+::METHOD uninit       EXTERNAL 'LIBRARY REXX stream_uninit'
+::METHOD line_arrayin PRIVATE EXTERNAL 'LIBRARY REXX stream_arrayin'
+::METHOD open        EXTERNAL 'LIBRARY REXX stream_open'
+
+::CLASS 'RexxQueue' public
+::METHOD create  CLASS   EXTERNAL 'LIBRARY REXX rexx_create_queue'
+::METHOD delete  CLASS   EXTERNAL 'LIBRARY REXX rexx_delete_queue'
+::METHOD exists  CLASS   EXTERNAL 'LIBRARY REXX rexx_queue_exists'
+::METHOD open    CLASS   EXTERNAL 'LIBRARY REXX rexx_open_queue'
+::METHOD push            EXTERNAL 'LIBRARY REXX rexx_push_queue'
+::METHOD queue           EXTERNAL 'LIBRARY REXX rexx_queue_queue'
+::METHOD pull            EXTERNAL 'LIBRARY REXX rexx_pull_queue'
+::METHOD linein          EXTERNAL 'LIBRARY REXX rexx_linein_queue'
+::METHOD queued          EXTERNAL 'LIBRARY REXX rexx_query_queue'
+::METHOD empty           EXTERNAL 'LIBRARY REXX rexx_clear_queue'
+
+::CLASS "File" public inherit Comparable Orderable
+::method file_temporary_path class private external "library REXX"                      no method name?
+::method getSeparator private class external "LIBRARY REXX file_separator"
+::method getPathSeparator private class external "LIBRARY REXX file_path_separator"
+::METHOD isCaseSensitive CLASS EXTERNAL 'LIBRARY REXX file_case_sensitive'
+::METHOD listRoots CLASS EXTERNAL 'LIBRARY REXX file_list_roots'
+::METHOD searchPathImpl CLASS PRIVATE EXTERNAL 'LIBRARY REXX file_search_path_impl'
+::METHOD canReadImpl PRIVATE EXTERNAL 'LIBRARY REXX file_can_read'
+::METHOD setReadOnlyImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_read_only'
+::METHOD setWritableImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_writable'
+::METHOD canWriteImpl PRIVATE EXTERNAL 'LIBRARY REXX file_can_write'
+::METHOD existsImpl PRIVATE EXTERNAL 'LIBRARY REXX file_exists'
+::METHOD qualifyImpl PRIVATE EXTERNAL 'LIBRARY REXX file_qualify'
+::METHOD isCaseSensitiveImpl PRIVATE EXTERNAL 'LIBRARY REXX this_file_case_sensitive'
+::METHOD deleteDir PRIVATE EXTERNAL 'LIBRARY REXX file_delete_directory'
+::METHOD deleteFile PRIVATE EXTERNAL 'LIBRARY REXX file_delete_file'
+::METHOD isDirectoryImpl PRIVATE EXTERNAL 'LIBRARY REXX file_isDirectory'
+::METHOD isFileImpl PRIVATE EXTERNAL 'LIBRARY REXX file_isFile'
+::METHOD isHiddenImpl PRIVATE EXTERNAL 'LIBRARY REXX file_isHidden'
+::METHOD getLastModifiedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_get_last_modified'
+::METHOD setLastModifiedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_last_modified'
+::METHOD getLastAccessedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_get_last_accessed'
+::METHOD setLastAccessedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_last_accessed'
+::METHOD lengthImpl PRIVATE EXTERNAL 'LIBRARY REXX file_length'
+::METHOD listImpl PRIVATE EXTERNAL 'LIBRARY REXX file_list'
+::METHOD makeDirImpl PRIVATE EXTERNAL 'LIBRARY REXX file_make_dir'
+::METHOD renameToImpl PRIVATE EXTERNAL 'LIBRARY REXX file_rename'
+
