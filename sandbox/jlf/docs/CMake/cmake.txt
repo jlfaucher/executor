@@ -2,7 +2,10 @@ https://github.com/llvm/llvm-project/blob/main/llvm/docs/CMake.rst
 
 
 See also
-internals/notes/Executor/build_options.txt
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/Executor/build_options.txt
+
+See also
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/ooRexx5/cmake used by jenkins.txt
 
 
 # To see the executed commands during compilation and during install

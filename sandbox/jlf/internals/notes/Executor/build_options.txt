@@ -1,3 +1,7 @@
+See
+https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/CMake
+
+
 jlf 2022 Oct 29
 Got warnings when including ICU4X headers and building under Windows.
 The reason is the option /W3
