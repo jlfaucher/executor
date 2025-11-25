@@ -1,0 +1,166 @@
+================================================================================
+Notes fo Rexx-parser adaptation
+================================================================================
+
+::extension
+same as ::class
+
+
+1+2i
+parsed as 1+(2<abuttal>i)
+
+
+Instruction() is a function call, not an instruction
+Executor:
+    address()   Executes the shell whose name is returned
+    arg()       bash: 0: command not found
+    call()      Could not find routine "CALL"
+    etc...
+ooRexx:
+    address()   Incorrect expression detected at "(".
+    arg()       Missing expression following "(" of parse template.
+    call()      Missing expression for calculated CALL name.
+    etc...
+
+
+The expression var==value is not an error when first instruction
+Executor:   1==1    bash: 1: command not found
+ooRexx:     1==1    Incorrect expression detected at "==".
+
+
+The message name can be omitted in message term
+Executor:   say "left"~("hello", 3)=        -- 'hel'
+ooRexx:     say "left"~("hello", 3)         -- String or symbol expected after tilde (~).
+
+
+RexxSource literal
+a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
+a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is accessible from ooRexx scripts.
+a RexxBlock is linked to the RexxSourceLiteral from which it was created.
+A RexxBlock is not relevant to the parser, but it is useful in this review because it gives access to the information contained in the RexxSourceLiteral.
+a RexxSourceLiteral has a type which is returned when sending the 'kind' message to the RexxBlock:
+    {...}                               routine             "r"
+    {::r[outine]...}                    routine             "r"
+    {::co[activity]...}                 coactivity          "r.co"
+    {expose...}                         closure             "cl"
+    {::co[activity] expose v ...}       coactive closure    "cl.co"
+A RexxSourceLiteral has a source code, which is the text between {}.
+    {2}~source                          an array of lines: '2'
+A RexxSourceLiteral has a raw executable, whose source is the result of a transformation of its own source.
+    {2}~rawExecutable                   a routine
+    {2}~rawExecutable~source            an array of lines: 'use auto named arg ; options "NOCOMMANDS" ; 2','if var("result") then return result'
+A RexxSourceLiteral is parsed as a simple TOKEN_SOURCE_LITERAL token.
+Nested source literals are processed recursively:
+    RexxSource::nextClause:                             https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/parser/SourceFile.cpp#L936-L998
+        RexxSource::sourceNextToken:                    https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/parser/Scanner.cpp#L1227-L1230
+            parse some code
+            when "{" call RexxSource::sourceLiteral     https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/parser/Scanner.cpp#L653-L686
+                RexxSource::sourceLiteral:
+                    loop
+                        // search the closing "}"
+                        when "}" return a new TOKEN_SOURCE_LITERAL token whose text is "{...}'. Can be "{...{...{...}...}...}"
+                        call RexxSource::sourceNextToken
+                    end
+Later, the text of this token is parsed by creating an instance of Method or Routine.
+That works because the ooRexx parser is re-entrant (some ooRexx code is called by the parser, and this code triggers a parsing).
+RexxSource::addText:                                    https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/parser/SourceFile.cpp#L4890-L4903
+    RexxSourceLiteral::RexxSourceLiteral:               https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/classes/BlockClass.cpp#L112-L146
+        clauser = .Clauser~new(sourceArray)
+        kind = clauser~kind(remove: .true)
+        clauseBefore = "use auto named arg ; options 'NOCOMMANDS'"
+        clauseAfter = "if var('result') then return result"
+        clauser~transformSource(clauseBefore, clauseAfter)
+        rawExecutable = .Clauser~rawExecutable(kind, sourceArray, package)
+kind:           https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/RexxClasses/Parser.orx#L478-L517
+isExposeClause: https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/RexxClasses/Parser.orx#L171-L179
+rawExecutable:  https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/RexxClasses/Parser.orx#L182-L193
+---
+rexx -e "say {2}~rawExecutable~call"
+    breakpoint in RexxSource::sourceLiteral
+        RexxSource::sourceLiteral at Scanner.cpp:659
+        RexxSource::sourceNextToken at Scanner.cpp:1229
+        RexxSource::nextClause at SourceFile.cpp:983
+        RexxSource::translateBlock at SourceFile.cpp:3910
+            /* Function:  Translate a block of REXX code (delimited by possible */
+            /*            directive instructions                                */
+            this->nextClause();                                                         <-- the TOKEN_SOURCE_LITERAL token is created
+        RexxSource::translate at SourceFile.cpp:1901
+            /* Function:  Translate a source object into a method object */
+            RexxCode *newMethod = this->translateBlock(_labels);
+        RexxSource::generateCode at SourceFile.cpp:1312
+            /* Function:  Convert a source object into an executable method */
+            RexxCode *newCode = this->translate(OREF_NULL);
+        RoutineClass::RoutineClass at RoutineClass.cpp:135
+            * Initialize a Routine object using a buffered source.
+            name = "INSTORE"
+            s = "say {2}~rawExecutable~call"
+            ---
+            RexxSource *_source = new RexxSource(name, s);
+            RexxCode *codeObj = _source->generateCode(false);
+        RoutineClass::RoutineClass at RoutineClass.cpp:125
+        RoutineClass::processInstore at RoutineClass.cpp:774
+            RoutineClass *routine = new RoutineClass(name, source_buffer);
+    breakpoint in RexxSourceLiteral::RexxSourceLiteral
+        RexxSourceLiteral::RexxSourceLiteral at BlockClass.cpp:113
+        RexxSource::addText at SourceFile.cpp:4899
+        RexxSource::subTerm at SourceFile.cpp:6102
+        RexxSource::messageSubterm at SourceFile.cpp:6006
+        RexxSource::subExpression at SourceFile.cpp:5284
+        RexxSource::fullSubExpression at SourceFile.cpp:5233
+        RexxSource::expression at SourceFile.cpp:5204
+        RexxSource::sayNew at InstructionParser.cpp:2101
+        RexxSource::instruction at SourceFile.cpp:4538
+        RexxSource::translateBlock at SourceFile.cpp:3918
+            _instruction = this->instruction();                                         <-- the RexxSourceLiteral is created from the TOKEN_SOURCE_LITERAL token
+        RexxSource::translate at SourceFile.cpp:1901
+        RexxSource::generateCode at SourceFile.cpp:1312
+        RoutineClass::RoutineClass at RoutineClass.cpp:135
+        RoutineClass::RoutineClass at RoutineClass.cpp:125
+        RoutineClass::processInstore at RoutineClass.cpp:774
+
+
+Trailing blocks
+f{...} is equivalent to f({...})
+f(a1,a2,...){...} is equivalent to f(a1,a2,...,{...})
+
+
+New options
+    ::options COMMANDS          parser impacted
+    ::options NOCOMMANDS        parser impacted
+    options "COMMANDS"          parser not impacted
+    options "NOCOMMANDS"        parser not impacted
+
+    ::options MACROSPACE
+    ::options NOMACROSPACE
+    options "MACROSPACE"
+    options "NOMACROSPACE"
+
+
+Named arguments
+Spec: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md
+namespace:name collides with the usual syntax for named arguments.
+In a list of arguments, the named argument notation must have priority over the namespace notation.
+This is not blocking, you can surround by parentheses when passing a qualified symbol as positional argument.
+    call myRoutine myNamedArgument:object
+    call myRoutine (myNamespace:object)
+    call myRoutine myNamedArgument:myNamespace:object
+
+
+Compatibility with classic rexx
+    Add support for variables # @ $ ¢.
+
+    Add support for assignment V= -- assign ""
+
+    Add support for instruction UPPER:
+    same syntax as instruction DROP
+
+    Regina supports the following characters as negators:
+        \ Backslash (ANSI Standard)
+        ^ Caret
+        ~ Tilde
+        ¬ Logical Not
+    Add support for ^ and ¬ negators.
+    Not possible to use ~ as a negator character.
+
+    The operators /= and /== are supported in TSO/E REXX as alternatives to \= and \==, respectively.
+    Add support for /= and /==
