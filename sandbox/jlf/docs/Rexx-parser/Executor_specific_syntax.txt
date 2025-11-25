@@ -24,8 +24,10 @@ ooRexx:
 
 
 The expression var==value is not an error when first instruction
-Executor:   1==1    bash: 1: command not found
-ooRexx:     1==1    Incorrect expression detected at "==".
+Executor:   var==1      bash: 0: command not found
+ooRexx:     var==1      Incorrect expression detected at "==".
+Executor:   1==1        bash: 1: command not found
+ooRexx:     1==1        Incorrect expression detected at "==".
 
 
 The message name can be omitted in message term
