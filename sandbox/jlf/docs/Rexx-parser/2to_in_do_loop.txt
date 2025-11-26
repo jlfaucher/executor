@@ -7,15 +7,25 @@ Incorrect expression detected at "".
 ooRexx[bash]> to=0; say 2to; do i=(2to) to 10; say i; end
 20
 
+
+-- out of subject, but...
 -- next line shows that the symbol split works as expected when the isolated symbol is not a terminator
 ooRexx[bash]> drop i; do c=2i to i+2; say c; end
 Object "a COMPLEX" does not understand message ">".
 
 
-2to is parsed 2<OPERATOR_ABUTTAL>to
-In the context of DO/LOOP, "to" is a terminator token.
-Hence the error.
+--------------------------------------------------------------------------------
+Analysis
+--------------------------------------------------------------------------------
 
+2to is scanned 2<OPERATOR_ABUTTAL>to, whatever the context.
+https://github.com/jlfaucher/executor/blob/a231d10a15eabbdd2452d2f6a2b28973fe37d6bc/sandbox/jlf/trunk/interpreter/parser/Scanner.cpp#L1062-L1074
+
+Later, during the parsing:
+In the context of DO/LOOP, "to" is a terminator token.
+// https://github.com/jlfaucher/executor/blob/2b75ab1952937c340c62a63751a39a19a744e805/sandbox/jlf/trunk/interpreter/parser/InstructionParser.cpp#L599
+
+Hence the error.
 
 --------------------------------------------------------------------------------
 Debug
