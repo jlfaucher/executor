@@ -4,6 +4,8 @@ Notes for Rexx-parser adaptation
 
 ::extension
 same as ::class
+but only the INHERIT option is supported
+options not supported: METACLASS, PUBLIC, PRIVATE, SUBCLASS, MIXINCLASS, ABSTRACT
 
 
 1+2i
