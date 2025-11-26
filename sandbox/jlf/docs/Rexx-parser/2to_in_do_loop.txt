@@ -1,0 +1,64 @@
+ooRexx[bash]> to=0; say 2to
+20
+
+ooRexx[bash]> to=0; say 2to; do i=2to to 10; say i; end
+Incorrect expression detected at "".
+
+ooRexx[bash]> to=0; say 2to; do i=(2to) to 10; say i; end
+20
+
+-- next line shows that the symbol split works as expected when the isolated symbol is not a terminator
+ooRexx[bash]> drop i; do c=2i to i+2; say c; end
+Object "a COMPLEX" does not understand message ">".
+
+
+2to is parsed 2<OPERATOR_ABUTTAL>to
+In the context of DO/LOOP, "to" is a terminator token.
+Hence the error.
+
+
+--------------------------------------------------------------------------------
+Debug
+--------------------------------------------------------------------------------
+
+rexx -e "to=0; say 2to; do i=2to to 10; say i; end"
+
+
+RexxActivity::raiseException at RexxActivity.cpp:1048
+RexxSource::errorToken at SourceFile.cpp:6416
+RexxSource::syntaxError at SourceFile.hpp:327
+RexxSource::subExpression at SourceFile.cpp:5390                                // https://github.com/jlfaucher/executor/blob/2b75ab1952937c340c62a63751a39a19a744e805/sandbox/jlf/trunk/interpreter/parser/SourceFile.cpp#L5390
+    left = this->messageSubterm(terminators);                                   // 2
+    token = nextToken();                                                        // the abuttal token: value="", classId=1205 (TOKEN_OPERATOR), subclass=8 (OPERATOR_ABUTTAL), precedence=100
+    ...
+    this->pushOperator(token);     /* push this operator onto stack     */
+    right = this->messageSubterm(terminators);                                  // right = OREF_NULL probably because "to" is a terminator
+    /* end of the expression?            */
+    if (right == OREF_NULL && token->subclass != OPERATOR_BLANK)
+    {
+        /* have a bad expression             */
+        syntaxError(Error_Invalid_expression_general, token);
+    }
+RexxSource::fullSubExpression at SourceFile.cpp:5233
+RexxSource::expression at SourceFile.cpp:5204
+RexxSource::createDoLoop at InstructionParser.cpp:599                           // https://github.com/jlfaucher/executor/blob/2b75ab1952937c340c62a63751a39a19a744e805/sandbox/jlf/trunk/interpreter/parser/InstructionParser.cpp#L599
+            // go get the initial expression, using the control variable terminators
+            OrefSet(newDo, newDo->initial, this->expression(TERM_CONTROL));
+
+
+Definition of TERM_CONTROL
+https://github.com/jlfaucher/executor/blob/2b75ab1952937c340c62a63751a39a19a744e805/sandbox/jlf/trunk/interpreter/parser/Token.hpp#L68
+
+#define   TERM_EOC     0x00000001u     /* terminate on end of clause        */
+#define   TERM_RIGHT   0x00000002u     /* terminate on left paren           */
+#define   TERM_SQRIGHT 0x00000004u     /* terminate on left square bracket  */
+#define   TERM_TO      0x00000008u     /* terminate on TO keyword           */
+#define   TERM_BY      0x00000010u     /* terminate on BY keyword           */
+#define   TERM_FOR     0x00000020u     /* terminate on FOR keyword          */
+#define   TERM_WHILE   0x00000040u     /* terminate on WHILE/UNTIL keywords */
+#define   TERM_COMMA   0x00000080u     /* terminate on comma                */
+#define   TERM_WITH    0x00000100u     /* terminate on WITH keyword         */
+#define   TERM_THEN    0x00000200u     /* terminate on THEN keyword         */
+#define   TERM_KEYWORD 0x10000000u     /* perform keyword terminator checks */
+                                       /* terminate on DO keywords          */
+#define   TERM_CONTROL (TERM_KEYWORD | TERM_TO | TERM_BY | TERM_FOR | TERM_WHILE | TERM_EOC)
