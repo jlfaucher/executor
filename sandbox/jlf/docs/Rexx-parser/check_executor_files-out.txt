@@ -36,11 +36,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex
-Syntax error 25.929 at line 43. Additional: 1: 'NAMED':
-    43 *-*     use strict named arg indent=0
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex line 43:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 80. Additional: 1: '{':
+    80 *-*         lineText~UnicodeCharacters~each{
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex line 80:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_replacement_characters.rex
 No errors found.
@@ -51,69 +51,66 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex
-Syntax error 13.001 at line 24. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 24. Additional: 1: '{':
     24 *-* .Collection~product2(encodings){
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 24:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 24:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex
-Syntax error 25.929 at line 38. Additional: 1: 'NAMED':
-    38 *-*     use strict named arg indent=0
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex line 38:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/oodtree.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex
-Syntax error 13.001 at line 63. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 63. Additional: 1: '{':
     63 *-* say s~mapC{return arg(1)~c2x" "}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex line 63:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex line 63:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/ooRexxTry.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex
-Syntax error 13.001 at line 17. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 17. Additional: 1: '{':
     17 *-* call dump_collection      .array~new(2,3)~of{10*item}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex line 17:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex line 17:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/collection_helpers.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex
-Syntax error 13.001 at line 195. Additional: 1: '{', 2: '7B':
-   195 *-* -- initial value is the first yielded item (default)
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex line 195:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Syntax error 35.001 at line 196. Additional: 1: '{':
+   196 *-* {::coactivity .yield[10]; .yield[20]; .yield[30]}~doer~reduce("-")~dump
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex line 196:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex
-Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 2. Additional: 1: '{':
      2 *-* block = {use strict arg name, greetings; say "hello" name || greetings}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex line 2:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex line 2:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order1.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex
-Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 2. Additional: 1: '{':
      2 *-* indexer = {
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex line 2:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex line 2:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order3.rex
 No errors found.
@@ -135,11 +132,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex
-Syntax error 13.001 at line 250. Additional: 1: '{', 2: '7B':
-   250 *-* c = 12
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex line 250:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Syntax error 35.001 at line 251. Additional: 1: '{':
+   251 *-* {
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex line 251:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/package-test.rex
 No errors found.
@@ -150,11 +147,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex
-Syntax error 13.001 at line 6. Additional: 1: '{', 2: '7B':
+Syntax error 38.001 at line 6. Additional: 1: '~':
      6 *-* arg(1)~indexer~stringsCache~pipe(-
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex line 6:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex line 6:  Invalid template or pattern.
+Error 38.1:  Incorrect PARSE template detected at "~".
+OK: Expected an error (exit_status = 218)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_utf8.cls
 No errors found.
@@ -205,31 +202,15 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex
-Syntax error 13.001 at line 5. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 5. Additional: 1: '{':
      5 *-* call run count, {/**/}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex line 5:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex line 5:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/named_arguments-benchmark.rex
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 230:
-   230 *-*       begin = args~firstItem~begin
-       *-* Compiled method "NEW" with scope "Object".
-   191 *-* Return .Expression.List~new(expressions, begin, end)
-   303 *-* arguments = Expression.List( package, element, "", "arguments" )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   148 *-* Return routine~callWith( array )
-   172 *-* clause      = self~nextClause
-   207 *-* clause = self~Next.Instruction.Fragment
-   154 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   835 *-* codeBody = Code.Body( package, directive )
-   369 *-*         Call Routine    package, directive
-   107 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 97:  Object method not found.
-Error 97.1:  Object "a NAMESPACE.QUALIFIED.CLASSNAME" does not understand message "BEGIN".
-OK: Expected an error (exit_status = 159)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/macrospace_impact.rex
 No errors found.
@@ -248,43 +229,43 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex
-Syntax error 13.001 at line 95. Additional: 1: '{', 2: '7B':
-    95 *-* -- 07/10/2019 : now the RexxBlock are always with implicit return. Must add options "COMMANDS".
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex line 95:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Syntax error 35.001 at line 96. Additional: 1: '{':
+    96 *-* {::coactivity options "COMMANDS"; echo hello ; .yield["a"] ; say hello ; .yield["b"] }~doer~pipe(.console)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex line 96:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex
-Syntax error 13.001 at line 12. Additional: 1: '{', 2: '7B':
+Syntax error 38.001 at line 12. Additional: 1: '~':
     12 *-* arg(1)~pipe(.fileTree recursive mem |,
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex line 12:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex line 12:  Invalid template or pattern.
+Error 38.1:  Incorrect PARSE template detected at "~".
+OK: Expected an error (exit_status = 218)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_std_test.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex
-Syntax error 13.001 at line 10. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 10. Additional: 1: '{':
     10 *-* "."~pipe(.filetree recursive memorize | .select {isSourceFile(item)} | .fileLines memorize | .all[string] caseless | .console {dataflow["fileTree"]~item":"index item} | .lineCount | .console)
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex line 10:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex line 10:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex
-Syntax error 13.001 at line 5. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 5. Additional: 1: '{':
      5 *-* .object~methods~pipe(.sort "byIndex" | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console "item" "Object's methods")
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 5:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 5:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex
-Syntax error 13.001 at line 29. Additional: 1: '{', 2: '7B':
+Syntax error 36.901 at line 29. Additional: 1: '16', 2: '29':
     29 *-* .coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.console)
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex line 29:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex line 29:  Unmatched "(" or "[" in expression.
+Error 36.901:  Left parenthesis "(" in position 16 on line 29 requires a corresponding right parenthesis ")".
+OK: Expected an error (exit_status = 220)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_test.rex
 No errors found.
@@ -295,11 +276,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace_block.rex
-Syntax error 13.001 at line 6. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 6. Additional: 1: '{':
      6 *-* block= { i = 10
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace_block.rex line 6:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace_block.rex line 6:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/example_clock/clock.rex
 No errors found.
@@ -325,18 +306,18 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex
-Syntax error 13.001 at line 4. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 4. Additional: 1: '{':
      4 *-* 1~10(by:3){say item}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex line 4:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex line 4:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex
-Syntax error 13.001 at line 11. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 11. Additional: 1: '{':
     11 *-* fact = { use arg f
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex line 11:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex line 11:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/std/functional-test-std.rex
 No errors found.
@@ -351,24 +332,24 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex
-Syntax error 13.001 at line 1. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 1. Additional: 1: '{':
      1 *-* say {
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex line 1:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex line 1:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls
-Syntax error 25.905 at line 285. Additional: 1: 'NAMED':
-   285 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls line 285:  Invalid subkeyword found.
-Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 38.001 at line 2021. Additional: 1: '~':
+  2021 *-*         arg(i)~encoding~appendToBuffer(buffer, arg(i)~string) -- "old" implementation is the good one
+Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls line 2021:  Invalid template or pattern.
+Error 38.1:  Incorrect PARSE template detected at "~".
+OK: Expected an error (exit_status = 218)
 ----------------------------------------
-/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-MattheÌ van der Lee/pipe.rex
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/pipe.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
-/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-MattheÌ van der Lee/usepipe.rex
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/usepipe.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
@@ -377,17 +358,17 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex
-Syntax error 13.001 at line 30. Additional: 1: '¢=', 2: 'A23D':
+Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
     30 *-* $='Dollar     '; Call o '$='$
 Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "¢=" ('A23D'X).
+Error 13.1:  Incorrect character in program "�=" ('A23D'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex
-Syntax error 13.001 at line 30. Additional: 1: '¢=', 2: 'A23D':
+Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
     30 *-* $='Dollar     '; Call o '$='$
 Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "¢=" ('A23D'X).
+Error 13.1:  Incorrect character in program "�=" ('A23D'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/runRosettaCode.rex
@@ -399,29 +380,29 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex
-Syntax error 13.001 at line 9. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 9. Additional: 1: '{':
      9 *-*     g = (-1)~generate{item+1}~recursive~each{.array~of(item~times.generate~reduce(1, "*"), item)}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex line 9:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex line 9:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex
-Syntax error 13.001 at line 4. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 4. Additional: 1: '{':
      4 *-* c = 20~times.generate{
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex line 4:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex line 4:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex
-Syntax error 13.001 at line 21. Additional: 1: '{', 2: '7B':
+Syntax error 36.901 at line 21. Additional: 1: '20', 2: '21':
     21 *-* c = .Coactivity~new({say "running coactivity" ; return 1}, .false)
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex line 21:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex line 21:  Unmatched "(" or "[" in expression.
+Error 36.901:  Left parenthesis "(" in position 20 on line 21 requires a corresponding right parenthesis ")".
+OK: Expected an error (exit_status = 220)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/binary_tree-std.cls
 No errors found.
@@ -440,22 +421,22 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex
-Syntax error 13.001 at line 14. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 14. Additional: 1: '{':
     14 *-* producer = {::coactivity
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex line 14:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex line 14:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/trace-coactivity-test.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/binary_tree.cls
-Syntax error 13.001 at line 158. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 158. Additional: 1: '{':
    158 *-*     return {::coactivity
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/binary_tree.cls line 158:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/binary_tree.cls line 158:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/guarded_user-defined_method_are_locked.rex
 No errors found.
@@ -466,11 +447,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex
-Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 2. Additional: 1: '{':
      2 *-* g=0~generate{item+1}~recursive
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex line 2:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex line 2:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock4.rex
 No errors found.
@@ -485,11 +466,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex
-Syntax error 13.001 at line 22. Additional: 1: '{', 2: '7B':
+Syntax error 36.901 at line 22. Additional: 1: '20', 2: '22':
     22 *-* c = .coactivity~new({.coactivity~yield(1) ; return 2})
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex line 22:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex line 22:  Unmatched "(" or "[" in expression.
+Error 36.901:  Left parenthesis "(" in position 20 on line 22 requires a corresponding right parenthesis ")".
+OK: Expected an error (exit_status = 220)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock3.rex
 No errors found.
@@ -528,22 +509,22 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls
-Syntax error 25.929 at line 33. Additional: 1: 'NAMED':
-    33 *-*     use strict named arg profile=.false, memorize=.false, args=(.array~new(0)), namedArgs=(.directory~new)
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls line 33:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 42. Additional: 1: '{':
+    42 *-*     return {::coactivity
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls line 42:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex
-Syntax error 13.001 at line 87. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 87. Additional: 1: '{':
     87 *-*     actions~append{ return .true } -- keep it, it's a way to know that an action was requested
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex line 87:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex line 87:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/trace/tracer.rex
 No errors found.
@@ -558,54 +539,29 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls
-Syntax error 25.929 at line 48. Additional: 1: 'NAMED':
-    48 *-*     use strict named arg wholeString=.true, caseless=.true, trace=.false, displayer=.traceOutput, prefix=""
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls line 48:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 79. Additional: 1: '{':
+    79 *-*         if wholeString then matcher = {expose description pattern; use strict arg string; return pattern~matches(string)}
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls line 79:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1500:
-  1500 *-* begin = term~begin
-       *-* Compiled method "NEW" with scope "Object".
-  1477 *-* Exit .Message.Term~new(                             -    receiver, operator, messageName, scope, arguments -  )
-  1000 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   659 *-* Return Simple.Message.Term( package, term )
-   593 *-* term = Term( package, element, terminators )
-   549 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   514 *-*   newPower = Power.Expression( package, element, newTerminators )
-   478 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   442 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   407 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   367 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   330 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   156 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   952 *-* subExpression = Expression.List(   -    package,                         -    TheElementAfter( begin ),        - -- Where to begin parsing    .EL.RIGHT_PARENTHESIS            - -- Clear terminators: only ")"  )
-   652 *-*           expression = SubExpression( package, element )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   148 *-* Return routine~callWith( array )
-   180 *-*   clause    = self~nextClause
-   207 *-* clause = self~Next.Instruction.Fragment
-   154 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   722 *-* codeBody = Code.Body( package, directive )
-   365 *-*         Call Method     package, directive
-   107 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 97:  Object method not found.
-Error 97.1:  Object "a NAMESPACE.QUALIFIED.CLASSNAME" does not understand message "BEGIN".
-OK: Expected an error (exit_status = 159)
+Syntax error 35.001 at line 207. Additional: 1: '{':
+   207 *-*     return {expose args1 namedArgs1 self
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls line 207:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls
-Syntax error 13.001 at line 213. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 213. Additional: 1: '{':
    213 *-*     depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 213:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 213:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/novalue.cls
 No errors found.
@@ -632,11 +588,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls
-Syntax error 25.905 at line 51. Additional: 1: 'NAMED':
-    51 *-*     use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls line 51:  Invalid subkeyword found.
-Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 130. Additional: 1: ':':
+   130 *-*         if arity == 9999  then doer~do( accu,       self~item,        self~index,-
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls line 130:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls
 Syntax error 99.905 at line 16:
@@ -646,18 +602,15 @@ Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS d
 OK: Expected an error (exit_status = 157)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls
-Syntax error 25.929 at line 94. Additional: 1: 'NAMED':
-    94 *-*     use strict named arg withInfos=.true, breakTokens="", splitLevel=1, escapeCharacters=""
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls line 94:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 110. Additional: 1: ':':
+   110 *-*     buffer~join(arg(1, "a"), separator: self, :appender)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls line 110:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/notrace.cls
-Syntax error 25.905 at line 12. Additional: 1: 'NAMED':
-    12 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/notrace.cls line 12:  Invalid subkeyword found.
-Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
-OK: Expected an error (exit_status = 231)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunk.cls
 No errors found.
@@ -668,11 +621,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls
-Syntax error 25.905 at line 38. Additional: 1: 'NAMED':
-    38 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.CollectionPrettyPrinter~expandCollection)
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls line 38:  Invalid subkeyword found.
-Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 62. Additional: 1: ':':
+    62 *-*     if self~isa(.array) then return self~ppRepresentation(: ppOptions.)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls line 62:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls
 Syntax error 99.905 at line 71:
@@ -690,18 +643,15 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls
-Syntax error 25.929 at line 70. Additional: 1: 'NAMED':
-    70 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls line 70:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 310. Additional: 1: ':':
+   310 *-*         string = self~encoding~byteTransform(self~string, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls line 310:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicodeN_encoding.cls
-Syntax error 25.929 at line 120. Additional: 1: 'NAMED':
-   120 *-*     use strict named arg strict = .false, buffer=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicodeN_encoding.cls line 120:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls
 Syntax error 99.905 at line 77:
@@ -711,25 +661,22 @@ Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS d
 OK: Expected an error (exit_status = 157)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls
-Syntax error 25.929 at line 168. Additional: 1: 'NAMED':
-   168 *-*     use strict named arg short=.false, technical=.false -- same as the instance method, not used (for the moment)
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 168:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 38.001 at line 195. Additional: 1: '~':
+   195 *-*         arg(i)~encoding~appendToBuffer(arg(i)~string, :buffer)
+Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 195:  Invalid template or pattern.
+Error 38.1:  Incorrect PARSE template detected at "~".
+OK: Expected an error (exit_status = 218)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls
-Syntax error 25.929 at line 22. Additional: 1: 'NAMED':
-    22 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls line 22:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls
-Syntax error 25.929 at line 55. Additional: 1: 'NAMED':
-    55 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls line 55:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 121. Additional: 1: ':':
+   121 *-*                 self~encode(surrogate, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls line 121:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/cachedStrings.cls
 No errors found.
@@ -747,39 +694,39 @@ Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls
-Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
-    27 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.false
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls line 27:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 109. Additional: 1: ':':
+   109 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls line 109:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls
-Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
-    27 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil, checkingMaximumCodepoint=.false
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls line 27:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 128. Additional: 1: ':':
+   128 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls line 128:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls
-Syntax error 25.929 at line 174. Additional: 1: 'NAMED':
-   174 *-*     use strict named arg errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls line 174:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 300. Additional: 1: ':':
+   300 *-*             self~appendToBuffer(buffer3~string, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls line 300:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls
-Syntax error 13.001 at line 1012. Additional: 1: '{', 2: '7B':
+Syntax error 35.001 at line 1012. Additional: 1: '{':
   1012 *-*     return encodings~map{if item~canBeDefaultEncoding then item}
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1012:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1012:  Invalid expression.
+Error 35.1:  Incorrect expression detected at "{".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls
-Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
-    27 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.false
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls line 27:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 127. Additional: 1: ':':
+   127 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls line 127:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/ibm-437_encoding.cls
 No errors found.
@@ -798,50 +745,47 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_encoding.cls
-Syntax error 25.929 at line 34. Additional: 1: 'NAMED':
-    34 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_encoding.cls line 34:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_encoding.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls
-Syntax error 25.929 at line 17. Additional: 1: 'NAMED':
-    17 *-*     use strict named arg buffer=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls line 17:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 20.923 at line 63:
+    63 *-*                     character = .Unicode~character(idntfr, by:"NL") -- by Name or codepoint Label
+Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls line 63:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls
-Syntax error 25.929 at line 32. Additional: 1: 'NAMED':
-    32 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls line 32:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 208. Additional: 1: ':':
+   208 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls line 208:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls
-Syntax error 25.929 at line 31. Additional: 1: 'NAMED':
-    31 *-*     use strict named arg buffer=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls line 31:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 41. Additional: 1: ':':
+    41 *-*         encoding~concatenate(text, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls line 41:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls
-Syntax error 25.929 at line 71. Additional: 1: 'NAMED':
-    71 *-*     use strict named arg errorInfo=.nil
-Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls line 71:  Invalid subkeyword found.
-Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
-OK: Expected an error (exit_status = 231)
+Syntax error 35.001 at line 271. Additional: 1: ':':
+   271 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls line 271:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex
-Syntax error 13.001 at line 18. Additional: 1: '{', 2: '7B':
+Syntax error 36.901 at line 18. Additional: 1: '49', 2: '18':
     18 *-* ("RXTRACE_PARSING=ON rexx" filename "2>&1")~pipe(.system | .all["DOTSYMBOL"] | .inject {lastWord = item~word(item~words); parse var lastWord 'token="' dotSymbol '"'; dotSymbol} | .sort "mem" | .take "first" {dataflow["sort"]~item} | .do {say item})
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex line 18:  Invalid character in program.
-Error 13.1:  Incorrect character in program "{" ('7B'X).
-OK: Expected an error (exit_status = 243)
+Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex line 18:  Unmatched "(" or "[" in expression.
+Error 36.901:  Left parenthesis "(" in position 49 on line 18 requires a corresponding right parenthesis ")".
+OK: Expected an error (exit_status = 220)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/indentedstream.cls
 No errors found.

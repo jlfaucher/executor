@@ -70,7 +70,7 @@ check   error $executor/unicode/scripts/dump_encoded.rex
 check noerror $executor/unicode/scripts/test_replacement_characters.rex
 check noerror $executor/unicode/scripts/list_invalid_utf8.rex
 check   error $executor/unicode/scripts/test_encoding_combinations.rex
-check   error $executor/unicode/scripts/check_encoding.rex
+check noerror $executor/unicode/scripts/check_encoding.rex
 check noerror $executor/unicode/ooRexx/oodtree.rex
 check   error "$executor/unicode/ooRexx/test unicode.rex"
 check noerror $executor/unicode/ooRexx/ooRexxTry.rex
@@ -106,7 +106,7 @@ check noerror $executor/tests/retrofit/class.rex
 
 check noerror $executor/samples/benchmark/call-benchmark.rex
 check   error $executor/samples/benchmark/doers-benchmark.rex
-check   error $executor/samples/benchmark/named_arguments-benchmark.rex
+check noerror $executor/samples/benchmark/named_arguments-benchmark.rex
 check noerror $executor/samples/benchmark/macrospace_impact.rex
 check noerror $executor/samples/benchmark/coactivity-benchmark.rex
 check noerror $executor/samples/benchmark/routine_vs_method.rex
@@ -199,7 +199,7 @@ check noerror $executor/packages/extension/std/doers-std.cls
 check   error $executor/packages/extension/functionals.cls
 check   error $executor/packages/extension/object.cls
 check   error $executor/packages/extension/string.cls
-check   error $executor/packages/extension/notrace.cls
+check noerror $executor/packages/extension/notrace.cls
 check noerror $executor/packages/extension/stringChunk.cls
 check noerror $executor/packages/extension/infinity.cls
 check   error $executor/packages/extension/collection.cls
@@ -208,10 +208,10 @@ check noerror $executor/packages/extension/extensions.cls
 check noerror $executor/packages/extension/rexxinfo.cls
 
 check   error $executor/packages/encoding/byte_encoding.cls
-check   error $executor/packages/encoding/unicodeN_encoding.cls
+check noerror $executor/packages/encoding/unicodeN_encoding.cls
 check   error $executor/packages/encoding/unicode.cls
 check   error $executor/packages/encoding/stringIndexer.cls
-check   error $executor/packages/encoding/wtf16_encoding.cls
+check noerror $executor/packages/encoding/wtf16_encoding.cls
 check   error $executor/packages/encoding/wtf8_encoding.cls
 check noerror $executor/packages/encoding/cachedStrings.cls
 check noerror $executor/packages/encoding/stringEncoding.cls
@@ -225,7 +225,7 @@ check noerror $executor/packages/encoding/optional/ibm-437_encoding.cls
 check noerror $executor/packages/encoding/optional/windows-1252_encoding.cls
 check noerror $executor/packages/encoding/optional/ibm-1252_encoding.cls
 check noerror $executor/packages/encoding/optional/iso-8859-1_encoding.cls
-check   error $executor/packages/encoding/utf8_encoding.cls
+check noerror $executor/packages/encoding/utf8_encoding.cls
 check noerror $executor/packages/encoding/utf16_encoding.cls
 check   error $executor/packages/encoding/byte_common.cls
 check   error $executor/packages/encoding/utf32_encoding.cls
