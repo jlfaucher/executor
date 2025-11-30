@@ -3,7 +3,7 @@
 incubator=/local/rexx/oorexx/executor/incubator
 executor=/local/rexx/oorexx/executor/sandbox/jlf
 
-ABORT=1
+ABORT=0
 
 
 # According 'man echo', echo can return >0 if an error occurs.
@@ -160,7 +160,7 @@ check noerror $executor/samples/concurrency/guarded_user-defined_method_are_lock
 check noerror $executor/samples/concurrency/guarded_predefined_method_are_not_locked.rex
 check   error $executor/samples/concurrency/generator-test.rex
 check noerror $executor/samples/concurrency/deadlock4.rex
-check   error $executor/samples/concurrency/deadlock5.rex
+check noerror $executor/samples/concurrency/deadlock5.rex
 check noerror $executor/samples/concurrency/busy.cls
 check   error $executor/samples/concurrency/deadlock2.rex
 check noerror $executor/samples/concurrency/deadlock3.rex
@@ -187,7 +187,7 @@ check noerror $executor/packages/trace/tracer.rex
 check noerror $executor/packages/extension/indeterminate.cls
 check noerror $executor/packages/extension/package.cls
 check   error $executor/packages/extension/stringChunkExtended.cls
-check   error $executor/packages/extension/logical.cls
+check noerror $executor/packages/extension/logical.cls
 check   error $executor/packages/extension/doers.cls
 check   error $executor/packages/extension/array.cls
 check noerror $executor/packages/extension/novalue.cls

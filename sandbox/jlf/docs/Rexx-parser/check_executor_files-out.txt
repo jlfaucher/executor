@@ -212,10 +212,10 @@ Error 13.1:  Incorrect character in program "{" ('7B'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/named_arguments-benchmark.rex
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 229:
-   229 *-*       begin = args~firstItem~begin
+Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 230:
+   230 *-*       begin = args~firstItem~begin
        *-* Compiled method "NEW" with scope "Object".
-   190 *-* Return .Expression.List~new(expressions, begin, end)
+   191 *-* Return .Expression.List~new(expressions, begin, end)
    303 *-* arguments = Expression.List( package, element, "", "arguments" )
        *-* Compiled method "CALLWITH" with scope "Routine".
    148 *-* Return routine~callWith( array )
@@ -364,11 +364,11 @@ Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch
 Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
 OK: Expected an error (exit_status = 231)
 ----------------------------------------
-/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/pipe.rex
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-MattheÌ van der Lee/pipe.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
-/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/usepipe.rex
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-MattheÌ van der Lee/usepipe.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
@@ -377,17 +377,17 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex
-Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
+Syntax error 13.001 at line 30. Additional: 1: '¢=', 2: 'A23D':
     30 *-* $='Dollar     '; Call o '$='$
 Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�=" ('A23D'X).
+Error 13.1:  Incorrect character in program "¢=" ('A23D'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex
-Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
+Syntax error 13.001 at line 30. Additional: 1: '¢=', 2: 'A23D':
     30 *-* $='Dollar     '; Call o '$='$
 Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�=" ('A23D'X).
+Error 13.1:  Incorrect character in program "¢=" ('A23D'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/runRosettaCode.rex
@@ -477,11 +477,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock5.rex
-Syntax error 19.909 at line 12:
-    12 *-* say g~()           -- 1
-Error 19 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock5.rex line 12:  String or symbol expected.
-Error 19.909:  String or symbol expected after tilde (~).
-OK: Expected an error (exit_status = 237)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/busy.cls
 No errors found.
@@ -568,29 +565,26 @@ Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
 OK: Expected an error (exit_status = 231)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls
-Syntax error 19.909 at line 60:
-    60 *-*         doer~()
-Error 19 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls line 60:  String or symbol expected.
-Error 19.909:  String or symbol expected after tilde (~).
-OK: Expected an error (exit_status = 237)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1487:
-  1487 *-* begin = term~begin
+Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1500:
+  1500 *-* begin = term~begin
        *-* Compiled method "NEW" with scope "Object".
-  1464 *-* Exit .Message.Term~new(                             -    receiver, operator, messageName, scope, arguments -  )
-   999 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   658 *-* Return Simple.Message.Term( package, term )
-   592 *-* term = Term( package, element, terminators )
-   548 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   513 *-*   newPower = Power.Expression( package, element, newTerminators )
-   477 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   441 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   406 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   366 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   329 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   155 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   951 *-* subExpression = Expression.List(   -    package,                         -    TheElementAfter( begin ),        - -- Where to begin parsing    .EL.RIGHT_PARENTHESIS            - -- Clear terminators: only ")"  )
+  1477 *-* Exit .Message.Term~new(                             -    receiver, operator, messageName, scope, arguments -  )
+  1000 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
+   659 *-* Return Simple.Message.Term( package, term )
+   593 *-* term = Term( package, element, terminators )
+   549 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
+   514 *-*   newPower = Power.Expression( package, element, newTerminators )
+   478 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
+   442 *-*   newAddition = Addition.Expression( package, element, newTerminators )
+   407 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
+   367 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
+   330 *-*   newAndExpression = And.Expression( package, element, newTerminators )
+   156 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
+   952 *-* subExpression = Expression.List(   -    package,                         -    TheElementAfter( begin ),        - -- Where to begin parsing    .EL.RIGHT_PARENTHESIS            - -- Clear terminators: only ")"  )
    652 *-*           expression = SubExpression( package, element )
        *-* Compiled method "CALLWITH" with scope "Routine".
    148 *-* Return routine~callWith( array )
