@@ -1,0 +1,1350 @@
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/myxmlparser.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/sd2image.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/sdbnfizer.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/sdparser.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/sdtokenizer.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/sdxmlizer.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/transformdir.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/DocMusings/transformxml/transformfile.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_convert.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex
+Syntax error 25.929 at line 43. Additional: 1: 'NAMED':
+    43 *-*     use strict named arg indent=0
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex line 43:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_replacement_characters.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/list_invalid_utf8.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex
+Syntax error 13.001 at line 24. Additional: 1: '{', 2: '7B':
+    24 *-* .Collection~product2(encodings){
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 24:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex
+Syntax error 25.929 at line 38. Additional: 1: 'NAMED':
+    38 *-*     use strict named arg indent=0
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex line 38:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/oodtree.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex
+Syntax error 13.001 at line 63. Additional: 1: '{', 2: '7B':
+    63 *-* say s~mapC{return arg(1)~c2x" "}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex line 63:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/ooRexxTry.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex
+Syntax error 13.001 at line 17. Additional: 1: '{', 2: '7B':
+    17 *-* call dump_collection      .array~new(2,3)~of{10*item}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex line 17:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/collection/collection_helpers.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex
+Syntax error 13.001 at line 195. Additional: 1: '{', 2: '7B':
+   195 *-* -- initial value is the first yielded item (default)
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex line 195:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex
+Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+     2 *-* block = {use strict arg name, greetings; say "hello" name || greetings}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex
+Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+     2 *-* indexer = {
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test_with_extensions.rex
+Syntax error 20.923 at line 18:
+    18 *-* call dump2 .directory~of("key 1", "value 1","key 2", 2, key3:"value 3", key4:4, key5:, :key6)
+Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test_with_extensions.rex line 18:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex
+Syntax error 13.001 at line 250. Additional: 1: '{', 2: '7B':
+   250 *-* c = 12
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex line 250:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/extension/package-test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/test_character_index.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex
+Syntax error 13.001 at line 6. Additional: 1: '{', 2: '7B':
+     6 *-* arg(1)~indexer~stringsCache~pipe(-
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_utf8.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_utf16be.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_utf32be.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_cp1252.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_byte.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_main.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/retrofit/array_literal_continuation.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/retrofit/method.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/retrofit/method.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/retrofit/main_array_literal.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/tests/retrofit/class.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/call-benchmark.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex
+Syntax error 13.001 at line 5. Additional: 1: '{', 2: '7B':
+     5 *-* call run count, {/**/}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/named_arguments-benchmark.rex
+Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 229:
+   229 *-*       begin = args~firstItem~begin
+       *-* Compiled method "NEW" with scope "Object".
+   190 *-* Return .Expression.List~new(expressions, begin, end)
+   303 *-* arguments = Expression.List( package, element, "", "arguments" )
+       *-* Compiled method "CALLWITH" with scope "Routine".
+   148 *-* Return routine~callWith( array )
+   172 *-* clause      = self~nextClause
+   207 *-* clause = self~Next.Instruction.Fragment
+   154 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
+   835 *-* codeBody = Code.Body( package, directive )
+   369 *-*         Call Routine    package, directive
+   107 *-*   Call Rexx.Package package
+       *-* Compiled method "NEW" with scope "Object".
+   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
+Error 97:  Object method not found.
+Error 97.1:  Object "a NAMESPACE.QUALIFIED.CLASSNAME" does not understand message "BEGIN".
+OK: Expected an error (exit_status = 159)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/macrospace_impact.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/coactivity-benchmark.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/routine_vs_method.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/access_variable-benchmark.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex
+Syntax error 13.001 at line 95. Additional: 1: '{', 2: '7B':
+    95 *-* -- 07/10/2019 : now the RexxBlock are always with implicit return. Must add options "COMMANDS".
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex line 95:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex
+Syntax error 13.001 at line 12. Additional: 1: '{', 2: '7B':
+    12 *-* arg(1)~pipe(.fileTree recursive mem |,
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex line 12:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_std_test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex
+Syntax error 13.001 at line 10. Additional: 1: '{', 2: '7B':
+    10 *-* "."~pipe(.filetree recursive memorize | .select {isSourceFile(item)} | .fileLines memorize | .all[string] caseless | .console {dataflow["fileTree"]~item":"index item} | .lineCount | .console)
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex line 10:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex
+Syntax error 13.001 at line 5. Additional: 1: '{', 2: '7B':
+     5 *-* .object~methods~pipe(.sort "byIndex" | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console "item" "Object's methods")
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 5:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex
+Syntax error 13.001 at line 29. Additional: 1: '{', 2: '7B':
+    29 *-* .coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.console)
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex line 29:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/trace/tiny.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace_block.rex
+Syntax error 13.001 at line 6. Additional: 1: '{', 2: '7B':
+     6 *-* block= { i = 10
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace_block.rex line 6:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/trace/example_clock/clock.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/trace/test_trace.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/trace/tiny.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extension.rex
+Syntax error 99.931 at line 75:
+    75 *-* ::attribute userprop_class class
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extension.rex line 75:  Translation error.
+Error 99.931:  Duplicate ::ATTRIBUTE directive instruction.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/crash.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex
+Syntax error 13.001 at line 4. Additional: 1: '{', 2: '7B':
+     4 *-* 1~10(by:3){say item}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex
+Syntax error 13.001 at line 11. Additional: 1: '{', 2: '7B':
+    11 *-* fact = { use arg f
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex line 11:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/std/functional-test-std.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/subclassing_predefined_classes.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/array-zilde.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex
+Syntax error 13.001 at line 1. Additional: 1: '{', 2: '7B':
+     1 *-* say {
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex line 1:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls
+Syntax error 25.905 at line 285. Additional: 1: 'NAMED':
+   285 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls line 285:  Invalid subkeyword found.
+Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/pipe.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/usepipe.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_regina.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex
+Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
+    30 *-* $='Dollar     '; Call o '$='$
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex line 30:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�=" ('A23D'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex
+Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
+    30 *-* $='Dollar     '; Call o '$='$
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex line 30:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�=" ('A23D'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/runRosettaCode.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/multiplier.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex
+Syntax error 13.001 at line 9. Additional: 1: '{', 2: '7B':
+     9 *-*     g = (-1)~generate{item+1}~recursive~each{.array~of(item~times.generate~reduce(1, "*"), item)}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex line 9:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex
+Syntax error 13.001 at line 4. Additional: 1: '{', 2: '7B':
+     4 *-* c = 20~times.generate{
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex line 4:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex
+Syntax error 13.001 at line 21. Additional: 1: '{', 2: '7B':
+    21 *-* c = .Coactivity~new({say "running coactivity" ; return 1}, .false)
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex line 21:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/binary_tree-std.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/multiplier-std.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/coactivity-test-std.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/trace-coactivity-test-std.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex
+Syntax error 13.001 at line 14. Additional: 1: '{', 2: '7B':
+    14 *-* producer = {::coactivity
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex line 14:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/trace-coactivity-test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/binary_tree.cls
+Syntax error 13.001 at line 158. Additional: 1: '{', 2: '7B':
+   158 *-*     return {::coactivity
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/binary_tree.cls line 158:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/guarded_user-defined_method_are_locked.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/guarded_predefined_method_are_not_locked.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex
+Syntax error 13.001 at line 2. Additional: 1: '{', 2: '7B':
+     2 *-* g=0~generate{item+1}~recursive
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex line 2:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock4.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock5.rex
+Syntax error 19.909 at line 12:
+    12 *-* say g~()           -- 1
+Error 19 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock5.rex line 12:  String or symbol expected.
+Error 19.909:  String or symbol expected after tilde (~).
+OK: Expected an error (exit_status = 237)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/busy.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex
+Syntax error 13.001 at line 22. Additional: 1: '{', 2: '7B':
+    22 *-* c = .coactivity~new({.coactivity~yield(1) ; return 2})
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex line 22:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/mutablebuffer/perf.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/rgf_util2/test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/gc/testcase1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/gc/testcase2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/functional/functional-test.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/functional/functional-v2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/functional/functional-v1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls
+Syntax error 25.929 at line 33. Additional: 1: 'NAMED':
+    33 *-*     use strict named arg profile=.false, memorize=.false, args=(.array~new(0)), namedArgs=(.directory~new)
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls line 33:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex
+Syntax error 13.001 at line 87. Additional: 1: '{', 2: '7B':
+    87 *-*     actions~append{ return .true } -- keep it, it's a way to know that an action was requested
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex line 87:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/trace/tracer.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/package.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls
+Syntax error 25.929 at line 48. Additional: 1: 'NAMED':
+    48 *-*     use strict named arg wholeString=.true, caseless=.true, trace=.false, displayer=.traceOutput, prefix=""
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunkExtended.cls line 48:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls
+Syntax error 19.909 at line 60:
+    60 *-*         doer~()
+Error 19 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/logical.cls line 60:  String or symbol expected.
+Error 19.909:  String or symbol expected after tilde (~).
+OK: Expected an error (exit_status = 237)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls
+Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1487:
+  1487 *-* begin = term~begin
+       *-* Compiled method "NEW" with scope "Object".
+  1464 *-* Exit .Message.Term~new(                             -    receiver, operator, messageName, scope, arguments -  )
+   999 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
+   658 *-* Return Simple.Message.Term( package, term )
+   592 *-* term = Term( package, element, terminators )
+   548 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
+   513 *-*   newPower = Power.Expression( package, element, newTerminators )
+   477 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
+   441 *-*   newAddition = Addition.Expression( package, element, newTerminators )
+   406 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
+   366 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
+   329 *-*   newAndExpression = And.Expression( package, element, newTerminators )
+   155 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
+   951 *-* subExpression = Expression.List(   -    package,                         -    TheElementAfter( begin ),        - -- Where to begin parsing    .EL.RIGHT_PARENTHESIS            - -- Clear terminators: only ")"  )
+   652 *-*           expression = SubExpression( package, element )
+       *-* Compiled method "CALLWITH" with scope "Routine".
+   148 *-* Return routine~callWith( array )
+   180 *-*   clause    = self~nextClause
+   207 *-* clause = self~Next.Instruction.Fragment
+   154 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
+   722 *-* codeBody = Code.Body( package, directive )
+   365 *-*         Call Method     package, directive
+   107 *-*   Call Rexx.Package package
+       *-* Compiled method "NEW" with scope "Object".
+   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
+Error 97:  Object method not found.
+Error 97.1:  Object "a NAMESPACE.QUALIFIED.CLASSNAME" does not understand message "BEGIN".
+OK: Expected an error (exit_status = 159)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls
+Syntax error 13.001 at line 213. Additional: 1: '{', 2: '7B':
+   213 *-*     depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 213:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/novalue.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/file.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/std/functionals-std.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/std/extensions-std.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/std/doers-std.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls
+Syntax error 25.905 at line 51. Additional: 1: 'NAMED':
+    51 *-*     use /*strict*/ named arg by="words" -- not strict because other named arguments can be passed that will be handled later
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls line 51:  Invalid subkeyword found.
+Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls
+Syntax error 99.905 at line 16:
+    16 *-* ::method setUserData class
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls line 16:  Translation error.
+Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls
+Syntax error 25.929 at line 94. Additional: 1: 'NAMED':
+    94 *-*     use strict named arg withInfos=.true, breakTokens="", splitLevel=1, escapeCharacters=""
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls line 94:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/notrace.cls
+Syntax error 25.905 at line 12. Additional: 1: 'NAMED':
+    12 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/notrace.cls line 12:  Invalid subkeyword found.
+Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/stringChunk.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls
+Syntax error 25.905 at line 38. Additional: 1: 'NAMED':
+    38 *-*     use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.CollectionPrettyPrinter~expandCollection)
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls line 38:  Invalid subkeyword found.
+Error 25.905:  USE must be followed by the keyword ARG, LOCAL or STRICT; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls
+Syntax error 99.905 at line 71:
+    71 *-* ::method isCompatibleWithByteString class
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls line 71:  Translation error.
+Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/extensions.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/rexxinfo.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls
+Syntax error 25.929 at line 70. Additional: 1: 'NAMED':
+    70 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls line 70:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicodeN_encoding.cls
+Syntax error 25.929 at line 120. Additional: 1: 'NAMED':
+   120 *-*     use strict named arg strict = .false, buffer=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicodeN_encoding.cls line 120:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls
+Syntax error 99.905 at line 77:
+    77 *-* ::method normalizationName class
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls line 77:  Translation error.
+Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls
+Syntax error 25.929 at line 168. Additional: 1: 'NAMED':
+   168 *-*     use strict named arg short=.false, technical=.false -- same as the instance method, not used (for the moment)
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 168:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls
+Syntax error 25.929 at line 22. Additional: 1: 'NAMED':
+    22 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls line 22:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls
+Syntax error 25.929 at line 55. Additional: 1: 'NAMED':
+    55 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls line 55:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/cachedStrings.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringEncoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode_common.cls
+Syntax error 35.001 at line 52. Additional: 1: ':':
+    52 *-*         nextB = encoding~nextCodepointIndexB(string, indexB, :errorInfo)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode_common.cls line 52:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls
+Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
+    27 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.false
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls line 27:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls
+Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
+    27 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil, checkingMaximumCodepoint=.false
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls line 27:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls
+Syntax error 25.929 at line 174. Additional: 1: 'NAMED':
+   174 *-*     use strict named arg errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls line 174:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls
+Syntax error 13.001 at line 1012. Additional: 1: '{', 2: '7B':
+  1012 *-*     return encodings~map{if item~canBeDefaultEncoding then item}
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1012:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls
+Syntax error 25.929 at line 27. Additional: 1: 'NAMED':
+    27 *-*     use strict named arg checkOnlyRange=.false /*no impact here*/, errorInfo=.nil, checkingMaximumCodepoint=.false
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls line 27:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/ibm-437_encoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/windows-1252_encoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/ibm-1252_encoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/iso-8859-1_encoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_encoding.cls
+Syntax error 25.929 at line 34. Additional: 1: 'NAMED':
+    34 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_encoding.cls line 34:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_encoding.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls
+Syntax error 25.929 at line 17. Additional: 1: 'NAMED':
+    17 *-*     use strict named arg buffer=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls line 17:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls
+Syntax error 25.929 at line 32. Additional: 1: 'NAMED':
+    32 *-*     use strict named arg checkOnlyRange=.false, errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls line 32:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls
+Syntax error 25.929 at line 31. Additional: 1: 'NAMED':
+    31 *-*     use strict named arg buffer=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls line 31:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls
+Syntax error 25.929 at line 71. Additional: 1: 'NAMED':
+    71 *-*     use strict named arg errorInfo=.nil
+Error 25 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls line 71:  Invalid subkeyword found.
+Error 25.929:  USE STRICT must be followed by the keyword ARG; found "NAMED".
+OK: Expected an error (exit_status = 231)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex
+Syntax error 13.001 at line 18. Additional: 1: '{', 2: '7B':
+    18 *-* ("RXTRACE_PARSING=ON rexx" filename "2>&1")~pipe(.system | .all["DOTSYMBOL"] | .inject {lastWord = item~word(item~words); parse var lastWord 'token="' dotSymbol '"'; dotSymbol} | .sort "mem" | .take "first" {dataflow["sort"]~item} | .do {say item})
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex line 18:  Invalid character in program.
+Error 13.1:  Incorrect character in program "{" ('7B'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/indentedstream.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/coactivity.cls
+Syntax error 35.001 at line 357. Additional: 1: ':':
+   357 *-*     context~setargs(arguments, :namedArguments) -- assigns the positional and named arguments that the coactivity's client passed to 'resume'
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/coactivity.cls line 357:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/std/coactivity.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/activity.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/generator.cls
+Syntax error 99.905 at line 33:
+    33 *-* ::method generate class
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/generator.cls line 33:  Translation error.
+Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2_wrappers.rex
+Syntax error 99.902 at line 65:
+    65 *-* ::method dump2 ; dump2~call(self, .context~args) ; return self
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2_wrappers.rex line 65:  Translation error.
+Error 99.902:  Duplicate ::METHOD directive instruction.
+OK: Expected an error (exit_status = 157)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/official/rgf_util2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/profiling/profiling.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/array.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/dispatcher.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/bsf.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/object.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/string.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/packages/procedural/collection.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/csvStream/csvStream.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/dateparser/dateparser.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/EventNotification.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/DialogControls.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/UtilityClasses.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/ControlDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/DialogExtensions.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/BaseDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/RcDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/Menu.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/ResDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/CategoryDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/DeprecatedClasses.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/PlainBaseDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/build_ooDialog_cls.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/PropertySheet.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/AnimatedButton.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/UserDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/oodialog.wchar/DynamicDialog.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/rxwinsys/winsystm.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/orxscrpt/security.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/orxscrpt/rexx2inc.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/platform/windows/ole/orexxole.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxsock/socket.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxsock/mime.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxsock/smtp.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxsock/streamsocket.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/orxncurses/ncurses.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxregexp/rxregexp.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/json/json.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/extensions/rxftp/rxftp.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/rexxcps.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/usecomp.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/pipe.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/semcls.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/sfclient.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/stack.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/philfork.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/usepipe.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/qdate.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/scserver.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/greply.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/sscclient.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/guess.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/wpipe2/aspitest2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/wpipe3/aspitest3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/example.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/startrx1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/startrx2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/startrx3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/del_macro.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/load_macro.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/callrexx/macros.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/unix/api/wpipe1/aspitest1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/factor.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/sfserver.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/native.api/call.example/tooRecursiveTrapped.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/native.api/call.example/tooRecursiveUnhandled.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/native.api/call.example/HelloWorld.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/ktguard.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/scclient.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/properties.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/complex.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/qtime.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/ccreply.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/misc/fileDrop.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/rexutils/drives.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/wmi/process.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/wmi/accounts.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/wmi/services.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/wmi/osinfo.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi8.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi7.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi6.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi4.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/adsi/adsi5.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/methinfo/main.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/methinfo/methinfo.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp10.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp04.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp05.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp11.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp07.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp13.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp12.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp06.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp02.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp03.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp01.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp14.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/MSAccessDemo.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp08.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/ole/apps/samp09.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/wsh/print.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/wsh/call_simpleobjectrexxcom.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/api/wpipe/wpipe2/apitest2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/api/wpipe/wpipe3/apitest3.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/windows/api/wpipe/wpipe1/apitest1.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/rexxtry.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/month.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/makestring.rex
+Syntax error 28.001 at line 236:
+   236 *-*       if tempDir == "" then leave  -- Give up.
+Error 28 running /local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/makestring.rex line 236:  Invalid LEAVE or ITERATE.
+Error 28.1:  LEAVE is valid only within a repetitive loop or labeled block instruction.
+OK: Expected an error (exit_status = 228)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/support/portable/setupoorexx.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/support/portable/createPortable.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/trunk/support/portable/testoorexx.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
