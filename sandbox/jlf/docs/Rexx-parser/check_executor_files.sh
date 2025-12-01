@@ -121,7 +121,7 @@ check   error $executor/samples/pipeline/deadlock1.rex
 check noerror $executor/samples/pipeline/pipe_test.rex
 
 check noerror $executor/samples/trace/tiny.cls
-check   error $executor/samples/trace/test_trace_block.rex
+check noerror $executor/samples/trace/test_trace_block.rex
 check noerror $executor/samples/trace/example_clock/clock.rex
 check noerror $executor/samples/trace/test_trace.rex
 check noerror $executor/samples/trace/tiny.rex
@@ -155,7 +155,7 @@ check noerror $executor/samples/concurrency/std/coactivity-test-std.rex
 check noerror $executor/samples/concurrency/std/trace-coactivity-test-std.rex
 check   error $executor/samples/concurrency/coactivity-stress.rex
 check noerror $executor/samples/concurrency/trace-coactivity-test.rex
-check   error $executor/samples/concurrency/binary_tree.cls
+check noerror $executor/samples/concurrency/binary_tree.cls
 check noerror $executor/samples/concurrency/guarded_user-defined_method_are_locked.rex
 check noerror $executor/samples/concurrency/guarded_predefined_method_are_not_locked.rex
 check   error $executor/samples/concurrency/generator-test.rex
@@ -186,7 +186,7 @@ check noerror $executor/packages/trace/tracer.rex
 
 check noerror $executor/packages/extension/indeterminate.cls
 check noerror $executor/packages/extension/package.cls
-check   error $executor/packages/extension/stringChunkExtended.cls
+check noerror $executor/packages/extension/stringChunkExtended.cls
 check noerror $executor/packages/extension/logical.cls
 check   error $executor/packages/extension/doers.cls
 check   error $executor/packages/extension/array.cls
