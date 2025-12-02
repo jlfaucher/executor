@@ -142,6 +142,10 @@ check noerror "$executor/samples/pipe-Matthé van der Lee/usepipe.rex"
 check noerror $executor/samples/classic_rexx/walter/classic_rexx_regina.rex
 check   error $executor/samples/classic_rexx/walter/classic_rexx_executor.rex
 check   error $executor/samples/classic_rexx/walter/classic_rexx.rex
+check noerror $executor/samples/classic_rexx/walter/jlf1_utf8_cent_character_C2A2.rex
+check   error $executor/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex
+check noerror $executor/samples/classic_rexx/walter/jlf3_utf8_not_character_C2AC.rex
+check   error $executor/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex
 check noerror $executor/samples/classic_rexx/runRosettaCode.rex
 
 check noerror $executor/samples/concurrency/multiplier.cls

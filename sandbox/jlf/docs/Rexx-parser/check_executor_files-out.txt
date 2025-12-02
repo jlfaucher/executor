@@ -969,6 +969,28 @@ Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/wa
 Error 13.1:  Incorrect character in program "�=" ('A23D'X).
 OK: Expected an error (exit_status = 243)
 ----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf1_utf8_cent_character_C2A2.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex
+Syntax error 13.001 at line 1. Additional: 1: '�=', 2: 'A23D':
+     1 *-* �='Cent       ';
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex line 1:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�=" ('A23D'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf3_utf8_not_character_C2AC.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex
+Syntax error 13.001 at line 1. Additional: 1: '�1', 2: 'AC31':
+     1 *-* say �1
+Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex line 1:  Invalid character in program.
+Error 13.1:  Incorrect character in program "�1" ('AC31'X).
+OK: Expected an error (exit_status = 243)
+----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/runRosettaCode.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
