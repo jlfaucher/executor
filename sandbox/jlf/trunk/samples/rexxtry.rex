@@ -136,6 +136,7 @@ sub:
 
 main:
   signal on syntax                             /* Enable syntax trap.       */
+  signal on notready                           /* Enable EOF trap           */
   do forever                                   /* Loop forever.             */
     prev = inputrx                             /* User can repeat previous. */
     parse pull inputrx                         /* Input keyboard or queue.  */
@@ -156,6 +157,7 @@ main:
     if argrx <> '' & queued() = 0              /* For one-liner, loop until */
       then leave                               /*   queue is empty.         */
   end
+notready:                                      /* Avoid infinite loop       */
   return result                                /* Preserve result contents. */
 
 set1:  siglrx1 = sigl                          /* Save pointer to lineout.  */
