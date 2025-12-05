@@ -178,7 +178,7 @@ help:                                          /* Request for online help.  */
       say '  Online Help started'
       'start "Rexx Online Documentation"' '"'||value("REXX_HOME",,"ENVIRONMENT")||"\doc\rexxref.pdf"||'"'
     end                                        /* ... for Unix              */
-    when sysrx = sysrx = 'LINUX' | sysrx = 'AIX' | sysrx = 'SUNOS' | sysrx = 'DARWIN' then do
+    when sysrx = 'LINUX' | sysrx = 'AIX' | sysrx = 'SUNOS' | sysrx = 'DARWIN' then do
       say '  Online help is not installed on' sysrx
       rc = 'Sorry!'
 
