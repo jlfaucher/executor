@@ -136,7 +136,7 @@ sub:
 
 main:
   signal on syntax                             /* Enable syntax trap.       */
-  signal on notready                           /* Enable EOF trap           */
+  if enableEOFtrap() then signal on notready   /* Enable EOF trap           */
   do forever                                   /* Loop forever.             */
     prev = inputrx                             /* User can repeat previous. */
     parse pull inputrx                         /* Input keyboard or queue.  */
@@ -157,7 +157,6 @@ main:
     if argrx <> '' & queued() = 0              /* For one-liner, loop until */
       then leave                               /*   queue is empty.         */
   end
-notready:                                      /* Avoid infinite loop       */
   return result                                /* Preserve result contents. */
 
 set1:  siglrx1 = sigl                          /* Save pointer to lineout.  */
@@ -236,6 +235,23 @@ syntax:
   if argrx <> '' & queued() = 0 then           /* One-liner not finished    */
     signal done                                /*   until queue is empty.   */
   signal main                                  /* Resume main loop.         */
+
+notready:
+  say
+  say "Exit because no more input to interpret:" condition("D") condition("C")
+  return result                                /* Preserve result contents. */
+
+enableEOFtrap:
+  /* always, except if the OS is Windows and stdin is connected to a terminal */
+  if abbrev(sysrx, 'Windows'), isaTerminal("stdin") then return 0
+  return 1
+
+isaTerminal:                                     /* For Windows only          */
+  use arg streamName
+  if streamName <> "stdin" then return 0         /* Works only for stdin      */
+  "timeout 0 1>nul 2>nul"
+  terminal = (RC == 0)
+  return terminal
 
 show:
   trace 'Off'; call clear                      /* Display user variables    */
