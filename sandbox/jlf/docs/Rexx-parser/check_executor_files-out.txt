@@ -1,4 +1,19 @@
 ----------------------------------------
+/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell_clauser.cls
+No errors found.
+OK: Expected no error (exit_status = 0)
+----------------------------------------
+/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell_queries.cls
+Syntax error 20.923 at line 243:
+   243 *-*         matcher = classname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
+Error 20 running /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell_queries.cls line 243:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
+----------------------------------------
 /local/rexx/oorexx/executor/incubator/DocMusings/transformxml/myxmlparser.cls
 No errors found.
 OK: Expected no error (exit_status = 0)

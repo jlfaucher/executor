@@ -60,6 +60,10 @@ check()
     check_exit_status
 }
 
+check noerror $incubator/ooRexxShell/oorexxshell.rex
+check noerror $incubator/ooRexxShell/oorexxshell_clauser.cls
+check   error $incubator/ooRexxShell/oorexxshell_queries.cls
+
 check noerror $incubator/DocMusings/transformxml/myxmlparser.cls
 check noerror $incubator/DocMusings/transformxml/sd2image.rex
 check noerror $incubator/DocMusings/transformxml/sdbnfizer.cls
