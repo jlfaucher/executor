@@ -371,7 +371,7 @@ check noerror $executor/trunk/samples/rexxtry.rex
 check noerror $executor/trunk/samples/month.rex
 # Next is an ooRexx 4.2 sample which contains an invalid 'leave'.
 # This sample has been rewritten in ooRexx 5.
-check   error $executor/trunk/samples/makestring.rex
+check errorOK $executor/trunk/samples/makestring.rex
 
 check noerror $executor/trunk/support/portable/setupoorexx.rex
 check noerror $executor/trunk/support/portable/createPortable.rex

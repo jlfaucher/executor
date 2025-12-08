@@ -1229,7 +1229,7 @@ Syntax error 28.001 at line 236:
    236 *-*       if tempDir == "" then leave  -- Give up.
 Error 28 running /local/rexx/oorexx/executor/sandbox/jlf/trunk/samples/makestring.rex line 236:  Invalid LEAVE or ITERATE.
 Error 28.1:  LEAVE is valid only within a repetitive loop or labeled block instruction.
-OK: Expected an error (exit_status = 228)
+OK: Expected a real error (exit_status = 228)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/trunk/support/portable/setupoorexx.rex
 No errors found.
