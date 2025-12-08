@@ -36,11 +36,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex
-Syntax error 35.001 at line 80. Additional: 1: '{':
-    80 *-*         lineText~UnicodeCharacters~each{
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/dump_encoded.rex line 80:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_replacement_characters.rex
 No errors found.
@@ -51,10 +48,10 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex
-Syntax error 35.001 at line 24. Additional: 1: '{':
-    24 *-* .Collection~product2(encodings){
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 24:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
+Syntax error 35.001 at line 54. Additional: 1: ':':
+    54 *-*         concatEncoding = .Encoding~forConcatenation(left, right, :errorInfo)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 54:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex
@@ -66,126 +63,42 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex
-Syntax error 35.001 at line 63. Additional: 1: '{':
-    63 *-* say s~mapC{return arg(1)~c2x" "}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/test unicode.rex line 63:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/ooRexx/ooRexxTry.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex
-Syntax error 35.001 at line 17. Additional: 1: '{':
-    17 *-* call dump_collection      .array~new(2,3)~of{10*item}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/main_array.rex line 17:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/collection/collection_helpers.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   766 *-* expression = Expression.List( package, element )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   182 *-*   clause    = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   843 *-* codeBody = Code.Body( package, directive )
-   370 *-*         Call Routine    package, directive
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+Syntax error 20.923 at line 378:
+   378 *-* "The quick brown fox jumps over the lazy dog"~mapW("length", separator: " ")~dump
+Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex line 378:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   766 *-* expression = Expression.List( package, element )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   182 *-*   clause    = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+Syntax error 20.923 at line 52:
+    52 *-* say doer~do(x: "John") -- 4
+Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex line 52:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order1.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-info.rex
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1070:
-  1070 *-*   If (element \< .ALL.OPS.MESSAGE_SEND)
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   718 *-* expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 97:  Object method not found.
-Error 97.1:  Object "The NIL object" does not understand message "\<".
-OK: Expected an error (exit_status = 159)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order3.rex
 No errors found.
@@ -207,31 +120,11 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex
-Error 97.1 in /local/rexx/rexx-parser/git/bin/Expressions.cls, line 1070:
-  1070 *-*   If (element \< .ALL.OPS.MESSAGE_SEND)
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   766 *-* expression = Expression.List( package, element )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 97:  Object method not found.
-Error 97.1:  Object "The NIL object" does not understand message "\<".
-OK: Expected an error (exit_status = 159)
+Syntax error 20.923 at line 267:
+   267 *-* }~rawexecutable~call(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)
+Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex line 267:  Symbol expected.
+Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
+OK: Expected an error (exit_status = 236)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/package-test.rex
 No errors found.
@@ -242,11 +135,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex
-Syntax error 38.001 at line 6. Additional: 1: '~':
-     6 *-* arg(1)~indexer~stringsCache~pipe(-
-Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/display_cache.rex line 6:  Invalid template or pattern.
-Error 38.1:  Incorrect PARSE template detected at "~".
-OK: Expected an error (exit_status = 218)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/encoding/string_literal_encoding/package_utf8.cls
 No errors found.
@@ -297,38 +187,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/doers-benchmark.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   718 *-* expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/benchmark/named_arguments-benchmark.rex
 No errors found.
@@ -351,71 +211,31 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_extension_test.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   766 *-* expression = Expression.List( package, element )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   182 *-*   clause    = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   843 *-* codeBody = Code.Body( package, directive )
-   370 *-*         Call Routine    package, directive
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex
-Syntax error 38.001 at line 12. Additional: 1: '~':
-    12 *-* arg(1)~pipe(.fileTree recursive mem |,
-Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/trailing_whitespaces.rex line 12:  Invalid template or pattern.
-Error 38.1:  Incorrect PARSE template detected at "~".
-OK: Expected an error (exit_status = 218)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_std_test.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex
-Syntax error 36.901 at line 10. Additional: 1: '9', 2: '10':
-    10 *-* "."~pipe(.filetree recursive memorize | .select {isSourceFile(item)} | .fileLines memorize | .all[string] caseless | .console {dataflow["fileTree"]~item":"index item} | .lineCount | .console)
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/grep_sources.rex line 10:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 9 on line 10 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex
-Syntax error 36.901 at line 5. Additional: 1: '21', 2: '5':
-     5 *-* .object~methods~pipe(.sort "byIndex" | .console {dataflow["source"]~index~quoted~left(30)} | .linecount | .console "item" "Object's methods")
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 5:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 21 on line 5 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+Syntax error 35.001 at line 60. Additional: 1: ':':
+    60 *-*     dir~pipe(files~(:depth, :count))
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 60:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex
-Syntax error 36.901 at line 29. Additional: 1: '16', 2: '29':
-    29 *-* .coactivity~new({.coactivity~yield("a") ; .coactivity~yield("b")})~pipe(.upper|.console)
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex line 29:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 16 on line 29 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/pipe_test.rex
 No errors found.
@@ -453,45 +273,12 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex
-Syntax error 35.001 at line 4. Additional: 1: '{':
-     4 *-* 1~10(by:3){say item}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extensions_test.rex line 4:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/Y_combinator.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   718 *-* expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   182 *-*   clause    = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/std/functional-test-std.rex
 No errors found.
@@ -506,442 +293,15 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/doers-stress.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   265 *-*   instruction = package~clauser~Next.Instruction( NoEndClause, Source.Literal )
-   759 *-*       Exit Source.Literal( package, begin, "" )
-   732 *-* term = Simple.Term( package, element, newTerminators )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1689 *-* Return Optional.Expression.Instruction( -    package, .Say.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls
-Syntax error 38.001 at line 2021. Additional: 1: '~':
-  2021 *-*         arg(i)~encoding~appendToBuffer(buffer, arg(i)~string) -- "old" implementation is the good one
-Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls line 2021:  Invalid template or pattern.
-Error 38.1:  Incorrect PARSE template detected at "~".
-OK: Expected an error (exit_status = 218)
+Syntax error 46.902 at line 2078. Additional: 1: '(':
+  2078 *-*     use strict named arg short(1)=.false, technical(1)=.false
+Error 46 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/_arch/string-with_optim-v2.cls line 2078:  Invalid variable reference.
+Error 46.902:  Extra token ("(") found in USE ARG variable reference; "," or end of instruction expected.
+OK: Expected a real error (exit_status = 210)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipe-Matthé van der Lee/pipe.rex
 No errors found.
@@ -956,40 +316,31 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex
-Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
-    30 *-* $='Dollar     '; Call o '$='$
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx_executor.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�=" ('A23D'X).
-OK: Expected an error (exit_status = 243)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex
-Syntax error 13.001 at line 30. Additional: 1: '�=', 2: 'A23D':
-    30 *-* $='Dollar     '; Call o '$='$
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex line 30:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�=" ('A23D'X).
-OK: Expected an error (exit_status = 243)
+Syntax error 6.002 at line 38:
+    38 *-* s='First
+Error 6 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/classic_rexx.rex line 38:  Unmatched "/*" or quote.
+Error 6.2:  Unmatched single quote (').
+OK: Expected a real error (exit_status = 250)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf1_utf8_cent_character_C2A2.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex
-Syntax error 13.001 at line 1. Additional: 1: '�=', 2: 'A23D':
-     1 *-* �='Cent       ';
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex line 1:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�=" ('A23D'X).
-OK: Expected an error (exit_status = 243)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf3_utf8_not_character_C2AC.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex
-Syntax error 13.001 at line 1. Additional: 1: '�1', 2: 'AC31':
-     1 *-* say �1
-Error 13 running /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex line 1:  Invalid character in program.
-Error 13.1:  Incorrect character in program "�1" ('AC31'X).
-OK: Expected an error (exit_status = 243)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/classic_rexx/runRosettaCode.rex
 No errors found.
@@ -1000,29 +351,20 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex
-Syntax error 35.001 at line 9. Additional: 1: '{':
-     9 *-*     g = (-1)~generate{item+1}~recursive~each{.array~of(item~times.generate~reduce(1, "*"), item)}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/factorials_generators.rex line 9:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex
-Syntax error 35.001 at line 4. Additional: 1: '{':
-     4 *-* c = 20~times.generate{
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/backtrack.rex line 4:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex
-Syntax error 36.901 at line 21. Additional: 1: '20', 2: '21':
-    21 *-* c = .Coactivity~new({say "running coactivity" ; return 1}, .false)
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-test.rex line 21:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 20 on line 21 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/std/binary_tree-std.cls
 No errors found.
@@ -1041,39 +383,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/coactivity-stress.rex
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-   718 *-* expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   182 *-*   clause    = self~nextClause
-   384 *-* elseClause = self~Next.Instruction.Fragment
-   218 *-*       Return self~If.instruction(     clause )
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   350 *-* prolog = Code.Body( package, .Nil )
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/trace-coactivity-test.rex
 No errors found.
@@ -1092,11 +403,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex
-Syntax error 35.001 at line 2. Additional: 1: '{':
-     2 *-* g=0~generate{item+1}~recursive
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/generator-test.rex line 2:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock4.rex
 No errors found.
@@ -1111,11 +419,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex
-Syntax error 36.901 at line 22. Additional: 1: '20', 2: '22':
-    22 *-* c = .coactivity~new({.coactivity~yield(1) ; return 2})
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock2.rex line 22:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 20 on line 22 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/concurrency/deadlock3.rex
 No errors found.
@@ -1154,51 +459,19 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   843 *-* codeBody = Code.Body( package, directive )
-   370 *-*         Call Routine    package, directive
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+Syntax error 99.905 at line 53:
+    53 *-* ::method pipe class unguarded
+Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls line 53:  Translation error.
+Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
+OK: Expected an error (exit_status = 157)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex
-Syntax error 35.001 at line 87. Additional: 1: '{':
-    87 *-*     actions~append{ return .true } -- keep it, it's a way to know that an action was requested
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/executor.rex line 87:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/trace/tracer.rex
 No errors found.
@@ -1221,46 +494,17 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls
---------------------------------------------------------------------------------
-Internal error:
-  TheElementAfter was about to return .Nil
---------------------------------------------------------------------------------
-Error 4.1 in /local/rexx/rexx-parser/git/bin/BaseClassesAndRoutines.cls, line 170:
-   170 *-* Raise HALT
-   186 *-*       Internal.Error( "TheElementAfter was about to return .Nil" )
-  1518 *-* messageName = TheElementAfter( operator )
-  1077 *-*       term = Message.Term( package, term, element, "" )   -- "~", "~~"
-   734 *-* Return Simple.Message.Term( package, term )
-   668 *-* term = Term( package, element, terminators )
-   624 *-*   newPrefix = Prefix.Expression( package, element, newTerminators )
-   589 *-*   newPower = Power.Expression( package, element, newTerminators )
-   553 *-*   newMultiplication = Multiplication.Expression( package, element, newTerminators )
-   517 *-*   newAddition = Addition.Expression( package, element, newTerminators )
-   482 *-*   newConcatenation = Concatenation.Expression( package, element, newTerminators )
-   442 *-*   newComparison = Comparison.Expression( package, element, newTerminators )
-   405 *-*   newAndExpression = And.Expression( package, element, newTerminators )
-   158 *-*   newOrExpression = Or.Expression( package, element, newTerminators )
-  1171 *-*       expression = Expression.List( package, element, .EL.END_OF_CLAUSE )
-  1670 *-* Return Optional.Expression.Instruction( -    package, .Return.Instruction, begin, end, elements  -  )
-       *-* Compiled method "CALLWITH" with scope "Routine".
-   150 *-* Return routine~callWith( array )
-   174 *-* clause      = self~nextClause
-   209 *-* clause = self~Next.Instruction.Fragment
-   155 *-*   instruction = package~clauser~Next.Instruction( NoFinalENDClause )
-   730 *-* codeBody = Code.Body( package, directive )
-   366 *-*         Call Method     package, directive
-   108 *-*   Call Rexx.Package package
-       *-* Compiled method "NEW" with scope "Object".
-   142 *-* package = .Rexx.Parser~new(fullPath,source,options)~package
-Error 4:  Program interrupted.
-Error 4.1:  Program interrupted with HALT condition.
-OK: Expected an error (exit_status = 252)
+Syntax error 35.001 at line 448. Additional: 1: ':':
+   448 *-*     forward to (result) message "run" array (self, "a", array, :namedArguments)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls line 448:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls
-Syntax error 35.001 at line 213. Additional: 1: '{':
-   213 *-*     depth = 1 + self~reduce(0){expose stack; depth = item~depth(stack); if depth > accu then depth}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 213:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
+Syntax error 35.001 at line 676. Additional: 1: ':':
+   676 *-*                 if arity == 9999   then doer~do(      selfIntegerIndex,  index,-
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 676:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/novalue.cls
@@ -1361,11 +605,11 @@ Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS d
 OK: Expected an error (exit_status = 157)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls
-Syntax error 38.001 at line 195. Additional: 1: '~':
+Syntax error 35.001 at line 195. Additional: 1: ':':
    195 *-*         arg(i)~encoding~appendToBuffer(arg(i)~string, :buffer)
-Error 38 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 195:  Invalid template or pattern.
-Error 38.1:  Incorrect PARSE template detected at "~".
-OK: Expected an error (exit_status = 218)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 195:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
+OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls
 No errors found.
@@ -1415,10 +659,10 @@ Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls
-Syntax error 35.001 at line 1012. Additional: 1: '{':
-  1012 *-*     return encodings~map{if item~canBeDefaultEncoding then item}
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1012:  Invalid expression.
-Error 35.1:  Incorrect expression detected at "{".
+Syntax error 35.001 at line 1041. Additional: 1: ':':
+  1041 *-*         if maximumUnicodeCodepoint == -1, string~hasText then maximumUnicodeCodepoint = string~text~maximumUnicodeCodepoint(:replacementCodepoint)
+Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1041:  Invalid expression.
+Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls
@@ -1481,11 +725,8 @@ Error 35.1:  Incorrect expression detected at ":".
 OK: Expected an error (exit_status = 221)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex
-Syntax error 36.901 at line 18. Additional: 1: '49', 2: '18':
-    18 *-* ("RXTRACE_PARSING=ON rexx" filename "2>&1")~pipe(.system | .all["DOTSYMBOL"] | .inject {lastWord = item~word(item~words); parse var lastWord 'token="' dotSymbol '"'; dotSymbol} | .sort "mem" | .take "first" {dataflow["sort"]~item} | .do {say item})
-Error 36 running /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex line 18:  Unmatched "(" or "[" in expression.
-Error 36.901:  Left parenthesis "(" in position 49 on line 18 requires a corresponding right parenthesis ")".
-OK: Expected an error (exit_status = 220)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/indentedstream.cls
 No errors found.

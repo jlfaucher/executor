@@ -24,10 +24,12 @@ validate_argument_EXPECTED_EXIT_STATUS()
     case "$EXPECTED_EXIT_STATUS" in
         "error")
             ;;
+        "errorOK")
+            ;;
         "noerror")
             ;;
         *)
-            echo "Invalid expected result. Got '$1', expected 'error' or 'noerror'."
+            echo "Invalid expected result. Got '$1', expected 'error' or 'errorOK' or 'noerror'."
             abort;;
     esac
 }
@@ -36,6 +38,8 @@ check_exit_status()
 {
     [[ $EXPECTED_EXIT_STATUS = "error" ]]   && [[ $EXIT_STATUS -ne 0 ]] && display "OK: Expected an error (exit_status = $EXIT_STATUS)" && return
     [[ $EXPECTED_EXIT_STATUS = "error" ]]   && [[ $EXIT_STATUS -eq 0 ]] && display "KO: Expected an error (exit_status = $EXIT_STATUS)" && abort
+    [[ $EXPECTED_EXIT_STATUS = "errorOK" ]] && [[ $EXIT_STATUS -ne 0 ]] && display "OK: Expected a real error (exit_status = $EXIT_STATUS)" && return
+    [[ $EXPECTED_EXIT_STATUS = "errorOK" ]] && [[ $EXIT_STATUS -eq 0 ]] && display "KO: Expected a real error (exit_status = $EXIT_STATUS)" && abort
     [[ $EXPECTED_EXIT_STATUS = "noerror" ]] && [[ $EXIT_STATUS -eq 0 ]] && display "OK: Expected no error (exit_status = $EXIT_STATUS)" && return
     [[ $EXPECTED_EXIT_STATUS = "noerror" ]] && [[ $EXIT_STATUS -ne 0 ]] && display "KO: Expected no error (exit_status = $EXIT_STATUS)" && abort
 }
@@ -66,22 +70,22 @@ check noerror $incubator/DocMusings/transformxml/transformdir.rex
 check noerror $incubator/DocMusings/transformxml/transformfile.rex
 
 check noerror $executor/unicode/scripts/test_convert.rex
-check   error $executor/unicode/scripts/dump_encoded.rex
+check noerror $executor/unicode/scripts/dump_encoded.rex
 check noerror $executor/unicode/scripts/test_replacement_characters.rex
 check noerror $executor/unicode/scripts/list_invalid_utf8.rex
 check   error $executor/unicode/scripts/test_encoding_combinations.rex
 check noerror $executor/unicode/scripts/check_encoding.rex
 check noerror $executor/unicode/ooRexx/oodtree.rex
-check   error "$executor/unicode/ooRexx/test unicode.rex"
+check noerror "$executor/unicode/ooRexx/test unicode.rex"
 check noerror $executor/unicode/ooRexx/ooRexxTry.rex
 
-check   error $executor/tests/collection/main_array.rex
+check noerror $executor/tests/collection/main_array.rex
 check noerror $executor/tests/collection/collection_helpers.cls
 
 check   error $executor/tests/extension/functional-test.rex
 check   error $executor/tests/extension/doers-samples.rex
 check noerror $executor/tests/extension/test_extension_order1.rex
-check   error $executor/tests/extension/doers-info.rex
+check noerror $executor/tests/extension/doers-info.rex
 check noerror $executor/tests/extension/test_extension_order3.rex
 check noerror $executor/tests/extension/test_extension_order2.rex
 check   error $executor/tests/extension/named_arguments-test_with_extensions.rex
@@ -90,7 +94,7 @@ check   error $executor/tests/extension/named_arguments-test.rex
 check noerror $executor/tests/extension/package-test.rex
 
 check noerror $executor/tests/encoding/test_character_index.rex
-check   error $executor/tests/encoding/display_cache.rex
+check noerror $executor/tests/encoding/display_cache.rex
 check noerror $executor/tests/encoding/string_literal_encoding/package_utf8.cls
 check noerror $executor/tests/encoding/string_literal_encoding/package_utf16be.cls
 check noerror $executor/tests/encoding/string_literal_encoding/package_utf32be.cls
@@ -105,19 +109,19 @@ check noerror $executor/tests/retrofit/main_array_literal.rex
 check noerror $executor/tests/retrofit/class.rex
 
 check noerror $executor/samples/benchmark/call-benchmark.rex
-check   error $executor/samples/benchmark/doers-benchmark.rex
+check noerror $executor/samples/benchmark/doers-benchmark.rex
 check noerror $executor/samples/benchmark/named_arguments-benchmark.rex
 check noerror $executor/samples/benchmark/macrospace_impact.rex
 check noerror $executor/samples/benchmark/coactivity-benchmark.rex
 check noerror $executor/samples/benchmark/routine_vs_method.rex
 check noerror $executor/samples/benchmark/access_variable-benchmark.rex
 
-check   error $executor/samples/pipeline/pipe_extension_test.rex
-check   error $executor/samples/pipeline/trailing_whitespaces.rex
+check noerror $executor/samples/pipeline/pipe_extension_test.rex
+check noerror $executor/samples/pipeline/trailing_whitespaces.rex
 check noerror $executor/samples/pipeline/pipe_std_test.rex
-check   error $executor/samples/pipeline/grep_sources.rex
+check noerror $executor/samples/pipeline/grep_sources.rex
 check   error $executor/samples/pipeline/one-liners.rex
-check   error $executor/samples/pipeline/deadlock1.rex
+check noerror $executor/samples/pipeline/deadlock1.rex
 check noerror $executor/samples/pipeline/pipe_test.rex
 
 check noerror $executor/samples/trace/tiny.cls
@@ -128,45 +132,45 @@ check noerror $executor/samples/trace/tiny.rex
 
 check   error $executor/samples/extension/extension.rex
 check noerror $executor/samples/extension/crash.rex
-check   error $executor/samples/extension/extensions_test.rex
-check   error $executor/samples/extension/Y_combinator.rex
+check noerror $executor/samples/extension/extensions_test.rex
+check noerror $executor/samples/extension/Y_combinator.rex
 check noerror $executor/samples/extension/std/functional-test-std.rex
 check noerror $executor/samples/extension/subclassing_predefined_classes.rex
 check noerror $executor/samples/extension/array-zilde.cls
-check   error $executor/samples/extension/doers-stress.rex
-check   error $executor/samples/extension/_arch/string-with_optim-v2.cls
+check noerror $executor/samples/extension/doers-stress.rex
+check errorOK $executor/samples/extension/_arch/string-with_optim-v2.cls
 
 check noerror "$executor/samples/pipe-Matthé van der Lee/pipe.rex"
 check noerror "$executor/samples/pipe-Matthé van der Lee/usepipe.rex"
 
 check noerror $executor/samples/classic_rexx/walter/classic_rexx_regina.rex
-check   error $executor/samples/classic_rexx/walter/classic_rexx_executor.rex
-check   error $executor/samples/classic_rexx/walter/classic_rexx.rex
+check noerror $executor/samples/classic_rexx/walter/classic_rexx_executor.rex
+check errorOK $executor/samples/classic_rexx/walter/classic_rexx.rex
 check noerror $executor/samples/classic_rexx/walter/jlf1_utf8_cent_character_C2A2.rex
-check   error $executor/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex
+check noerror $executor/samples/classic_rexx/walter/jlf2_latin1_cent_character_A2.rex
 check noerror $executor/samples/classic_rexx/walter/jlf3_utf8_not_character_C2AC.rex
-check   error $executor/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex
+check noerror $executor/samples/classic_rexx/walter/jlf4_latin1_not_character_AC.rex
 check noerror $executor/samples/classic_rexx/runRosettaCode.rex
 
 check noerror $executor/samples/concurrency/multiplier.cls
-check   error $executor/samples/concurrency/factorials_generators.rex
-check   error $executor/samples/concurrency/backtrack.rex
+check noerror $executor/samples/concurrency/factorials_generators.rex
+check noerror $executor/samples/concurrency/backtrack.rex
 check noerror $executor/samples/concurrency/generator.rex
-check   error $executor/samples/concurrency/coactivity-test.rex
+check noerror $executor/samples/concurrency/coactivity-test.rex
 check noerror $executor/samples/concurrency/std/binary_tree-std.cls
 check noerror $executor/samples/concurrency/std/multiplier-std.cls
 check noerror $executor/samples/concurrency/std/coactivity-test-std.rex
 check noerror $executor/samples/concurrency/std/trace-coactivity-test-std.rex
-check   error $executor/samples/concurrency/coactivity-stress.rex
+check noerror $executor/samples/concurrency/coactivity-stress.rex
 check noerror $executor/samples/concurrency/trace-coactivity-test.rex
 check noerror $executor/samples/concurrency/binary_tree.cls
 check noerror $executor/samples/concurrency/guarded_user-defined_method_are_locked.rex
 check noerror $executor/samples/concurrency/guarded_predefined_method_are_not_locked.rex
-check   error $executor/samples/concurrency/generator-test.rex
+check noerror $executor/samples/concurrency/generator-test.rex
 check noerror $executor/samples/concurrency/deadlock4.rex
 check noerror $executor/samples/concurrency/deadlock5.rex
 check noerror $executor/samples/concurrency/busy.cls
-check   error $executor/samples/concurrency/deadlock2.rex
+check noerror $executor/samples/concurrency/deadlock2.rex
 check noerror $executor/samples/concurrency/deadlock3.rex
 check noerror $executor/samples/concurrency/deadlock1.rex
 
@@ -184,7 +188,7 @@ check noerror $executor/samples/functional/functional-v1.rex
 check   error $executor/packages/pipeline/pipe_extension.cls
 check noerror $executor/packages/pipeline/pipe.cls
 
-check   error $executor/packages/executor.rex
+check noerror $executor/packages/executor.rex
 
 check noerror $executor/packages/trace/tracer.rex
 
@@ -236,7 +240,7 @@ check   error $executor/packages/encoding/utf32_encoding.cls
 check   error $executor/packages/encoding/stringInterface.cls
 check   error $executor/packages/encoding/utf16_common.cls
 
-check   error $executor/packages/utilities/dotsymbols.rex
+check noerror $executor/packages/utilities/dotsymbols.rex
 check noerror $executor/packages/utilities/indentedstream.cls
 
 check   error $executor/packages/concurrency/coactivity.cls
