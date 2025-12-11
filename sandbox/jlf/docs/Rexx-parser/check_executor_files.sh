@@ -62,7 +62,7 @@ check()
 
 check noerror $incubator/ooRexxShell/oorexxshell.rex
 check noerror $incubator/ooRexxShell/oorexxshell_clauser.cls
-check   error $incubator/ooRexxShell/oorexxshell_queries.cls
+check noerror $incubator/ooRexxShell/oorexxshell_queries.cls
 
 check noerror $incubator/DocMusings/transformxml/myxmlparser.cls
 check noerror $incubator/DocMusings/transformxml/sd2image.rex
@@ -77,7 +77,7 @@ check noerror $executor/unicode/scripts/test_convert.rex
 check noerror $executor/unicode/scripts/dump_encoded.rex
 check noerror $executor/unicode/scripts/test_replacement_characters.rex
 check noerror $executor/unicode/scripts/list_invalid_utf8.rex
-check   error $executor/unicode/scripts/test_encoding_combinations.rex
+check noerror $executor/unicode/scripts/test_encoding_combinations.rex
 check noerror $executor/unicode/scripts/check_encoding.rex
 check noerror $executor/unicode/ooRexx/oodtree.rex
 check noerror "$executor/unicode/ooRexx/test unicode.rex"
@@ -86,15 +86,15 @@ check noerror $executor/unicode/ooRexx/ooRexxTry.rex
 check noerror $executor/tests/collection/main_array.rex
 check noerror $executor/tests/collection/collection_helpers.cls
 
-check   error $executor/tests/extension/functional-test.rex
-check   error $executor/tests/extension/doers-samples.rex
+check noerror $executor/tests/extension/functional-test.rex
+check noerror $executor/tests/extension/doers-samples.rex
 check noerror $executor/tests/extension/test_extension_order1.rex
 check noerror $executor/tests/extension/doers-info.rex
 check noerror $executor/tests/extension/test_extension_order3.rex
 check noerror $executor/tests/extension/test_extension_order2.rex
-check   error $executor/tests/extension/named_arguments-test_with_extensions.rex
+check noerror $executor/tests/extension/named_arguments-test_with_extensions.rex
 check noerror $executor/tests/extension/test_extension_order.rex
-check   error $executor/tests/extension/named_arguments-test.rex
+check noerror $executor/tests/extension/named_arguments-test.rex
 check noerror $executor/tests/extension/package-test.rex
 
 check noerror $executor/tests/encoding/test_character_index.rex
@@ -124,7 +124,7 @@ check noerror $executor/samples/pipeline/pipe_extension_test.rex
 check noerror $executor/samples/pipeline/trailing_whitespaces.rex
 check noerror $executor/samples/pipeline/pipe_std_test.rex
 check noerror $executor/samples/pipeline/grep_sources.rex
-check   error $executor/samples/pipeline/one-liners.rex
+check noerror $executor/samples/pipeline/one-liners.rex
 check noerror $executor/samples/pipeline/deadlock1.rex
 check noerror $executor/samples/pipeline/pipe_test.rex
 
@@ -134,7 +134,7 @@ check noerror $executor/samples/trace/example_clock/clock.rex
 check noerror $executor/samples/trace/test_trace.rex
 check noerror $executor/samples/trace/tiny.rex
 
-check   error $executor/samples/extension/extension.rex
+check noerror $executor/samples/extension/extension.rex
 check noerror $executor/samples/extension/crash.rex
 check noerror $executor/samples/extension/extensions_test.rex
 check noerror $executor/samples/extension/Y_combinator.rex
@@ -189,7 +189,7 @@ check noerror $executor/samples/functional/functional-test.rex
 check noerror $executor/samples/functional/functional-v2.rex
 check noerror $executor/samples/functional/functional-v1.rex
 
-check   error $executor/packages/pipeline/pipe_extension.cls
+check noerror $executor/packages/pipeline/pipe_extension.cls
 check noerror $executor/packages/pipeline/pipe.cls
 
 check noerror $executor/packages/executor.rex
@@ -200,59 +200,59 @@ check noerror $executor/packages/extension/indeterminate.cls
 check noerror $executor/packages/extension/package.cls
 check noerror $executor/packages/extension/stringChunkExtended.cls
 check noerror $executor/packages/extension/logical.cls
-check   error $executor/packages/extension/doers.cls
-check   error $executor/packages/extension/array.cls
+check noerror $executor/packages/extension/doers.cls
+check noerror $executor/packages/extension/array.cls
 check noerror $executor/packages/extension/novalue.cls
 check noerror $executor/packages/extension/complex.cls
 check noerror $executor/packages/extension/file.cls
 check noerror $executor/packages/extension/std/functionals-std.cls
 check noerror $executor/packages/extension/std/extensions-std.cls
 check noerror $executor/packages/extension/std/doers-std.cls
-check   error $executor/packages/extension/functionals.cls
-check   error $executor/packages/extension/object.cls
-check   error $executor/packages/extension/string.cls
+check noerror $executor/packages/extension/functionals.cls
+check noerror $executor/packages/extension/object.cls
+check noerror $executor/packages/extension/string.cls
 check noerror $executor/packages/extension/notrace.cls
 check noerror $executor/packages/extension/stringChunk.cls
 check noerror $executor/packages/extension/infinity.cls
-check   error $executor/packages/extension/collection.cls
-check   error $executor/packages/extension/text.cls
+check noerror $executor/packages/extension/collection.cls
+check noerror $executor/packages/extension/text.cls
 check noerror $executor/packages/extension/extensions.cls
 check noerror $executor/packages/extension/rexxinfo.cls
 
-check   error $executor/packages/encoding/byte_encoding.cls
+check noerror $executor/packages/encoding/byte_encoding.cls
 check noerror $executor/packages/encoding/unicodeN_encoding.cls
-check   error $executor/packages/encoding/unicode.cls
-check   error $executor/packages/encoding/stringIndexer.cls
+check noerror $executor/packages/encoding/unicode.cls
+check noerror $executor/packages/encoding/stringIndexer.cls
 check noerror $executor/packages/encoding/wtf16_encoding.cls
-check   error $executor/packages/encoding/wtf8_encoding.cls
+check noerror $executor/packages/encoding/wtf8_encoding.cls
 check noerror $executor/packages/encoding/cachedStrings.cls
 check noerror $executor/packages/encoding/stringEncoding.cls
-check   error $executor/packages/encoding/unicode_common.cls
-check   error $executor/packages/encoding/unicode8_encoding.cls
-check   error $executor/packages/encoding/unicode32_encoding.cls
-check   error $executor/packages/encoding/utf8_common.cls
-check   error $executor/packages/encoding/encoding.cls
-check   error $executor/packages/encoding/unicode16_encoding.cls
+check noerror $executor/packages/encoding/unicode_common.cls
+check noerror $executor/packages/encoding/unicode8_encoding.cls
+check noerror $executor/packages/encoding/unicode32_encoding.cls
+check noerror $executor/packages/encoding/utf8_common.cls
+check noerror $executor/packages/encoding/encoding.cls
+check noerror $executor/packages/encoding/unicode16_encoding.cls
 check noerror $executor/packages/encoding/optional/ibm-437_encoding.cls
 check noerror $executor/packages/encoding/optional/windows-1252_encoding.cls
 check noerror $executor/packages/encoding/optional/ibm-1252_encoding.cls
 check noerror $executor/packages/encoding/optional/iso-8859-1_encoding.cls
 check noerror $executor/packages/encoding/utf8_encoding.cls
 check noerror $executor/packages/encoding/utf16_encoding.cls
-check   error $executor/packages/encoding/byte_common.cls
-check   error $executor/packages/encoding/utf32_encoding.cls
-check   error $executor/packages/encoding/stringInterface.cls
-check   error $executor/packages/encoding/utf16_common.cls
+check noerror $executor/packages/encoding/byte_common.cls
+check noerror $executor/packages/encoding/utf32_encoding.cls
+check noerror $executor/packages/encoding/stringInterface.cls
+check noerror $executor/packages/encoding/utf16_common.cls
 
 check noerror $executor/packages/utilities/dotsymbols.rex
 check noerror $executor/packages/utilities/indentedstream.cls
 
-check   error $executor/packages/concurrency/coactivity.cls
+check noerror $executor/packages/concurrency/coactivity.cls
 check noerror $executor/packages/concurrency/std/coactivity.cls
 check noerror $executor/packages/concurrency/activity.cls
-check   error $executor/packages/concurrency/generator.cls
+check noerror $executor/packages/concurrency/generator.cls
 
-check   error $executor/packages/rgf_util2/rgf_util2_wrappers.rex
+check noerror $executor/packages/rgf_util2/rgf_util2_wrappers.rex
 check noerror $executor/packages/rgf_util2/rgf_util2.rex
 check noerror $executor/packages/rgf_util2/official/rgf_util2.rex
 

@@ -8,11 +8,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell_queries.cls
-Syntax error 20.923 at line 243:
-   243 *-*         matcher = classname~matcher(wholestring: .true, caseless: .true, trace: displayer~traceFilter, displayer: displayer, prefix: "[object filter]")
-Error 20 running /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell_queries.cls line 243:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/incubator/DocMusings/transformxml/myxmlparser.cls
 No errors found.
@@ -63,11 +60,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex
-Syntax error 35.001 at line 54. Additional: 1: ':':
-    54 *-*         concatEncoding = .Encoding~forConcatenation(left, right, :errorInfo)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/test_encoding_combinations.rex line 54:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/unicode/scripts/check_encoding.rex
 No errors found.
@@ -94,18 +88,12 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex
-Syntax error 20.923 at line 378:
-   378 *-* "The quick brown fox jumps over the lazy dog"~mapW("length", separator: " ")~dump
-Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/functional-test.rex line 378:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex
-Syntax error 20.923 at line 52:
-    52 *-* say doer~do(x: "John") -- 4
-Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/doers-samples.rex line 52:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order1.rex
 No errors found.
@@ -124,22 +112,16 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test_with_extensions.rex
-Syntax error 20.923 at line 18:
-    18 *-* call dump2 .directory~of("key 1", "value 1","key 2", 2, key3:"value 3", key4:4, key5:, :key6)
-Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test_with_extensions.rex line 18:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/test_extension_order.rex
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex
-Syntax error 20.923 at line 267:
-   267 *-* }~rawexecutable~call(a:1,b:"letter b",stem.:"default", stem.a:100, stem.b:200, stem.c:300)
-Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/named_arguments-test.rex line 267:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/tests/extension/package-test.rex
 No errors found.
@@ -242,11 +224,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex
-Syntax error 35.001 at line 60. Additional: 1: ':':
-    60 *-*     dir~pipe(files~(:depth, :count))
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/one-liners.rex line 60:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/pipeline/deadlock1.rex
 No errors found.
@@ -277,11 +256,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extension.rex
-Syntax error 99.931 at line 75:
-    75 *-* ::attribute userprop_class class
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/extension.rex line 75:  Translation error.
-Error 99.931:  Duplicate ::ATTRIBUTE directive instruction.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/samples/extension/crash.rex
 No errors found.
@@ -474,11 +450,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls
-Syntax error 99.905 at line 53:
-    53 *-* ::method pipe class unguarded
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe_extension.cls line 53:  Translation error.
-Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls
 No errors found.
@@ -509,18 +482,12 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls
-Syntax error 35.001 at line 448. Additional: 1: ':':
-   448 *-*     forward to (result) message "run" array (self, "a", array, :namedArguments)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/doers.cls line 448:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls
-Syntax error 35.001 at line 676. Additional: 1: ':':
-   676 *-*                 if arity == 9999   then doer~do(      selfIntegerIndex,  index,-
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/array.cls line 676:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/novalue.cls
 No errors found.
@@ -547,25 +514,16 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls
-Syntax error 35.001 at line 130. Additional: 1: ':':
-   130 *-*         if arity == 9999  then doer~do( accu,       self~item,        self~index,-
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/functionals.cls line 130:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls
-Syntax error 99.905 at line 16:
-    16 *-* ::method setUserData class
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/object.cls line 16:  Translation error.
-Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls
-Syntax error 35.001 at line 110. Additional: 1: ':':
-   110 *-*     buffer~join(arg(1, "a"), separator: self, :appender)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/string.cls line 110:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/notrace.cls
 No errors found.
@@ -580,18 +538,12 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls
-Syntax error 35.001 at line 62. Additional: 1: ':':
-    62 *-*     if self~isa(.array) then return self~ppRepresentation(: ppOptions.)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/collection.cls line 62:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls
-Syntax error 99.905 at line 71:
-    71 *-* ::method isCompatibleWithByteString class
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls line 71:  Translation error.
-Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/extensions.cls
 No errors found.
@@ -602,40 +554,28 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls
-Syntax error 35.001 at line 310. Additional: 1: ':':
-   310 *-*         string = self~encoding~byteTransform(self~string, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_encoding.cls line 310:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicodeN_encoding.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls
-Syntax error 99.905 at line 77:
-    77 *-* ::method normalizationName class
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode.cls line 77:  Translation error.
-Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls
-Syntax error 35.001 at line 195. Additional: 1: ':':
-   195 *-*         arg(i)~encoding~appendToBuffer(arg(i)~string, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringIndexer.cls line 195:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf16_encoding.cls
 No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls
-Syntax error 35.001 at line 121. Additional: 1: ':':
-   121 *-*                 self~encode(surrogate, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/wtf8_encoding.cls line 121:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/cachedStrings.cls
 No errors found.
@@ -646,46 +586,28 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode_common.cls
-Syntax error 35.001 at line 52. Additional: 1: ':':
-    52 *-*         nextB = encoding~nextCodepointIndexB(string, indexB, :errorInfo)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode_common.cls line 52:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls
-Syntax error 35.001 at line 109. Additional: 1: ':':
-   109 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode8_encoding.cls line 109:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls
-Syntax error 35.001 at line 128. Additional: 1: ':':
-   128 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode32_encoding.cls line 128:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls
-Syntax error 35.001 at line 300. Additional: 1: ':':
-   300 *-*             self~appendToBuffer(buffer3~string, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls line 300:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls
-Syntax error 35.001 at line 1041. Additional: 1: ':':
-  1041 *-*         if maximumUnicodeCodepoint == -1, string~hasText then maximumUnicodeCodepoint = string~text~maximumUnicodeCodepoint(:replacementCodepoint)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/encoding.cls line 1041:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls
-Syntax error 35.001 at line 127. Additional: 1: ':':
-   127 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/unicode16_encoding.cls line 127:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/ibm-437_encoding.cls
 No errors found.
@@ -712,32 +634,20 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls
-Syntax error 20.923 at line 63:
-    63 *-*                     character = .Unicode~character(idntfr, by:"NL") -- by Name or codepoint Label
-Error 20 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/byte_common.cls line 63:  Symbol expected.
-Error 20.923:  Symbol expected as a name of namespace-qualified symbol.
-OK: Expected an error (exit_status = 236)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls
-Syntax error 35.001 at line 208. Additional: 1: ':':
-   208 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf32_encoding.cls line 208:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls
-Syntax error 35.001 at line 41. Additional: 1: ':':
-    41 *-*         encoding~concatenate(text, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/stringInterface.cls line 41:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls
-Syntax error 35.001 at line 271. Additional: 1: ':':
-   271 *-*             if .nil <> buffer then return targetEncoding~append(cachedString, :buffer)
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf16_common.cls line 271:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/utilities/dotsymbols.rex
 No errors found.
@@ -748,11 +658,8 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/coactivity.cls
-Syntax error 35.001 at line 357. Additional: 1: ':':
-   357 *-*     context~setargs(arguments, :namedArguments) -- assigns the positional and named arguments that the coactivity's client passed to 'resume'
-Error 35 running /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/coactivity.cls line 357:  Invalid expression.
-Error 35.1:  Incorrect expression detected at ":".
-OK: Expected an error (exit_status = 221)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/std/coactivity.cls
 No errors found.
@@ -763,18 +670,12 @@ No errors found.
 OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/generator.cls
-Syntax error 99.905 at line 33:
-    33 *-* ::method generate class
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/concurrency/generator.cls line 33:  Translation error.
-Error 99.905:  CLASS keyword on ::METHOD directive requires a matching ::CLASS directive.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2_wrappers.rex
-Syntax error 99.902 at line 65:
-    65 *-* ::method dump2 ; dump2~call(self, .context~args) ; return self
-Error 99 running /local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2_wrappers.rex line 65:  Translation error.
-Error 99.902:  Duplicate ::METHOD directive instruction.
-OK: Expected an error (exit_status = 157)
+No errors found.
+OK: Expected no error (exit_status = 0)
 ----------------------------------------
 /local/rexx/oorexx/executor/sandbox/jlf/packages/rgf_util2/rgf_util2.rex
 No errors found.
