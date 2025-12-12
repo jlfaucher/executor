@@ -52,9 +52,11 @@ isExposeClause: https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d580
 rawExecutable:  https://github.com/jlfaucher/executor/blob/89e905a0cc12f1ee8d5808162dab6768c68b9837/sandbox/jlf/trunk/interpreter/RexxClasses/Parser.orx#L182-L193
 
 
-----------
+--------------------------------------------------------------------------------
+Call stacks review
+--------------------------------------------------------------------------------
+
 rexx -e "say {2}~rawExecutable~call"
-----------
 
 breakpoint in RexxSource::sourceLiteral
     RexxSource::sourceLiteral at Scanner.cpp:659
@@ -98,3 +100,19 @@ breakpoint in RexxSourceLiteral::RexxSourceLiteral
     RoutineClass::RoutineClass at RoutineClass.cpp:135
     RoutineClass::RoutineClass at RoutineClass.cpp:125
     RoutineClass::processInstore at RoutineClass.cpp:774
+
+
+--------------------------------------------------------------------------------
+Call stacks review
+--------------------------------------------------------------------------------
+
+todo:
+call stacks when running
+    say {2}~rawExecutable~call
+using a script (instead of rexx -e).
+
+breakpoint in RexxSource::sourceLiteral
+    <call stack>
+
+breakpoint in RexxSourceLiteral::RexxSourceLiteral
+    <call stack>
