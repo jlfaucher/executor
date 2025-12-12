@@ -629,6 +629,14 @@ Ex :
     forward to (result)
 
 
+-- Must explicitely provide an implementation of "each" here, because "each" is also defined on Object (see array.cls).
+-- Without this explicit overriding, {::coactivity call yield 1}~each returns [(a RexxBlock)].
+-- With    this explicit overriding, {::coactivity call yield 1}~each returns (a Coactivity).
+::method each unguarded
+    forward to (self~doer) message "DYNAMICTARGET" continue
+    forward to (result)
+
+
 /*
     I want to support that (no ~doer in the following expression) :
                                                                                                 ****
