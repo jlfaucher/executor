@@ -153,18 +153,19 @@ run_script:
         .error~say("Missing filename")
         signal usage
     end
-    if .nil == .context~package~findProgram(filename) then raise syntax 3.901 array (filename)
+    program = .context~package~findProgram(filename)
+    if .nil == program then raise syntax 3.901 array (filename)
     call shift_c_args -- remove filename to be aligned with rexx
     args = remaining_c_args() -- as a string
     return execute_actions{
-        expose filename args defaultEncoding
+        expose program args defaultEncoding
         .context~package~setUserData("displayStackFrame", "stop before")
-        -- can't use the call instruction because must have access to the package of the called filename
+        -- can't use the call instruction because must have access to the package of the called program
         /*
-        if args == "" then call (filename)      -- arg() == 0
-                      else call (filename) args -- arg() == 1, whatever the number of C arguments
+        if args == "" then call (program)      -- arg() == 0
+                      else call (program) args -- arg() == 1, whatever the number of C arguments
         */
-        routine = .Routine~newFile(filename)
+        routine = .Routine~newFile(program)
         .encoding~setDefaultEncoding(defaultEncoding)
         routine~package~setEncoding(defaultEncoding)
         if args == "" then routine~call         -- arg() == 0
