@@ -127,6 +127,8 @@ The followings pipeStages need an extended interpreter
     ['trace']
     <producer-doerFactory>
 
+.do : Identical to "inject", but sometimes the name ".do" is preferable to ".inject".
+
 .fileTree : I1 --- O1
     ['after']
     ['before']
