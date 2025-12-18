@@ -91,6 +91,24 @@ class_methods~put(.methods~class_jlfi, "CLASS_JLFI")
 .String~!define_class_method("TAB", .methods~string_cls_tab)
 .String~!define_class_method("NULL", .methods~string_cls_null)
 
+-- Compatibility with ooRexx 5
+.String~define("CONTAINS", .methods["SMB_CONTAINS"])
+.String~define("CASELESSCONTAINS", .methods["SMB_CASELESSCONTAINS"])
+.String~define("STARTSWITH", .methods["SMB_STARTSWITH"])
+.String~define("CASELESSSTARTSWITH", .methods["SMB_CASELESSSTARTSWITH"])
+.String~define("ENDSWITH", .methods["SMB_ENDSWITH"])
+.String~define("CASELESSENDSWITH", .methods["SMB_CASELESSENDSWITH"])
+.String~define("[]", .methods["SMB_[]"])
+
+-- Compatibility with ooRexx 5
+.MutableBuffer~define("CONTAINS", .methods["SMB_CONTAINS"])
+.MutableBuffer~define("CASELESSCONTAINS", .methods["SMB_CASELESSCONTAINS"])
+.MutableBuffer~define("STARTSWITH", .methods["SMB_STARTSWITH"])
+.MutableBuffer~define("CASELESSSTARTSWITH", .methods["SMB_CASELESSSTARTSWITH"])
+.MutableBuffer~define("ENDSWITH", .methods["SMB_ENDSWITH"])
+.MutableBuffer~define("CASELESSENDSWITH", .methods["SMB_CASELESSENDSWITH"])
+.MutableBuffer~define("[]", .methods["SMB_[]"])
+
 say ('Adding setlike methods to RELATION')
 set_methods = .table~new               /* get a table directory             */
                                        /* add the many item methods       */
@@ -329,6 +347,63 @@ exit
     return m
 
 */
+
+
+/******************************************************************************/
+/* Compatibility with ooRexx 5                                                */
+/******************************************************************************/
+
+-- To replace by native methods
+-- smb = String MutableBuffer
+
+::method smb_contains
+    -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
+    forward message "pos" continue
+    return result <> 0
+
+
+::method smb_caselessContains
+    -- ooRexx v5
+    forward message "caselessPos" continue
+    return result <> 0
+
+
+::method smb_startsWith
+    -- ooRexx v5
+    forward message "pos" continue
+    return result == 1
+
+
+::method smb_caselessStartsWith
+    -- ooRexx v5
+    forward message "caselessPos" continue
+    return result == 1
+
+
+::method smb_endsWith
+    -- ooRexx v5
+    use strict arg substr
+    start = self~length - substr~length + 1
+    if start < 1 then return .false
+    return self~pos(substr, start) == start
+
+
+::method smb_caselessEndsWith
+    -- ooRexx v5
+    use strict arg substr
+    start = self~length - substr~length + 1
+    if start < 1 then return .false
+    return self~caselessPos(substr, start) == start
+
+
+::method "smb_[]"
+    -- ooRexx v5
+    use strict arg n, length=1
+    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
+    if maxLength <= 0 then return ""
+    return self~substr(n, min(length, maxLength))
+
+
 /*============================================================================*/
 /*    Additional S U P P L I E R methods                                      */
 /*============================================================================*/

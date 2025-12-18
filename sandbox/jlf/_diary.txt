@@ -5,6 +5,24 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2025 Dec 18
 
+[Compatibility with ooRexx5]
+
+Moved the following methods from string.cls to CoreClasses.orx, to have them in rexx.img.
+String and MutableBuffer
+    contains
+    caselessContains
+    startsWith
+    caselessStartsWith
+    endsWith
+    caselessEndsWith
+    []
+
+
+===============================================================================
+2025 Dec 18
+
+[Compatibility with ooRexx5]
+
 Retrofit ooRexx5 [feature-requests:#650] Remove position restriction on match() and matchChar()
 RexxString::match
 RexxString::caselessMatch
