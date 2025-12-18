@@ -5,6 +5,68 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2025 Dec 18
 
+[Compatibility with ooRexx5]
+
+Align StreamClasses.orx with ooRexx 5.
+New methods on File:
+    extension
+    makeString
+
+This query counts the number of files and directories per extension:
+s. = 0; "."~pipe(.filetree "recursive" | .inject {item~extension} | .do {expose s.; s.item += 1}); s.=
+Output when run from the net-oo-rexx root directory:
+    a Stem (132 items)
+    ''             :  549
+    ...
+    'rex'          :  281
+    'rexx'         :  7
+    'runTests'     :  2
+    'rxj'          :  234
+    'RXO'          :  2
+    'rxo'          :  78
+    'rxu'          :  28
+    ...
+
+This query displays the files and directories having no extension.
+"."~pipe(.filetree "recursive" mem.file | .inject {if item~extension == "" then item} | .console {item~path})
+Output when run from net-oo-rexx root directory:
+    ...
+    netrexx/examples/ant-task/debian-android-tools/src/org
+    netrexx/examples/ant-task/debian-android-tools/src/org/rexxla
+    netrexx/examples/ant-task/debian-android-tools/src/org/rexxla/compostimate
+    netrexx/lib
+    netrexx/runlib
+    netrexx/documents
+    packages
+    packages/rexxdebugger
+    packages/rexxdebugger/LICENSE
+    ...
+
+
+Still to be done:
+    ::CLASS "File" ...
+    ::method file_temporary_path class private external "library REXX"
+    ::method temporaryPath class
+
+    ::METHOD searchPathImpl CLASS PRIVATE EXTERNAL 'LIBRARY REXX file_search_path_impl'
+    ::method searchPath CLASS
+
+    ::METHOD setWritableImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_writable'
+    ::METHOD setWritable
+
+    ::METHOD isCaseSensitiveImpl PRIVATE EXTERNAL 'LIBRARY REXX this_file_case_sensitive'
+    ::METHOD isCaseSensitive
+
+    ::METHOD getLastAccessedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_get_last_accessed'
+    ::ATTRIBUTE lastAccessed GET
+
+    ::METHOD setLastAccessedImpl PRIVATE EXTERNAL 'LIBRARY REXX file_set_last_accessed'
+    ::ATTRIBUTE lastAccessed SET
+
+
+===============================================================================
+2025 Dec 18
+
 New extension method on File:
     listIfNotSymbolicLink
 Returns .nil if self is a symbolic link,
