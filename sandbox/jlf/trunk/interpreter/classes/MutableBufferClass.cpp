@@ -962,7 +962,14 @@ RexxMutableBuffer *RexxMutableBuffer::changeStr(RexxString *needle, RexxString *
     ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
-    size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    size_t count = optionalNonNegative(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // if no change is requested, return the original string.
+    if (count == 0)
+    {
+        return this;
+    }
+
     // find the number of matches in the string
     size_t matches = StringUtil::countStr(getStringData(), getLength(), needle);
     if (matches > count)                 // the matches are bounded by the count
@@ -1114,7 +1121,14 @@ RexxMutableBuffer *RexxMutableBuffer::caselessChangeStr(RexxString *needle, Rexx
     ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
-    size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    size_t count = optionalNonNegative(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // if no change is requested, return the original string.
+    if (count == 0)
+    {
+        return this;
+    }
+
     // find the number of matches in the string
     size_t matches = StringUtil::caselessCountStr(getStringData(), getLength(), needle);
     if (matches > count)                 // the matches are bounded by the count
@@ -1438,22 +1452,23 @@ RexxInteger *RexxMutableBuffer::match(RexxInteger *start_, RexxString *other, Re
     // the start position must be within the string bounds
     if (_start > getLength())
     {
-        reportException(Error_Incorrect_method_position, start_);
+        return TheFalseObject;
     }
     other = stringArgument(other, OREF_positional, ARG_TWO);
 
     stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
+    // other offset/positional problems are also always a false result
     if (offset > other->getLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        return TheFalseObject;
     }
 
     stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
     if ((offset + len - 1) > other->getLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        return TheFalseObject;
     }
 
     return primitiveMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
@@ -1482,7 +1497,7 @@ RexxInteger *RexxMutableBuffer::caselessMatch(RexxInteger *start_, RexxString *o
     // the start position must be within the string bounds
     if (_start > getLength())
     {
-        reportException(Error_Incorrect_method_position, start_);
+        return TheFalseObject;
     }
     other = stringArgument(other, OREF_positional, ARG_TWO);
 
@@ -1490,14 +1505,14 @@ RexxInteger *RexxMutableBuffer::caselessMatch(RexxInteger *start_, RexxString *o
 
     if (offset > other->getLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        return TheFalseObject;
     }
 
     stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
     if ((offset + len - 1) > other->getLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        return TheFalseObject;
     }
 
     return primitiveCaselessMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
@@ -1521,7 +1536,7 @@ bool RexxMutableBuffer::primitiveMatch(stringsize_t _start, RexxString *other, s
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getLength() || len == 0)
     {
         return false;
     }
@@ -1548,7 +1563,7 @@ bool RexxMutableBuffer::primitiveCaselessMatch(stringsize_t _start, RexxString *
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getLength() || len == 0)
     {
         return false;
     }
@@ -1575,7 +1590,7 @@ RexxInteger *RexxMutableBuffer::matchChar(RexxInteger *position_, RexxString *ma
     // the start position must be within the string bounds
     if (position > getLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        return TheFalseObject;
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 
@@ -1612,7 +1627,7 @@ RexxInteger *RexxMutableBuffer::caselessMatchChar(RexxInteger *position_, RexxSt
     // the start position must be within the string bounds
     if (position > getLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        return TheFalseObject;
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 

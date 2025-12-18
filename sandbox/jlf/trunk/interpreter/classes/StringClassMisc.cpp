@@ -583,7 +583,14 @@ RexxString *RexxString::changeStr(RexxString *needle, RexxString *newNeedle, Rex
     ProtectedObject p2(newNeedle);
 
     // we'll only change up to a specified count.  If not there, we do everything.
-    size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    size_t count = optionalNonNegative(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // if no change is requested, return the original string.
+    if (count == 0)
+    {
+        return this;
+    }
+
     matches = StringUtil::countStr(getStringData(), getLength(), needle);    /* find the number of replacements   */
     if (matches > count)                 // the matches are bounded by the count
     {
@@ -652,7 +659,13 @@ RexxString *RexxString::caselessChangeStr(RexxString *needle, RexxString *newNee
     newNeedle = stringArgument(newNeedle, OREF_positional, ARG_TWO);
     ProtectedObject p2(newNeedle);
     // we'll only change up to a specified count.  If not there, we do everything.
-    size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // size_t count = optionalPositive(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    size_t count = optionalNonNegative(countArg, Numerics::MAX_WHOLENUMBER, OREF_positional, ARG_THREE);
+    // if no change is requested, return the original string.
+    if (count == 0)
+    {
+        return this;
+    }
 
     matches = StringUtil::caselessCountStr(getStringData(), getLength(), needle);    /* find the number of replacements   */
     if (matches > count)                 // the matches are bounded by the count
@@ -886,22 +899,23 @@ RexxInteger *RexxString::match(RexxInteger *start_, RexxString *other, RexxInteg
     // the start position must be within the string bounds
     if (_start > getLength())
     {
-        reportException(Error_Incorrect_method_position, start_);
+        return TheFalseObject;
     }
     other = stringArgument(other, OREF_positional, ARG_TWO);
 
     stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
+    // other offset/positional problems are also always a false result
     if (offset > other->getLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        return TheFalseObject;
     }
 
     stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
     if ((offset + len - 1) > other->getLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        return TheFalseObject;
     }
 
     return primitiveMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
@@ -930,22 +944,23 @@ RexxInteger *RexxString::caselessMatch(RexxInteger *start_, RexxString *other, R
     // the start position must be within the string bounds
     if (_start > getLength())
     {
-        reportException(Error_Incorrect_method_position, start_);
+        return TheFalseObject;
     }
     other = stringArgument(other, OREF_positional, ARG_TWO);
 
     stringsize_t offset = optionalPositionArgument(offset_, 1, ARG_THREE);
 
+    // other offset/positional problems are also always a false result
     if (offset > other->getLength())
     {
-        reportException(Error_Incorrect_method_position, offset);
+        return TheFalseObject;
     }
 
     stringsize_t len = optionalLengthArgument(len_, other->getLength() - offset + 1, ARG_FOUR);
 
     if ((offset + len - 1) > other->getLength())
     {
-        reportException(Error_Incorrect_method_length, len);
+        return TheFalseObject;
     }
 
     return primitiveCaselessMatch(_start, other, offset, len) ? TheTrueObject : TheFalseObject;
@@ -969,7 +984,7 @@ bool RexxString::primitiveMatch(stringsize_t _start, RexxString *other, stringsi
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getLength() || len == 0)
     {
         return false;
     }
@@ -996,7 +1011,7 @@ bool RexxString::primitiveCaselessMatch(stringsize_t _start, RexxString *other, 
     offset--;
 
     // if the match is not possible in the target string, just return false now.
-    if ((_start + len) > getLength())
+    if ((_start + len) > getLength() || len == 0)
     {
         return false;
     }
@@ -1023,7 +1038,7 @@ RexxInteger *RexxString::matchChar(RexxInteger *position_, RexxString *matchSet)
     // the start position must be within the string bounds
     if (position > getLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        return TheFalseObject;
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 
@@ -1060,7 +1075,7 @@ RexxInteger *RexxString::caselessMatchChar(RexxInteger *position_, RexxString *m
     // the start position must be within the string bounds
     if (position > getLength())
     {
-        reportException(Error_Incorrect_method_position, position);
+        return TheFalseObject;
     }
     matchSet = stringArgument(matchSet, OREF_positional, ARG_TWO);
 

@@ -3,6 +3,66 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2025 Dec 18
+
+Retrofit ooRexx5 [feature-requests:#650] Remove position restriction on match() and matchChar()
+RexxString::match
+RexxString::caselessMatch
+MutableBuffer::match
+MutableBuffer::caselessMatch
+
+Retrofit ooRexx5 [feature-requests:#650] Remove position restriction on match() and matchChar()
+RexxString::matchChar
+RexxString::caselessMatchChar
+MutableBuffer::matchChar
+MutableBuffer::caselessMatchChar
+
+Retrofit ooRexx5 [feature-requests:674] (caseless)changeStr should allow 0 as 'count' argument
+RexxString::changeStr
+RexxString::caselessChangeStr
+MutableBuffer::changeStr
+MutableBuffer::caselessChangeStr
+
+"a"~match(1, "a")=                  -- 1
+"a"~match(2, "a")=                  -- 0 instead of Invalid position argument specified; found "2"
+"a"~match(1, "aa", 2)=              -- 1
+"a"~match(1, "aa", 3)=              -- 0 instead of Invalid position argument specified; found "3"
+"a"~caselessMatch(1, "a")=          -- 1
+"a"~caselessMatch(2, "a")=          -- 0 instead of Invalid position argument specified; found "2"
+"a"~caselessMatch(1, "aa", 2)=      -- 1
+"a"~caselessMatch(1, "aa", 3)=      -- 0 instead of Invalid position argument specified; found "3"
+
+"a"~matchChar(1, "a")=              -- 1
+"a"~matchChar(2, "a")=              -- 0 instead of Invalid position argument specified; found "2"
+"a"~caselessMatchChar(1, "a")=      -- 1
+"a"~caselessMatchChar(2, "a")=      -- 0 instead of Invalid position argument specified; found "2"
+
+"aa"~changeStr("a", "b", 1)=            -- 'ba'
+"aa"~changeStr("a", "b", 0)=            -- 'aa' instead of Method positional argument 3 must be a positive whole number; found "0"
+"aa"~caselessChangeStr("A", "B", 1)=    -- 'Ba'
+"aa"~caselessChangeStr("A", "B", 0)=    -- 'aa' instead of Method positional argument 3 must be a positive whole number; found "0"
+
+.mutableBuffer~new("a")~match(1, "a")=                  -- 1
+.mutableBuffer~new("a")~match(2, "a")=                  -- 0 instead of Invalid position argument specified; found "2"
+.mutableBuffer~new("a")~match(1, "aa", 2)=              -- 1
+.mutableBuffer~new("a")~match(1, "aa", 3)=              -- 0 instead of Invalid position argument specified; found "3"
+.mutableBuffer~new("a")~caselessMatch(1, "a")=          -- 1
+.mutableBuffer~new("a")~caselessMatch(2, "a")=          -- 0 instead of Invalid position argument specified; found "2"
+.mutableBuffer~new("a")~caselessMatch(1, "aa", 2)=      -- 1
+.mutableBuffer~new("a")~caselessMatch(1, "aa", 3)=      -- 0 instead of Invalid position argument specified; found "3"
+
+.mutableBuffer~new("a")~matchChar(1, "a")=              -- 1
+.mutableBuffer~new("a")~matchChar(2, "a")=              -- 0 instead of Invalid position argument specified; found "2"
+.mutableBuffer~new("a")~caselessMatchChar(1, "a")=      -- 1
+.mutableBuffer~new("a")~caselessMatchChar(2, "a")=      -- 0 instead of Invalid position argument specified; found "2"
+
+.mutableBuffer~new("aa")~changeStr("a", "b", 1)=            -- M'ba'
+.mutableBuffer~new("aa")~changeStr("a", "b", 0)=            -- M'aa' instead of Method positional argument 3 must be a positive whole number; found "0"
+.mutableBuffer~new("aa")~caselessChangeStr("A", "B", 1)=    -- M'Ba'
+.mutableBuffer~new("aa")~caselessChangeStr("A", "B", 0)=    -- M'aa' instead of Method positional argument 3 must be a positive whole number; found "0"
+
+
+===============================================================================
 2025 Nov 7
 
 Reactivate the declaration of the Buffer class.
