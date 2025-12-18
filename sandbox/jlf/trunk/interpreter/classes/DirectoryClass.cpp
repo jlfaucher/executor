@@ -507,12 +507,14 @@ RexxObject *RexxDirectory::setMethod(
     /* get as a string parameter         */
     entryname = stringArgument(entryname, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(entryname);
+    ProtectedObject p1(methodobj);
     if (methodobj != OREF_NULL)          /* have a method object?             */
     {
         if (!isOfClass(Method, methodobj))     /* given as a string?                */
         {
             /* convert to a method               */
             methodobj = RexxMethod::newMethodObject(entryname, methodobj, IntegerTwo, OREF_NULL);
+            p1 = methodobj;
             /* set a new scope on this           */
             methodobj->setScope((RexxClass *)this);
         }
@@ -520,6 +522,7 @@ RexxObject *RexxDirectory::setMethod(
         {
             /* set a new scope on this           */
             methodobj = methodobj->newScope((RexxClass *)this);
+            p1 = methodobj;
         }
         /* the unknown method?               */
         if (entryname->strCompare(CHAR_UNKNOWN))

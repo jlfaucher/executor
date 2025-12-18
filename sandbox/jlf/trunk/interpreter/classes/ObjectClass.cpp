@@ -2386,6 +2386,11 @@ RexxObject  *RexxObject::defMethods(
         {
             method = OREF_NULL;       // this is a method removal
         }
+
+        // we need to save this, since we might be working off of a newly created
+        // one or a copy
+        ProtectedObject p1(method);
+
         /* Get the name for this method      */
         RexxString *name = (RexxString *)methods->index(i);
         name = name->upper();              /* make sure the name is upperCase.  */
