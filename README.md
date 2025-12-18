@@ -388,8 +388,10 @@ Laisse béton
 I was at ease, I was laid-back, leaning at the keyboard.  
 The guy went into the office and looked at me, like:  
   
-*You got extensions, [Rexx Cub][rexx_cub], quit showing off.  
-I bet that's [monkey patching][monkey_patching].  
+*You got extensions, [Rexx Cub][rexx_cub],  
+Quit showing off.  
+I bet that's monkey_patching,  
+[Shame on you][shame_on_you]!  
 Follow me to the waste lot,  
 I'll teach you a funny game  
 With big blows of variable scope.*  
@@ -420,7 +422,6 @@ I gave up my extensions.
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [laisse_beton]:https://www.youtube.com/watch?v=9eU7wv4eOo8 "Laisse béton"
 [mike_vanier_article]: https://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
-[monkey_patching]: https://youtu.be/ud5J7Ye332I?t=15
 [named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
 [named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.rex "Test cases of named arguments (script)"
@@ -434,6 +435,7 @@ I gave up my extensions.
 [rosetta_code_y_combinator]: https://rosettacode.org/wiki/Y_combinator "Rosetta code : Y combinator"
 [sandbox_diary]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt "Sandbox diary"
 [sandbox_notes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_notes.txt "Sandbox notes"
+[shame_on_you]: https://jlfaucher.github.io/executor.master/docs/RexxCub/Shame_on_you.html "Shame on you"
 [slides]: https://www.dropbox.com/s/d42l8sdodne81eb/slides-sandbox-jlf.pdf?dl=0 "slides-sandbox-jlf.pdf"
 [sourceforge_incubator_DocMusings_transformxml]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree/incubator/DocMusings/transformxml/ "SourceForge incubator/DocMusings/transformxml"
 [sourceforge_sandbox_jlf]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree/sandbox/jlf "SourceForge sandbox/jlf"
