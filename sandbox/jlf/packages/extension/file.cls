@@ -22,3 +22,9 @@
     use strict arg -- none
     if SysIsFileLink(self~absolutePath) then return .nil -- risk of infinite path !
     return self~listFiles
+
+
+::method listIfNotSymbolicLink
+    use strict arg -- none
+    if SysIsFileLink(self~absolutePath) then return .nil -- risk of infinite path !
+    return self~list

@@ -569,10 +569,16 @@ self~init:super
 
 ::method initOptions
     producer = {
+        -- Returns files having a path relative to item's path.
         use arg item -- index, dataflow : not needed
         if \item~isA(.File) then item = .File~new(item~string)
-        childs = item~listFilesIfNotSymbolicLink -- don't dereference symbolic links
-        if .nil <> childs then return childs
+        childNames = item~listIfNotSymbolicLink -- don't dereference symbolic links
+        if .nil == childNames then return;
+        childs = .array~new(childNames~items)
+        do childName over childNames
+            childs~append(.File~new(childName, item~path))
+        end
+        return childs
     }
     args = arg(1, "a")
     args~append(producer)

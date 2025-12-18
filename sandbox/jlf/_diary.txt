@@ -5,6 +5,27 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2025 Dec 18
 
+New extension method on File:
+    listIfNotSymbolicLink
+Returns .nil if self is a symbolic link,
+otherwise returns self~list.
+
+
+The .FileTree pipe stage now returns files having a path relative to the item's path.
+Output when run from the net-oo-rexx root directory:
+"."~pipe(.fileTree | .console)
+    1 : (./setup.sh)
+    2 : (./.config)
+    3 : (./.DS_Store)
+    4 : (./setenv)
+    5 : (./readme_net-oo-rexx.txt)
+    6 : (./setup.rex)
+    ...
+
+
+===============================================================================
+2025 Dec 18
+
 [Compatibility with ooRexx5]
 
 Moved the following methods from string.cls to CoreClasses.orx, to have them in rexx.img.
