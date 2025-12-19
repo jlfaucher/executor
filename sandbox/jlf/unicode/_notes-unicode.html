@@ -4712,6 +4712,47 @@ This is an example how this property will be used in neovim: neovim/neovim#30042
     <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaLang/julia/blob/master/base/strings/unicode.jl#L168-L175">https://github.com/JuliaLang/julia/blob/master/base/strings/unicode.jl#L168-L175</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/pull/317">https://github.com/JuliaStrings/utf8proc/pull/317</a>
+Fix attempting to combine Hangul Jamo 0x11a7.
+0x11a7 is not a valid Hangul T syllable despite being equal to T_BASE.
+This is because, per the Unicode spec:
+TCount is set to one more than the number of trailing consonants
+relevant to the decomposition algorithm: (11C216 - 11A816 + 1) + 1
+So the first valid Hangul T syllable is 0x11a8.
+---
+jlf: the piece of code in the ticket use
+    utf8proc_uint8_t input[] = {236, 163, 160, 225, 134, 167};
+    utf8proc_map(input, 6, &amp;normalized, UTF8PROC_STABLE | UTF8PROC_COMPOSE);
+This is NFC.
+Reproduction from Executor (je ne pige pas où est le problème...):
+    s = (236, 163, 160, 225, 134, 167)~map("d2c")~reduce("", "||")  -- '죠ᆧ'
+    s~eachc("c2d")=  -- [ 236, 163, 160, 225, 134, 167]
+    s~unicodeCharacters==
+        an Array (shape [2], 2 items)
+         1 : ( "죠"  U+C8E0 Lo 2 "HANGUL SYLLABLE JYO" )
+         2 : ( "ᆧ"   U+11A7 Lo 1 "HANGUL JUNGSEONG O-YAE" )
+    s~NFC=
+        T'죠'
+    s~NFC~unicodeCharacters==
+         1 : ( "죠"  U+C8E0 Lo 2 "HANGUL SYLLABLE JYO" )
+---
+"Steven G. Johnson" &lt;notifications@github.com&gt;
+I checked that Python3 unicodedata does the right thing here:
+    &gt;&gt;&gt; import unicodedata
+    &gt;&gt;&gt; s = "\uc8e0\u11a7"
+    &gt;&gt;&gt; s
+    '죠ᆧ'
+    &gt;&gt;&gt; list(map(ord, s))
+    [51424, 4519]
+    &gt;&gt;&gt; list(map(ord, unicodedata.normalize('NFC', s)))
+    [51424, 4519]
+---
+jlf:
+    "\uc8e0\u11a7"~unescape=    -- T'죠ᆧ'
+    "u+c8e0 u+11a7"~u2c=        -- T'??[0000]?[110000]'
+    "u+c8e0 u+11a7"~u2c~utf8=   -- T'죠ᆧ'
+
+
 <hr><h2 id="Twitter_text_parsing">Twitter text parsing</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/twitter/twitter-text">https://github.com/twitter/twitter-text</a>
 Twitter Text Libraries. This code is used at Twitter to tokenize and parse text
