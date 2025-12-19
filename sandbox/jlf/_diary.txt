@@ -3,6 +3,29 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2025 Dec 19
+
+Rework the md2md script.
+(in incubator/scripts)
+Description:
+    Transform a Markdown file to another Mardown file.
+    The titles are numbered, except the first level.
+Usage:
+    md2md [-h | --help] [-fo | --force-overwrite] [-fu | --force-update] [-v | --verbose] [--] [inputname [outputname]]
+    where
+        -fo --force-overwrite  forces overwriting if the output name already exists
+        -fu --force-update     forces the update in case of reported errors
+        -v  --verbose          activates the verbose mode
+        -h  --help             show help
+        --                     indicates the end of the options
+        The default value for inputname is stdin.
+        The default value for outputname is stdout.
+
+Non regression tests
+in incubator/scripts/md2md-tests
+
+
+===============================================================================
 2025 Dec 18
 
 [Compatibility with ooRexx5]

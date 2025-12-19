@@ -9,25 +9,41 @@ The titles are numbered, except the first level.
 ##### title     -->     ##### 1.1.1.1 title
 ###### title    -->     ###### 1.1.1.1.1 title
 
-If a title has already a number, then this number is removed, and the new
-number is inserted.
+If a title has already a number, then
+- this number is checked for length consistency with the title level;
+  In case of discrepancy, an error is reported.
+- this number is removed, and the new number is inserted.
+
+Note:
+Numbering consistency is not checked, as the purpose of this script is to
+(re-)generate consistent title numbers.
 
 KEEP THIS SCRIPT COMPATIBLE WITH OOREXX5
 */
 
+signal on syntax name abort
+
+.local~column.width = 5
+.local~column.separator = "  " -- plus one space before and one space after when written "before" .column.separator "after"
+.local~verbose = .false
 if arg() == 0 then signal help
 
-force = .false
+force_overwrite = .false
+force_update = .false
 parse_options:
     option = c_arg()
     option = option~lower
 
-         if option == "-f"         then signal option_force
-    else if option == "--force"    then signal option_force
-    else if option == "-h"         then signal help
-    else if option == "--help"     then signal help
-    else if option == "--"         then signal option_end_of_options
-    else if option~left(1) == "-"  then signal unknown_option
+         if option == "-fo"                 then signal option_force_overwrite
+    else if option == "--force-overwrite"   then signal option_force_overwrite
+    else if option == "-fu"                 then signal option_force_update
+    else if option == "--force-update"      then signal option_force_update
+    else if option == "-h"                  then signal help
+    else if option == "--help"              then signal help
+    else if option == "-v"                  then signal option_verbose
+    else if option == "--verbose"           then signal option_verbose
+    else if option == "--"                  then signal option_end_of_options
+    else if option~left(1) == "-"           then signal unknown_option
     else signal end_of_options
 
 end_of_options:
@@ -41,14 +57,23 @@ end_of_options:
     if inputname == "" then inputname = "stdin"
     if outputname == "" then outputname = "stdout"
 
-    inputobject = .stream~new(inputname)
-    outputobject = .stream~new(outputname)
-    if \ setupStreams(inputobject, outputobject, force) then exit -1
-    call transform inputobject, outputobject
+    inputobject = setupInputStream(inputname)
+    outputobject = setupOutputStream(outputname, force_overwrite, inputobject)
+    if \ transform(inputobject, outputobject, outputname, force_update) then exit -1
     exit 0
 
-option_force:
-    force = .true
+option_force_overwrite:
+    force_overwrite = .true
+    call shift_c_args -- skip the option
+    signal parse_options -- continue parsing
+
+option_force_update:
+    force_update = .true
+    call shift_c_args -- skip the option
+    signal parse_options -- continue parsing
+
+option_verbose:
+    .local~verbose = .true
     call shift_c_args -- skip the option
     signal parse_options -- continue parsing
 
@@ -76,175 +101,369 @@ usage:
     dotpos = scriptname~lastpos(".")
     if dotpos \== 0 then scriptname = scriptname~left(dotpos - 1)
     .error~say("Usage:")
-    .error~say("    "scriptname" [-h | --help] [-f | --force] [--] [inputname [outputname]]")
+    .error~say("    "scriptname" [-h | --help] [-fo | --force-overwrite] [-fu | --force-update] [-v | --verbose] [--] [inputname [outputname]]")
     .error~say("    where")
-    .error~say("        -f --force  force overwriting if outputname already exists")
-    .error~say("        -h --help   display help")
-    .error~say("        --          indicate the end of options")
-    .error~say("        inputname default value is stdin")
-    .error~say("        outputname default value is stdout")
+    .error~say("        -fo --force-overwrite  forces overwriting if the output name already exists")
+    .error~say("        -fu --force-update     forces the update in case of reported errors")
+    .error~say("        -v  --verbose          activates the verbose mode")
+    .error~say("        -h  --help             show help")
+    .error~say("        --                     indicates the end of the options")
+    .error~say("        The default value for inputname is stdin.")
+    .error~say("        The default value for outputname is stdout.")
     exit -1
+
+    /*
+    Order of output:
+    1) The verbose messages are sent to the .traceOutput monitor (stderr).
+    2) The Markdown lines are sent to the outputname stream (outputobject).
+    3) The error messages are sent to the .error monitor (stderr).
+
+    errors?     force_update    .verbose
+      no             no            no        the output is updated
+      no             no            yes       the verbose messages are displayed, the output is updated
+      no             yes           no        the output is updated
+      no             yes           yes       the verbose messages are displayed, the output is updated
+      yes            no            no        the error messages are displayed
+      yes            no            yes       the verbose messages are displayed, the error messages are displayed
+      yes            yes           no        the output is updated
+      yes            yes           yes       the verbose messages are displayed, the output is updated, the error messages are displayed
+    */
+
+abort:
+    additional = condition("A")
+    if additional~isa(.array) then additional = additional[1]
+    if additional == "Abort" then exit -1
+    raise propagate
 
 
 -------------------------------------------------------------------------------
--- Setup the streams
+-- Setup the input stream
 
-::routine setupStreams
-    use strict arg inputobject, outputobject, force
+::routine setupInputStream
+    use strict arg inputname
 
+    if inputname~caselessEquals("STDIN") then return .input
+
+    inputobject = .stream~new(inputname)
     status = inputobject~open("READ")
     if status \== "READY:" then signal cannot_open_inputname
 
-    if inputobject~qualify == outputobject~qualify then signal inputstream_must_be_different_from_outputstream
-    if force == .false, outputobject~query("EXISTS") \== "" then signal outputname_exists
+    return inputobject
+
+    cannot_open_inputname:
+        .error~say("Can't open" inputname)
+        .error~say(status)
+        call abort
+
+
+-------------------------------------------------------------------------------
+-- Setup the output stream
+
+::routine setupOutputStream
+    use strict arg outputname, force_overwrite, inputobject
+
+    if outputname~caselessEquals("STDOUT") then return .output
+    if outputname~caselessEquals("STDERR") then return .error
+
+    outputobject = .stream~new(outputname)
+
+    if force_overwrite == .false then do
+        if inputobject~qualify == outputobject~qualify then signal input_and_output_names_are_identical
+        if outputobject~query("EXISTS") \== "" then signal outputfile_exists
+    end
 
     status = outputobject~open("WRITE REPLACE")
     if status \== "READY:" then signal cannot_open_outputname
 
-    return .true
+    return outputobject
 
-    inputstream_must_be_different_from_outputstream:
-        .error~say("The input stream must be different from the output stream")
-        return .false
+    input_and_output_names_are_identical:
+        .error~say("The input and output names are identical, use the -fo option to force overwriting")
+        call abort
 
-    outputname_exists:
-        .error~say("The output file already exists, use -f to force overwriting")
-        return .false
-
-    cannot_open_inputname:
-        .error~say("Can't open" inputobject~qualify)
-        .error~say(status)
-        return .false
+    outputfile_exists:
+        .error~say("The output file already exists, use the -fo option to force overwriting")
+        call abort
 
     cannot_open_outputname:
         .error~say("Can't open" outputobject~qualify)
         .error~say(status)
-        return .false
+        call abort
 
 
 -------------------------------------------------------------------------------
--- Transformation the Markdown stream
+-- Transforms the Markdown stream.
 
 ::routine transform
-    use strict arg inputobject, outputobject
+    use strict arg inputobject, outputobject, outputname, force_update
 
-    counter = .hierarchicalCounter~new
-    contents = .list~new
+    inputLines = inputobject~arrayIn("Lines")
+    outputLines = .list~new
 
-    signal on notready
-    do while inputobject~state == "READY"
-        line = inputobject~linein
-        line = transformLine(line, counter)
-        contents~append(line)
+    transformer = .MarkdownTransformer~new
+    lineNumber = 1
+    do line over inputLines
+        if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "line in  =" line)
+        if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "          " "1234567890123456789")
+        line = transformer~updateTitleNumber(line, lineNumber)
+        if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "line out =" line)
+        outputLines~append(line)
+        lineNumber += 1
     end
-    notready:
+    if .verbose then do
+        .traceOutput~say
+        .traceOutput~say("-----------------------")
+        .traceOutput~say("End of verbose messages")
+        .traceOutput~say("-----------------------")
+        .traceOutput~say
+    end
+    .traceOutput~flush
 
-    supplier = contents~supplier
-    do while supplier~available
-        line = supplier~item
-        outputobject~lineout(line)
+    if transformer~errors~items == 0 | force_update then do
+        outputobject~arrayOut(outputLines)
         outputobject~flush
-        supplier~next
     end
 
-    return
+    if transformer~errors~items \== 0 then do
+        if \ force_update | .verbose then do
+            .traceOutput~say
+            .traceOutput~say("--------------")
+            .traceOutput~say("Errors summary")
+            .traceOutput~say("--------------")
+            .traceOutput~say
+            .error~arrayOut(transformer~errors)
+        end
+        if \ force_update then do
+            .error~say
+            .error~say(outputname "not updated, use the -fu option to force the update despite the errors")
+        end
+    end
+    .error~flush
+
+    return transformer~errors~items == 0
 
 
-::routine transformLine
-    use strict arg line, counter
-    resultArray = .array~new -- simulate a variable reference
-    if titleLevel(line, counter, 1, resultArray) then return resultArray[1]
-    if titleLevel(line, counter, 2, resultArray) then return resultArray[1]
-    if titleLevel(line, counter, 3, resultArray) then return resultArray[1]
-    if titleLevel(line, counter, 4, resultArray) then return resultArray[1]
-    if titleLevel(line, counter, 5, resultArray) then return resultArray[1]
-    if titleLevel(line, counter, 6, resultArray) then return resultArray[1]
+-------------------------------------------------------------------------------
+-- Updater of Markdown title number
+
+::class MarkdownTransformer
+
+::constant maxLevel 6 -- only 6 title levels in Markdown
+
+-- I use a 3-space separator after the title number, c'est mon choix.
+-- ## 10.200.   This is a title
+-- With Chrome, a sequence of 3 "normal" spaces is collapsed into one space in the titles.
+-- Using the Unicode character No-Break Space (NBSP).
+::constant nbspace "C2A0"x
+::constant nbspaceCount 3
+
+::attribute hcounter -- Hierarchical counter
+
+::attribute errors get
+
+
+::method init
+    expose hcounter errors
+    hcounter = .HierarchicalCounter~new(self~maxLevel)
+    errors = .List~new
+
+
+/*
+Returns the line with the updated title number, if applicable;
+otherwise returns the unchanged line.
+*/
+::method updateTitleNumber
+    use strict arg line, lineNumber
+    do titleLevel = 1 to self~maxLevel
+        updatedLine = self~updateTitleNumber_Maybe_(line, lineNumber, titleLevel)
+        if .NIL \== updatedLine then return updatedLine
+    end
+    if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "is not a Markdown title")
     return line
 
 
-::routine titleLevel
-    use strict arg line, counter, titleLevel, resultArray
+/*
+Returns the line with an updated title number
+        or .NIL if the line is not a '#...' markdown title
+*/
+::method updateTitleNumber_Maybe_
+    use strict arg line, lineNumber, titleLevel
 
-    if titleLevel > 6 then return line -- only 6 title levels in Markdown
-    if ("######"~left(titleLevel) || " ") \== line~left(titleLevel + 1) then return .false
+    -- Standardizes nbspaces
+    lineUnchanged = line
+    line = line~changeStr(self~nbspace, " ")
 
+    -- Must start with a markdown title tag made of 1..n #, followed by a space or an end-of-line
+    -- titleLevel 1:    ^# ...$ or ^#$
+    -- titleLevel 2:    ^## ...$ or ^##$
+    -- etc.
+    tag = "#"~copies(titleLevel)
+    nextChar = line~subchar(titleLevel + 1)
+    startsWithMarkdownTitle = (line~pos(tag) == 1) & (nextChar == " " | nextChar == "")
+    if \ startsWithMarkdownTitle then return .NIL
+
+    hcounterNext = self~hcounter~next(titleLevel)
+    if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "title level" titleLevel .column.separator "next =" hcounterNext)
+    --if hcounterNext == "" then return lineUnchanged
+
+    -- Remove the markdown title tag and the title number, if any
     -- Example with title level 2:
-    -- ## this is a title
+    -- ## this is a title           --> startTitle = 4  "this is a title"
     -- 1234
-    -- ## 10.200 this is a title
-    -- 12345678901
-    startNumber = titleLevel + 2
-    startTitle = startNumber
-    spaces = .hierarchicalCounter~spaces
-    endNumber = line~pos(spaces, startNumber)
-    if endNumber \== 0, line~substr(startNumber, endNumber - startNumber)~verify("0123456789.") == 0 then startTitle = endNumber + spaces~length
-    resultArray[1]  = "######"~left(titleLevel) || " " || counter~next(titleLevel) || line~substr(startTitle)
-    return .true
+    -- ## 10.200. this is a title   --> startTitle = 12 "this is a title"
+    -- 123456789012
+    startTitle = titleLevel + 2
+    startNumber = line~verify(" ", "Nomatch", titleLevel + 2) -- 1st non-space position after the markdown title tag
+    endNumber = 0
+    titleNumber = ""
+    if startNumber \= 0 then do
+        startTitle = startNumber
+        endNumber = line~pos(" ", startNumber)
+        if endNumber == 0 then endNumber = line~length + 1 -- either a title number without a title text, or a title text without a title number
+        if line~verify("0123456789.", "Nomatch", startNumber, endNumber - startNumber) == 0 then do
+            -- We have a title number
+            titleNumber = line~substr(startNumber, endNumber - startNumber)
+            startTitle = line~verify(" ", "Nomatch", endNumber) -- 1st non-space position after the title number
+            if startTitle == 0 then startTitle = line~length + 1 -- a title number without a title text
+        end
+    end
+    if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "title level" titleLevel .column.separator "startNumber =" startNumber ", endNumber =" endNumber ", startTitle =" startTitle)
+    -- titleNumber can be "", either because # (no displayed counter) or because we have a title text without a title number
+    self~checkTitleNumber(lineNumber, titleNumber, titleLevel)
+    title = line~substr(startTitle)
+
+    -- Transform the line, using an updated title number
+    separator = self~nbspace~copies(self~nbspaceCount)
+    line = tag || " " || hcounterNext || separator || title
+    return line
+
+
+::method checkTitleNumberSyntax
+    /*
+    either empty
+    or 1. or 1.1. or 1.1.1. or 1.1.1.1. or 1.1.1.1.1. or 1.1.1.1.1.1.
+    */
+    use strict arg lineNumber, titleNumber
+    if titleNumber == "" then return .true
+
+    isValid = .false
+    index = 1
+    do while index <= titleNumber~length
+        dotIndex = titleNumber~verify("0123456789", "Nomatch", index) -- first non-digit position
+        if dotIndex == index then leave -- no digit
+        if dotIndex == 0 then leave -- missing dot
+        if titleNumber[dotIndex] \== "." then leave -- dot expected
+        isValid = (dotIndex == titleNumber~length)
+        if isValid then leave
+        index = dotIndex + 1
+    end
+
+    if isValid then return .true
+
+    error = "line" lineNumber~right(.column.width) .column.separator "Invalid title number:" titleNumber
+    if .verbose then .traceOutput~say(error)
+    self~errors~append(error)
+    return .false
+
+
+::method checkTitleNumber
+    /*
+    Pre-condition: titleNumber is well-formed.
+    Correct:
+        titleLevel titleNumber
+            #                          no counter
+            ##          1.          or no counter
+            ###         1.1.        or no counter
+            ####        1.1.1.      or no counter
+            #####       1.1.1.1.    or no counter
+            ######      1.1.1.1.1.  or no counter
+    Incorrect:
+            #           1.          Level 1 or level 2?
+            #           1.1.        Level 1 or level 3?
+            ##          1.1.        Level 2 or level 3?
+            ##          1.1.1.      Level 2 or level 4?
+    */
+    use strict arg lineNumber, titleNumber, titleLevel
+    if titleNumber == "" then return .true
+    if self~checkTitleNumberSyntax(lineNumber, titleNumber) == .false then return .false
+
+    -- The count of dots gives the level of this title number, minus 1.
+    -- 1 dot    ==> n1.         ==> level 2
+    -- 2 dots   ==> n1.n2.      ==> level 3
+    -- 3 dots   ==> n1.n2.n3.   ==> level 4
+    -- etc.
+    titleNumberLevel = titleNumber~countStr(".") + 1
+    if titleNumberLevel == titleLevel then return .true
+
+    error = "line" lineNumber~right(.column.width) .column.separator "Number of '#' incorrect? got" titleLevel "'#' for a counter level" titleNumberLevel
+    if .verbose then .traceOutput~say(error)
+    self~errors~append(error)
+    return .false
 
 
 -------------------------------------------------------------------------------
 -- Generator of hierarchical counters
--- No counter for the level 1
+-- No counter displayed for the level 1
 
-::class hierarchicalCounter
+::class HierarchicalCounter
 
-::constant levelMax 6
--- With Chrome, a sequence of "normal" space is collapsed into one space in the titles
--- Using the Unicode character No-Break Space (NBSP)
-::constant space "C2A0"x
-::constant spaceNumber 3
-
-
-::method spaces class
-    return self~space~copies(self~spaceNumber)
+::attribute maxLevel get
 
 
 ::method init
-    expose counters
-    counters = .array~new(self~levelMax)~~fill(0)
+    expose counters maxLevel
+    use strict arg maxLevel=9
+    counters = .array~new(maxLevel)~~fill(0)
 
 
 ::method next
-    expose counters
+    expose counters string
     use strict arg level
-    if level < 1 or level > self~levelMax then return "<Invalid level: "level">"
 
-    counter = ""
-    loop i = 1 to level
-        if i == level then do
-            counters[i] += 1
-            -- reset the counters at upper level (child counters of current counter)
-            do j = i + 1 to self~levelMax
-                counters[j] = 0
-            end
-            -- self~charout(level, .true);
-            if i == 1 then return "" -- no counter displayed for #
-            return counter || counters[i] || "." || self~class~spaces
-        end
-        else do
-            -- no counter displayed for #
-            if i > 1 then counter ||= counters[i] || "."
-        end
+    if level < 1 or level > self~maxLevel then signal invalid_level
+
+    string = "" -- invalidates the string representation
+    counters[level] += 1
+    -- Reset the counters at upper level (child counters of current counter)
+    -- The counters at lower level are unchanged, they can be zero if you "jump" intermediate levels, c'est mon choix.
+    do i = level + 1 to self~maxLevel
+        counters[i] = 0
     end
+    return self~toString
+
+    invalid_level: raise syntax 88.900 array ("Invalid level:" level". Must be from 1 to" self~maxLevel)
 
 
-::method charout
-    expose counters
-    use strict arg level, newline
+::method toString
+    expose counters string
+    use strict arg -- none
 
-    -- Display all the counters
-    .traceOutput~charout(level": ")
-    do i = 1 to self~levelMax
-        .traceOutput~charout(counters[i])
+    -- Display all counters except the first; stop at the first zero counter after a non-zero counter.
+    -- With maxLevel == 9
+    -- #####    "0.0.0.0.5."    counters = 0 0 0 0 5 0 0 0 0
+    -- #        ""              counters = 1 0 0 0 0 0 0 0 0
+    -- ##       "2."            counters = 1 2 0 0 0 0 0 0 0
+    -- ###      "2.3."          counters = 1 2 3 0 0 0 0 0 0
+    -- etc...
+
+    if string \== "" then return string -- already calculated
+
+    string = ""
+    stopWhen0 = .false
+    do i = 1 to self~maxLevel
+        counter = counters[i]
+        if counter == 0, stopWhen0 then leave
+        if counter \== 0 then stopWhen0 = .true -- next 0 will be a stop
+        if i > 1 then string ||= counter || "." -- don't display the first counter
     end
-    if newline then .traceOutput~say
+    return string
 
 
 -------------------------------------------------------------------------------
 -- Helpers to manipulate the C arguments
 
 ::routine c_arg
-    if .nil == .syscargs[1] then return ""
+    if .NIL == .syscargs[1] then return ""
     return .syscargs[1]
 
 
@@ -255,3 +474,10 @@ usage:
 
 ::routine remaining_c_args
     return .syscargs~toString("line", " ") -- concatenate all the remaining C arguments, separated by a space character.
+
+
+-------------------------------------------------------------------------------
+-- The missing global exit -1
+
+::routine abort
+    raise syntax 98.900 array("Abort")
