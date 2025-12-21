@@ -776,7 +776,7 @@ RexxObject *RexxClass::defineClassMethod(RexxString *method_name, RexxMethod *ne
     method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
     ProtectedObject p(method_name);
     requiredArgument(newMethod, OREF_positional, ARG_TWO);
-    newMethod = newMethod->newScope(this);        // change the scope to the class // JLF newScope instead of setScope
+    /*newMethod = */ newMethod->newScope(this);        // change the scope to the class // JLF newScope instead of setScope
 
     // we need to save this, since we might be working off of a newly created
     // one or a copy
