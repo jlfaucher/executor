@@ -1059,7 +1059,7 @@ git log -i --grep=encod --grep=unicode --pretty=medium > log-encod.txt
 
 
 -- List the Object's method added by text.cls
--- No need of ?cmi because Object can"t be extended by inheritance
+-- No need of ?cmi because Object can't be extended by inheritance
 ?cm Object = (text.cls)
     P. PCG.    'ISBUFFERORSTRING'            : 'Object' (text.cls)
     P. P.G.    'ISBUFFERORSTRING'            : 'Object' (text.cls)
