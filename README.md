@@ -57,16 +57,20 @@ Test cases:
 
 A positional argument list is a serie of optional expressions, separated by commas.
 
+```rexx {executor}
     caller: put("one", 1)
     callee: use arg item, index -- order is important
+```
 
 The position of each argument within the argument list identifies the corresponding
 parameter in the parameter list of the routine/method being invoked.  
 This is in contrast to named argument lists, where the correspondence between
 argument and parameter is done using the parameter's name.
 
+```rexx {executor}
     caller: put(index:1, item:"one")
     callee: use named arg item, index -- order is not important
+```
 
 Specification of named arguments: [spec][named_arguments_spec]  
 Test cases of named arguments: [script][named_arguments_test_cases_script], [output][named_arguments_test_cases_output]
@@ -77,27 +81,32 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 
 #### Routine
 
+```rexx {executor}
     {use arg name, greetings
      say "hello" name || greetings
     }~("John", ", how are you ?")       -- hello John, how are you ?
+```
 
 #### Coactivity
 
 A coactivity remembers its internal state.  
 It can be called several times, the execution is resumed after the last executed .yield[].
 
+```rexx {executor}
     nextInteger = {::coactivity loop i=0; .yield[i]; end}
     say nextInteger~()                  -- 0
     say nextInteger~()                  -- 1
     nextInteger~makeArray(10)           -- [2,3,4,5,6,7,8,9,10,11]
     say nextInteger~()                  -- 12
     ...
+```
 
 #### Closure
 
 A closure remembers the values of the variables defined in the outer environment of the block.  
 Updating a variable from the closure will have no impact on the original context (closure by value).
 
+```rexx {executor}
     v = 1
     closure = {expose v; say v; v += 10}    -- capture the value of v: 1
     v = 2
@@ -105,6 +114,7 @@ Updating a variable from the closure will have no impact on the original context
     closure~()                              -- display 11
     closure~()                              -- display 21
     say v                                   -- v not impacted by the closure: 2
+```
 
 ### Blocks (examples)
 
@@ -112,6 +122,7 @@ Updating a variable from the closure will have no impact on the original context
 
 [Rosetta Code][rosetta_code_closures_value_capture]
 
+```rexx {executor}
     a = .array~new
     do i=1 to 10
         a~append{expose i; return i*i}
@@ -119,6 +130,7 @@ Updating a variable from the closure will have no impact on the original context
     do i=1 to 9
         say a[i]~()
     end
+```
 
 display:
 
@@ -134,12 +146,15 @@ display:
 
 A more compact code... item is an implicit parameter.
 
+```rexx {executor}
     1~10{ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
+```
 
 #### Accumulator factory
 
 [Rosetta Code][rosetta_code_accumulator_factory]
 
+```rexx {executor}
     accumulator = {
         use arg sum
         return  {
@@ -154,12 +169,13 @@ A more compact code... item is an implicit parameter.
     x~(5)               -- add 5 to sum
     y = accumulator~(3) -- another accumulator (closure), no effect on x
     say x~(2.3)         -- add 2.3 to sum and print the current sum : 8.3
-
+```
 
 #### Function composition
 
 [Rosetta Code][rosetta_code_function_composition]
 
+```rexx {executor}
     compose = {
         use arg f, g
         return {
@@ -175,6 +191,7 @@ A more compact code... item is an implicit parameter.
 
     binary2decimal = compose~("x2d", "b2x")
     say binary2decimal~(11111111)  -- 255
+```
 
 #### Y combinator
 
@@ -188,22 +205,27 @@ See [Mike Vanier article][mike_vanier_article].
 
 call-by-value Y combinator (applicable to ooRexx, explicit delayed evaluation done by the lambda (v) wrapper):
 
+```LISP
     Y = λf.(λx.f (λv.((x x) v))) (λx.f (λv.((x x) v)))
     (define Y
       (lambda (f)
         ( (lambda (x) (f (lambda (v) ((x x) v))))
           (lambda (x) (f (lambda (v) ((x x) v)))))))
+```
 
 Equivalent form:
 
+```LISP
     (define Y
       (lambda (f)
         ( (lambda (a) (a a))
           (lambda (x) (f (lambda (v) ((x x) v)))))))
+```
 
 The call-by-value is implemented as a method on the class RoutineDoer
 (no function passed as argument, self is directly the function).
 
+```rexx {executor}
     ::class RoutineDoer
     ::method Y
     f = self
@@ -211,18 +233,22 @@ The call-by-value is implemented as a method on the class RoutineDoer
         expose f ; use arg x
         return f ~ { expose x ; use arg v ; return x~(x)~(v) }
     }
+```
 
 Application of the Y combinator to factorial:
 
+```rexx {executor}
     fact = { use arg f
              return  { expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
            }~Y
     say fact~(10) -- 3628800
+```
 
 #### Y combinator with memoization
 
 [Memoization][wikipedia_memoization] is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.
 
+```rexx {executor}
     ::class RoutineDoer
     ::method YM
     f = self
@@ -238,9 +264,11 @@ Application of the Y combinator to factorial:
                      return r
                    }
     }
+```
 
 Application to fibonacci:
 
+```rexx {executor}
     fibm = { use arg fib
              return {expose fib; use arg n
                      if n==0 then return 0
@@ -250,6 +278,7 @@ Application to fibonacci:
                     }
            }~YM
     say fibm~(25) -- 75025
+```
 
 fibm~(25) is calculated almost instantly,  
 whereas the not-memoizing version needs almost 30 sec.
@@ -257,6 +286,7 @@ whereas the not-memoizing version needs almost 30 sec.
 Both Y and YM are subject to stack overflow.  
 But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization:
 
+```rexx {executor}
     numeric digits propagate 2090
     do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
     -- fibm~(100)=354224848179261915075
@@ -264,6 +294,7 @@ But YM can be used by steps, to calculate very big fibonacci numbers, thanks to 
     -- fibm~(300)=222232244629420445529739893461909967206666939096499764990979600
     ...
     -- fibm~(10000)=33644764876431783266621612005107543310302148460680063906564769974680081442166662368155595513633734025582065332680836159373734790483865268263040892463056431887354544369559827491606602099884183933864652731300088830269235673613135117579297437854413752130520504347701602264758318906527890855154366159582987279682987510631200575428783453215515103870818298969791613127856265033195487140214287532698187962046936097879900350962302291026368131493195275630227837628441540360584402572114334961180023091208287046088923962328835461505776583271252546093591128203925285393434620904245248929403901706233888991085841065183173360437470737908552631764325733993712871937587746897479926305837065742830161637408969178426378624212835258112820516370298089332099905707920064367426202389783111470054074998459250360633560933883831923386783056136435351892133279732908133732642652633989763922723407882928177953580570993691049175470808931841056146322338217465637321248226383092103297701648054726243842374862411453093812206564914032751086643394517512161526545361333111314042436854805106765843493523836959653428071768775328348234345557366719731392746273629108210679280784718035329131176778924659089938635459327894523777674406192240337638674004021330343297496902028328145933418826817683893072003634795623117103101291953169794607632737589253530772552375943788434504067715555779056450443016640119462580972216729758615026968443146952034614932291105970676243268515992834709891284706740862008587135016260312071903172086094081298321581077282076353186624611278245537208532365305775956430072517744315051539600905168603220349163222640885248852433158051534849622434848299380905070483482449327453732624567755879089187190803662058009594743150052402532709746995318770724376825907419939632265984147498193609285223945039707165443156421328157688908058783183404917434556270520223564846495196112460268313970975069382648706613264507665074611512677522748621598642530711298441182622661057163515069260029861704945425047491378115154139941550671256271197133252763631939606902895650288268608362241082050562430701794976171121233066073310059947366875
+```
 
 The first execution needs around 2.5 sec.  
 The following executions need less than 0.01 sec.
@@ -276,52 +307,67 @@ Initializer (instance method ~of) which takes into account the dimensions of the
 
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 
+```rexx {executor}
     .array~new(2,3)~of(1~6)
     1 2 3
     4 5 6
+```
 
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 
+```rexx {executor}
     .array~new(2,3)~of{10*item}
     10 20 30
     40 50 60
+```
 
 Otherwise each argument is an item as-is.
 
+```rexx {executor}
     .array~new(2,3)~of(1,2,3,4,5,6)
     1 2 3
     4 5 6
+```
 
 If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
 
+```rexx {executor}
     .array~new(2,3)~of(1,,3,,5,6)
     1 . 3
     . 5 6
+```
 
 Rules inspired by [APL][apl_glimpse_heaven]:  
 If there are too many items, the extra items are ignored.  
 If there are fewer items than implied by the dimensions, the list of items is reused as
 many times as necessary to fill the array.
 
+```rexx {executor}
     .array~new(2,3)~of(1,2)
     1 2 1
     2 1 2
+```
 
 #### Symmetric implementations of binary operators
 
 Thanks to the support of alternative messages for binary operators, it's now possible to provide symmetric implementations of binary operators.  
 
+```rexx {executor}
     arg1 ~ "+"( arg2 )
+```
 
 If arg1 doesn't know how to process the message "+" (either because the message itself is not understood, or because the type of arg2 is not supported) then the interpreter sends this alternative message:
 
+```rexx {executor}
     arg2 ~ "+OP:RIGHT"( arg1 )
+```
 
 If arg2 doesn't know how to process the message "+OP:RIGHT" (either because the message itself is not understood, or because the type of arg1 is not supported) then the interpreter raises an exception for the traditional message "+", not for the alternative message. That way, legacy programs are not impacted by this extension of behaviour.  
 There is no performance penalty because the interpreter sends the alternative message only when the traditional implementation fails. So the optimized implementations of String | NumberString | Integer operators continue to be fully optimized.
 
 Examples:
 
+```rexx {executor}
     a = .array~of(10,20,30)
     100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
     a 100=                  -- ['10 100','20 100','30 100']
@@ -329,7 +375,7 @@ Examples:
     a || 100 =              -- [10100,20100,30100]
     100 - a =               -- [90, 80, 70]
     (100+200i) * a =        -- [1000+2000i, 2000+4000i, 3000+6000i]
-
+```
 
 ### Pipelines
 
@@ -348,7 +394,9 @@ Count the number of files in the directory passed as argument, and in each subdi
 The recursivity is limited to 1 level, [breadth-first search][wikipedia_breadth_first_search].  
 The count per directory is done by partitioning the instances of .File flowing through the pipeline by their parent.  
 
+```rexx {executor}
     "d:\"~pipe(.fileTree "recursive.1.breadthFirst" | .lineCount {item~parent} | .console {item~right(6)} "index")
+```
 
 output:
 
@@ -362,12 +410,14 @@ output:
 Example:  
 Public classes by package.
 
+```rexx {executor}
     .context~package~pipe(,
         .importedPackages "recursive" "once" "after" "mem.package" |,
         .inject {item~publicClasses} "iterateAfter" |,
         .sort {item~id} {dataflow["package"]~item~name} |,
         .console {.file~new(dataflow["package"]~item~name)~name} ":" "item",
         )
+```
 
 output, when run from ooRexxShell:
 
@@ -390,7 +440,7 @@ The guy went into the office and looked at me, like:
   
 *You got extensions, [Rexx Cub][rexx_cub],  
 Quit showing off.  
-I bet that's monkey_patching,  
+I bet that's monkey patching,  
 [Shame on you][shame_on_you]!  
 Follow me to the waste lot,  
 I'll teach you a funny game  
