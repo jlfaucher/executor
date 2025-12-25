@@ -12,8 +12,10 @@ Named arguments - Specification
 
 A positional argument list is a serie of optional expressions, separated by commas.
 
+```rexx {executor}
     caller: put("one", 1)
     callee: use arg item, index -- order is important
+```
 
 The position of each argument within the argument list identifies the corresponding
 parameter in the parameter list of the routine/method being invoked.
@@ -21,8 +23,10 @@ parameter in the parameter list of the routine/method being invoked.
 This is in contrast to named argument lists, where the correspondence between
 argument and parameter is done using the parameter's name.
 
+```rexx {executor}
     caller: put(index:1, item:"one")
     callee: use named arg item, index -- order is not important
+```
 
 Caller side
 -----------
@@ -30,16 +34,21 @@ Caller side
 Positional and named arguments can be used in the same call.  
 Named arguments are after the last positional argument.
 
+```rexx {executor}
     caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
+```
 
 The syntax for trailing block (when last positional argument) is still available:
 
+```rexx {executor}
     f(a1,a2,n1:v1,n2:v2){...}
+``` 
 
 is equivalent to
 
+```rexx {executor}
     f(a1,a2,{...},n1:v1,n2:v2)
-
+```
 
 Arguments:
 
@@ -78,19 +87,24 @@ Named arguments:
 
 Shorthand syntax
 
+```rexx {executor}
     name:           -- without expr, pass .true
     :varname        -- without name, pass varname:varname
+```
 
 
 Called side
 -----------
 
+```rexx {executor}
     use strict arg doer
     use strict named arg by, initial
+```
     
 The named arguments are declared separately from the positional arguments.
 
 
+```rexx {executor}
     use strict            arg doer                      -- Positional arguments (not impacted by the named arguments)
 
     use             named arg by, initial=.nil          -- If 'by' is not passed by the caller then the variable 'by' is dropped.
@@ -124,6 +138,7 @@ The named arguments are declared separately from the positional arguments.
                                                         -- Any named argument is accepted.
                                                         -- The named arguments passed by the caller are available as variables.
                                                         -- They are also available in .Context~namedArgs.
+```
 
 
 ------------
@@ -233,13 +248,14 @@ The automatic variables are already created and can be used during the evaluatio
 UNKNOWN method
 --------------
 
+```rexx {executor}
     ::method unknown
         expose target -- assuming this target will receive all of the unknown messages
         use arg name, arguments
         use named arg namedArguments -- not passed as 3rd positional argument to avoid impacts
         -- send along the message with the original args and named args
         forward to (target) message (name) arguments (arguments) namedArguments (namedArguments)
-
+```
 
 -------------
 Message~new
