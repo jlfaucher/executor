@@ -1,0 +1,64 @@
+[oorexx:bugs] #2039 Language level needs to be bumped for the 5.02 release.
+
+Rick
+Typically the language level has not been bumped for new methods on classes, but yes,
+    new BIFs,
+    new options to BIFs,
+    new instructions,
+    new keywords on instructions,
+    new directives,
+    new keywords on directives,
+    and new builtin environment symbols
+all merit a bump in language level.
+Also, related to the other bug I opened, new features like that, when used, need
+to bump the interpreter level required to run a rexxc compiled image.
+
+
+Rony
+Ad rexxc related bug entry [bugs:#2040]:
+wouldn't a bump to a new language level also take care of only running rexxc programs
+if the language level is at least at the level of the running interpreter?
+Cf. interpreter/classes/support/ProgramMetaData.cpp, validate() in line # 204.
+
+
+Rick
+No, the image is marked with the interpreter level required to run the program.
+A big part of the work for 5.0.0 was to allow programs compiled with the latest
+version to still run on older interpreters as long as the program uses no new
+features that requires a higher level.
+
+
+Rony
+It seems that these relate to the language level:
+
+interpreter/parser/LanguageLevel.hpp:63:    MinimumLanguageLevel = LanguageLevel0605,        // the lowest language level we can interpret
+interpreter/parser/LanguageParser.cpp:827:    return l >= MinimumLanguageLevel && l <= MaximumLanguageLevel;
+
+interpreter/parser/LanguageLevel.hpp:64:    MaximumLanguageLevel = LanguageLevel0605,        // the highest language level we can interpret
+interpreter/parser/LanguageParser.cpp:827:    return l >= MinimumLanguageLevel && l <= MaximumLanguageLevel;
+
+interpreter/classes/support/ProgramMetaData.cpp:214:        (bigEndian != 0) != Interpreter::isBigEndian() || !LanguageParser::canExecute((LanguageLevel)requiredLevel))
+interpreter/parser/LanguageParser.cpp:825:bool LanguageParser::canExecute(LanguageLevel l)
+interpreter/parser/LanguageParser.hpp:242:    static bool canExecute(LanguageLevel l);
+
+Bumping the language level to 606 (060600) would probably need to
+bump LanguageLevel.hpp MaximumLanguageLevel to 0606,
+keep the MinimumLanguageLevel to 0605, as the interpreter still would be able to execute level 0605?
+
+
+Rick
+The PackageClass is marked with the language level required to run the program when it is saved.
+This language level defaults to the level for the 5.0.0 release.
+If the parser finds that a newer feature is used, it needs to call the setLanguageLevel() method
+to update the required language level so that older versions of the interpreter does not try to run the program.
+If the program being processed does not use any new features, then the program can be compiled using the newer release,
+but still run on older releases.
+
+I spotted a small bug with the setLanguageLevel() method.
+It should only update the requiredLanguageLevel if the new value is larger than the existing value.
+
+
+Rony
+Also, there is a small bug in Version.cpp which sets the Interpreter::languageLevel to "6.05"
+(it does not honor api\oorexxapi.h's REXX_CURRENT_LANGUAGE_LEVEL)
+
