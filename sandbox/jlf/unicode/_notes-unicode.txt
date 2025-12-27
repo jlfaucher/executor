@@ -6914,8 +6914,10 @@ Executor lang
 Some discussions on Unicode with AI (each time the same questions).
 ChatGPT January 1, 2023: https://jlfaucher.github.io/executor.master/unicode/ChatGPT%20on%20Unicode-2023.01.26.html
 ChatGPT May 18, 2025: https://jlfaucher.github.io/executor.master/unicode/ChatGPT%20on%20Unicode-2025.05.18.html
+ChatGPT5 Aug 11, 2025: https://jlfaucher.github.io/executor.master/unicode/ChatGPT5%20on%20Unicode-2025.08.11.html
 Copilot May 18, 2025: https://jlfaucher.github.io/executor.master/unicode/Copilot%20on%20Unicode-2025.05.18.html
-
+Grok Aug 31, 2025: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/Grok%20on%20Unicode-2025.08.31.md
+Perplexity Dec 27, 2025: https://jlfaucher.github.io/executor.master/unicode/Perplexity%20on%20Unicode-2025.12.27.html
 
 ================================================================================
 Factor lang
