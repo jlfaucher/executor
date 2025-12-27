@@ -66,8 +66,6 @@ A positional argument list is a serie of optional expressions, separated by comm
 ```
 
 <div id="rxfbc62d72eece" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-label">caller</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-const rx-ext-func">put</span><span class="rx-spe">(</span><span class="rx-str rx-oquo">"</span><span class="rx-str">one</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">1</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-const rx-label">callee</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">item</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">index</span><span class="rx-ws"> </span><span class="rx-lncm">-- order is important</span>
 </code></pre>
@@ -84,8 +82,6 @@ argument and parameter is done using the parameter's name.
 ```
 
 <div id="rx8d7410376a2d" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-label">caller</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-const rx-ext-func">put</span><span class="rx-spe">(</span><span class="rx-const rx-argument-name">index</span><span class="rx-spe">:</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-const rx-argument-name">item</span><span class="rx-spe">:</span><span class="rx-str rx-oquo">"</span><span class="rx-str">one</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-const rx-label">callee</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">item</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">index</span><span class="rx-ws"> </span><span class="rx-lncm">-- order is not important</span>
 </code></pre>
@@ -107,8 +103,6 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 ```
 
 <div id="rxcfdb8312217b" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-spe">{</span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">name</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">greetings</span></code>
 <code lineno="2"><span class="rx-ws">     </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">hello</span><span class="rx-str rx-cquo">"</span><span class="rx-op"> </span><span class="rx-var">name</span><span class="rx-ws"> </span><span class="rx-op">|</span><span class="rx-op">|</span><span class="rx-ws"> </span><span class="rx-var">greetings</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-spe">}</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-str rx-oquo">"</span><span class="rx-str">John</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">, how are you ?</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">)</span><span class="rx-ws">       </span><span class="rx-lncm">-- hello John, how are you ?</span>
@@ -130,8 +124,6 @@ It can be called several times, the execution is resumed after the last executed
 ```
 
 <div id="rx66b90d408879" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">nextInteger</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-dir">::</span><span class="rx-dkw">coactivity</span><span class="rx-ws"> </span><span class="rx-kw">loop</span><span class="rx-ws"> </span><span class="rx-var">i</span><span class="rx-asg">=</span><span class="rx-int rx-ipart">0</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-env">.yield</span><span class="rx-spe">[</span><span class="rx-var">i</span><span class="rx-spe">]</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">end</span><span class="rx-spe">}</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-var">nextInteger</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-spe">)</span><span class="rx-ws">                  </span><span class="rx-lncm">-- 0</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-var">nextInteger</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-spe">)</span><span class="rx-ws">                  </span><span class="rx-lncm">-- 1</span></code>
@@ -157,8 +149,6 @@ Updating a variable from the closure will have no impact on the original context
 ```
 
 <div id="rx55e2747bf690" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">v</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">1</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-var">closure</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">v</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-xvar">v</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-xvar">v</span><span class="rx-ws"> </span><span class="rx-asg">+</span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">10</span><span class="rx-spe">}</span><span class="rx-ws">    </span><span class="rx-lncm">-- capture the value of v: 1</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-xvar">v</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">2</span></code>
@@ -186,8 +176,6 @@ Updating a variable from the closure will have no impact on the original context
 ```
 
 <div id="rxe9f118f26014" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">a</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-kw">do</span><span class="rx-ws"> </span><span class="rx-var">i</span><span class="rx-asg">=</span><span class="rx-int rx-ipart">1</span><span class="rx-ws"> </span><span class="rx-skw">to</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">10</span></code>
 <code lineno="3"><span class="rx-ws">        </span><span class="rx-var">a</span><span class="rx-op">~</span><span class="rx-const rx-method">append</span><span class="rx-spe">{</span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">i</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-xvar">i</span><span class="rx-op">*</span><span class="rx-xvar">i</span><span class="rx-spe">}</span></code>
@@ -217,8 +205,6 @@ A more compact code... item is an implicit parameter.
 ```
 
 <div id="rx7ca28cd7bd03" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-int rx-ipart">1</span><span class="rx-op">~</span><span class="rx-const rx-method">10</span><span class="rx-spe">{</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">item</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-xvar">item</span><span class="rx-ws"> </span><span class="rx-op">*</span><span class="rx-ws"> </span><span class="rx-xvar">item</span><span class="rx-spe">}</span><span class="rx-ws"> </span><span class="rx-spe">}</span><span class="rx-ws"> </span><span class="rx-op">~</span><span class="rx-ws"> </span><span class="rx-const rx-method">take</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">9</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-op">~</span><span class="rx-ws"> </span><span class="rx-const rx-method">each</span><span class="rx-spe">{</span><span class="rx-ws"> </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-xvar">item</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-spe">}</span>
 </code></pre>
 </div>
@@ -245,8 +231,6 @@ A more compact code... item is an implicit parameter.
 ```
 
 <div id="rxa25b270f146d" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">accumulator</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span></code>
 <code lineno="2"><span class="rx-ws">        </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">sum</span></code>
 <code lineno="3"><span class="rx-ws">        </span><span class="rx-kw">return</span><span class="rx-ws">  </span><span class="rx-spe">{</span></code>
@@ -287,8 +271,6 @@ A more compact code... item is an implicit parameter.
 ```
 
 <div id="rx185c4390a0af" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">compose</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span></code>
 <code lineno="2"><span class="rx-ws">        </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">f</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">g</span></code>
 <code lineno="3"><span class="rx-ws">        </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-spe">{</span></code>
@@ -350,8 +332,6 @@ The call-by-value is implemented as a method on the class RoutineDoer
 ```
 
 <div id="rx5110b14808fc" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-dir">::</span><span class="rx-dkw">class</span><span class="rx-ws"> </span><span class="rx-const rx-class">RoutineDoer</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-dir">::</span><span class="rx-dkw">method</span><span class="rx-ws"> </span><span class="rx-const rx-method">Y</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-var">f</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-var">self</span></code>
@@ -372,8 +352,6 @@ Application of the Y combinator to factorial:
 ```
 
 <div id="rx40d9c2cd4ff2" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">fact</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">f</span></code>
 <code lineno="2"><span class="rx-ws">             </span><span class="rx-kw">return</span><span class="rx-ws">  </span><span class="rx-spe">{</span><span class="rx-ws"> </span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">f</span><span class="rx-ws"> </span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">n</span><span class="rx-ws"> </span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">if</span><span class="rx-ws"> </span><span class="rx-var">n</span><span class="rx-ws"> </span><span class="rx-op">=</span><span class="rx-op">=</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">0</span><span class="rx-ws"> </span><span class="rx-kw">then</span><span class="rx-ws"> </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">1</span><span class="rx-ws"> </span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">else</span><span class="rx-ws"> </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-var">n</span><span class="rx-ws"> </span><span class="rx-op">*</span><span class="rx-ws"> </span><span class="rx-xvar">f</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-var">n</span><span class="rx-op">-</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-spe">}</span></code>
 <code lineno="3"><span class="rx-ws">           </span><span class="rx-spe">}</span><span class="rx-op">~</span><span class="rx-const rx-method">Y</span></code>
@@ -404,8 +382,6 @@ Application of the Y combinator to factorial:
 ```
 
 <div id="rx25c482aa6dc6" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-dir">::</span><span class="rx-dkw">class</span><span class="rx-ws"> </span><span class="rx-const rx-class">RoutineDoer</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-dir">::</span><span class="rx-dkw">method</span><span class="rx-ws"> </span><span class="rx-const rx-method">YM</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-var">f</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-var">self</span></code>
@@ -439,8 +415,6 @@ Application to fibonacci:
 ```
 
 <div id="rx409a485e8aff" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">fibm</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">fib</span></code>
 <code lineno="2"><span class="rx-ws">             </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-spe">{</span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">fib</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">n</span></code>
 <code lineno="3"><span class="rx-ws">                     </span><span class="rx-kw">if</span><span class="rx-ws"> </span><span class="rx-var">n</span><span class="rx-op">=</span><span class="rx-op">=</span><span class="rx-int rx-ipart">0</span><span class="rx-ws"> </span><span class="rx-kw">then</span><span class="rx-ws"> </span><span class="rx-kw">return</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">0</span></code>
@@ -470,8 +444,6 @@ But YM can be used by steps, to calculate very big fibonacci numbers, thanks to 
 ```
 
 <div id="rxdd61b59f3b68" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-kw">numeric</span><span class="rx-ws"> </span><span class="rx-skw">digits</span><span class="rx-ws"> </span><span class="rx-var">propagate</span><span class="rx-op"> </span><span class="rx-int rx-ipart">2090</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-kw">do</span><span class="rx-ws"> </span><span class="rx-var">i</span><span class="rx-asg">=</span><span class="rx-int rx-ipart">1</span><span class="rx-ws"> </span><span class="rx-skw">to</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">100</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">say</span><span class="rx-ws"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">fibm~(</span><span class="rx-str rx-cquo">"</span><span class="rx-var">i</span><span class="rx-op">*</span><span class="rx-int rx-ipart">100</span><span class="rx-str rx-oquo">"</span><span class="rx-str">)=</span><span class="rx-str rx-cquo">"</span><span class="rx-var">fibm</span><span class="rx-op">~</span><span class="rx-spe">(</span><span class="rx-var">i</span><span class="rx-op">*</span><span class="rx-int rx-ipart">100</span><span class="rx-spe">)</span><span class="rexx">;</span><span class="rx-ws"> </span><span class="rx-kw">end</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-lncm">-- fibm~(100)=354224848179261915075</span></code>
@@ -500,8 +472,6 @@ If there is only one argument, and this argument has the method ~supplier then e
 ```
 
 <div id="rx4e5dfa68ba37" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">)</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">1</span><span class="rx-op">~</span><span class="rx-const rx-method">6</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">1</span><span class="rx-op"> </span><span class="rx-int rx-ipart">2</span><span class="rx-op"> </span><span class="rx-int rx-ipart">3</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-int rx-ipart">4</span><span class="rx-op"> </span><span class="rx-int rx-ipart">5</span><span class="rx-op"> </span><span class="rx-int rx-fpart">6</span>
@@ -517,8 +487,6 @@ If there is only one argument, and this argument is a doer, then the doer is cal
 ```
 
 <div id="rx4fc72d27b40f" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">)</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">{</span><span class="rx-int rx-ipart">10</span><span class="rx-op">*</span><span class="rx-var">item</span><span class="rx-spe">}</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">10</span><span class="rx-op"> </span><span class="rx-int rx-ipart">20</span><span class="rx-op"> </span><span class="rx-int rx-ipart">30</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-int rx-ipart">40</span><span class="rx-op"> </span><span class="rx-int rx-ipart">50</span><span class="rx-op"> </span><span class="rx-int rx-fpart">60</span>
@@ -534,8 +502,6 @@ Otherwise each argument is an item as-is.
 ```
 
 <div id="rxdb81b8512121" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">)</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">4</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">5</span><span class="rx-spe">,</span><span class="rx-int rx-fpart">6</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">1</span><span class="rx-op"> </span><span class="rx-int rx-ipart">2</span><span class="rx-op"> </span><span class="rx-int rx-ipart">3</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-int rx-ipart">4</span><span class="rx-op"> </span><span class="rx-int rx-ipart">5</span><span class="rx-op"> </span><span class="rx-int rx-fpart">6</span>
@@ -551,8 +517,6 @@ If some arguments are omitted, then the corresponding item in the initialized ar
 ```
 
 <div id="rx55f656c05c58" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">)</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">,</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">,</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">5</span><span class="rx-spe">,</span><span class="rx-int rx-fpart">6</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">1</span><span class="rx-op"> </span><span class="rx-lit">.</span><span class="rx-op"> </span><span class="rx-int rx-ipart">3</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-lit">.</span><span class="rx-op"> </span><span class="rx-int rx-ipart">5</span><span class="rx-op"> </span><span class="rx-int rx-fpart">6</span>
@@ -571,8 +535,6 @@ many times as necessary to fill the array.
 ```
 
 <div id="rx0d8966f93487" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">3</span><span class="rx-spe">)</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">2</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">1</span><span class="rx-op"> </span><span class="rx-int rx-ipart">2</span><span class="rx-op"> </span><span class="rx-int rx-ipart">1</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-int rx-ipart">2</span><span class="rx-op"> </span><span class="rx-int rx-ipart">1</span><span class="rx-op"> </span><span class="rx-int rx-ipart">2</span>
@@ -588,8 +550,6 @@ Thanks to the support of alternative messages for binary operators, it's now pos
 ```
 
 <div id="rxfd517ade1c0c" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">arg1</span><span class="rx-ws"> </span><span class="rx-op">~</span><span class="rx-ws"> </span><span class="rx-const rx-method rx-oquo">"</span><span class="rx-const rx-method">+</span><span class="rx-const rx-method rx-cquo">"</span><span class="rx-spe">(</span><span class="rx-ws"> </span><span class="rx-var">arg2</span><span class="rx-ws"> </span><span class="rx-spe">)</span>
 </code></pre>
 </div>
@@ -601,8 +561,6 @@ If arg1 doesn't know how to process the message "+" (either because the message 
 ```
 
 <div id="rxa5eba9e6a2cf" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">arg2</span><span class="rx-ws"> </span><span class="rx-op">~</span><span class="rx-ws"> </span><span class="rx-const rx-method rx-oquo">"</span><span class="rx-const rx-method">+OP:RIGHT</span><span class="rx-const rx-method rx-cquo">"</span><span class="rx-spe">(</span><span class="rx-ws"> </span><span class="rx-var">arg1</span><span class="rx-ws"> </span><span class="rx-spe">)</span>
 </code></pre>
 </div>
@@ -623,8 +581,6 @@ Examples:
 ```
 
 <div id="rx3f797325ae1d" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-var">a</span><span class="rx-ws"> </span><span class="rx-asg">=</span><span class="rx-ws"> </span><span class="rx-env">.array</span><span class="rx-op">~</span><span class="rx-const rx-method">of</span><span class="rx-spe">(</span><span class="rx-int rx-ipart">10</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">20</span><span class="rx-spe">,</span><span class="rx-int rx-ipart">30</span><span class="rx-spe">)</span></code>
 <code lineno="2"><span class="rx-ws">    </span><span class="rx-int rx-ipart">100</span><span class="rx-op"> </span><span class="rx-var">a</span><span class="rexx">=</span><span class="rx-ws">                  </span><span class="rx-lncm">-- ['100 10','100 20','100 30'] instead of '100 an Array'</span></code>
 <code lineno="3"><span class="rx-ws">    </span><span class="rx-var">a</span><span class="rx-op"> </span><span class="rx-int rx-ipart">100</span><span class="rexx">=</span><span class="rx-ws">                  </span><span class="rx-lncm">-- ['10 100','20 100','30 100']</span></code>
@@ -657,8 +613,6 @@ The count per directory is done by partitioning the instances of .File flowing t
 ```
 
 <div id="rx8a54449554b7" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-str rx-oquo">"</span><span class="rx-str">d:\</span><span class="rx-str rx-cquo">"</span><span class="rx-op">~</span><span class="rx-const rx-method">pipe</span><span class="rx-spe">(</span><span class="rx-env">.fileTree</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">recursive.1.breadthFirst</span><span class="rx-str rx-cquo">"</span><span class="rx-ws"> </span><span class="rx-op">|</span><span class="rx-ws"> </span><span class="rx-env">.lineCount</span><span class="rx-op"> </span><span class="rx-spe">{</span><span class="rx-var">item</span><span class="rx-op">~</span><span class="rx-const rx-method">parent</span><span class="rx-spe">}</span><span class="rx-ws"> </span><span class="rx-op">|</span><span class="rx-ws"> </span><span class="rx-env">.console</span><span class="rx-op"> </span><span class="rx-spe">{</span><span class="rx-var">item</span><span class="rx-op">~</span><span class="rx-const rx-method">right</span><span class="rx-spe">(</span><span class="rx-int rx-fpart">6</span><span class="rx-spe">)</span><span class="rx-spe">}</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">index</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">)</span>
 </code></pre>
 </div>
@@ -685,8 +639,6 @@ Public classes by package.
 ```
 
 <div id="rxb1f66053bd4d" class="highlight-rexx-vim-light-zellner">
-<style>
-</style>
 <pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-env">.context</span><span class="rx-op">~</span><span class="rx-const rx-method">package</span><span class="rx-op">~</span><span class="rx-const rx-method">pipe</span><span class="rx-spe">(</span><span class="rx-cont">,</span></code>
 <code lineno="2"><span class="rx-ws">        </span><span class="rx-env">.importedPackages</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">recursive</span><span class="rx-str rx-cquo">"</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">once</span><span class="rx-str rx-cquo">"</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">after</span><span class="rx-str rx-cquo">"</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">mem.package</span><span class="rx-str rx-cquo">"</span><span class="rx-ws"> </span><span class="rx-op">|</span><span class="rx-cont">,</span></code>
 <code lineno="3"><span class="rx-ws">        </span><span class="rx-env">.inject</span><span class="rx-op"> </span><span class="rx-spe">{</span><span class="rx-var">item</span><span class="rx-op">~</span><span class="rx-const rx-method">publicClasses</span><span class="rx-spe">}</span><span class="rx-op"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">iterateAfter</span><span class="rx-str rx-cquo">"</span><span class="rx-ws"> </span><span class="rx-op">|</span><span class="rx-cont">,</span></code>
