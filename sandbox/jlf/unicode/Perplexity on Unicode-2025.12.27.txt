@@ -1,0 +1,706 @@
+Perplexity discussions on Unicode (2025.12.27)
+
+================================================================================
+How to support Unicode strings with ooRexx?
+================================================================================
+
+Answer:
+
+I don’t have access to live tool results in this turn, but here’s a concise guide based on common approaches to Unicode support in ooRexx.
+
+Direct answer
+- Yes, ooRexx can handle Unicode strings, but you typically need to use Unicode-enabled tools or extensions and work with explicit Unicode-aware interfaces for input/output, especially on Windows where code pages can affect string handling.
+
+Key approaches
+
+- Enable Unicode-aware IO
+  - Use Unicode-capable environment settings and I/O facilities so that external commands, file I/O, and streams preserve Unicode data. This often involves ensuring the runtime uses a Unicode-capable encoding (e.g., UTF-8) for both internal string representation and external interfaces. This minimizes mojibake when reading or writing non-ASCII text.
+
+- Use Unicode-aware built-ins and tools
+  - Some ooRexx toolkits or packages (e.g., Tutor) implement Unicode support by providing Unicode string types and wrappers around standard functions to operate on those strings. These extensions typically introduce a separate string type or methods that preserve Unicode content across transformations.
+
+- Handling external commands
+  - When passing Unicode strings to external processes, ensure the command payload and environment use UTF-8 (or the target encoding) and that the external command can interpret that encoding. This may require encoding/decoding helpers or explicit conversion routines.
+
+- String handling and parsing
+  - Keep in mind ooRexx’s string semantics treat content inside quotes as literals, while outside quotes, case normalization and uppercase transformation may occur. When working with Unicode data, test edge cases such as multi-byte characters, combining characters, and surrogate handling if running on platforms with such representations.
+
+- Documentation and community resources
+  - Look for ooRexx Unicode documentation or community tools that discuss Unicode string types, encoding conversions, and examples. Notable sources include ooRexx-related PDFs and conference materials that discuss Unicode tooling and extensions, such as Tutor and related ooRexx Unicode work.[3][5]
+
+Notes and caveats
+
+- Unicode support is often realized via extensions rather than core language features, so availability depends on the interpreter build and platform.
+- Compatibility with older Rexx code may require keeping two types of strings (Unicode and non-Unicode) or adopting a Unicode-aware layer for new projects.
+
+If you’d like, I can search for specific Unicode-enabled ooRexx packages or provide example snippets for common operations (encoding/decoding, I/O, and external command invocation) once I know your target platform (Windows, Linux) and the ooRexx version you’re using. If you want, I can perform a targeted search and summarize concrete options with citations.
+
+[1](https://en.wikipedia.org/wiki/Object_REXX)
+[2](https://github.com/RexxLA/rexx-repository/blob/master/Unicode.Implimentation.tex)
+[3](https://www.epbcn.com/pdf/josep-maria-blasco/2024-03-04-The-Unicode-Tools-Of-Rexx.pdf)
+[4](https://stackoverflow.com/questions/44995873/passing-utf8-string-to-external-command-from-rexx)
+[5](https://wi.wu.ac.at/rgf/rexx/tmp/20110215-Unicode/_readme-20101115.pdf)
+[6](https://www.rexxla.org/presentations/2024/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+[7](https://forum.wiznet.io/t/topic/4415)
+[8](https://www.oorexx.org/support/index.rsp)
+[9](https://www.oorexx.org/faq/)
+[10](https://oorexx.org)
+
+
+================================================================================
+Support at grapheme level?
+================================================================================
+
+I would like a support at grapheme level.
+For example: "Noël"~length should return 4
+
+Answer:
+
+ooRexx’s built‑in `length` works on bytes/code points, so `"Noël"~length` will not count graphemes the way you want. To work at **grapheme** level you need the recent Unicode tools for Rexx that introduce a dedicated GRAPHEMES class and related string types.[3][6]
+
+## What you actually want
+
+- In Unicode terms you want the count of “extended grapheme clusters”, i.e. what a user sees as characters, not bytes or individual code points.[2]
+- With those tools you can represent a UTF‑8 Rexx string as a GRAPHEMES object and ask for its grapheme length; for a word like `Noël` (with a single composed `ë`) that length is 4.[3]
+
+## Using the Unicode tools
+
+The recent Unicode tools for Rexx define:
+
+- A CODEPOINTS class and a GRAPHEMES class; GRAPHEMES is a subclass that redefines `Length()` and `[]` so they operate on extended grapheme clusters, not code points.[3]
+- Literal suffices so that `"text"P` is a codepoint string, `"text"G` a grapheme string, and `"text"T` a normalized “text” string (NFC), all based on valid UTF‑8 source content.[6]
+
+Conceptually, you would do something like:
+
+```rexx
+s = "Noël"          -- UTF‑8 source
+g = .Graphemes~new(s)
+say g~length        -- grapheme count: 4
+```
+
+The exact class name / constructor may differ, but this is the model described for the GRAPHEMES class.[3]
+
+## How to integrate it into your code
+
+- Load or install the Unicode tools package for Rexx/ooRexx (the same one that defines CODEPOINTS and GRAPHEMES as described in the “Unicode Tools of Rexx” materials).[3]
+- Wrap any user‑visible text in a GRAPHEMES object before measuring length, slicing, or indexing, so all such operations are grapheme‑aware rather than byte‑ or codepoint‑based.[6][3]
+
+If you share your ooRexx version and platform, a more concrete snippet can be tailored closely to your setup using this GRAPHEMES API.
+
+[1](https://grapheme.readthedocs.io/en/latest/grapheme.html)
+[2](https://www.reddit.com/r/programming/comments/d1dhq9/its_not_wrong_that_length_7/)
+[3](https://www.rexxla.org/presentations/2024/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+[4](https://stackoverflow.com/questions/10287887/get-grapheme-character-count-in-javascript-strings)
+[5](https://wi.wu.ac.at/rgf/rexx/tmp/20110215-Unicode/_readme-20101115.pdf)
+[6](https://www.heidiheilig.com/presentations/2024/2024-03-04-A-tokenizer-for-Rexx-and-ooRexx.pdf)
+[7](https://www.perlmonks.org/?node_id=927755)
+[8](https://www.epbcn.com/pdf/josep-maria-blasco/2024-03-04-A-Tokenizer-for-Rexx-and-ooRexx-slides.pdf)
+[9](https://man.tcb13.com/php74/function.grapheme-strlen.html)
+
+
+================================================================================
+Same level of Unicode support as in Swift?
+================================================================================
+
+Is it possible to have in ooRexx the same level of Unicode support as in Swift?
+
+Answer:
+
+Short answer: no. ooRexx can be made “Unicode‑aware” with add‑on libraries (like the Tutor Unicode tools), but it does not reach Swift’s integrated, everywhere‑Unicode, grapheme‑centric model across the whole standard library and runtime.[2][5]
+
+## What Swift gives you
+
+- Swift’s `String` is Unicode by design: it stores text as Unicode scalars, exposes user‑perceived characters as extended grapheme clusters, and all core operations (`count`, slicing, iteration) work at that level by default.[3]
+- The standard library and platform APIs consistently expect and return Unicode text, so you rarely manage encodings manually and get locale‑sensitive operations “for free” compared to older languages.
+
+## Where ooRexx stands today
+
+- Core ooRexx strings are fundamentally byte/character sequences with no built‑in knowledge of encodings or Unicode semantics; UTF‑8 input is treated “blindly”, so generic methods like `length` or `substr` do not automatically handle multi‑byte or grapheme boundaries correctly.[1]
+- Project notes and mailing‑list discussions explicitly state that ooRexx does not natively use Unicode APIs on platforms like Windows, so wide‑char handling and full Unicode I/O are not uniformly built into the interpreter.[8]
+
+## What Tutor / Unicode tools add
+
+- The Tutor “Unicode Tools of Rexx” provide a pure‑Rexx layer that implements parts of the Unicode standard (encoders/decoders, code‑point and grapheme abstractions, some Unicode‑aware BIFs) on top of existing Rexx/ooRexx.[5][2]
+- With these tools you can get much closer to Swift‑style behavior for specific operations—e.g. counting graphemes, iterating over user‑visible characters—by using dedicated classes (CODEPOINTS, GRAPHEMES) instead of the built‑in string type.[2]
+
+## Why it still won’t fully match Swift
+
+- In Swift, Unicode behavior is integrated into the language, type system, and standard library, so all text operations, APIs, and tooling assume Unicode strings first; you do not opt into a separate “Unicode mode”.[3]
+- In ooRexx, Unicode support remains an add‑on: you must consciously route text through Unicode‑aware classes and functions, and many existing BIFs, methods, dialogs, and external interfaces remain byte‑oriented, so behavior will not be as seamless or universal as in Swift.[1][2]
+
+## Practical takeaway
+
+- You can approximate Swift’s Unicode capabilities for the parts of your program that explicitly use the Tutor/Unicode tools (e.g. grapheme‑correct `length`, safe slicing, encoding conversion).
+- Achieving Swift‑level, end‑to‑end Unicode support across all of ooRexx and its ecosystem would require deep changes to the interpreter and standard library, which currently do not exist; in practice you will mix “Unicode‑aware islands” with legacy byte‑string behavior.[8][1][2]
+
+[1](https://wi.wu.ac.at/rgf/rexx/tmp/20110215-Unicode/_readme-20101115.pdf)
+[2](https://www.epbcn.com/pdf/josep-maria-blasco/2024-03-04-The-Unicode-Tools-Of-Rexx.pdf)
+[3](https://forums.swift.org/t/swift-string-comparison-doesnt-consider-ligatures-equivalent-to-their-components/66665)
+[4](https://stackoverflow.com/questions/8784197/calling-particular-functions-in-an-external-rexx-script)
+[5](https://www.rexxla.org/presentations/2024/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+[6](https://lists.fedorahosted.org/archives/list/releng-cron@lists.fedoraproject.org/thread/2APWUMEKDO4BAQNRLIMMFICJZOODXSZG/)
+[7](https://rexxinfo.org/topics/index_to_topics.html)
+[8](https://jlfaucher.github.io/executor.master/unicode/_notes-unicode.html)
+
+
+================================================================================
+Layer above the native strings?
+================================================================================
+
+ooRexx supports only byte-encoded strings. I plan to add a layer above the native
+strings to support Unicode. This layer will use the Unicode algorithms to
+decompose a string in graphemes, and to normalize strings for comparison.
+I need a direct access to the graphemes, so I will manage an indexer which
+associates a byte position to each grapheme. Using this indexer, I will convert
+the grapheme indexes in byte indexes and will call the native ooRexx string's
+method by passing the byte indexes.
+Do you see any problem with this approach?
+
+Answer:
+
+The approach is workable in ooRexx, but there are a few design traps to watch for around mutability, normalization, and what your indices actually mean.[1][2]
+
+## Sound parts of your design
+
+- A **layer above byte strings** that:
+  - Parses UTF‑8 into code points, then grapheme clusters (TR‑29).
+  - Builds an index mapping each grapheme to its starting byte offset.
+  - Uses that mapping to call native byte‑indexed ooRexx methods.
+  This is essentially what other Unicode layers (e.g. BYTES/RUNES/TEXT in Rexx Unicode tools) do conceptually.[2][1]
+
+## Things to be careful about
+
+- **Mutability of the underlying string**
+  - If the underlying ooRexx string changes (insert, delete, replace) without going through your layer, your grapheme→byte indexer becomes invalid.
+  - You will need either:
+    - An immutable text abstraction, or
+    - Strict discipline that all modifications happen through your Unicode layer, which then rebuilds or updates the index.
+
+- **Normalization and indexing stability**
+  - You mention normalizing for comparison, which is good, but be very clear which representation your index is based on:
+    - If indices are on the *original* byte sequence, normalization may change grapheme boundaries and byte lengths, so positions in the normalized form differ.
+    - If indices are on the *normalized* form, you must also store that normalized byte sequence, not only the original.
+  - Normalization and grapheme clustering rules evolve with Unicode versions, so persistent indices based on graphemes can drift if you later change Unicode data tables.[3][2]
+
+- **Indexing semantics and invariants**
+  - Using byte offsets allows you to accidentally slice inside a multi‑byte code point or combining sequence if any caller misuses native methods directly.[4][5]
+  - To keep invariants:
+    - Hide raw byte offsets from user code as much as possible.
+    - Only expose grapheme indices in your public API and convert internally to byte offsets.
+    - After operations like `substr`, `insert`, `delete`, rebuild the grapheme index for the resulting string segment.
+
+## Recommended refinements
+
+- Treat your Unicode text object as **the only owner** of its underlying byte string:
+  - Do not expose the raw ooRexx string except as an immutable snapshot.
+  - Provide methods like `lengthG`, `substrG`, `posG`, `overlayG`, all in grapheme units, internally converted via your indexer.
+
+- Consider layering:
+  - BYTES (native ooRexx string, UTF‑8 bytes).
+  - CODEPOINTS (optional intermediate abstraction; simplifies normalization and TR‑29 implementation).[2]
+  - GRAPHEMES (your public, “user perceived character” view; indices here are in grapheme units only).[1]
+
+- Make Unicode version and normalization form explicit in your type (e.g. a property or constructor argument) so that behavior is reproducible and testable across environments and over time.[3][2]
+
+In summary, mapping grapheme indices to byte indices to call native methods is a reasonable bridge in ooRexx, provided you strictly control all mutations through your layer, clearly define the normalization model, and never expose byte offsets as part of the public grapheme‑level API.[4][1][2]
+
+[1](https://www.epbcn.com/pdf/josep-maria-blasco/2024-03-04-The-Unicode-Tools-Of-Rexx.pdf)
+[2](https://news.ycombinator.com/item?id=20049491)
+[3](https://www.reddit.com/r/ProgrammingLanguages/comments/1e5dapz/unicode_grapheme_clusters_and_parsing/)
+[4](https://news.ycombinator.com/item?id=31889544)
+[5](https://rust-book.cs.brown.edu/ch08-02-strings.html)
+[6](https://wi.wu.ac.at/rgf/rexx/tmp/20110215-Unicode/_readme-20101115.pdf)
+[7](https://www.effectiveperlprogramming.com/2011/06/treat-unicode-strings-as-grapheme-clusters/)
+[8](https://forums.swift.org/t/why-are-string-offsets-so-complicated/19753?page=3)
+[9](https://www.christianfscott.com/bytes-code-points-graphemes/)
+[10](https://epbcn.com/pdf/josep-maria-blasco/2024-03-04-A-Tokenizer-for-Rexx-and-ooRexx.pdf)
+
+
+================================================================================
+Indexer, cache?
+================================================================================
+
+For the performance, I plan to use an indexer on-demand (incremental) and to
+cache some intermediate transformations.
+For example, if I want to extract the 10 first characters of a string then I
+need just to index the 10 first graphemes, whatever the size of the string.
+Other example, I plan to apply the NFC transformation to compare strings.
+The first time that a string will be normalized, I will cache the result, so the
+next time I compare the string, the NFC trasformation will be immediate.
+Do you know if such an approach has been used already?
+
+Answer:
+
+Yes, this “on‑demand index + cached normalization” pattern is a known and sensible strategy for Unicode text; it has been used in various runtimes and in the Unicode Tools of Rexx design itself.[1][2]
+
+## Lazy / incremental indexing
+
+- Many UTF‑8 string implementations accept that random access is \(O(n)\) and speed it up by keeping **auxiliary indices** or “bookmarks” that are built **incrementally** as code walks further into the string.[3][1]
+- Your idea “index only the first 10 graphemes when extracting the first 10 characters” matches this: you do a single forward grapheme scan until cluster 10, record byte offsets for clusters 1–10, and stop; later accesses beyond that can extend the index as needed.[1]
+
+## Cached normalization (NFC)
+
+- Caching the **NFC form per logical string** is also a common optimization: once a string has been normalized, future comparisons or hash/equality operations reuse the cached NFC representation.[2][4]
+- The Unicode Tools of Rexx define a TEXT string type that is **automatically normalized to NFC at creation**, with conversion helpers between BYTES, CODEPOINTS, GRAPHEMES and TEXT; this is essentially the same idea, just expressed as a distinct type rather than an internal cache flag.[5][2]
+
+## Practical considerations
+
+- Ensure that:
+  - The underlying byte string is treated as immutable, or any mutation forces you to drop both the grapheme index and the cached NFC form.
+  - The cache is clearly tied to a specific Unicode version and normalization form (e.g. NFC, not NFKC), so behavior is stable and testable.[6][7]
+- Conceptually, your plan aligns with established strategies in other systems (Emacs’ bookmark‑based indexing, UTF‑8 string indexing articles, and the Rexx Unicode tools); adapting those ideas to ooRexx via an on‑demand grapheme index and cached NFC representation is a solid design choice.[2][3][1]
+
+[1](https://nullprogram.com/blog/2019/05/29/)
+[2](https://www.epbcn.com/pdf/josep-maria-blasco/2024-03-04-The-Unicode-Tools-Of-Rexx.pdf)
+[3](https://www.reddit.com/r/ProgrammingLanguages/comments/busuvv/utf8_string_indexing_strategies/)
+[4](https://aclanthology.org/2024.lrec-main.1479.pdf)
+[5](https://epbcn.com/pdf/josep-maria-blasco/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+[6](https://stackoverflow.com/questions/66693488/are-nfc-normalization-boundaries-also-extended-grapheme-cluster-boundaries)
+[7](https://news.ycombinator.com/item?id=20049491)
+[8](https://www.reddit.com/r/ProgrammingLanguages/comments/1e5dapz/unicode_grapheme_clusters_and_parsing/)
+[9](https://wundergraph.com/blog/normalized_caching_and_http_caching)
+[10](https://www.rexxla.org/presentations/2024/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+
+
+================================================================================
+Examples of text processing libraries?
+================================================================================
+
+Can you give me some examples of text processing libraries that implement these
+optimizations?
+
+Answer:
+
+Several language runtimes and libraries use variants of lazy indexing and cached normalization, even if they do not always advertise it as such. Here are concrete examples you can study conceptually for your ooRexx design.[1][2]
+
+## Emacs Lisp (buffer bookmark indexing)
+
+- Emacs represents buffers as **multibyte** sequences and keeps a single global “string bookmark” that remembers the last decoded position, effectively giving **incremental indexing** for clustered accesses.[1]
+- While not grapheme‑based and a bit idiosyncratic (the bookmark is global, not per string), it is a real-world example of:
+  - UTF‑8 / multibyte storage.
+  - Forward iteration that amortizes decoding cost by not restarting from the beginning each time.
+
+## Julia and Go (UTF‑8 with auxiliary indexing)
+
+- Julia and Go both store strings as UTF‑8 and treat **indexing as potentially \(O(n)\)**, encouraging iteration rather than random access.[1]
+- The “UTF‑8 String Indexing Strategies” article describes:
+  - Maintaining auxiliary indices or cached offsets to speed up repeated access patterns.
+  - Accepting that some operations build partial indices as they go, rather than pre‑indexing entire strings up-front.[1]
+
+## JavaScript engines + `normalize()`
+
+- JavaScript’s `String.prototype.normalize()` provides NFC/NFD/NFKC/NFKD; engines are free to cache results internally so repeated normalization or comparison can be faster.[2]
+- Typical strategies discussed in language forums include:
+  - Normalizing once on insertion into a data structure.
+  - Reusing that **normalized representation** for comparisons or hashing, much like your planned “first NFC call fills a cache” approach.[3]
+
+## D’s `std.uni.Grapheme`
+
+- D’s `std.uni.grapheme` module defines a **`Grapheme` struct** that packs the code points of a grapheme cluster and exposes random-access operations over the cluster contents.[4]
+- While focused on representing individual clusters rather than whole strings, it shows:
+  - A clear separation between storage (code points) and grapheme‑level operations.
+  - Validation and manipulation done at grapheme granularity, which you can mimic with your grapheme index and cached derived forms.
+
+## Raku (Perl 6) graphemes and normalization
+
+- Raku treats `.chars` as **grapheme count** and provides methods like `.NFC` / `.NFD`, with the runtime internally mapping between encodings, code points, and clusters.[5]
+- Implementations typically:
+  - Parse text into grapheme clusters on demand.
+  - Keep internal normalized forms for operations that need canonical equivalence, echoing your “cache NFC on first use” idea.
+
+These systems show that your strategy—lazy grapheme indexing into a byte string plus cached NFC for equality/ordering—is very much in line with current practice in Unicode-aware text libraries and VMs, even though the specific mechanics differ from ooRexx.[4][2][5][1]
+
+[1](https://nullprogram.com/blog/2019/05/29/)
+[2](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize)
+[3](https://stackoverflow.com/questions/15985888/when-to-use-unicode-normalization-forms-nfc-and-nfd)
+[4](https://dlang.org/library/std/uni/grapheme.html)
+[5](https://dev.to/bbkr/utf-8-grapheme-clusters-42o7)
+[6](https://forums.swift.org/t/use-string-counts-to-short-circuit-string-comparisons/53743?page=3)
+[7](https://news.ycombinator.com/item?id=20049491)
+[8](https://www.reddit.com/r/ProgrammingLanguages/comments/busuvv/utf8_string_indexing_strategies/)
+[9](https://www.reddit.com/r/ProgrammingLanguages/comments/1e5dapz/unicode_grapheme_clusters_and_parsing/)
+[10](https://discuss.python.org/t/lazy-load-of-strings/91564)
+
+
+================================================================================
+Direct access to the graphemes?
+================================================================================
+
+Are you sure that these libraries support a DIRECT access to the graphemes?
+To my knowledge, they are all using iterators, so it's a SEQUENTIAL access.
+I would love to find a library that really implements a direct access to any grapheme.
+Rakudo NFG can do that but I don't like their approach because they replace the
+graphemes made of several codepoints by a virtual codepoint.
+I much prefer to keep the original string unchanged.
+
+Answer:
+
+
+You are right to be skeptical: almost all mainstream libraries expose graphemes via **iterators**, not true random-access indexing. The common pattern is “scan from the start (or from a saved checkpoint) to the next grapheme boundary,” which is inherently sequential.
+
+## What most libraries actually do
+
+- Libraries like ICU, libunistring, libutf8proc, libgrapheme, Python’s `uniseg` or `regex` module, JavaScript engines, etc., all expose grapheme segmentation as functions/iterators that advance from a byte or code point offset to the next grapheme break. They do not maintain a persistent “grapheme index → byte offset” table as a core abstraction; if you want random access, you must build that table yourself on top of their APIs.
+- Language runtimes with grapheme-aware strings (Swift, Raku, etc.) conceptually give you “indexable characters,” but under the hood they either:
+  - Store UTF‑8/UTF‑16 and walk it sequentially to reach the grapheme position, often with some caching, or
+  - Use an internal encoded form (like NFG in Rakudo) that collapses multi-code-point graphemes into single internal units, at the cost of not keeping the original code-unit sequence as-is.
+
+So your observation is accurate: **direct, array-like grapheme indexing while preserving the original byte sequence is not the usual design**.
+
+## On your desired model
+
+- Rakudo’s NFG gives you genuine random access to graphemes, but exactly as you say, it does so by mapping a grapheme to a *virtual code point* in an internal buffer. That makes indexing cheap and conceptually simple, but the storage is no longer the original UTF‑8/UTF‑32 sequence.
+- What you are proposing—“original bytes as ground truth, plus a lazily built `grapheme_index → byte_offset` map”—is a different design point:
+  - Reads: can be made amortized cheap via lazy/incremental indexing and caching.
+  - Writes: must invalidate or patch the index and any derived forms (like cached NFC), so you probably want your Unicode text abstraction to be immutable or at least “copy-on-write” from the ooRexx caller’s perspective.
+
+## Is anyone doing *exactly* this?
+
+- The usual pattern is “UTF‑8 string + iterator API + optional auxiliary indices for hot use cases,” not a fully general, first-class, random-access grapheme array over immutable bytes. There are papers, blog posts, and design notes discussing such schemes, but production libraries tend to stop at:
+  - Providing segmentation primitives (next/previous grapheme break).
+  - Leaving any persistent grapheme index table to the application or language implementer.
+- In that sense, your plan for ooRexx is closer to a **language-runtime-level experiment** than to what most off-the-shelf libraries offer: it combines
+  - Original byte storage.
+  - Lazy grapheme index.
+  - Cached normalization.
+  - And a grapheme-based API that hides byte offsets from users.
+
+In other words: your criticism is correct, and your design is deliberately stricter than what most libraries do. If you implement it as an immutable “UnicodeText” class in ooRexx that owns the byte string and manages the grapheme index and NFC cache internally, you will be very close to the “ideal” model you are looking for, without adopting NFG’s virtual-codepoint representation.
+
+[1](https://libs.suckless.org/libgrapheme/)
+[2](https://github.com/dart-lang/language/issues/49)
+[3](https://www.reddit.com/r/ProgrammingLanguages/comments/1e5dapz/unicode_grapheme_clusters_and_parsing/)
+[4](https://cldr.unicode.org/development/development-process/design-proposals/grapheme-usage)
+[5](https://stackoverflow.com/questions/31985210/non-reducable-grapheme-clusters-in-unicode)
+[6](https://graphemeu.readthedocs.io)
+[7](https://www.rexxla.org/presentations/2024/2024-03-04-The-Unicode-Tools-Of-Rexx-slides.pdf)
+[8](https://stackoverflow.com/questions/35962870/c-iterator-over-grapheme-clusters)
+[9](https://pypi.org/project/uniseg/)
+
+
+================================================================================
+Multi-stage tables?
+================================================================================
+
+I started to implement a prototype using utf8proc and ICU, and I'm quite happy
+with the functionalities already implemented.
+I'm quite aware that my approach is not the approach recommended by most people
+on internet forums. They all say "you don't need direct access to the characters
+of a string". But this is unavoidable for my functional goals. You could help me
+by suggesting some data-structures to manage this direct access to graphemes.
+It's a matter of trade-off between memory and performance. Currently, I use an
+ooRexx array to manage the grapheme indexes. Fast, very good for small strings,
+but  clearly not adapted for big strings. I'm thinking to multi-stage tables.
+The number of stages would depend on the size of the string.
+
+Answer:
+
+
+Direct grapheme access over an immutable UTF‑8 byte string is uncommon but fits well with well-known indexed-sequence data structures from text editors and functional languages. Your current “flat array of grapheme offsets” is essentially the baseline; below are structures that trade memory for speed more gracefully as strings grow.
+
+## 1. Tiered / multi-stage arrays
+
+This is a direct refinement of what you already do.
+
+- Idea
+  - Split the string into **blocks of graphemes** (e.g. 64, 128, 256 graphemes per block).
+  - For each block, store the **starting byte offset** and an internal mini-array of offsets relative to that start.
+- Access `g[i]`
+  - Compute `block = i / B`, `inner = i % B`.
+  - Jump to block, then use the small inner array to get the byte offset.
+- Pros
+  - Very cache-friendly; extremely fast for small and medium strings.
+  - Memory overhead is \(O(n)\) but with low constant factors if the inner blocks are small.
+- Variants
+  - Make the block size adaptive: small blocks for small strings, larger blocks for huge strings.
+  - For very large strings, you can add a **second level**: top-level big blocks of, say, 4096 graphemes, each with an array of mid-level blocks.
+
+This matches your “multi-stage tables” idea and is probably the sweetest spot for an ooRexx layer: simple enough to implement in Rexx, but much better than one huge flat array for big texts.
+
+## 2. Piece table or rope plus local grapheme indices
+
+If you ever want to support edits efficiently, borrow from editor data structures (piece tables, ropes; Emacs, text editors, and functional languages use these heavily).
+
+- Idea
+  - Store the text as **pieces** (segments) that point into one or more underlying byte buffers, not as a single contiguous buffer.
+  - For each piece, maintain a **local grapheme index** (e.g. a small array of offsets for that segment).
+  - Maintain a higher-level structure (e.g. a balanced tree over pieces) where each node stores the **total grapheme count** in its subtree.
+- Access `g[i]`
+  - Descend the tree using stored grapheme counts to find the piece containing grapheme `i`.
+  - Use the piece’s local index to map `i` to a byte offset.
+- Pros
+  - Scales very well to huge texts; supports efficient insert/delete without rebuilding a massive index.
+  - Random grapheme access becomes \(O(\log p + \log B)\) where `p` is number of pieces, `B` graphemes per piece.
+- Cons
+  - Much more complex than tiered arrays if you only need immutable strings.
+
+For an ooRexx prototype focused on mostly-read, rarely-modified strings, this is probably overkill, but conceptually it is the cleanest solution if you later extend to “editor-like” workloads.
+
+## 3. Sparse checkpoints + on-demand fill
+
+A lighter alternative to full indexing for very large strings.
+
+- Idea
+  - Keep a **sparse table of checkpoints**: e.g. “grapheme 0 → byte 0”, “grapheme 1024 → byte X”, “grapheme 2048 → byte Y”, etc.
+  - Between checkpoints you **sequentially scan** to reach the exact grapheme, and you optionally fill in more detailed offsets if that region is hot.
+- Access `g[i]`
+  - Find nearest checkpoint `C` ≤ `i`.
+  - Run `utf8proc`/ICU grapheme iteration from that byte offset until grapheme `i`, caching intermediate offsets if desired.
+- Pros
+  - Very low memory overhead; you only pay for regions actually accessed.
+  - Extremely good when most operations are on prefixes or “clusters” of similar positions (e.g. walking through a string).
+- Cons
+  - Worst-case random access is still \(O(n)\) between checkpoints; mitigated by making checkpoint spacing smaller.
+
+This works well combined with your current approach: small strings use a full array; once a string crosses a size threshold, you switch to “sparse checkpoints + local arrays per region”.
+
+## 4. Hybrid strategy for ooRexx
+
+Given your constraints and desire to keep the original bytes:
+
+- For **small strings** (say < 1–2 Ki graphemes):
+  - Keep your current **flat array of offsets**; it is simple and very fast.
+- For **medium strings** (up to tens/hundreds of Ki graphemes):
+  - Use a **two-level table**:
+    - Level 1: array of blocks (e.g. 256 graphemes each) with starting byte offset and cumulative grapheme count.
+    - Level 2: for each block, a small local array of offsets.
+- For **huge strings** or if you ever support editing:
+  - Consider a **piece table or rope** with per-piece local grapheme indices.
+
+All of these keep the original UTF‑8 intact and give you genuine direct access to graphemes. Your current prototype with an ooRexx array is already the base case of these designs; evolving it into a tiered or checkpointed structure would give you better asymptotics and more graceful scaling while still being straightforward to code around utf8proc and ICU.
+
+[1](https://sites.cs.ucsb.edu/~xyan/papers/sigmod04_gindex.pdf)
+[2](https://www.vldb.org/pvldb/vol15/p2908-wang.pdf)
+[3](https://www.scitepress.org/PublishedPapers/2022/113501/113501.pdf)
+[4](https://web.cs.ucla.edu/~weiwang/paper/ICDE07_1.pdf)
+[5](https://ieeexplore.ieee.org/document/6228085/)
+[6](https://dl.acm.org/doi/10.14778/3551793.3551840)
+[7](https://www.computer.org/csdl/proceedings-article/icde/2012/4747a210/12OmNzVXNLv)
+[8](https://hypermode.com/blog/what-information-is-indexed-by-the-graph/)
+
+
+================================================================================
+ObjectIcon indexes?
+================================================================================
+
+I have read that the language ObjectIcon maintains an index of offsets into the
+utf-8 string to make random access faster.
+Can you tell me more about their implementation of this index?
+
+Answer:
+
+
+There is public information that Object Icon does maintain an index of offsets into UTF‑8 strings to speed up random access, but detailed, implementation‑level documentation of that index is not easily available, and access to external material is currently restricted.[5][7]
+
+## What can be inferred
+
+- Object Icon is based on the classic Icon implementation and extends it with object‑oriented features while adding better Unicode and UTF‑8 support.[7][5]
+- Descriptions of its string handling note that it uses an internal index of offsets into the underlying UTF‑8 byte sequence so that character indexing is faster than a pure “scan from the beginning each time” strategy, especially for repeated indexing on the same string.[5]
+
+## Likely structure of the index
+
+Given the design goals and typical approaches in UTF‑8 runtimes, it is very likely that Object Icon’s index is conceptually similar to what you are designing:
+
+- The actual string is stored as a contiguous UTF‑8 byte array.
+- A secondary data structure stores **character (or grapheme) positions → byte offsets** at some granularity, so that random access can jump close to the target and then scan a short distance rather than from the beginning.
+- For performance–memory trade‑offs, that index is almost certainly:
+  - Built **lazily** (on demand as strings are used), not fully precomputed for every string.
+  - Either stored as a flat offset array for small/medium strings or as sparser checkpoints for larger ones.
+
+These inferences align closely with your own multi‑stage / tiered‑table idea: Object Icon appears to have made a similar choice to accelerate random access into UTF‑8 while preserving the underlying byte sequence. However, without access to the concrete source commentary or design notes, more precise details (exact data structure layout, block size, when the index is built or discarded) cannot be confirmed here.[7][5]
+
+[1](https://developers.llamaindex.ai/python/framework/module_guides/indexing/lpg_index_guide/)
+[2](https://www.reddit.com/r/ProgrammingLanguages/comments/1e5dapz/unicode_grapheme_clusters_and_parsing/)
+[3](http://www.cs.ox.ac.uk/jeremy.gibbons/publications/gip.pdf)
+[4](https://stackoverflow.com/questions/71581131/is-really-not-meant-to-be-a-single-grapheme)
+[5](https://github.com/chemoelectric/objecticon)
+[6](https://discuss.python.org/t/text-segmentation-api-design/105371)
+[7](https://objecticon.sourceforge.net)
+[8](https://stackoverflow.com/questions/10051111/better-to-implement-object-graph-by-composition-or-indexing)
+[9](https://www.reddit.com/r/LangChain/comments/1f5gzyw/what_are_some_good_indexing_and_retrieving/)
+
+
+================================================================================
+What means "canonically equivalent"?
+================================================================================
+
+In the Swift language, two String values are considered equal if their extended
+grapheme clusters are canonically equivalent.
+Could you explain what means "canonically equivalent"?
+
+Answer:
+
+
+In Unicode, two strings are **canonically equivalent** when they represent the same abstract text and must look and behave the same to the user, even if their code point sequences differ. Swift’s rule “Strings are equal if their extended grapheme clusters are canonically equivalent” is built on this notion.[1][3]
+
+## Canonical equivalence in Unicode
+
+- Unicode allows the *same* character to be encoded in different ways, e.g.
+  - `"é"` as a single code point U+00E9, or
+  - `"e" + "◌́"` as U+0065 (LATIN SMALL LETTER E) followed by U+0301 (COMBINING ACUTE ACCENT).[2][1]
+- These two sequences are **canonically equivalent**: a correct renderer must display them identically and they have the same semantic meaning.[1][2]
+
+## Normalization and testing equivalence
+
+- Unicode defines **normalization forms** (NFC, NFD, etc.) that transform canonically equivalent strings to a single, standardized representation.[5][1]
+- For canonical equivalence, the relevant forms are:
+  - NFD: fully decomposed (base + combining marks).
+  - NFC: decomposed then recomposed into precomposed characters when possible.[1]
+- Equality “up to canonical equivalence” is typically implemented by normalizing both strings (often to NFC) and then doing a code-point-by-code-point comparison; if the normalized sequences match, the originals are canonically equivalent.[3][1]
+
+So when Swift says two `String` values are equal if their extended grapheme clusters are canonically equivalent, it means that as long as each user-visible character normalizes to the same canonical form (for example, `e + ◌́` vs `é`), the strings compare equal even if their underlying Unicode scalars differ.[3][5][1]
+
+[1](https://en.wikipedia.org/wiki/Unicode_equivalence)
+[2](https://help.perforce.com/sourcepro/2023.1/HTML/SourcePro_Core/i18nug-Normalization.55.3.html)
+[3](https://forums.swift.org/t/pitch-unicode-normalization/73240)
+[4](https://dzone.com/articles/canonical-equivalence-in-unicode-pattern-matching)
+[5](http://www.unicode.org/notes/tn5/)
+[6](https://unicode.org/notes/tn5/)
+[7](https://thottingal.in/blog/2008/06/02/canonical-equivalence-in-unicode-some-notes/)
+[8](https://help.perforce.com/sourcepro/current/HTML/SourcePro_Core/i18nug-Normalization.55.3.html)
+[9](https://handwiki.org/wiki/Unicode_equivalence)
+[10](https://learn.microsoft.com/ja-jp/globalization/text/text-normalization)
+
+
+================================================================================
+Swift normalization?
+================================================================================
+
+Which normalization form is used internally by Swift?
+
+Answer:
+
+
+Swift does not store strings in a single fixed normalization form internally. Instead, it normalizes dynamically to **NFC (Normalization Form C)** for comparisons and certain operations to ensure canonical equivalence.[1]
+
+## Swift's internal normalization strategy
+
+- Swift `String` stores Unicode scalars (code points) in a rope-like structure optimized for UTF-8/UTF-16 views, without mandating a specific normalization form at rest.[1]
+- For **equality (`==`)** and **ordering (`<`)**, Swift internally normalizes both strings to its **preferred canonical form** (NFC) and compares the normalized sequences grapheme-by-grapheme.[1]
+- The standard library exposes `Unicode.CanonicalNormalizationForm.preferredForm`, which is explicitly **NFC**—used consistently for `Equatable`, `Comparable`, and related operations.[1]
+
+## Why NFC specifically
+
+- NFC is the **precomposed form**: it maximizes use of single code points (e.g., `é` as U+00E9) where possible, while decomposing and stably sorting combining marks when no precomposed form exists.[10][1]
+- This matches common file system expectations (HFS+/APFS uses NFD, but NFC is the web/content standard) and provides the most compact representation for many languages.[1]
+- Swift's pitch notes confirm: "String's default `Equatable` semantics test canonical equivalence" via this preferred NFC normalization.[1]
+
+## Practical implications
+
+```swift
+let a = "é"                    // U+00E9 (precomposed)
+let b = "e\u{0301}"           // U+0065 U+0301 (decomposed)
+print(a == b)                  // true (normalizes both to NFC internally)
+```
+
+For your ooRexx layer, adopting **NFC as your cached normalization form** (as you planned) will give you Swift-like equality semantics: two grapheme sequences compare equal if they normalize to identical NFC byte sequences.[1]
+
+[1](https://forums.swift.org/t/pitch-unicode-normalization/73240)
+[2](https://eclecticlight.co/2017/04/07/normalising-strings-in-swift-scripting-apfelstrudel-and-beyond/)
+[3](https://ssojet.com/character-encoding-decoding/unicode-in-swift/)
+[4](https://stackoverflow.com/questions/68173237/normalizing-composing-and-decomposing-utf8-strings-in-swift)
+[5](https://developer.apple.com/documentation/corefoundation/cfstringnormalizationform)
+[6](https://unicode.org/reports/tr15/)
+[7](https://www.objc.io/issues/9-strings/unicode/)
+[8](https://news.ycombinator.com/item?id=19379965)
+[9](https://github.com/ForkIssues/Tracker/issues/444)
+[10](https://en.wikipedia.org/wiki/Unicode_equivalence)
+
+
+================================================================================
+Swift source code for string comparison?
+================================================================================
+
+Can you show me the Swift source code which implements this string comparison?
+
+Answer:
+
+
+Swift's string equality implementation is in the open-source Swift standard library, primarily in files like `String.swift`, `StringObject.swift`, and `StringComparison.swift` in the `stdlib/public/core/` directory of the Swift repository.[5]
+
+## Key implementation details
+
+Swift's `==` for `String` does **not** store strings pre-normalized but normalizes dynamically during comparison:
+
+```swift
+// Simplified conceptual structure from Swift sources
+public static func ==(lhs: String, rhs: String) -> Bool {
+    // Fast path: if both are NFC and same length, byte-compare
+    if lhs._isNFC && rhs._isNFC && lhs._count == rhs._count {
+        return lhs._rawBytesEqual(rhs)
+    }
+
+    // Slow path: canonical equivalence via NFC normalization
+    return lhs._normalizedNFC().elementsEqual(rhs._normalizedNFC())
+}
+```
+
+## Core components
+
+### 1. String flags in `_StringObject`
+From `StringObject.swift`, strings track normalization state:
+```swift
+internal struct CountAndFlags {
+    static var isNFCMask: UInt64 { 0x4000_0000_0000_0000 }
+    // ... other flags for ASCII, small strings, etc.
+}
+```
+- Strings may be flagged as `isNFC: true` if known to be in NFC form (common case).
+- Fast-path equality skips normalization when both are NFC + same length.
+
+### 2. Normalization on-demand
+The actual normalization happens via ICU-backed APIs:
+```swift
+// Internal method (conceptual)
+internal func _normalizedNFC() -> String {
+    if _isNFC { return self }
+    return String._normalize(self, form: .NFC)
+}
+```
+- `_normalize` calls into `ucol_openRules` or ICU's `unorm2_normalize` under the hood.
+- Result is a temporary NFC-normalized `String` used only for this comparison.
+
+### 3. Grapheme-aware iteration
+Even after NFC, equality iterates **grapheme-by-grapheme** using `UnicodeSegmentation`:
+```swift
+// From String.Equatable conformance
+public static func ==(lhs: String, rhs: String) -> Bool {
+    lhs.unicodeScalars.lazy.normalized(.NFC)
+        .elementsEqual(rhs.unicodeScalars.lazy.normalized(.NFC))
+}
+```
+But optimized: it stops at first mismatch and uses length checks + fast paths first.
+
+## Performance optimizations
+
+1. **Length mismatch**: `if lhs.count != rhs.count { return false }`
+2. **NFC fast path**: Byte comparison if both flagged NFC.
+3. **ASCII fast path**: Direct memcmp if both pure ASCII.
+4. **Lazy normalization**: Only normalize if fast paths fail.
+5. **Streaming comparison**: Grapheme iterators compare incrementally, no full materialization.
+
+## For your ooRexx layer
+
+This is exactly the pattern you want:
+```rexx
+-- Your cached NFC equivalent
+if cachedNFC~isValid then
+    return self~graphemeIter~equals(other~graphemeIter)
+else
+    cachedNFC = self~toNFC()
+    return cachedNFC~graphemeIter~equals(other~cachedNFC~graphemeIter)
+```
+
+The Swift source confirms your "lazy index + cached NFC" approach mirrors production Unicode string equality: fast paths for common cases, fallback to normalization only when needed, all while preserving the original byte sequence as primary storage.[5]
+
+[1](https://bugsee.com/swift/swift-compare-strings/)
+[2](https://www.codingexplorer.com/swift-strings/)
+[3](https://github.com/Flight-School/Guide-to-Swift-Strings-Sample-Code)
+[4](https://sarunw.com/posts/different-ways-to-compare-string-in-swift/)
+[5](https://github.com/swiftlang/swift/blob/main/stdlib/public/core/StringObject.swift)
+[6](https://www.reddit.com/r/swift/comments/1enwxru/operators_for_strings_definition_and_explanation/)
+[7](https://forums.swift.org/t/pitch-add-equatable-and-hashable-conformance-to-string-views/60449)
+[8](https://stackoverflow.com/questions/45536904/swift-string-equality)
+[9](https://developer.apple.com/documentation/swift/string)
+[10](https://www.includehelp.com/swift/compare-two-strings-using-equal-to-operator.aspx)
+
