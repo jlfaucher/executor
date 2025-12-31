@@ -27,6 +27,7 @@ Examples of extensions
 
 Start working on a prototype for encoded strings.  
 Main ideas explored with this prototype:
+
 - The existing String class is kept unchanged, its methods are byte-oriented.
 - The prototype adds a layer of services working at grapheme level, provided by the RexxText class.
 - The RexxText class works on the bytes managed by the String class.
@@ -36,14 +37,17 @@ Main ideas explored with this prototype:
 - Supported encodings : byte, UTF-8, UTF-16, UTF-32.
 
 Prototype based on:
+
 - [utf8proc][utf8proc]
 - [uni-algo][uni_algo]
 
 Notes about Unicode:
+
 - [URLs with annotations][notes_unicode]
 - [Thoughts on ooRexx and Unicode][thoughts_on_ooRexx_and_unicode]
 
 Test cases:
+
 - [Demo Unicode intro][demo_unicode_intro]
 - [Demo Unicode checks][demo_unicode_checks]
 - [Demo Unicode services][demo_unicode_services]
@@ -57,7 +61,7 @@ Test cases:
 
 A positional argument list is a serie of optional expressions, separated by commas.
 
-```rexx {executor}
+```rexx
     caller: put("one", 1)
     callee: use arg item, index -- order is important
 ```
@@ -67,7 +71,7 @@ parameter in the parameter list of the routine/method being invoked.
 This is in contrast to named argument lists, where the correspondence between
 argument and parameter is done using the parameter's name.
 
-```rexx {executor}
+```rexx
     caller: put(index:1, item:"one")
     callee: use named arg item, index -- order is not important
 ```
@@ -81,7 +85,7 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 
 #### Routine
 
-```rexx {executor}
+```rexx
     {use arg name, greetings
      say "hello" name || greetings
     }~("John", ", how are you ?")       -- hello John, how are you ?
@@ -92,7 +96,7 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 A coactivity remembers its internal state.  
 It can be called several times, the execution is resumed after the last executed .yield[].
 
-```rexx {executor}
+```rexx
     nextInteger = {::coactivity loop i=0; .yield[i]; end}
     say nextInteger~()                  -- 0
     say nextInteger~()                  -- 1
@@ -106,7 +110,7 @@ It can be called several times, the execution is resumed after the last executed
 A closure remembers the values of the variables defined in the outer environment of the block.  
 Updating a variable from the closure will have no impact on the original context (closure by value).
 
-```rexx {executor}
+```rexx
     v = 1
     closure = {expose v; say v; v += 10}    -- capture the value of v: 1
     v = 2
@@ -122,7 +126,7 @@ Updating a variable from the closure will have no impact on the original context
 
 [Rosetta Code][rosetta_code_closures_value_capture]
 
-```rexx {executor}
+```rexx
     a = .array~new
     do i=1 to 10
         a~append{expose i; return i*i}
@@ -146,7 +150,7 @@ display:
 
 A more compact code... item is an implicit parameter.
 
-```rexx {executor}
+```rexx
     1~10{ {expose item; return item * item} } ~ take(9) ~ each{ say item~() }
 ```
 
@@ -154,7 +158,7 @@ A more compact code... item is an implicit parameter.
 
 [Rosetta Code][rosetta_code_accumulator_factory]
 
-```rexx {executor}
+```rexx
     accumulator = {
         use arg sum
         return  {
@@ -175,7 +179,7 @@ A more compact code... item is an implicit parameter.
 
 [Rosetta Code][rosetta_code_function_composition]
 
-```rexx {executor}
+```rexx
     compose = {
         use arg f, g
         return {
@@ -225,7 +229,7 @@ Equivalent form:
 The call-by-value is implemented as a method on the class RoutineDoer
 (no function passed as argument, self is directly the function).
 
-```rexx {executor}
+```rexx
     ::class RoutineDoer
     ::method Y
     f = self
@@ -237,7 +241,7 @@ The call-by-value is implemented as a method on the class RoutineDoer
 
 Application of the Y combinator to factorial:
 
-```rexx {executor}
+```rexx
     fact = { use arg f
              return  { expose f ; use arg n ; if n == 0 then return 1 ; else return n * f~(n-1) }
            }~Y
@@ -248,7 +252,7 @@ Application of the Y combinator to factorial:
 
 [Memoization][wikipedia_memoization] is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.
 
-```rexx {executor}
+```rexx
     ::class RoutineDoer
     ::method YM
     f = self
@@ -268,7 +272,7 @@ Application of the Y combinator to factorial:
 
 Application to fibonacci:
 
-```rexx {executor}
+```rexx
     fibm = { use arg fib
              return {expose fib; use arg n
                      if n==0 then return 0
@@ -286,7 +290,7 @@ whereas the not-memoizing version needs almost 30 sec.
 Both Y and YM are subject to stack overflow.  
 But YM can be used by steps, to calculate very big fibonacci numbers, thanks to the memoization:
 
-```rexx {executor}
+```rexx
     numeric digits propagate 2090
     do i=1 to 100; say "fibm~("i*100")="fibm~(i*100); end
     -- fibm~(100)=354224848179261915075
@@ -307,7 +311,7 @@ Initializer (instance method ~of) which takes into account the dimensions of the
 
 If there is only one argument, and this argument has the method ~supplier then each item returned by the argument's supplier is an item.
 
-```rexx {executor}
+```rexx
     .array~new(2,3)~of(1~6)
     1 2 3
     4 5 6
@@ -315,7 +319,7 @@ If there is only one argument, and this argument has the method ~supplier then e
 
 If there is only one argument, and this argument is a doer, then the doer is called for each cell to initialize.
 
-```rexx {executor}
+```rexx
     .array~new(2,3)~of{10*item}
     10 20 30
     40 50 60
@@ -323,7 +327,7 @@ If there is only one argument, and this argument is a doer, then the doer is cal
 
 Otherwise each argument is an item as-is.
 
-```rexx {executor}
+```rexx
     .array~new(2,3)~of(1,2,3,4,5,6)
     1 2 3
     4 5 6
@@ -331,7 +335,7 @@ Otherwise each argument is an item as-is.
 
 If some arguments are omitted, then the corresponding item in the initialized array remains non-assigned.
 
-```rexx {executor}
+```rexx
     .array~new(2,3)~of(1,,3,,5,6)
     1 . 3
     . 5 6
@@ -342,7 +346,7 @@ If there are too many items, the extra items are ignored.
 If there are fewer items than implied by the dimensions, the list of items is reused as
 many times as necessary to fill the array.
 
-```rexx {executor}
+```rexx
     .array~new(2,3)~of(1,2)
     1 2 1
     2 1 2
@@ -352,13 +356,13 @@ many times as necessary to fill the array.
 
 Thanks to the support of alternative messages for binary operators, it's now possible to provide symmetric implementations of binary operators.  
 
-```rexx {executor}
+```rexx
     arg1 ~ "+"( arg2 )
 ```
 
 If arg1 doesn't know how to process the message "+" (either because the message itself is not understood, or because the type of arg2 is not supported) then the interpreter sends this alternative message:
 
-```rexx {executor}
+```rexx
     arg2 ~ "+OP:RIGHT"( arg1 )
 ```
 
@@ -367,7 +371,7 @@ There is no performance penalty because the interpreter sends the alternative me
 
 Examples:
 
-```rexx {executor}
+```rexx
     a = .array~of(10,20,30)
     100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
     a 100=                  -- ['10 100','20 100','30 100']
@@ -394,7 +398,7 @@ Count the number of files in the directory passed as argument, and in each subdi
 The recursivity is limited to 1 level, [breadth-first search][wikipedia_breadth_first_search].  
 The count per directory is done by partitioning the instances of .File flowing through the pipeline by their parent.  
 
-```rexx {executor}
+```rexx
     "d:\"~pipe(.fileTree "recursive.1.breadthFirst" | .lineCount {item~parent} | .console {item~right(6)} "index")
 ```
 
@@ -410,7 +414,7 @@ output:
 Example:  
 Public classes by package.
 
-```rexx {executor}
+```rexx
     .context~package~pipe(,
         .importedPackages "recursive" "once" "after" "mem.package" |,
         .inject {item~publicClasses} "iterateAfter" |,
