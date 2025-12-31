@@ -10,4 +10,10 @@ firstDot = myName~pos(".")
 if firstDot \== 0 then myName = myName~left(firstDot-1)
 
 parse arg args
-call md2html "--path" mypath"/"myname "--css https://jlfaucher.github.io/css" args
+arguments = "--continue" -
+            "--path" mypath || myname -
+            "--css" "https://jlfaucher.github.io/css" -
+            "--default" '"executor style=vim-light-zellner"' -
+            args
+.traceOutput~say("md2html" arguments)
+call md2html arguments
