@@ -1,7 +1,10 @@
 http://www.jpaulmorrison.com/fbp/
 
 
+--------------------------------------------------------------------------------
 Clojure
+--------------------------------------------------------------------------------
+
 My mental model of transducers
 https://blog.danieljanus.pl/2023/09/09/transducers/
 
@@ -9,8 +12,14 @@ https://blog.danieljanus.pl/2023/09/09/transducers/
 Grokking Clojure transducers
 https://dev.solita.fi/2021/10/14/grokking-clojure-transducers.html
 
+Kalai: Write once compile everywhere, Cross language libraries
+https://github.com/kalai-transpiler/kalai/blob/main/docs/Design.md#using-transducers
 
+
+--------------------------------------------------------------------------------
 Javascript
+--------------------------------------------------------------------------------
+
 Introduction into Channels and Transducers in JavaScript
 https://medium.com/javascript-inside/introduction-into-channels-and-transducers-in-javascript-a1dfd0a09268#.hp9ijj3ta
 
@@ -25,18 +34,34 @@ Transducers.js: A JavaScript Library for Transformation of Data
 http://jlongster.com/Transducers.js--A-JavaScript-Library-for-Transformation-of-Data
 
 
+--------------------------------------------------------------------------------
+Ocaml
+--------------------------------------------------------------------------------
+
 Ocaml pipes
 https://ocaml.janestreet.com/ocaml-core/111.28.00/doc/async_kernel/#Pipe
 
+
+--------------------------------------------------------------------------------
+Scala
+--------------------------------------------------------------------------------
 
 FS2: Functional Streams for Scala (previously 'Scalaz-Stream')
 https://github.com/functional-streams-for-scala/fs2
 
 
+--------------------------------------------------------------------------------
+Haskell
+--------------------------------------------------------------------------------
+
 Haskell Networks of composable stream transducers
 https://github.com/ekmett/machines/
 Machines are demand driven input sources like pipes or conduits, but can support multiple inputs.
 
+
+--------------------------------------------------------------------------------
+Go
+--------------------------------------------------------------------------------
 
 Go pipes (flow based dataflow)
 https://blog.gopheracademy.com/composable-pipelines-pattern/
@@ -58,10 +83,37 @@ http://hackage.haskell.org/package/pipes-4.0.1/docs/Pipes-Tutorial.html
 http://www.haskellforall.com/
 
 
+--------------------------------------------------------------------------------
+C++
+--------------------------------------------------------------------------------
+
 C++ Pipelines
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3534.html
 http://code.google.com/p/google-concurrency-library/source/browse/include/pipeline.h
 
+
+--------------------------------------------------------------------------------
+Python
+--------------------------------------------------------------------------------
+
+Flow based programming
+http://wiki.python.org/moin/FlowBasedProgramming
+
+Ruffus is a lightweight python module for running computational pipelines
+http://code.google.com/p/ruffus/
+
+Pipe: Infix syntax for Python
+http://dev-tricks.net/pipe-infix-syntax-for-python
+
+Kamaelia - Concurrency made useful, fun
+http://www.kamaelia.org/Home.html
+https://www.kamaelia.org/Cookbook/Pipelines.html
+https://www.kamaelia.org/Cookbook/Graphlines.html
+
+
+--------------------------------------------------------------------------------
+Unsorted
+--------------------------------------------------------------------------------
 
 http://www.balisage.net/Proceedings/vol3/print/Kay01/BalisageVol3-Kay01.html
 
@@ -83,25 +135,14 @@ http://ipages.iland.net/~jimj/
 http://www.tenfiftytwo.co.uk/pipelines/
 http://sourceforge.net/projects/oorexx/forums/forum/408479/topic/3814527
 
-Simon Nash
+Simon Nash (https://simonnash.blogspot.com/)
 http://jstreamer.com/technical.html
+https://web.archive.org/web/20150801131433/http://jstreamer.com/
 
 Flow based programming
 http://www.pypes.org/
 
-Flow based programming
-http://wiki.python.org/moin/FlowBasedProgramming
-
-Ruffus is a lightweight python module for running computational pipelines
-http://code.google.com/p/ruffus/
-
-Pipe: Infix syntax for Python
-http://dev-tricks.net/pipe-infix-syntax-for-python
-
 http://code.google.com/p/appengine-pipeline/
-
-Kamaelia - Concurrency made useful, fun
-http://www.kamaelia.org/Home.html
 
 http://software.intel.com/en-us/blogs/2011/03/31/the-join-node-in-the-intel-threading-building-blocks-graph-community-preview-feature-2/
 
@@ -130,6 +171,7 @@ https://rescript-lang.org/docs/manual/v11.0.0/pipe
 
 ============================================================================
 http://groups.google.com/group/comp.lang.rexx/browse_thread/thread/356f08d60008ac05?hl=en
+Feb 23, 2011
 
 I was looking into SysCreatePipe regarding Swiftys problem with piping a mail body to the mail command.
 I couldn't find any examples of the usage of SysCreatePipe and the Ref.Manual is very sparse.
