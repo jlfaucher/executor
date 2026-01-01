@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+Named arguments - Specification
+    </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel='stylesheet' href='https://jlfaucher.github.io/css/rexx-vim-light-zellner.css'>
+    <link rel='stylesheet' href='https://jlfaucher.github.io/css/markdown.css'>
+    <link rel='stylesheet' href='https://jlfaucher.github.io/css/markdown4xtr.css'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class='container bg-white' lang='en'>
+      <div class='row layout-main'>
+        <div class='col-md-9 content-pane'>
+          <div class='content' id="content">
+<!-- 
+
+Remember: when you create/update a syntax diagram, you must copy it in the file
+NamedArguments-SD.xml
+
+See the file png_sizes.ods for the calculation of the width attribute in <img>.
+
+-->
+<h1 id="named-arguments---specification">Named arguments -
+Specification</h1>
+<p>A positional argument list is a serie of optional expressions,
+separated by commas.</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-label">caller</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-const rx-ext-func">put</span><span class="rx-spe">(</span><span class="rx-str rx-oquo">"</span><span class="rx-str">one</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-int rx-ipart">1</span><span class="rx-spe">)</span></code>
+<code lineno="2"><span class="rx-ws">    </span><span class="rx-const rx-label">callee</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">item</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">index</span><span class="rx-ws"> </span><span class="rx-lncm">-- order is important</span>
+</code></pre>
+</div>
+<p>The position of each argument within the argument list identifies the
+corresponding parameter in the parameter list of the routine/method
+being invoked.</p>
+<p>This is in contrast to named argument lists, where the correspondence
+between argument and parameter is done using the parameter's name.</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-label">caller</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-const rx-ext-func">put</span><span class="rx-spe">(</span><span class="rx-const rx-argument-name">index</span><span class="rx-spe">:</span><span class="rx-int rx-ipart">1</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-const rx-argument-name">item</span><span class="rx-spe">:</span><span class="rx-str rx-oquo">"</span><span class="rx-str">one</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">)</span></code>
+<code lineno="2"><span class="rx-ws">    </span><span class="rx-const rx-label">callee</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">item</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">index</span><span class="rx-ws"> </span><span class="rx-lncm">-- order is not important</span>
+</code></pre>
+</div>
+<h2 id="caller-side">Caller side</h2>
+<p>Positional and named arguments can be used in the same call.<br />
+Named arguments are after the last positional argument.</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-label">caller</span><span class="rx-spe">:</span><span class="rx-ws"> </span><span class="rx-str rx-oquo">"</span><span class="rx-str">one two three one</span><span class="rx-str rx-cquo">"</span><span class="rx-op">~</span><span class="rx-const rx-method">reduce</span><span class="rx-spe">(</span><span class="rx-str rx-oquo">"</span><span class="rx-str">put</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-const rx-argument-name">by</span><span class="rx-spe">:</span><span class="rx-str rx-oquo">"</span><span class="rx-str">word</span><span class="rx-str rx-cquo">"</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-const rx-argument-name">initial</span><span class="rx-spe">:</span><span class="rx-env">.set</span><span class="rx-op">~</span><span class="rx-const rx-method">new</span><span class="rx-spe">)</span>
+</code></pre>
+</div>
+<p>The syntax for trailing block (when last positional argument) is
+still available:</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-ext-func">f</span><span class="rx-spe">(</span><span class="rx-var">a1</span><span class="rx-spe">,</span><span class="rx-var">a2</span><span class="rx-spe">,</span><span class="rx-const rx-argument-name">n1</span><span class="rx-spe">:</span><span class="rx-var">v1</span><span class="rx-spe">,</span><span class="rx-const rx-argument-name">n2</span><span class="rx-spe">:</span><span class="rx-var">v2</span><span class="rx-spe">)</span><span class="rx-spe">{</span><span class="rx-env">...</span><span class="rx-spe">}</span>
+</code></pre>
+</div>
+<p>is equivalent to</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-const rx-ext-func">f</span><span class="rx-spe">(</span><span class="rx-var">a1</span><span class="rx-spe">,</span><span class="rx-var">a2</span><span class="rx-spe">,</span><span class="rx-spe">{</span><span class="rx-env">...</span><span class="rx-spe">}</span><span class="rx-spe">,</span><span class="rx-const rx-argument-name">n1</span><span class="rx-spe">:</span><span class="rx-var">v1</span><span class="rx-spe">,</span><span class="rx-const rx-argument-name">n2</span><span class="rx-spe">:</span><span class="rx-var">v2</span><span class="rx-spe">)</span>
+</code></pre>
+</div>
+<h3 id="arguments">Arguments</h3>
+<pre><code>|----+----------------------------------------------------+----|
+     +--| Positional arguments |--------------------------+
+     +-------------------------------| Named arguments |--+
+     +--| Positional arguments |--,--| Named arguments |--+</code></pre>
+<p><img src="SyntaxDiagram/sd_Arguments.png" width="43.47%"></p>
+<h3 id="positional-arguments">Positional arguments</h3>
+<pre><code>    +-,--------------+
+    V                |
+|-----+------------+-+----|
+      |            |
+      +-expression-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Positional_arguments.png" width="22.97%"></p>
+<h3 id="named-arguments">Named arguments</h3>
+<pre><code>    +-,------------------+
+    V                    |
+|-----+-name-:-expr----+-+----|
+      |                |
+      +-name-:---------+
+      |                |
+      +------:-varname-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Named_arguments.png" width="28.47%"></p>
+<h3 id="shorthand-syntax">Shorthand syntax</h3>
+<pre><code>    name:           -- without expr, pass .true
+    :varname        -- without name, pass varname:varname</code></pre>
+<h2 id="called-side">Called side</h2>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">doer</span></code>
+<code lineno="2"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws"> </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span>
+</code></pre>
+</div>
+<h3 id="named-arguments-1">Named arguments</h3>
+<p>The named arguments are declared separately from the positional
+arguments.</p>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws">            </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">doer</span><span class="rx-ws">                      </span><span class="rx-lncm">-- Positional arguments (not impacted by the named arguments)</span></code>
+<code lineno="2"></code>
+<code lineno="3"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws">             </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span><span class="rx-op">=</span><span class="rx-env">.nil</span><span class="rx-ws">          </span><span class="rx-lncm">-- If 'by' is not passed by the caller then the variable 'by' is dropped.</span></code>
+<code lineno="4"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- If 'initial' is not passed by the caller then the variable 'initial' is set to .nil.</span></code>
+<code lineno="5"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- The named arguments passed by the caller and not explicitely declared by the callee are not available as variables.</span></code>
+<code lineno="6"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- They are available in .Context~namedArgs.</span></code>
+<code lineno="7"></code>
+<code lineno="8"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws">      </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span><span class="rx-op">=</span><span class="rx-env">.nil</span><span class="rx-ws">          </span><span class="rx-lncm">-- 'by' is mandatory.</span></code>
+<code lineno="9"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- 'initial' is optional, default value is .nil.</span></code>
+<code lineno="10"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- Only 'by' and 'initial' are accepted.</span></code>
+<code lineno="11"></code>
+<code lineno="12"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws">      </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span><span class="rx-op">=</span><span class="rx-env">.nil</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-spe">...</span><span class="rx-ws">     </span><span class="rx-lncm">-- 'by' is mandatory.</span></code>
+<code lineno="13"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- 'initial' is optional, default value is .nil.</span></code>
+<code lineno="14"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- Any named argument is accepted.</span></code>
+<code lineno="15"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- The named arguments passed by the caller and not explicitely declared by the callee are not available as variables.</span></code>
+<code lineno="16"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- They are available in .Context~namedArgs.</span></code>
+<code lineno="17"></code>
+<code lineno="18"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">auto</span><span class="rx-ws">        </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws">                           </span><span class="rx-lncm">-- Automatic retrieval or creation of variable for each named argument passed by the caller.</span></code>
+<code lineno="19"></code>
+<code lineno="20"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">auto</span><span class="rx-ws">        </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span><span class="rx-op">=</span><span class="rx-env">.nil</span><span class="rx-ws">          </span><span class="rx-lncm">-- If 'by' is not passed by the caller then the variable 'by' is dropped.</span></code>
+<code lineno="21"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- If 'initial' is not passed by the caller then the variable 'initial' is set to .nil.</span></code>
+<code lineno="22"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- The named arguments passed by the caller are available as variables.</span></code>
+<code lineno="23"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- They are also available in .Context~namedArgs.</span></code>
+<code lineno="24"></code>
+<code lineno="25"><span class="rx-ws">    </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">strict</span><span class="rx-ws"> </span><span class="rx-skw">auto</span><span class="rx-ws"> </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">by</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">initial</span><span class="rx-op">=</span><span class="rx-env">.nil</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-spe">...</span><span class="rx-ws">     </span><span class="rx-lncm">-- 'by' is mandatory.</span></code>
+<code lineno="26"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- 'initial' is optional, default value is .nil.</span></code>
+<code lineno="27"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- Any named argument is accepted.</span></code>
+<code lineno="28"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- The named arguments passed by the caller are available as variables.</span></code>
+<code lineno="29"><span class="rx-ws">                                                        </span><span class="rx-lncm">-- They are also available in .Context~namedArgs.</span>
+</code></pre>
+</div>
+<pre><code>    use strict auto named arg                           -- Error 99.900: STRICT AUTO requires the &quot;...&quot; argument marker at the end of the argument list
+                                                        -- This error is raised during the parsing of the Rexx program.
+                                                        -- Without an ellipsis, the keyword &#39;auto&#39; is useless in strict mode.</code></pre>
+<h3 id="message-term">Message term</h3>
+<pre><code>&gt;&gt;-receiver-+- ~ --+-messagename--+----------+--+---------------------+---&gt;&lt;
+            +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Message_term.png" width="75.06%"></p>
+<pre><code>&gt;&gt;-receiver[--| Arguments |--]----------------------------&gt;&lt;</code></pre>
+<p><img src="SyntaxDiagram/sd_Message_term_brackets.png" width="25.39%"></p>
+<h3 id="instruction-arg">Instruction ARG</h3>
+<pre><code>ARG template_list</code></pre>
+<p>Not impacted, no access to named arguments.</p>
+<h3 id="instruction-parse-arg">Instruction PARSE ARG</h3>
+<pre><code>PARSE ARG template_list</code></pre>
+<p>Not impacted, no access to named arguments.</p>
+<h3 id="instruction-call">Instruction CALL</h3>
+<pre><code>&gt;&gt;-CALL----+-name-----+----| Arguments |--------------------&gt;&lt;
+           +-(-expr-)-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Instruction_CALL.png" width="38.20%"></p>
+<h3 id="function">Function</h3>
+<pre><code>&gt;&gt;-function_name(----| Arguments |----)-------------------&gt;&lt;</code></pre>
+<p><img src="SyntaxDiagram/sd_Function.png" width="30.20%"></p>
+<h3 id="instruction-forward">Instruction FORWARD</h3>
+<p>Inconsistency with <code>Message~new</code> and
+<code>Object~run</code>.<br />
+Here, <code>ARRAY</code> is followed by a list of arguments.<br />
+There, <code>"Array"</code> is followed by a mandatory array.
+<code>"Individual"</code> is followed by a list of arguments.</p>
+<p><code>exprd</code> is a directory of named arguments.</p>
+<pre><code>&gt;&gt;-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----&gt;&lt;
+            +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
+                            +--------------ARRAY----(--| Arguments |--)---------------+</code></pre>
+<p><img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="152.24%"></p>
+<p>Possible combinations to override arguments:</p>
+<pre><code>                          positional arguments    named arguments
+ARGUMENTS:                     overriden             forwarded
+NAMEDARGUMENTS:                forwarded             overriden
+ARGUMENTS NAMEDARGUMENTS:      overriden             overriden
+ARRAY:                         overriden             overriden
+none:                          forwarded             forwarded</code></pre>
+<h3 id="instruction-use">Instruction USE</h3>
+<pre><code>                                                       +-,----------------------+
+                                                       V                        |
+&gt;&gt;-USE--+----------+--+--------+-----NAMED-----ARG--+------name-+----------+----+--+----------+----+--&gt;&lt;
+        +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+    |
+                                                    +--+-------+-----------------------------------+
+                                                       +--...--+</code></pre>
+<p><img src="SyntaxDiagram/sd_Instruction_USE.png" width="94.88%"></p>
+<p>When the option <code>NAMED</code> is specified:</p>
+<ul>
+<li>name is a simple symbol, a stem or a compound symbol.</li>
+<li>Message term are not supported.</li>
+<li>Omitted names are not allowed.</li>
+</ul>
+<p>When the option 'AUTO' is specified then a variable is retrieved or
+created for each named argument passed by the caller and not explicitely
+declared by the callee.<br />
+If this variable has already a value then it's not overriden.<br />
+Otherwise the value of the named argument is assigned to the
+variable.</p>
+<p>There is no evaluation of the default value 'expr' when a value has
+been provided by the caller.<br />
+The order of evaluation is the order of declaration in
+<code>USE NAMED ARG</code> (left-to-right).<br />
+The automatic variables are already created and can be used during the
+evaluation of the default value.</p>
+<h3 id="unknown-method">UNKNOWN method</h3>
+<div class="highlight-rexx-vim-light-zellner">
+<pre><code lineNo="1"><span class="rx-ws">    </span><span class="rx-dir">::</span><span class="rx-dkw">method</span><span class="rx-ws"> </span><span class="rx-const rx-method">unknown</span></code>
+<code lineno="2"><span class="rx-ws">        </span><span class="rx-kw">expose</span><span class="rx-ws"> </span><span class="rx-xvar">target</span><span class="rx-ws"> </span><span class="rx-lncm">-- assuming this target will receive all of the unknown messages</span></code>
+<code lineno="3"><span class="rx-ws">        </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">name</span><span class="rx-spe">,</span><span class="rx-ws"> </span><span class="rx-var">arguments</span></code>
+<code lineno="4"><span class="rx-ws">        </span><span class="rx-kw">use</span><span class="rx-ws"> </span><span class="rx-skw">named</span><span class="rx-ws"> </span><span class="rx-skw">arg</span><span class="rx-ws"> </span><span class="rx-var">namedArguments</span><span class="rx-ws"> </span><span class="rx-lncm">-- not passed as 3rd positional argument to avoid impacts</span></code>
+<code lineno="5"><span class="rx-ws">        </span><span class="rx-lncm">-- send along the message with the original args and named args</span></code>
+<code lineno="6"><span class="rx-ws">        </span><span class="rx-kw">forward</span><span class="rx-ws"> </span><span class="rx-skw">to</span><span class="rx-ws"> </span><span class="rx-spe">(</span><span class="rx-xvar">target</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-skw">message</span><span class="rx-ws"> </span><span class="rx-spe">(</span><span class="rx-var">name</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-skw">arguments</span><span class="rx-ws"> </span><span class="rx-spe">(</span><span class="rx-var">arguments</span><span class="rx-spe">)</span><span class="rx-ws"> </span><span class="rx-skw">namedArguments</span><span class="rx-ws"> </span><span class="rx-spe">(</span><span class="rx-var">namedArguments</span><span class="rx-spe">)</span>
+</code></pre>
+</div>
+<h3 id="messagenew">Message~new</h3>
+<p>Inconsistency with the instruction <code>FORWARD</code>.<br />
+Here, <code>"Array"</code> is followed by a mandatory array.<br />
+There, <code>ARRAY</code> is followed by a list of arguments.
+<code>ARGUMENTS</code> is followed by a mandatory array.</p>
+<pre><code>&gt;&gt;-new(-target-,-messagename-+-------------------------------------------------------+-)--&gt;&lt;
+                             +-,-&quot;Individual&quot;--| Arguments |-------------------------+
+                             +--+-------------------+--+--------------------------+--+
+                                +-,-&quot;Array&quot;-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Message_new.png" width="104.73%"></p>
+<h3 id="messagenamedarguments">Message~namedArguments</h3>
+<p>Returns a directory of named arguments used to invoke the
+message.</p>
+<h3 id="objectrun">Object~run</h3>
+<p>Inconsistency with the instruction <code>FORWARD</code>.<br />
+Here, <code>"Array"</code> is followed by a mandatory array.<br />
+There, <code>ARRAY</code> is followed by a list of arguments.
+<code>ARGUMENTS</code> is followed by a mandatory array.</p>
+<pre><code>&gt;&gt;-run(-method-+-------------------------------------------------------+-)--&gt;&lt;
+               +-,-&quot;Individual&quot;---| Arguments |------------------------+
+               +--+-------------------+--+--------------------------+--+
+                  +-,-&quot;Array&quot;-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Object_run.png" width="102.97%"></p>
+<h3 id="objectsendwith">Object~sendWith</h3>
+<pre><code>&gt;&gt;-sendWith(-messagename-,-arguments-+--------------------------+--)---&gt;&lt;
+                                     +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Object_sendWith.png" width="79.75%"></p>
+<h3 id="objectstartwith">Object~startWith</h3>
+<pre><code>&gt;&gt;-startWith(-messagename-,-arguments-+--------------------------+-)---&gt;&lt;
+                                      +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Object_startWith.png" width="79.55%"></p>
+<h3 id="routinecallwith">Routine~callWith</h3>
+<pre><code>&gt;&gt;-callWith(-array-+--------------------------+-)---&gt;&lt;
+                   +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Routine_callWith.png" width="60.16%"></p>
+<h3 id="contextnamedargs">Context~namedArgs</h3>
+<p>Why not <code>~namedArguments</code> ?<br />
+Because I follow the naming convention used for the method
+<code>Args</code>.</p>
+<p>Returns a directory of named arguments used to invoke the current
+context.<br />
+There is no equivalent as built-in function.<br />
+The <code>ARG</code> built-in function doesn't give access to the named
+arguments.</p>
+<h3 id="contextsetargs">Context~setArgs</h3>
+<pre><code>&gt;&gt;-setArgs(-array-+--------------------------+-)---&gt;&lt;
+                  +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
+<p><img src="SyntaxDiagram/sd_Context_setArgs.png" width="59.43%"></p>
+<p>Used to transfer to a coactivity the arguments passed with
+<code>resume</code>.<br />
+A coactivity can be suspended, and can receive a new set of arguments
+after each resume.</p>
+<pre><code>client (thread1)                            coactivity (thread2)
+================                            ====================
+                                            &lt;SUSPENDED&gt;
+Result = resume(&lt;Arguments&gt;) ------------&gt;  &lt;ACTIVE&gt;
+&lt;SUSPENDED&gt;                                 use arg ...; use named arg ...
+                                            ...
+                                            call yield value
+&lt;ACTIVE&gt;                     &lt;---result---  &lt;SUSPENDED&gt;
+...                                                     
+Result = resume(&lt;Arguments&gt;) ------------&gt;  &lt;ACTIVE&gt;
+                                            use arg ...; use named arg ...
+                                            ...
+                                            call yield value
+&lt;ACTIVE&gt;                     &lt;---result---  &lt;SUSPENDED&gt;
+etc...</code></pre>
+<h3 id="stackframenamedarguments">StackFrame~namedArguments</h3>
+<p>Returns a directory of named arguments used to invoke the execution
+frame represented by the StackFrame instance.</p>
+<h3 id="function-arg">Function ARG</h3>
+<p>Not impacted by named arguments.<br />
+Can't be used to retrieved named arguments.</p>
+<h3 id="security-manager-call">Security manager CALL</h3>
+<p>The information directory contains:<br />
+<code>NAMEDARGUMENTS</code>: a directory of the function's named
+arguments</p>
+<h3 id="security-manager-method">Security manager METHOD</h3>
+<p>The information directory contains:<br />
+<code>NAMEDARGUMENTS</code>: a directory of the method's named
+arguments</p>
+          </div>
+        </div>
+        <div class="resize-handle"></div>
+        <div class="col-md-3 toc-pane">
+
+    <aside class="outline">
+      <nav id="toc">
+        <strong>Outline</strong>
+        <ul></ul>
+      </nav>
+    </aside>
+
+    <script>
+        /* Auto-Generate the Outline from Headings */
+        const content = document.getElementById("content");
+        const tocList = document.querySelector("#toc ul");
+        const headings = content.querySelectorAll("h2, h3, h4");
+
+        headings.forEach((heading, index) => {
+          if (!heading.id) {
+            heading.id = `section-${index}`;
+          }
+
+          const li = document.createElement("li");
+          li.classList.add(`level-${heading.tagName.toLowerCase()}`);
+
+          const a = document.createElement("a");
+          a.href = `#${heading.id}`;
+          a.textContent = heading.textContent;
+
+          li.appendChild(a);
+          tocList.appendChild(li);
+        });
+    </script>
+
+    <script>
+        /* Highlight Active Section While Scrolling */
+        const tocLinks = document.querySelectorAll("#toc a");
+
+        const observer = new IntersectionObserver(
+          entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                tocLinks.forEach(link =>
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === `#${entry.target.id}`
+                  )
+                );
+              }
+            });
+          },
+          {
+            rootMargin: "-80px 0px -70% 0px"
+          }
+        );
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+
+    <script>
+        /* Drag-to-Resize */
+        (function () {
+          const handle = document.querySelector(".resize-handle");
+          const toc = document.querySelector(".toc-pane");
+
+          let startX, startWidth;
+
+          handle.addEventListener("mousedown", function (e) {
+            startX = e.clientX;
+            startWidth = toc.offsetWidth;
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+            e.preventDefault();
+          });
+
+          function onMouseMove(e) {
+            const delta = startX - e.clientX;
+            const newWidth = Math.min(
+              420,
+              Math.max(180, startWidth + delta)
+            );
+
+            toc.style.flexBasis = newWidth + "px";
+          }
+
+          function onMouseUp() {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          }
+        })();
+    </script>
+
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+</html>
