@@ -102,8 +102,6 @@ pkgLocal~Extension = "html"
 
 ::Routine md2html.SideBar Public
 
-  return -- jlf
-
   Use Arg array
 
   Loop line Over .resources~SideBar
@@ -111,24 +109,96 @@ pkgLocal~Extension = "html"
   End
 
 ::Resource SideBar
-          <div class='panel panel-default sidebar'>
-            <div class='panel-heading'>
-               <b>The Rexx Parser</b>
-            </div>
-            <div class='panel-body text-left'>
-                  <a href="https://rexx.epbcn.com/rexx-parser/#download">Download</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/">Documentation</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/glossary/">Glossary</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/highlighter/">Highlighter</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/history/">History</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/tests/">Tests</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/todo/">To-do</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/utilities/">Utilities</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/samples/">Samples</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/executor/">Executor support</a>
-              <br><a href="https://rexx.epbcn.com/rexx-parser/doc/experimental/">Experimental</a>
-            </div>
-          </div>
+
+    <aside class="outline">
+      <nav id="toc">
+        <strong>Outline</strong>
+        <ul></ul>
+      </nav>
+    </aside>
+
+    <script>
+        /* Auto-Generate the Outline from Headings */
+        const content = document.getElementById("content");
+        const tocList = document.querySelector("#toc ul");
+        const headings = content.querySelectorAll("h2, h3, h4");
+
+        headings.forEach((heading, index) => {
+          if (!heading.id) {
+            heading.id = `section-${index}`;
+          }
+
+          const li = document.createElement("li");
+          li.classList.add(`level-${heading.tagName.toLowerCase()}`);
+
+          const a = document.createElement("a");
+          a.href = `#${heading.id}`;
+          a.textContent = heading.textContent;
+
+          li.appendChild(a);
+          tocList.appendChild(li);
+        });
+    </script>
+
+    <script>
+        /* Highlight Active Section While Scrolling */
+        const tocLinks = document.querySelectorAll("#toc a");
+
+        const observer = new IntersectionObserver(
+          entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                tocLinks.forEach(link =>
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === `#${entry.target.id}`
+                  )
+                );
+              }
+            });
+          },
+          {
+            rootMargin: "-80px 0px -70% 0px"
+          }
+        );
+
+        headings.forEach(h => observer.observe(h));
+    </script>
+
+    <script>
+        /* Drag-to-Resize */
+        (function () {
+          const handle = document.querySelector(".resize-handle");
+          const toc = document.querySelector(".toc-pane");
+
+          let startX, startWidth;
+
+          handle.addEventListener("mousedown", function (e) {
+            startX = e.clientX;
+            startWidth = toc.offsetWidth;
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+            e.preventDefault();
+          });
+
+          function onMouseMove(e) {
+            const delta = startX - e.clientX;
+            const newWidth = Math.min(
+              420,
+              Math.max(180, startWidth + delta)
+            );
+
+            toc.style.flexBasis = newWidth + "px";
+          }
+
+          function onMouseUp() {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          }
+        })();
+    </script>
+
 ::END
 
 --------------------------------------------------------------------------------
