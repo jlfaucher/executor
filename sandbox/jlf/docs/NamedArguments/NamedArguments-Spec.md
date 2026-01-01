@@ -12,7 +12,7 @@ Named arguments - Specification
 
 A positional argument list is a serie of optional expressions, separated by commas.
 
-```rexx {executor}
+```rexx
     caller: put("one", 1)
     callee: use arg item, index -- order is important
 ```
@@ -23,7 +23,7 @@ parameter in the parameter list of the routine/method being invoked.
 This is in contrast to named argument lists, where the correspondence between
 argument and parameter is done using the parameter's name.
 
-```rexx {executor}
+```rexx
     caller: put(index:1, item:"one")
     callee: use named arg item, index -- order is not important
 ```
@@ -34,23 +34,23 @@ Caller side
 Positional and named arguments can be used in the same call.  
 Named arguments are after the last positional argument.
 
-```rexx {executor}
+```rexx
     caller: "one two three one"~reduce("put", by:"word", initial:.set~new)
 ```
 
 The syntax for trailing block (when last positional argument) is still available:
 
-```rexx {executor}
+```rexx
     f(a1,a2,n1:v1,n2:v2){...}
 ``` 
 
 is equivalent to
 
-```rexx {executor}
+```rexx
     f(a1,a2,{...},n1:v1,n2:v2)
 ```
 
-Arguments:
+### Arguments
 
     |----+----------------------------------------------------+----|
          +--| Positional arguments |--------------------------+
@@ -60,7 +60,7 @@ Arguments:
 <img src="SyntaxDiagram/sd_Arguments.png" width="43.47%">
 
 
-Positional arguments:
+### Positional arguments
 
         +-,--------------+
         V                |
@@ -71,7 +71,7 @@ Positional arguments:
 <img src="SyntaxDiagram/sd_Positional_arguments.png" width="22.97%">
 
 
-Named arguments:
+### Named arguments
 
         +-,------------------+
         V                    |
@@ -85,9 +85,9 @@ Named arguments:
 
 
 
-Shorthand syntax
+### Shorthand syntax
 
-```rexx {executor}
+```
     name:           -- without expr, pass .true
     :varname        -- without name, pass varname:varname
 ```
@@ -96,15 +96,17 @@ Shorthand syntax
 Called side
 -----------
 
-```rexx {executor}
+```rexx
     use strict arg doer
     use strict named arg by, initial
 ```
+
+### Named arguments
     
 The named arguments are declared separately from the positional arguments.
 
 
-```rexx {executor}
+```rexx
     use strict            arg doer                      -- Positional arguments (not impacted by the named arguments)
 
     use             named arg by, initial=.nil          -- If 'by' is not passed by the caller then the variable 'by' is dropped.
@@ -129,10 +131,6 @@ The named arguments are declared separately from the positional arguments.
                                                         -- The named arguments passed by the caller are available as variables.
                                                         -- They are also available in .Context~namedArgs.
 
-    use strict auto named arg                           -- Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
-                                                        -- This error is raised during the parsing of the Rexx program.
-                                                        -- Without an ellipsis, the keyword 'auto' is useless in strict mode.
-
     use strict auto named arg by, initial=.nil, ...     -- 'by' is mandatory.
                                                         -- 'initial' is optional, default value is .nil.
                                                         -- Any named argument is accepted.
@@ -140,10 +138,13 @@ The named arguments are declared separately from the positional arguments.
                                                         -- They are also available in .Context~namedArgs.
 ```
 
+```
+    use strict auto named arg                           -- Error 99.900: STRICT AUTO requires the "..." argument marker at the end of the argument list
+                                                        -- This error is raised during the parsing of the Rexx program.
+                                                        -- Without an ellipsis, the keyword 'auto' is useless in strict mode.
+```
 
-------------
-Message term
-------------
+### Message term
 
     >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
                 +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
@@ -155,27 +156,21 @@ Message term
 <img src="SyntaxDiagram/sd_Message_term_brackets.png" width="25.39%">
 
 
----------------
-Instruction ARG
----------------
+### Instruction ARG
 
     ARG template_list
 
 Not impacted, no access to named arguments.
 
 
----------------------
-Instruction PARSE ARG
----------------------
+### Instruction PARSE ARG
 
     PARSE ARG template_list
 
 Not impacted, no access to named arguments.
 
 
-----------------
-Instruction CALL
-----------------
+### Instruction CALL
 
     >>-CALL----+-name-----+----| Arguments |--------------------><
                +-(-expr-)-+
@@ -183,18 +178,14 @@ Instruction CALL
 <img src="SyntaxDiagram/sd_Instruction_CALL.png" width="38.20%">
 
 
---------
-Function
---------
+### Function
 
     >>-function_name(----| Arguments |----)-------------------><
 
 <img src="SyntaxDiagram/sd_Function.png" width="30.20%">
 
 
--------------------
-Instruction FORWARD
--------------------
+### Instruction FORWARD
 
 Inconsistency with `Message~new` and `Object~run`.  
 Here, `ARRAY` is followed by a list of arguments.  
@@ -217,9 +208,7 @@ Possible combinations to override arguments:
     ARRAY:                         overriden             overriden
     none:                          forwarded             forwarded
 
----------------
-Instruction USE
----------------
+### Instruction USE
 
                                                            +-,----------------------+
                                                            V                        |
@@ -244,11 +233,9 @@ There is no evaluation of the default value 'expr' when a value has been provide
 The order of evaluation is the order of declaration in `USE NAMED ARG` (left-to-right).  
 The automatic variables are already created and can be used during the evaluation of the default value.
 
---------------
-UNKNOWN method
---------------
+### UNKNOWN method
 
-```rexx {executor}
+```rexx
     ::method unknown
         expose target -- assuming this target will receive all of the unknown messages
         use arg name, arguments
@@ -257,9 +244,7 @@ UNKNOWN method
         forward to (target) message (name) arguments (arguments) namedArguments (namedArguments)
 ```
 
--------------
-Message~new
--------------
+### Message~new
 
 Inconsistency with the instruction `FORWARD`.  
 Here, `"Array"` is followed by a mandatory array.  
@@ -273,16 +258,12 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
 <img src="SyntaxDiagram/sd_Message_new.png" width="104.73%">
 
 
--------------
-Message~namedArguments
--------------
+### Message~namedArguments
 
 Returns a directory of named arguments used to invoke the message.
 
 
-----------
-Object~run
-----------
+### Object~run
 
 Inconsistency with the instruction `FORWARD`.  
 Here, `"Array"` is followed by a mandatory array.  
@@ -296,9 +277,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
 <img src="SyntaxDiagram/sd_Object_run.png" width="102.97%">
 
 
----------------
-Object~sendWith
----------------
+### Object~sendWith
 
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
                                          +-,-NAMEDARGUMENTS-:-exprd-+
@@ -306,9 +285,7 @@ Object~sendWith
 <img src="SyntaxDiagram/sd_Object_sendWith.png" width="79.75%">
 
 
-----------------
-Object~startWith
-----------------
+### Object~startWith
 
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
                                           +-,-NAMEDARGUMENTS-:-exprd-+
@@ -316,9 +293,7 @@ Object~startWith
 <img src="SyntaxDiagram/sd_Object_startWith.png" width="79.55%">
 
 
-----------------
-Routine~callWith
-----------------
+### Routine~callWith
 
     >>-callWith(-array-+--------------------------+-)---><
                        +-,-NAMEDARGUMENTS-:-exprd-+
@@ -326,9 +301,7 @@ Routine~callWith
 <img src="SyntaxDiagram/sd_Routine_callWith.png" width="60.16%">
 
 
------------------
-Context~namedArgs
------------------
+### Context~namedArgs
 
 Why not `~namedArguments` ?  
 Because I follow the naming convention used for the method `Args`.
@@ -338,9 +311,7 @@ There is no equivalent as built-in function.
 The `ARG` built-in function doesn't give access to the named arguments.
 
 
-------------------
-Context~setArgs
------------------
+### Context~setArgs
 
     >>-setArgs(-array-+--------------------------+-)---><
                       +-,-NAMEDARGUMENTS-:-exprd-+
@@ -367,32 +338,24 @@ A coactivity can be suspended, and can receive a new set of arguments after each
     etc...
     
 
-------------------------
-StackFrame~namedArguments
-------------------------
+### StackFrame~namedArguments
 
 Returns a directory of named arguments used to invoke the execution frame represented by the StackFrame instance.
 
 
-------------
-Function ARG
-------------
+### Function ARG
 
 Not impacted by named arguments.  
 Can't be used to retrieved named arguments.
 
 
----------------------
-Security manager CALL
----------------------
+### Security manager CALL
 
 The information directory contains:  
 `NAMEDARGUMENTS`: a directory of the function's named arguments
 
 
------------------------
-Security manager METHOD
------------------------
+### Security manager METHOD
 
 The information directory contains:  
 `NAMEDARGUMENTS`: a directory of the method's named arguments

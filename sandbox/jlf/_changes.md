@@ -1,4 +1,4 @@
-# Changes applied to ooRexx 4.2
+#    Changes applied to ooRexx 4.2
 
 
 <!-- ======================================================================= -->
@@ -8,17 +8,17 @@
 Exported classes
 
 ```C++
-    RexxBlock
-    RexxText
-    Unicode
+RexxBlock
+RexxText
+Unicode
 ```
 
 Internal classes
 
 ```C++
-    ExtensionDirective
-    SourceLiteral
-    UpperInstruction
+ExtensionDirective
+SourceLiteral
+UpperInstruction
 ```
 
 
@@ -30,14 +30,16 @@ See [Extension - Expression problem.txt](https://github.com/jlfaucher/executor/b
 for the critics of Rick regarding these extensions (2011).
 
 Two types of extensions are possible:
+
 - Standard extensions, usable in production (not implemented in Executor).
 - Unlocked extensions, that should not be used in production.
 
 Two forms of extensions are possible:
+
 - Direct extensions (using `.class~define`)
 - Inherited extensions (using `.class~inherit`)
 
-Overview:
+__Overview:__
 
 ```
                        +-------------------------------------------------------------------------------------+
@@ -81,17 +83,21 @@ __First need expressed by Josep Maria (JMB)__
 *This can currently be done in several ways, using pure ooRexx primitives.*  
 *It would be nice if the language offered some syntax sugar to add methods to existing (non-predefined) classes.*  
 *A syntax which could be acceptable and doesn't break anything could be:*
-```rexx {executor}
-    ::Method Class:Method
+
+```rexx
+::Method "Class:Method"
 ```
+
 *This would add the method "Method" to class "Class".*
 
 __[Alternative syntax proposed by Gil:](https://groups.io/g/rexxla-arb/message/1156)__  
 *As an alternative syntax, I'd suggest adding a new sub-keyword to the ::Method directive.*  
 *Perhaps Extends <classname> ?*   
-```rexx {executor}
-    ::Method Foo <other sub-keywords> Extends MyArray
+
 ```
+::Method Foo <other sub-keywords> Extends MyArray
+```
+
 *where MyArray is a class defined in another package.*
 
 __Another alternative syntax__  
@@ -118,35 +124,36 @@ This may involve some changes to the interpreter, either natively or in rexx.img
 ooRexx supports natively the extension of predefined classes during the image building.  
   
 Executor does not limit such extensions to the image building:
+
 - Unlock the `define` method.  
 - Unlock the `inherit` method.
   
 Modifications are allowed on predefined classes and are propagated to existing instances.
 
-```rexx {executor}
-    s = '"he said ""hello"" "'
-    say s                           -- "he said ""hello"" "
-    
-    -- Direct extension
-    say s~hasMethod("quoted")       -- 0
-    .string~define("quoted", "use strict arg quote='""'; return quote || self~changeStr(quote, quote||quote) || quote")
-    say s~hasMethod("quoted")       -- 1 (the new method has been propagated to the old instances)
-    say s~quoted                    -- """he said """"hello"""" """
+```rexx
+s = '"he said ""hello"" "'
+say s                           -- "he said ""hello"" "
 
-    -- Inherited extension
-    say s~hasMethod("unquoted")     -- 0
-    .string~inherit(.StringHelpers)
-    say s~hasMethod("unquoted")     -- 1 (the new inherited methods have been propagated to the old instances)
-    say s~unquoted                  -- he said "hello"
+-- Direct extension
+say s~hasMethod("quoted")       -- 0
+.string~define("quoted", "use strict arg quote='""'; return quote || self~changeStr(quote, quote||quote) || quote")
+say s~hasMethod("quoted")       -- 1 (the new method has been propagated to the old instances)
+say s~quoted                    -- """he said """"hello"""" """
 
-    ::class "StringHelpers" mixinclass Object public
+-- Inherited extension
+say s~hasMethod("unquoted")     -- 0
+.string~inherit(.StringHelpers)
+say s~hasMethod("unquoted")     -- 1 (the new inherited methods have been propagated to the old instances)
+say s~unquoted                  -- he said "hello"
 
-    ::method unquoted
-        use strict arg quote='"'
-        if self~left(1) == quote & self~right(1) == quote then
-            return self~substr(2, self~length - 2)~changeStr(quote||quote, quote)
-        else
-            return self
+::class "StringHelpers" mixinclass Object public
+
+::method unquoted
+    use strict arg quote='"'
+    if self~left(1) == quote & self~right(1) == quote then
+        return self~substr(2, self~length - 2)~changeStr(quote||quote, quote)
+    else
+        return self
 ```
 
 <!-- ------------------------------- -->
@@ -161,6 +168,7 @@ Modifications are allowed on predefined classes and are propagated to existing i
 This directive delegates to the `.class~define` and `.class~inherit` methods.  
   
 Two forms of extension are possible:
+
 - Direct extension (using `.class~define`)
 - Inherited extension (using `.class~inherit`)
 
@@ -185,9 +193,9 @@ is
 #### 2.3.1.   Direct extension
 <!-- ------------------------------- -->
 
-```rexx {executor}
-    ::extension myClass
-    ::method myMethod
+```rexx
+::extension myClass
+::method myMethod
 ```
 
 The following rules describe the current implementation in Executor (no collision detection).  
@@ -201,23 +209,23 @@ __Executor rules__
 
 If the same method appears multiple times in a given ::extension directive, it's an error (because that's how it is with ::class).
 
-```rexx {executor}
-    ::class myClass
-    ::extension myClass
-    ::method myMethod
-    ::method myMethod   -- Error 99.902:  Duplicate ::METHOD directive instruction.
+```
+::class myClass
+::extension myClass
+::method myMethod
+::method myMethod   -- Error 99.902:  Duplicate ::METHOD directive instruction.
 ```
 
 If the same method appears in multiple `::extension` directives in the same package, there is no error.  
 The newer one replaces the older one (because `define` works like that).
 
-```rexx {executor}
-    .myclass~new~myMethod   -- 2
-    ::class myClass
-    ::extension myClass
-    ::method myMethod; say 1
-    ::extension myClass
-    ::method myMethod; say 2
+```rexx
+.myclass~new~myMethod   -- 2
+::class myClass
+::extension myClass
+::method myMethod; say 1
+::extension myClass
+::method myMethod; say 2
 ```
 
 If the same method appears in multiple `::extension` directives in different packages, there is no error.  
@@ -231,62 +239,73 @@ See [test_extension_order.output.reference.txt](https://github.com/jlfaucher/exe
 #### 2.3.2.   Inherited extension
 <!-- ------------------------------- -->
 
-```rexx {executor}
-    ::extension myClass inherit myExtension
+```rexx
+::extension myClass inherit myExtension
 ```
 
 It's possible to extend a class multiple times in the same package.  
 
-```rexx {executor}
-SourceFile.cls
-    ::class myExtension1 mixinclass Object
-    ::extension myClass inherit myExtension1
+__SourceFile.cls__
 
-    ::class myExtension2 mixinclass Object
-    ::extension myClass inherit myExtension2
+```rexx
+::class myExtension1 mixinclass Object
+::extension myClass inherit myExtension1
+
+::class myExtension2 mixinclass Object
+::extension myClass inherit myExtension2
 ```
 
 It's possible to extend a class in different packages.  
 
-```rexx {executor}
-    main.rex
-        .myClass~new
+__main.rexx__
 
-        ::requires "SourceFile1.cls"
-        ::requires "SourceFile2.cls"
+```rexx
+.myClass~new
 
-    SourceFile1.cls
-        ::class myExtension mixinclass Object
-        ::method init
-            say "init myExtension from SourceFile1"
-            forward class (super)
-    
-        ::requires "myClass.cls"
-        ::extension myClass inherit myExtension
+::requires "SourceFile1.cls"
+::requires "SourceFile2.cls"
+```
 
-    SourceFile2.cls
-        ::class myExtension mixinclass Object
-        ::method init
-            say "init myExtension from SourceFile2"
-            forward class (super)
+__SourceFile1.cls__
 
-        ::requires "myClass.cls"
-        ::extension myClass inherit myExtension
+```rexx
+::class myExtension mixinclass Object
+::method init
+    say "init myExtension from SourceFile1"
+    forward class (super)
 
-    myClass.cls
-        ::class myClass public
+::requires "myClass.cls"
+::extension myClass inherit myExtension
+```
 
-        ::method init
-            say "init myClass"
-            forward class (super)
+__SourceFile2.cls__
+
+```rexx
+::class myExtension mixinclass Object
+::method init
+    say "init myExtension from SourceFile2"
+    forward class (super)
+
+::requires "myClass.cls"
+::extension myClass inherit myExtension
+```
+
+__myClass.cls__
+
+```rexx
+::class myClass public
+
+::method init
+    say "init myClass"
+    forward class (super)
 ```
 
 display  
 
 ```
-    init myClass
-    init myExtension from SourceFile1
-    init myExtension from SourceFile2
+init myClass
+init myExtension from SourceFile1
+init myExtension from SourceFile2
 ```
 
 
@@ -295,9 +314,11 @@ display
 <!-- ------------------------------- -->
 
 I would like to write
-```rexx {executor}
-    ::extension Object inherit ObjectUserData ObjectPrettyPrinter
+
+```rexx
+::extension Object inherit ObjectUserData ObjectPrettyPrinter
 ```
+
 instead of 
 [that](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/object.cls#L2),
 but the `Object` class cannot inherit from a mixin class.  
@@ -325,105 +346,113 @@ The main variables pool is accessible from a direct extension method.
 The inherited extension methods have their own variables pool.  
 This is a standard feature.
 
-```rexx {executor}
-    o = .myClass~new
-    say o~myVar                         -- 0
-    o~update                            -- direct extension
-    say o~myVar                         -- 1 (main pool updated)
-    o~update:.myExtension               -- inherited extension
-    say o~myVar                         -- 1 (main pool unchanged)
-    say o~myVar:.myExtension            -- 2
+```rexx
+o = .myClass~new
+say o~myVar                         -- 0
+o~update                            -- direct extension
+say o~myVar                         -- 1 (main pool updated)
+o~update:.myExtension               -- inherited extension
+say o~myVar                         -- 1 (main pool unchanged)
+say o~myVar:.myExtension            -- 2
 
-    ::class myClass
-    ::method init
-        expose myVar
-        myVar = 0
-    ::attribute myVar get
+::class myClass
+::method init
+    expose myVar
+    myVar = 0
+::attribute myVar get
 
-    -- Direct extension
-    ::extension myClass
-    ::method update
-        -- direct access to the main pool
-        expose myVar
-        myVar = 1
+-- Direct extension
+::extension myClass
+::method update
+    -- direct access to the main pool
+    expose myVar
+    myVar = 1
 
-    -- Inherited extension
-    ::class myExtension mixinclass Object
-    ::method update
-        -- the variable pool is specific to this mixin class
-        expose myVar
-        myVar = 2
-    ::attribute myVar get
+-- Inherited extension
+::class myExtension mixinclass Object
+::method update
+    -- the variable pool is specific to this mixin class
+    expose myVar
+    myVar = 2
+::attribute myVar get
 
-    ::extension myClass inherit myExtension
+::extension myClass inherit myExtension
 ```
 
 <!-- ------------------------------- -->
 #### 2.4.2.   Access to private methods
 <!-- ------------------------------- -->
 
-Private methods are accessible from a method added by extension.  
+##### 2.4.2.1.   Private methods are accessible from a method added by extension
+
 This is a standard feature.
 
-```rexx {executor}
-    main.rex
-        o = .myClass~new
-        o~publicMethod
-        -- o~packageMethod                  -- not accessible
-        -- o~privateMethod                  -- not accessible
-        o~extendedMethod
+__main.rex__
 
-        ::extension myClass
-        ::method extendedMethod
-            say "execute extendedMethod"
-            -- self~packageMethod           -- not accessible
-            self~privateMethod
+```rexx
+o = .myClass~new
+o~publicMethod
+-- o~packageMethod                  -- not accessible
+-- o~privateMethod                  -- not accessible
+o~extendedMethod
 
-        ::requires "SourceFile.cls"
+::extension myClass
+::method extendedMethod
+    say "execute extendedMethod"
+    -- self~packageMethod           -- not accessible
+    self~privateMethod
 
-    SourceFile.cls
-        ::class myClass public
+::requires "SourceFile.cls"
+```
 
-        ::method publicMethod public
-            say "execute publicMethod"
+__SourceFile.cls__
 
-        ::method packageMethod package
-            say "execute packageMethod"
+```rexx
+::class myClass public
 
-        ::method privateMethod private
-            say "execute privateMethod"
+::method publicMethod public
+    say "execute publicMethod"
+
+::method packageMethod package
+    say "execute packageMethod"
+
+::method privateMethod private
+    say "execute privateMethod"
 ```
 
 display
 
 ```
-    execute publicMethod
-    execute extendedMethod
-    execute privateMethod
+execute publicMethod
+execute extendedMethod
+execute privateMethod
 ```
 
-__Private methods of predefined classes__
+##### 2.4.2.2.   Private methods of predefined classes
 
 When using an unlocked extension method, the private methods of a predefined class are
 [accessible](https://github.com/jlfaucher/executor/blob/b6c255eabab3f75068c5956f7803ec6aeda66ce0/sandbox/jlf/packages/extension/doers.cls#L421-L424).
 
-__Package-scope methods__
+##### 2.4.2.3.   Package-scope methods
 
 Package-scope methods are not accessible when the extension is made from a different package.  
 This is a standard feature but surprising when the extension method and the package-scope method are in the same class...  
 A method defined in a C class should have access to all methods in the C class.  
 Reproductible without extensions:
 
-```rexx {executor}
-    main.rex
-        .myClass~define("extendedMethod", .methods["EXTENDEDMETHOD"])
-        o = .myClass~new
-        o~extendedMethod
+__main.rex__
 
-        ::method extendedMethod
-            say "execute extendedMethod"
-            -- self~packageMethod           -- not accessible
-            self~privateMethod
+```rexx
+.myClass~define("extendedMethod", .methods["EXTENDEDMETHOD"])
+o = .myClass~new
+o~extendedMethod
+
+::method extendedMethod
+    say "execute extendedMethod"
+    -- self~packageMethod           -- not accessible
+    self~privateMethod
+
+::requires "SourceFile.cls"
 ```
 
 
@@ -433,25 +462,42 @@ Reproductible without extensions:
 
 Support this notation:
 
-```rexx {executor}
+```rexx
 1+2i
 ```
+
 where `i` is an instance of `the Complex class`.
 
 
-The tokenizer has been modified to split a symbol of the form `<number><after number>` in two distinct tokens.  
-Ex: `2a` is the number 2 followed by the symbol `a`.  
-Ex: `2a2b` is the number 2 followed by the symbol `a2b`.  
-Ex: `2e1a2b` is the number 2e1 followed by the symbol `a2b`.
+The tokenizer has been modified to split a symbol of the form `<number><after number>` in two distinct tokens.
+
+```rexx  
+2a      -- is the number 2 followed by the symbol `a`.  
+2a2b    -- is the number 2 followed by the symbol `a2b`.  
+2e1a2b  -- is the number 2e1 followed by the symbol `a2b`.
+```
 
 The rule is to stop immediatly after a VALID number, where a VALID number is such as `datatype(number) = "NUM"`.
 
-1.  `2e` is scanned as number `2` followed by symbol `E` because `datatype(2e)` is `CHAR`, not `NUM`. So only `2` is a VALID number.  
-    In official ooRexx, this is scanned as symbol `2E`.
-2.  `2e+` is scanned as number `2` followed by symbol `E` followed by operator `+`.  
-    In official ooRexx, this is scanned as symbol `2E` followed by operator `+`.
-3.  `2e1` is scanned as number `2E1`, same as official ooRexx.
-4.  `2e+1` is scanned as number `2E+1`, same as official ooRexx
+```rexx
+2e      -- is scanned as number `2` followed by symbol `E` because `datatype(2e)` is `CHAR`, not `NUM`.
+        -- So only `2` is a VALID number.  
+        -- In official ooRexx, this is scanned as symbol `2E`.
+```
+
+```
+2e+     -- is scanned as number `2` followed by symbol `E` followed by operator `+`.  
+        -- In official ooRexx, this is scanned as symbol `2E` followed by operator `+`.
+        -- In both cases, this expression is invalid.
+```
+
+```rexx
+2e1     -- is scanned as number `2E1`, same as official ooRexx.
+```
+
+```rexx
+2e+1    -- is scanned as number `2E+1`, same as official ooRexx
+```
 
 An abuttal operator is inserted to re-concatenate `<number>` with `<after number>`.  
 In this context, the precedence of this abuttal operator is very high, to ensure both tokens are always linked together.
@@ -461,10 +507,11 @@ This is how `2i` can become `2 * .Complex~i` when `complex.cls` is loaded.
 Thanks to the high precedence in this context, `1+2i` is parsed as `1+(2i)` instead of `(1+2)i`.
 
 Legacy programs are impacted when
-1.  `<after number>` is a valid variable symbol and the `NOVALUE` condition is enabled.
+
+1.  `<after number>` is a valid variable symbol and the `NOVALUE` condition is enabled.  
 2.  A label starts with a number:
 
-```rexx {executor}
+```
     signal 2a                   -- Data must not follow the SIGNAL label name; found ""
     2a:                         -- Incorrect expression detected at ":"
     do i=1 to 5; say i; end 2a  -- Data must not follow the END control variable name; found ""
@@ -508,22 +555,22 @@ For good or bad reason, `arg(1)` at the begining of a clause is recognized as an
 I often use source literals like `{arg(1)...}` where I want `arg(1)` to be interpreted as a function call.  
 So I decided to change the behavior of the parser to interpret as a function call any symbol followed immediatly by a left paren, even if the symbol is a keyword instruction.
 
-```
-    Illustration from ooRexxShell:
+```rexx
+-- Illustration from ooRexxShell:
 
-        executor:
-        arg()       -- bash: 0: command not found
+    executor:
+    arg()       -- bash: 0: command not found
 
-        oorexx:
-        arg()       -- Missing expression following "(" of parse template.
+    oorexx:
+    arg()       -- Missing expression following "(" of parse template.
 
-    Not just arg! ALL the keywords are impacted.
+-- Not just arg! ALL the keywords are impacted.
 
-        executor:
-        drop()      -- Could not find routine "DROP"
+    executor:
+    drop()      -- Could not find routine "DROP"
 
-        oorexx:
-        drop()      -- Symbol expected after "(" of a variable reference.
+    oorexx:
+    drop()      -- Symbol expected after "(" of a variable reference.
 ```
 
 <!-- ------------------------------- -->
@@ -532,8 +579,8 @@ So I decided to change the behavior of the parser to interpret as a function cal
 
 With implicit return, such an expression is quite common when filtering: `item==1`
 
-```rexx {executor}
-    .array~of(1,2,1)~pipe(.select {item==1} | .console)
+```rexx
+.array~of(1,2,1)~pipe(.select {item==1} | .console)
 ```
 
 but the parser raises an error to protect the user against a potential typo error, assuming the user wanted to enter `item=1`.
@@ -544,16 +591,19 @@ Modified [SourceFile.cpp](https://github.com/jlfaucher/executor/blob/master/sand
 
 Yes, it remains a problem (no syntax error, but it's an assignment, not a test):
 
-```rexx {executor}
-    .array~of(1,2,1)~pipe(.select {item=1} | .console)
+```rexx
+.array~of(1,2,1)~pipe(.select {item=1} | .console)
 ```
 
 good point, the lack of returned value is detected, must surround by parentheses to make it a real expression.
 
-```rexx {executor}
-    .array~of(1,2,1)~pipe(.select {(item=1)} | .console)
-(an Array),1 : 1
-(an Array),3 : 1
+```rexx
+.array~of(1,2,1)~pipe(.select {(item=1)} | .console)
+```
+
+```
+    (an Array),1 : 1
+    (an Array),3 : 1
 ```
 
 
@@ -564,11 +614,11 @@ good point, the lack of returned value is detected, must surround by parentheses
 Tilde-call message `"~()"`.
 The message name can be omitted, but the list of parameters is mandatory (can be empty).
 
-```rexx {executor}
-    target~()
-    target~(arg1, arg2, ...)
-    target~~()
-    target~~(arg1, arg2, ...)
+```rexx
+target~()
+target~(arg1, arg2, ...)
+target~~()
+target~~(arg1, arg2, ...)
 ```
 
 When the expression is evaluated, the target receives the message `"~()"`.
@@ -598,107 +648,108 @@ The Clauser works directly on the source array passed at creation.
 It returns only non-empty clauses (unless you modify a clause, see below).  
 You can modify the source array by replacing the current clause by a new one:
 
-```rexx {executor}
-    myClauser~clause = mySourceFragment
+```rexx
+myClauser~clause = mySourceFragment
 ```
+
 The new clause is inserted as-is and not iterated over by the clauser.  
 Of course, you can create a new clauser using the modified source, and then you will iterate over your modified clauses.  
 While you don't call `~nextClause`, `~clause` will return the last assigned value, which can be anything, like an empty string or a string containing several clauses.
 
 Exemple:
 
-```rexx {executor}
-    csource = {
-        clause1
+```rexx
+csource = {
+    clause1
 
-        clause2 ; clause3
-        clause4 ; ;
-        clause5a, -- comment
-        clause5b /* multiline
-        comment */ clause5c ; clause6
-    }
-    sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
+    clause2 ; clause3
+    clause4 ; ;
+    clause5a, -- comment
+    clause5b /* multiline
+    comment */ clause5c ; clause6
+}
+sourceArray = csource~source -- Each time you call this method, you get a copy of the original source literal
 
-    say "Iterate over the original source:"
-    i = 1
-    do sourceLine over sourceArray
-        say i '"'sourceLine'"'
-        i +=1
-    end
+say "Iterate over the original source:"
+i = 1
+do sourceLine over sourceArray
+    say i '"'sourceLine'"'
+    i +=1
+end
 
-    say
-    say "Iterate over the clauses, surround clause2, remove clause3, shrink clause5:"
-    clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
-    i = 1
-    do while clauser~clauseAvailable
-        clause = clauser~clause
-        if clause~match(1, "clause2") then clauser~clause = "clause2 before ; "clause" ; clause2 after"
-        if clause~match(1, "clause3") then clauser~clause = ""
-        if clause~match(1, "clause5") then clauser~clause = "clause5"
-        say i '"'clause'" --> "'clauser~clause'"'
-        clauser~nextClause
-        i += 1
-    end
+say
+say "Iterate over the clauses, surround clause2, remove clause3, shrink clause5:"
+clauser = .Clauser~new(sourceArray) -- The clauser works directly on this source array, no copy
+i = 1
+do while clauser~clauseAvailable
+    clause = clauser~clause
+    if clause~match(1, "clause2") then clauser~clause = "clause2 before ; "clause" ; clause2 after"
+    if clause~match(1, "clause3") then clauser~clause = ""
+    if clause~match(1, "clause5") then clauser~clause = "clause5"
+    say i '"'clause'" --> "'clauser~clause'"'
+    clauser~nextClause
+    i += 1
+end
 
-    say
-    say "Iterate over the modified source:"
-    i = 1
-    do sourceLine over sourceArray
-        say i '"'sourceLine'"'
-        i += 1
-    end
+say
+say "Iterate over the modified source:"
+i = 1
+do sourceLine over sourceArray
+    say i '"'sourceLine'"'
+    i += 1
+end
 
-    say
-    say "Iterate over the clauses of the modified source:"
-    clauser = .Clauser~new(sourceArray)
-    i = 1
-    do while clauser~clauseAvailable
-        clause = clauser~clause
-        say i '"'clause'"'
-        clauser~nextClause
-        i += 1
-    end
+say
+say "Iterate over the clauses of the modified source:"
+clauser = .Clauser~new(sourceArray)
+i = 1
+do while clauser~clauseAvailable
+    clause = clauser~clause
+    say i '"'clause'"'
+    clauser~nextClause
+    i += 1
+end
 ```
 
 Output:
 
-```rexx {executor}
-    Iterate over the original source:
-    1 ""
-    2 "    clause1"
-    3 ""
-    4 "    clause2 ; clause3"
-    5 "    clause4 ; ;"
-    6 "    clause5a, -- comment"
-    7 "    clause5b /* multiline"
-    8 "    comment */ clause5c ; clause6"
+```
+Iterate over the original source:
+1 ""
+2 "    clause1"
+3 ""
+4 "    clause2 ; clause3"
+5 "    clause4 ; ;"
+6 "    clause5a, -- comment"
+7 "    clause5b /* multiline"
+8 "    comment */ clause5c ; clause6"
 
-    Iterate over the clauses, surround clause2, remove clause3, shrink clause5:
-    1 "clause1" --> "clause1"
-    2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
-    3 "clause3" --> ""
-    4 "clause4" --> "clause4"
-    5 "clause5a     clause5b  clause5c" --> "clause5"
-    6 "clause6" --> "clause6"
+Iterate over the clauses, surround clause2, remove clause3, shrink clause5:
+1 "clause1" --> "clause1"
+2 "clause2" --> "clause2 before ; clause2 ; clause2 after"
+3 "clause3" --> ""
+4 "clause4" --> "clause4"
+5 "clause5a     clause5b  clause5c" --> "clause5"
+6 "clause6" --> "clause6"
 
-    Iterate over the modified source:
-    1 ""
-    2 "    clause1"
-    3 ""
-    4 "clause2 before ; clause2 ; clause2 after;"
-    5 "    clause4 ; ;"
-    6 "clause5"
-    7 ""
-    8 "; clause6"
+Iterate over the modified source:
+1 ""
+2 "    clause1"
+3 ""
+4 "clause2 before ; clause2 ; clause2 after;"
+5 "    clause4 ; ;"
+6 "clause5"
+7 ""
+8 "; clause6"
 
-    Iterate over the clauses of the modified source:
-    1 "clause1"
-    2 "clause2 before"
-    3 "clause2"
-    4 "clause2 after"
-    5 "clause4"
-    6 "clause5"
-    7 "clause6"
+Iterate over the clauses of the modified source:
+1 "clause1"
+2 "clause2 before"
+3 "clause2"
+4 "clause2 after"
+5 "clause4"
+6 "clause5"
+7 "clause6"
 ```
 
 
@@ -706,9 +757,11 @@ Output:
 ### 5.2.   Helper for immediate parsing
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
+::class "Clauser" public
 ::method rawExecutable class unguarded
 ```
+
 For each RexxSourceLiteral created during the parsing, the interpreter will call this method to get the executable to store on the RexxSourceLiteral.
 
 
@@ -716,7 +769,7 @@ For each RexxSourceLiteral created during the parsing, the interpreter will call
 ### 5.3.   Replace the current clause
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method "clause="
 ```
 
@@ -730,7 +783,7 @@ If the current clause is multiline, then the remaining lines are made empty.
 ### 5.4.   Re-implementation in ooRexx of `RexxSource::comment` 
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method skipComment private
 ```
 
@@ -741,7 +794,7 @@ Re-implementation in ooRexx of the native method `RexxSource::comment` which is 
 ### 5.5.   Re-implementation in ooRexx of `RexxSource::locateToken`
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method locateToken private
 ```
 
@@ -752,7 +805,7 @@ Re-implementation in ooRexx of the native method `RexxSource::locateToken` which
 ### 5.6.   Re-implementation in ooRexx of `RexxSource::nextSpecial`
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method nextSpecial private
 ```
 
@@ -763,7 +816,7 @@ Re-implementation in ooRexx of the native method `RexxSource::nextSpecial` which
 ### 5.7.   Re-implementation in ooRexx of a subset of `RexxSource::sourceNextToken`
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method sourceNextToken
 ```
 
@@ -780,7 +833,7 @@ So a clause is always monoline, even if it's distributed on several lines in the
 ### 5.8.   Helper for immediate parsing.  
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method kind
 ```
 
@@ -799,12 +852,13 @@ If the first word is `::[xxx]` then raise an error (unknown tag)
 ### 5.9.   Helper to transform a source.  
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method transformSource
     use strict arg clauseBefore="", clauseAfter=""
 ```
 
 Possible transformations:  
+
 - Insert a clause at the begining (takes care of the expose instruction, keep it always as first instruction).
 - Insert a clause at the end.
 
@@ -819,10 +873,10 @@ Setting the precision at package level with `::option digits` is not helping whe
 With one-liners, you can hardcode the precision where you do a calculation, but the code becomes polluted by these declarations.  
 If you don't want to hardcode the precision, the code is still more polluted with the use of arguments. See [Sandbox diary](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_diary.txt) 2020 nov 16.
 
-```rexx {executor}
-    numeric digits 30
-    1~10000~reduce("*")=                               -- 2.84625960E+35659, the precision is the default one
-    1~10000~reduce{numeric digits 30; accu * item}=    -- 2.84625968091705451890641321250E+35659
+```rexx
+numeric digits 30
+1~10000~reduce("*")=                               -- 2.84625960E+35659, the precision is the default one
+1~10000~reduce{numeric digits 30; accu * item}=    -- 2.84625968091705451890641321250E+35659
 ```
 
 How to fix:  
@@ -837,13 +891,13 @@ Implemented solution:
 
 The option is available only with `NUMERIC DIGITS` but it controls the propagation of all the numeric settings.
 
-```rexx {executor}
-    numeric digits              -- default precision, local
-    numeric digits propagate    -- default precision, digits form and fuzz are propagated
-    numeric digits 30           -- precision is 30, local
-    1~10000~reduce("*")=        -- 2.84625960E+35659, the precision for this calculation is 9, it has not been propagated
-    numeric digits propagate 30 -- precision is 30, digits form and fuzz are propagated
-    1~10000~reduce("*")=        -- 2.84625968091705451890641321250E+35659, the precision has been propagated
+```rexx
+numeric digits              -- default precision, local
+numeric digits propagate    -- default precision, digits form and fuzz are propagated
+numeric digits 30           -- precision is 30, local
+1~10000~reduce("*")=        -- 2.84625960E+35659, the precision for this calculation is 9, it has not been propagated
+numeric digits propagate 30 -- precision is 30, digits form and fuzz are propagated
+1~10000~reduce("*")=        -- 2.84625968091705451890641321250E+35659, the precision has been propagated
 ```
 
 
@@ -861,6 +915,7 @@ A RexxBlock is a piece of source code surrounded by curly brackets.
 a RexxSourceLiteral is an internal rexx object, created by the parser, not accessible from ooRexx scripts.
 
 a RexxSourceLiteral holds the following properties, shared among all the RexxBlock instances created from it:
+
 - source: the text between the curly brackets `{...}` as an array of lines, including the tag `::xxx` if any.
 - package: the package which contain the source literal.
 - kind: kind of source, derived from the source's tag.
@@ -870,6 +925,7 @@ a RexxBlock is created each time the RexxSourceLiteral is evaluated, and is acce
 
 a RexxBlock contains informations that depends on the evaluation context.  
 In particular, when a RexxBlock is a closure's source, it will hold a snapshot of the context's variables:
+
 - `~source`: source of the `RexxSourceLiteral`.
 - `~variables`: snapshot of the context's variables (a directory), created only if the source starts with `expose`.
 - `~rawExecutable`: the raw executable of the `RexxSourceLiteral`, created at load-time (routine or method).
@@ -882,9 +938,11 @@ In particular, when a RexxBlock is a closure's source, it will hold a snapshot o
 
 By default (no tag) the executable is a routine.  
 Ex:
-```rexx {executor}
-    {use strict arg name, greetings; say "hello" name || greetings}~("John", ", how are you ?") -- hello John, how are you ?
+
+```rexx
+{use strict arg name, greetings; say "hello" name || greetings}~("John", ", how are you ?") -- hello John, how are you ?
 ```
+
 If the source starts with "expose" then the doer is a closure.
 
 
@@ -911,13 +969,22 @@ Maybe should be done, but I find that the search made by `RexxDotVariable` is al
 
 Note 2:  
 Seems faster to do that:  
-```rexx {executor}
-    do i=1 to 100000; v=.threadlocal["MY.VAR"] ; end
-        5 runs: 0.078 0.109 0.109 0.046 0.046
+
+```rexx
+do i=1 to 100000; v=.threadlocal["MY.VAR"] ; end
 ```
+
+```
+    5 runs: 0.078 0.109 0.109 0.046 0.046
+```
+
 rather than that:
-```rexx {executor}
-    do i=1 to 100000; v=.threadlocal~my.var ; end
+
+```rexx
+do i=1 to 100000; v=.threadlocal~my.var ; end
+```
+
+```
         5 runs: 0.140 0.141 0.156 0.140 0.141
 ```
 
@@ -931,6 +998,7 @@ rather than that:
 
 Implemented by [concurrency/coactivity.cls](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/concurrency/coactivity.cls)  
 with a dependency on these native extensions:
+
 - `.context~parentContext`: let retrieve the context of the yield's caller.
 - `.context~setargs(<array>, <directory>)`: let store the arguments passed to resume
 - `.threadLocal`
@@ -947,22 +1015,24 @@ A coactivity remembers its internal state.
 It can be called several times, the execution is resumed after the last executed `.yield[]`.  
 
 Example:
-```rexx {executor}
-    block = {::coactivity
-             say "hello" arg(1) || arg(2)
-             .yield[]
-             say "good bye" arg(1) || arg(2)
-            }
-    block~("John", ", how are you ?") -- hello John, how are you ?
-    block~("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
-    block~("Keith", ", bye") -- <nothing done, the coactivity is ended>
+
+```rexx
+block = {::coactivity
+         say "hello" arg(1) || arg(2)
+         .yield[]
+         say "good bye" arg(1) || arg(2)
+        }
+block~("John", ", how are you ?") -- hello John, how are you ?
+block~("Kathie", ", see you soon.") -- good bye Kathie, see you soon.
+block~("Keith", ", bye") -- <nothing done, the coactivity is ended>
 ```
 
 <!-- ------------------------------- -->
-### Producer / consumer
+### 9.3.   Producer / consumer
 <!-- ------------------------------- -->
 
 Producer/consumer problems can often be implemented elegantly with coactivities:
+
 - The consumer can pass arguments: `producerResult = aCoactivity~resume(args...)`.  
 - The producer (aCoactivity) returns a result to the consumer: `.yield[result]`.
 
@@ -970,25 +1040,25 @@ Producer/consumer problems can often be implemented elegantly with coactivities:
 A coactivity can be suspended, and can receive a new set of arguments after each resume.
 
 ```
-    client (thread1)                            coactivity (thread2)
-    ================                            ====================
-                                                <SUSPENDED>
-    Result = resume(<Arguments>) ------------>  <ACTIVE>
-    <SUSPENDED>                                 use arg ...; use named arg ...
-                                                ...
-                                                call yield value
-    <ACTIVE>                     <---result---  <SUSPENDED>
-    ...                                                     
-    Result = resume(<Arguments>) ------------>  <ACTIVE>
-                                                use arg ...; use named arg ...
-                                                ...
-                                                call yield value
-    <ACTIVE>                     <---result---  <SUSPENDED>
-    etc...
+client (thread1)                            coactivity (thread2)
+================                            ====================
+                                            <SUSPENDED>
+Result = resume(<Arguments>) ------------>  <ACTIVE>
+<SUSPENDED>                                 use arg ...; use named arg ...
+                                            ...
+                                            call yield value
+<ACTIVE>                     <---result---  <SUSPENDED>
+...                                                     
+Result = resume(<Arguments>) ------------>  <ACTIVE>
+                                            use arg ...; use named arg ...
+                                            ...
+                                            call yield value
+<ACTIVE>                     <---result---  <SUSPENDED>
+etc...
 ``` 
 
 <!-- ------------------------------- -->
-### 9.3.   Stackful coroutine
+### 9.4.   Stackful coroutine
 <!-- ------------------------------- -->
 
 A stackful coroutine is a coroutine able to suspend its execution from within nested calls.  
@@ -1005,10 +1075,10 @@ myCoactivity~start  <--------------+
 
 
 <!-- ------------------------------- -->
-### 9.4.   yield implementation
+### 9.5.   yield implementation
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```rexx
 ::method yield
     ...
     -- yieldItem will be returned to the Coactivity's client by 'resume'
@@ -1051,36 +1121,39 @@ A closure can be passed as argument, or returned as result.
 
 Examples:
 
-```rexx {executor}
-    v = 1
-    closure = {expose v; say v; v += 10}    -- capture the value of v: 1
-    v = 2
-    closure~()                              -- display 1
-    closure~()                              -- display 11
-    closure~()                              -- display 21
-    say v                                   -- v not impacted by the closure: 2
+```rexx
+v = 1
+closure = {expose v; say v; v += 10}    -- capture the value of v: 1
+v = 2
+closure~()                              -- display 1
+closure~()                              -- display 11
+closure~()                              -- display 21
+say v                                   -- v not impacted by the closure: 2
 
-    range = { use arg min, max ; return { expose min max ; use arg num ; return min <= num & num <= max }}
-    from5to8 = range~(5, 8)
-    from20to30 = range~(20, 30)
-    say from5to8~(6) -- 1
-    say from5to8~(9) -- 0
-    say from20to30~(6) -- 0
-    say from20to30~(25) -- 1
+range = { use arg min, max ; return { expose min max ; use arg num ; return min <= num & num <= max }}
+from5to8 = range~(5, 8)
+from20to30 = range~(20, 30)
+say from5to8~(6) -- 1
+say from5to8~(9) -- 0
+say from20to30~(6) -- 0
+say from20to30~(25) -- 1
 ```
 
 A coactive closure is both a closure and a coactivity:
+
 - as a closure, it remembers its outer environment.
 - as a coactivity, it remembers its internal state.
+
 It can be called several times, the execution is resumed after the last `.yield[]`.
 
 Examples:
-```rexx {executor}
-    v = 1
-    w = 2
-    closure = {::coactivity expose v w ; .yield[v] ; .yield[w]}
-    say closure~() -- 1
-    say closure~() -- 2
+
+```rexx
+v = 1
+w = 2
+closure = {::coactivity expose v w ; .yield[v] ; .yield[w]}
+say closure~() -- 1
+say closure~() -- 2
 ```
 
 Implementation note:  
@@ -1104,21 +1177,24 @@ It's possible to pass a context from which a `RexxSource` is taken (called `pare
 Nothing else is inherited.
 
 [inherited from context]
+
 ```
-    routines
-    merged_public_routines
-    installed_classes
-    merged_public_classes
+routines
+merged_public_routines
+installed_classes
+merged_public_classes
 ```
+
 [not inherited from context]
+
 ```
-    digits
-    fuzz
-    form
-    trace
-    enableCommands (sandbox only)
-    enableMacrospace (sandbox only)
-    the security manager
+digits
+fuzz
+form
+trace
+enableCommands (sandbox only)
+enableMacrospace (sandbox only)
+the security manager
 ```
 
 <!-- ------------------------- -->
@@ -1128,38 +1204,38 @@ Nothing else is inherited.
 The raw executable created from a `RexxBlock` is a routine or a method.  
 Given the rule explained above, this raw executable has its own `RexxSource` (i.e. package):
 
-```rexx {executor}
-    say .context~package~identityHash ; {say .context~package~identityHash}~() -- the hashes are different
+```rexx
+say .context~package~identityHash ; {say .context~package~identityHash}~() -- the hashes are different
 ```
 
 Should a `RexxBlock` inherit the settings of the package in which it's defined ? answer: yes.  
 If yes, all kinds of `RexxBlock` or just a closure ? answer: all kinds of `RexxBlock`.  
 Currently, the visibility on routines/classes is inherited, but none of the following options are inherited:
 
-```rexx {executor}
-    ::options digits
-    ::options form
-    ::options fuzz
-    ::options trace
-    ::options commands (sandbox only)
-    ::options nocommands (sandbox only)
-    ::options macrospace (sandbox only)
-    ::options nomacrospace (sandbox only)
-    the security manager
+```
+::options digits
+::options form
+::options fuzz
+::options trace
+::options commands (sandbox only)
+::options nocommands (sandbox only)
+::options macrospace (sandbox only)
+::options nomacrospace (sandbox only)
+the security manager
 ```
 
 Illustration:
 
-```rexx {executor}
-    say 1/3
-    {say 1/3}~()
-    ::options trace i
-    ::options digits 20
+```rexx
+say 1/3
+{say 1/3}~()
+::options trace i
+::options digits 20
 ```
 
 Output:
 
-```rexx {executor}
+```
      1 *-* say 1/3
        >L>   "1"
        >L>   "3"
@@ -1175,9 +1251,9 @@ Output:
 Inherit the toplevel source options settings, when creating a method or routine for a block.  
 A new optional parameter `isBlock` can be passed when creating a method or routine:
 
-```rexx {executor}
-    .Method~new("do", sourceArray, context, isBlock)
-    .Routine~new("", sourceArray, context, isBlock)
+```rexx
+.Method~new("do", sourceArray, context, isBlock)
+.Routine~new("", sourceArray, context, isBlock)
 ```
 
 This indicator is used to activate specific behaviour, like inheritance of toplevel source options.
@@ -1193,28 +1269,29 @@ Should a closure remember the following settings of its defining `RexxActivation
 The goal being to reuse automatically these settings at each execution (so from a different `RexxActivation`).  
 Currently, none of the following settings are captured:
 
-```rexx {executor}
-    numeric digits
-    numeric form
-    numeric fuzz
-    trace
-    options "commands" (sandbox only)
-    options "nocommands" (sandbox only)
-    options "macrospace" (sandbox only)
-    options "nomacrospace" (sandbox only)
+```rexx
+numeric digits
+numeric form
+numeric fuzz
+trace
+options "commands" (sandbox only)
+options "nocommands" (sandbox only)
+options "macrospace" (sandbox only)
+options "nomacrospace" (sandbox only)
 ```
 
 Illustration:
-```rexx {executor}
-    trace i
-    numeric digits 20
-    say 1/3
-    {expose something; say 1/3}~()
+
+```rexx
+trace i
+numeric digits 20
+say 1/3
+{expose something; say 1/3}~()
 ```
 
 Output:
 
-```rexx {executor}
+```
      2 *-* numeric digits 20
        >L>   "20"
        >>>   "20"
@@ -1236,11 +1313,11 @@ Output:
 
 Added an option to control execution of commands:
 
-```rexx {executor}
-    ::options COMMANDS
-    ::options NOCOMMANDS
-    options "COMMANDS"
-    options "NOCOMMANDS"
+```rexx
+options "COMMANDS"
+options "NOCOMMANDS"
+::options COMMANDS
+::options NOCOMMANDS
 ```
 
 By default, a clause consisting of an expression only is interpreted as a command string.  
@@ -1255,56 +1332,59 @@ This is not an extension, it's a standard functionality, but undocumented:
 When a variable has no value, the interpreter sends the message `"NOVALUE"` to the object `.local["NOVALUE"]`.
 
 I use this functionality to manage special variable like `i`, `infinity`, `indeterminate`.
-```rexx {executor}
-    i=              -- (0+1i)
-    infinity=       -- (The positive infinity)
-    indeterminate=  -- (The indeterminate value)
+
+```rexx
+i=              -- (0+1i)
+infinity=       -- (The positive infinity)
+indeterminate=  -- (The indeterminate value)
 ```
 
 Example:
-```rexx {executor}
-    signal on novalue name novalue_continue
-    say foo
 
-    continue:
-    signal on novalue name novalue_exit
+```rexx
+signal on novalue name novalue_continue
+say foo
 
-    .local["NOVALUE"] = .novalue
+continue:
+signal on novalue name novalue_exit
 
-    say infinity
-    say indeterminate
-    say foo
+.local["NOVALUE"] = .novalue
 
-    return
+say infinity
+say indeterminate
+say foo
 
-    novalue_continue:
-    say "novalue condition!" condition("description")
-    signal continue
+return
 
-    novalue_exit:
-    say "novalue condition!"
+novalue_continue:
+say "novalue condition!" condition("description")
+signal continue
 
-    ::class novalue
+novalue_exit:
+say "novalue condition!"
 
-    ::method novalue class
-        use strict arg name
-        call charout , "Intercepting no value for" name": "
-        forward message (name)
+::class novalue
 
-    ::method infinity class
-        return "default value for infinity"
+::method novalue class
+    use strict arg name
+    call charout , "Intercepting no value for" name": "
+    forward message (name)
 
-    ::method unknown class
-        use strict arg msg, args
-        if msg~caselessEquals("indeterminate") then return "default value for indeterminate"
+::method infinity class
+    return "default value for infinity"
+
+::method unknown class
+    use strict arg msg, args
+    if msg~caselessEquals("indeterminate") then return "default value for indeterminate"
 ```
 
 Output:
+
 ```
-    novalue condition! FOO
-    Intercepting no value for INFINITY: default value for infinity
-    Intercepting no value for INDETERMINATE: default value for indeterminate
-    Intercepting no value for FOO: novalue condition!
+novalue condition! FOO
+Intercepting no value for INFINITY: default value for infinity
+Intercepting no value for INDETERMINATE: default value for indeterminate
+Intercepting no value for FOO: novalue condition!
 ```
 
 <!-- ======================================================================= -->
@@ -1317,13 +1397,15 @@ In case of wrong value on both sides, the error about the right side was raised 
 It's more clear to report an error about the left side when both sides are wrong, otherwise you have the wrong impression that only the right side is wrong (the evaluation is from left to right).
 
 Before:
-```rexx {executor}
-    "not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "The console class"
+
+```rexx
+"not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "The console class"
 ```
 
 Now:
-```rexx {executor}
-    "not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "not a boolean value"
+
+```rexx
+"not a boolean value" | .console    -- Logical value must be exactly "0" or "1"; found "not a boolean value"
 ```
 
 <!-- ======================================================================= -->
@@ -1352,34 +1434,34 @@ Behave as if the alternate implementation did not exist, and raise the exception
 
 Example of symmetric operator:
 
-```rexx {executor}
-    ::extension Array inherit ArrayOperators
-    ::class "ArrayOperators" mixinclass Object public
+```rexx
+::extension Array inherit ArrayOperators
+::class "ArrayOperators" mixinclass Object public
 
-    ::method "+"
-        if arg() == 0 then return self~map("+")
-        use strict arg right
-        if right~isA(.array) then do
-            if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
-            return self~map{expose right ; item + right[index]}
-        end
-        return self~map{expose right ; item + right}
+::method "+"
+    if arg() == 0 then return self~map("+")
+    use strict arg right
+    if right~isA(.array) then do
+        if \SameDimensions(self, right) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{expose right ; item + right[index]}
+    end
+    return self~map{expose right ; item + right}
 
-    ::method "+op:right"
-        use strict arg left
-        if left~isA(.array) then do
-            if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
-            return self~map{expose left ; left[index] + item}
-        end
-        return self~map{expose left ; left + item}
+::method "+op:right"
+    use strict arg left
+    if left~isA(.array) then do
+        if \SameDimensions(self, left) then raise syntax 93.900 array("Dimensions are not equal")
+        return self~map{expose left ; left[index] + item}
+    end
+    return self~map{expose left ; left + item}
 ```
 
 Now you can write:
 
-```rexx {executor}
-    .array~of(1,2) + 10=                -- [11,12]
-    10 + .array~of(1,2)=                -- [11,12]
-    .array~of(1,2) + .array~of(3,4)=    -- [4,6]
+```rexx
+.array~of(1,2) + 10=                -- [11,12]
+10 + .array~of(1,2)=                -- [11,12]
+.array~of(1,2) + .array~of(3,4)=    -- [4,6]
 ```
 
 
@@ -1390,40 +1472,40 @@ Now you can write:
 Modification of the following methods to give a chance for an alternative operator before forcing the second argument to a string:
 
 ```C++
-    RexxInteger::concatBlank
-    RexxInteger::concat
-    RexxNumberString::concatBlank
-    RexxNumberString::concat
-    RexxString::concatRexx
-    RexxString::concatBlank
+RexxInteger::concatBlank
+RexxInteger::concat
+RexxNumberString::concatBlank
+RexxNumberString::concat
+RexxString::concatRexx
+RexxString::concatBlank
 ```
 
 If the second argument is not a string, then try the alternative operator before `REQUEST_STRING`.
 
-```rexx {executor}
-    a = .array~of(10,20,30)
-    100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
-    a 100=                  -- ['10 100','20 100','30 100']
-    100 || a =              -- [10010,10020,10030]          instead of '100an Array'
-    a || 100 =              -- [10100,20100,30100]
+```rexx
+a = .array~of(10,20,30)
+100 a=                  -- ['100 10','100 20','100 30'] instead of '100 an Array'
+a 100=                  -- ['10 100','20 100','30 100']
+100 || a =              -- [10010,10020,10030]          instead of '100an Array'
+a || 100 =              -- [10100,20100,30100]
 ```
 
 Modification of the following methods in [CoreClasses.orx](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/RexxClasses/CoreClasses.orx) to give a chance for an alternative operator:
 
-```rexx {executor}
-    .DateTime~"-"
-    .DateTime~"+"
-    .TimeSpan~"-"
-    .TimeSpan~"+"
+```rexx
+.DateTime~"-"
+.DateTime~"+"
+.TimeSpan~"-"
+.TimeSpan~"+"
 ```
 
 Illustration:
 
-```rexx {executor}
-    ts1day = .TimeSpan~fromDays(1)                  -- (1.00:00:00.000000)
-    ts1hour = .TimeSpan~fromHours(1)                -- (01:00:00.000000)
-    date = .datetime~new(2013,1,10, 12, 30, 10)     -- (2013-01-10T12:30:10.000000)
-    date + .array~of(ts1hour, ts1day)=              -- [(2013-01-10T13:30:10.000000),(2013-01-11T12:30:10.000000)]
+```rexx
+ts1day = .TimeSpan~fromDays(1)                  -- (1.00:00:00.000000)
+ts1hour = .TimeSpan~fromHours(1)                -- (01:00:00.000000)
+date = .datetime~new(2013,1,10, 12, 30, 10)     -- (2013-01-10T12:30:10.000000)
+date + .array~of(ts1hour, ts1day)=              -- [(2013-01-10T13:30:10.000000),(2013-01-11T12:30:10.000000)]
 ```
 
 Got a crash because I don't always return a value from an operator.  
@@ -1432,28 +1514,28 @@ The lack of result is managed in the new implementation of the operators, but is
 The crash was here:
 
 ```C++
-    bool RexxObject::isEqual(RexxObject *other)
+bool RexxObject::isEqual(RexxObject *other)
+{
+    ...
+    else
     {
-        ...
-        else
-        {
-            ProtectedObject result;
-            this->sendMessage(OREF_STRICT_EQUAL, other, result);
-            return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
-        }
+        ProtectedObject result;
+        this->sendMessage(OREF_STRICT_EQUAL, other, result);
+        return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
     }
+}
 ```
 
 result is `NULL` when the user code doesn't return a result, must be tested.  
 Review of all the `sendMessage` used internally by the interpreter, which need a test:
 
 ```C++
-    RexxClass::isEqual
-    RexxInteger::isEqual
-    RexxNumberString::isEqual
-    RexxObject::isEqual
-    RexxString::hash
-    RexxString::isEqual
+RexxClass::isEqual
+RexxInteger::isEqual
+RexxNumberString::isEqual
+RexxObject::isEqual
+RexxString::hash
+RexxString::isEqual
 ```
 
 Made a review of all my ooRexx scripts to swap the position of `.nil` in the tests, to make it the first argument.  
@@ -1463,32 +1545,38 @@ Had to swap `.nil` in [StreamClasses.orx](https://github.com/jlfaucher/executor/
 This technique of putting `.nil` as first argument is already used in several places of the interpreter.  
 The reason is explained in rexxref (section Required string values):  
 When comparing a string object with `the Nil object`, if the `NOSTRING` condition is being trapped, then
-```rexx {executor}
-    if string = .nil
+
 ```
+if string = .nil
+```
+
 will raise the `NOSTRING` condition, whereas
-```rexx {executor}
-    if .nil = string
+
 ```
+if .nil = string
+```
+
 will not as `the Nil object`’s "=" method does not expect a string as an argument.
 
 Previous work about swaping the position of .nil is not enough to avoid errors.  
 I have this case in [pipe_extension_test.rex](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/samples/pipeline/pipe_extension_test.rex):
 
-```rexx {executor}
-    datas = .directory~new
-    datas["key1"] = .array~of("header", 1, 2, "footer")
-    datas["key2"] = .array~of("header", 5, 3, -9, 12, "footer")
-    datas["key3"] = .array~of("header", 4, 6, 5, "footer")
-    -- The datas without the headers and footers
-    datas~pipe(.inject {item} iterateBefore memorize | .drop first {dataflow["source"]~item } | .drop last {dataflow["source"]~item } | .console)
+```rexx
+datas = .directory~new
+datas["key1"] = .array~of("header", 1, 2, "footer")
+datas["key2"] = .array~of("header", 5, 3, -9, 12, "footer")
+datas["key3"] = .array~of("header", 4, 6, 5, "footer")
+-- The datas without the headers and footers
+datas~pipe(.inject {item} iterateBefore memorize | .drop first {dataflow["source"]~item } | .drop last {dataflow["source"]~item } | .console)
 ```
 
 where the source of the pipe is a directory of arrays.  
 The code in charge of the partitioning do this test:
-```rexx {executor}
-    if previousPartitionItem <> partitionItem then do
+
 ```
+if previousPartitionItem <> partitionItem then do
+```
+
 and an error is raised because the two arguments are arrays, and the result is an array.  
 Here, the goal is to test if the two arguments are the same object.
 
@@ -1505,11 +1593,11 @@ I provide the methods ~mapEqual, ~mapNotEqual, ~mapStrictEqual, ~mapStrictNotEqu
 Remember:  
 When operators for array programming are activated, the only way to use the scalar semantic is to refer explicitly to the `.Object`'s operators.
 
-```rexx {executor}
-    a = .array~of(1,2,3)
-    a == a=              -- [1,1,1]
-    a~"=="(a)=           -- [1,1,1]
-    a~"==":.object(a)=   -- 1
+```rexx
+a = .array~of(1,2,3)
+a == a=              -- [1,1,1]
+a~"=="(a)=           -- [1,1,1]
+a~"==":.object(a)=   -- 1
 ```
 
 I have no problem with `.array~ppRepresentation`, whereas there is a test of equality to detect if a recursive array is printed.  
@@ -1518,27 +1606,27 @@ But it seems that `level = stack~index(val)` is not impacted by the array operat
 Verification in the implementation:
 
 ```C++
-    RexxObject *RexxQueue::index(RexxObject *target)
-        uses: if (target->equalValue(element->value))
+RexxObject *RexxQueue::index(RexxObject *target)
+    uses: if (target->equalValue(element->value))
 
-    class RexxObject : public RexxInternalObject {
-         bool inline equalValue(RexxObject *other)
-         {
-             // test first for direct equality, followed by value equality.
-             return (this == other) || this->isEqual(other);
-         }
+class RexxObject : public RexxInternalObject {
+     bool inline equalValue(RexxObject *other)
+     {
+         // test first for direct equality, followed by value equality.
+         return (this == other) || this->isEqual(other);
+     }
 
-    bool RexxObject::isEqual( RexxObject *other )
+bool RexxObject::isEqual( RexxObject *other )
+{
+    if (this->isBaseClass()) return ((RexxObject *)this) == other;
+    else  /* return truth value of a compare   */
     {
-        if (this->isBaseClass()) return ((RexxObject *)this) == other;
-        else  /* return truth value of a compare   */
-        {
-            ProtectedObject result;
-            this->sendMessage(OREF_STRICT_EQUAL, other, result);
-            if ((RexxObject *)result == OREF_NULL) reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
-            return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
-        }
+        ProtectedObject result;
+        this->sendMessage(OREF_STRICT_EQUAL, other, result);
+        if ((RexxObject *)result == OREF_NULL) reportException(Error_No_result_object_message, OREF_STRICT_EQUAL);
+        return ((RexxObject *)result)->truthValue(Error_Logical_value_method);
     }
+}
 ```
 
 So we have three cases for this test of equality:
@@ -1609,14 +1697,14 @@ The correspondence between a caller's argument and a callee's argument is done u
 
 Keep the trailing omitted arguments.
 
-```rexx {executor}
-    .array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
+```rexx
+.array~of(10,20,30,,)~dimensions= -- [5] instead of [3]
 ```
 
 This is consistent with the array literals:
 
-```rexx {executor}
-    v(1,2,) is the same as 1,2,
+```rexx
+v(1,2,) is the same as 1,2,
 ```
 
 
@@ -1630,14 +1718,14 @@ So for official ooRexx, that's normal to have this inconsistency.
 The change above has an unexpected effect on the regression tests:
 
 ```
-    base/bif: [SYNTAX 40.5] raised unexpectedly
-    40.5 "Missing argument in invocation of XXX; argument 2 is required"
+base/bif: [SYNTAX 40.5] raised unexpectedly
+40.5 "Missing argument in invocation of XXX; argument 2 is required"
 ```
 
 is raised instead of
 
 ```
-    40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
+40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
 ```
 
 --> [BuiltinFunctions.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/expression/BuiltinFunctions.cpp): function `expandArgs` updated to raise 40.3
@@ -1650,11 +1738,11 @@ is raised instead of
 Retrofit from ooRexx5 the parsing of an expression where the expression can be treated as a comma-separated list of subexpressions.  
 For an empty vector, or a vector of one element, the routine v is still needed:
 
-```rexx {executor}
-    ()=     -- Syntax error: Incorrect expression detected at "("
-    v()=    -- []
-    (1)=    -- 1
-    v(1)    -- [1]
+```
+()=     -- Syntax error: Incorrect expression detected at "("
+v()=    -- []
+(1)=    -- 1
+v(1)    -- [1]
 ```
 
 Align implementation of forward arguments to keep the trailing omitted arguments
@@ -1674,9 +1762,9 @@ Added support for trailing blocks (similar to Groovy & Swift syntax for closures
 
 Example:
 
-```rexx {executor}
-    10~times{call charout , arg(1)}  -- 12345678910
-    4~upto(7){call charout , arg(1)} -- 4567
+```rexx
+10~times{call charout , arg(1)}  -- 12345678910
+4~upto(7){call charout , arg(1)} -- 4567
 ```
 
 
@@ -1753,15 +1841,16 @@ RexxObject *Unicode::utf8proc_transform(RexxString *string, RexxObject **named_a
 All the native methods `A_COUNT` support named arguments.
 
 Native methods not `A_COUNT` which support named arguments:
+
 ```C++
-    TheObjectBehaviour        RexxObject::startWith
-    TheObjectBehaviour        RexxObject::sendWith
-    TheRoutineBehaviour       RoutineClass::callWithRexx
-    TheRexxContextBehaviour   RexxContext::setArgs
-    TheDirectoryBehaviour     RexxObject::unknownRexx
-    TheStemBehaviour          RexxObject::unknownRexx
-    TheIntegerBehaviour       RexxObject::unknownRexx
-    TheNumberStringBehaviour  RexxObject::unknownRexx
+TheObjectBehaviour        RexxObject::startWith
+TheObjectBehaviour        RexxObject::sendWith
+TheRoutineBehaviour       RoutineClass::callWithRexx
+TheRexxContextBehaviour   RexxContext::setArgs
+TheDirectoryBehaviour     RexxObject::unknownRexx
+TheStemBehaviour          RexxObject::unknownRexx
+TheIntegerBehaviour       RexxObject::unknownRexx
+TheNumberStringBehaviour  RexxObject::unknownRexx
 ```
 
 <!-- ------------------------------- -->
@@ -1785,10 +1874,10 @@ to implement
 Changes in ooRexx5 that I don't need to support until retrofitting:
 
 ```
-    Message~send allows to pass arguments
-    Message~sendWith: new method
-    Message~start allows to pass arguments
-    Message~startWith: new method
+Message~send allows to pass arguments
+Message~sendWith: new method
+Message~start allows to pass arguments
+Message~startWith: new method
 ```
 
 `StackFrame~namedArguments`  
@@ -1824,19 +1913,19 @@ The `~~` form of message is not impacted: it returns the object that received th
 The forward instruction does not depend on the dynamic target calculation.  
 If you need to forward using the dynamic target then do:
 
-```rexx {executor}
-    forward message "DYNAMICTARGET" continue
-    forward to (result)
+```rexx
+forward message "DYNAMICTARGET" continue
+forward to (result)
 ```
 
 
 New method `.Object~dynamicTarget` which returns the target in function of the arguments:
 
 ```C++
-    RexxObject *RexxObject::dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
-    {
-        return this->dynamicTarget(arguments, argCount, named_argCount);
-    }
+RexxObject *RexxObject::dynamicTargetRexx(RexxObject **arguments, size_t argCount, size_t named_argCount)
+{
+    return this->dynamicTarget(arguments, argCount, named_argCount);
+}
 ```
 
 
@@ -1850,10 +1939,10 @@ For the moment, it's not possible to override this method with an ooRexx method.
 
 Examples:
 
-```rexx {executor}
-    (1,2)~dynamicTarget=                       -- initial target: [ 1, 2]
-    (1,2)~dynamicTarget("string")=             -- initial target: [ 1, 2]
-    (1,2)~dynamicTarget("string", "teẌt")=     -- initial target: [ 1, 2]
+```rexx
+(1,2)~dynamicTarget=                       -- initial target: [ 1, 2]
+(1,2)~dynamicTarget("string")=             -- initial target: [ 1, 2]
+(1,2)~dynamicTarget("string", "teẌt")=     -- initial target: [ 1, 2]
 ```
 
 
@@ -1864,23 +1953,23 @@ Examples:
 The `RexxString` class overrides the virtual method `dynamicTarget`:
 
 ```C++
-    RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size_t named_count)
+RexxObject *RexxString::dynamicTarget(RexxObject **arguments, size_t count, size_t named_count)
+{
+    if (hasRexxTextArguments(arguments, count, named_count))
     {
-        if (hasRexxTextArguments(arguments, count, named_count))
-        {
-            RexxText *text = this->requestText();
-            return text;
-        }
-        return this;
+        RexxText *text = this->requestText();
+        return text;
     }
+    return this;
+}
 ```
 
 Examples:
 
-```rexx {executor}
-    "Noel"~dynamicTarget=                       -- initial target: 'Noel'
-    "Noel"~dynamicTarget("string")=             -- initial target: 'Noel'
-    "Noel"~dynamicTarget("string", "teẌt")=     -- text counterpart of the initial target: T'Noel'  because "teẌt" is a RexxText
+```rexx
+"Noel"~dynamicTarget=                       -- initial target: 'Noel'
+"Noel"~dynamicTarget("string")=             -- initial target: 'Noel'
+"Noel"~dynamicTarget("string", "teẌt")=     -- text counterpart of the initial target: T'Noel'  because "teẌt" is a RexxText
 ```
 
 
@@ -1893,19 +1982,19 @@ Examples:
 Allow to modify the method search order from anywhere.  
 Before, was possible only from methods of the target object.
 
-```rexx {executor}
-    .c1~new~m
-    .c1~new~m:.c2 -- Now it's ok, interpreter modified to no longer raise:
-                  -- Message search overrides can be used only from methods of the target object
+```rexx
+.c1~new~m
+.c1~new~m:.c2 -- Now it's ok, interpreter modified to no longer raise:
+              -- Message search overrides can be used only from methods of the target object
 
-    ::class c1 inherit c2
-    ::method m
-    say "c1::m"
-    self~m:.c2
+::class c1 inherit c2
+::method m
+say "c1::m"
+self~m:.c2
 
-    ::class c2 mixinclass object
-    ::method m
-    say "c2::m"
+::class c2 mixinclass object
+::method m
+say "c2::m"
 ```
 
 
@@ -1916,7 +2005,7 @@ Before, was possible only from methods of the target object.
 New entry `GLOBALROUTINES` in `.environment`, which gives access to `TheFunctionsDirectory`.
 
 ```C++
-  kernel_public("GLOBALROUTINES", TheFunctionsDirectory, TheEnvironment); // give direct access to TheFunctionsDirectory
+kernel_public("GLOBALROUTINES", TheFunctionsDirectory, TheEnvironment); // give direct access to TheFunctionsDirectory
 ```
 
 This is a directory of global routines that are made available everywhere, like the builtin functions.  
@@ -1929,9 +2018,9 @@ A global routine with the same name as a builtin function overrides this functio
 This is done by searching in TheFunctionsDirectory from
 
 ```C++
-    RexxExpressionFunction::evaluate
-    RexxInstructionCall::execute
-    RexxInstructionCall::trap
+RexxExpressionFunction::evaluate
+RexxInstructionCall::execute
+RexxInstructionCall::trap
 ```
 
 when the target is a builtin function.  
@@ -1942,28 +2031,28 @@ This new functionality is used to override the builtin function `XRANGE`, and ma
 
 Example of builtin function override:
 
-```rexx {executor}
-    call internal   -- override with internal routine
-    call external   -- no override because the routine date is not global
-    call global     -- override with global routine
+```rexx
+call internal   -- override with internal routine
+call external   -- no override because the routine date is not global
+call global     -- override with global routine
 
-    ::routine internal
-        say date()                                    -- Internal date is 2 Jul 2021
-        say "DATE"()                                  -- 2 Jul 2021
-        return
-        date: return "Internal date is " || "DATE"()
+::routine internal
+    say date()                                    -- Internal date is 2 Jul 2021
+    say "DATE"()                                  -- 2 Jul 2021
+    return
+    date: return "Internal date is " || "DATE"()
 
-    ::routine external
-        say date()                                    -- 2 Jul 2021
-        say "DATE"()                                  -- 2 Jul 2021
+::routine external
+    say date()                                    -- 2 Jul 2021
+    say "DATE"()                                  -- 2 Jul 2021
 
-    ::routine global
-        .globalRoutines["DATE"] = .routines["DATE"]
-        say date()                                    -- Global date is 2 Jul 2021
-        say "DATE"()                                  -- 2 Jul 2021
+::routine global
+    .globalRoutines["DATE"] = .routines["DATE"]
+    say date()                                    -- Global date is 2 Jul 2021
+    say "DATE"()                                  -- 2 Jul 2021
 
-    ::routine date
-        return "Global date is " || "DATE"()
+::routine date
+    return "Global date is " || "DATE"()
 ```
 
 <!-- ======================================================================= -->
@@ -1977,6 +2066,7 @@ Example of builtin function override:
 The support of the encoded strings is implemented in [trunk/interpreter/classes/TextClass.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/classes/TextClass.cpp).
     
 Libraries:
+
 - [trunk/interpreter/classes/support/m17n/uni-algo](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/uni-algo)
 - [trunk/interpreter/classes/support/m17n/utf8proc](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/utf8proc)
 
@@ -1984,20 +2074,20 @@ Libraries:
 99% of the integration is currently implemented by extension of these native ooRexx classes:
 
 ```
-    String
-    Text
-    MutableBuffer
-    Package
-    Unicode (expose the services provided by the libraries)
-````
+String
+Text
+MutableBuffer
+Package
+Unicode (expose the services provided by the libraries)
+```
 
 New native methods:
 
-```rexx {executor}
-    .String~!setEncoding
-    .String~!setText
-    .MutableBuffer~!setEncoding
-    .Package~!setEncoding
+```rexx
+.String~!setEncoding
+.String~!setText
+.MutableBuffer~!setEncoding
+.Package~!setEncoding
 ```
 
 to store natively these informations.  
@@ -2025,25 +2115,25 @@ class PackageClass:
 Start native integration of RexxText in the interpreter.
 
 ```C++
-   // methods
-    RexxText *RexxInternalObject::textValue()
-    RexxText *RexxObject::textValue()
-    RexxText *RexxInternalObject::makeText()
-    RexxText *RexxInternalObject::primitiveMakeText()
-    RexxText *RexxObject::makeText()
-    RexxText *RexxObject::requestText()
+// methods
+RexxText *RexxInternalObject::textValue()
+RexxText *RexxObject::textValue()
+RexxText *RexxInternalObject::makeText()
+RexxText *RexxInternalObject::primitiveMakeText()
+RexxText *RexxObject::makeText()
+RexxText *RexxObject::requestText()
 
-    // static methods
-    static RexxText *nullText;
-    static RexxText *newText(RexxString *s);
-    static RexxText *newText(const char *s, size_t l);
+// static methods
+static RexxText *nullText;
+static RexxText *newText(RexxString *s);
+static RexxText *newText(const char *s, size_t l);
 
-    // functions
-    inline RexxText *new_text(RexxString *s)
-    inline RexxText *new_text(const char *s, size_t l)
-    inline RexxText *new_text(const char *s)
+// functions
+inline RexxText *new_text(RexxString *s)
+inline RexxText *new_text(const char *s, size_t l)
+inline RexxText *new_text(const char *s)
 
-    Metaclass RexxTextClass to mark the static field RexxText::nullText.
+Metaclass RexxTextClass to mark the static field RexxText::nullText.
 ```
 
 
@@ -2061,17 +2151,17 @@ It's only the Rexx method `~isASCII` which scans the whole buffer, if needed.
 Impacted methods:
 
 ```C++
-    append
-    caselessChangeStr
-    changeStr
-    delete
-    delWord
-    insert
-    overlay
-    replaceAt
-    setBufferSize
-    space
-    translate
+append
+caselessChangeStr
+changeStr
+delete
+delWord
+insert
+overlay
+replaceAt
+setBufferSize
+space
+translate
 ```
 
 
@@ -2083,11 +2173,11 @@ Automatic conversion of `String` literals to `RexxText` instances.
 This is managed in `RexxString::evaluate`.  
 Rules:
 
-```rexx {executor}
-    if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding, just testing the bytes)
-    else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the encoding of its definition package is the Byte_Encoding or a subclass of it (legacy package).
-    -- else if string~isCompatibleWithByteString then value = string    -- R3 (no longer applied) don't convert to RexxText if the string literal is compatible with a Byte string.
-    else value = string~text                                            -- R4 convert to RexxText
+```rexx
+if string~isASCII then value = string                               -- R1 don't convert to RexxText if the string literal is ASCII (here, NO test of encoding, just testing the bytes)
+else if .context~package~encoding~isByte then value = string        -- R2 don't convert to RexxText if the encoding of its definition package is the Byte_Encoding or a subclass of it (legacy package).
+-- else if string~isCompatibleWithByteString then value = string    -- R3 (no longer applied) don't convert to RexxText if the string literal is compatible with a Byte string.
+else value = string~text                                            -- R4 convert to RexxText
 ```
 
 The string BIFs become polymorphic on `RexxString`/`RexxText`.  
@@ -2108,14 +2198,14 @@ This is implemented with a dynamic target.
 
 Retrofit the method MapCollection~of from ooRexx5:
 
-```rexx {executor}
-    aMapCollection~of( (key1, value1), (key2, value2), ...)
+```rexx
+aMapCollection~of( (key1, value1), (key2, value2) /*, ...*/)
 ```
 
 while keeping my own implementation that was available for .Directory:
 
-```rexx {executor}
-    aMapCollection~of(key1, value1, key2, value2, ..., n1:v1, n2:v2, ...)
+```rexx
+aMapCollection~of(key1, value1, key2, value2 /*, ...*/, n1:v1, n2:v2 /*, ...*/)
 ```
 
 The key-value where the key is compatible with a named  argument can be passed as named argument.  
@@ -2129,19 +2219,27 @@ If the first argument is an array then assume it's the ooRexx5 way, otherwise it
 
 Examples:
 
-```rexx {executor}
-    .stem~of("un", 1, "deux", 2, trois:3, quatre:4)=
-        a Stem (4 items)
-        'deux'   :  2
-        'QUATRE' :  4
-        'TROIS'  :  3
-        'un'     :  1
+```rexx
+.stem~of("un", 1, "deux", 2, trois:3, quatre:4)=
+```
 
-    .relation~of("UN", 10, "DEUX", 20, un:100, deux:200, quatre:400)=
-        a Relation (5 items)
-        'DEUX'   : [ 20, 200]
-        'QUATRE' :  400
-        'UN'     : [ 10, 100]
+``` 
+    a Stem (4 items)
+    'deux'   :  2
+    'QUATRE' :  4
+    'TROIS'  :  3
+    'un'     :  1
+```
+
+```rexx
+.relation~of("UN", 10, "DEUX", 20, un:100, deux:200, quatre:400)=
+```
+
+```
+    a Relation (5 items)
+    'DEUX'   : [ 20, 200]
+    'QUATRE' :  400
+    'UN'     : [ 10, 100]
 ```
 
 
@@ -2157,9 +2255,9 @@ Each call to an external function (like `SysXxx` functions) triggers a communica
 This has a major impact on performance !  
 Example with `.yield[]` which calls `SysGetTid()` or `SysQueryProcess("TID")` at each call:
 
-```rexx {executor}
-    10000 calls to .yield[] with macrospace enabled  : 2.1312
-    10000 calls to .yield[] with macrospace disabled : 0.4531
+```
+10000 calls to .yield[] with macrospace enabled  : 2.1312
+10000 calls to .yield[] with macrospace disabled : 0.4531
 ```
 
 (JLF 2012 mar 23: `.yield[]` no longer depends on `SysXXX` functions, now depends on `.threadLocal` --> faster)  
@@ -2167,11 +2265,11 @@ Example with `.yield[]` which calls `SysGetTid()` or `SysQueryProcess("TID")` at
 
 The following options control the use of macrospace:
 
-```rexx {executor}
-    ::options MACROSPACE
-    ::options NOMACROSPACE
-    options "MACROSPACE"
-    options "NOMACROSPACE"
+```rexx
+options "MACROSPACE"
+options "NOMACROSPACE"
+::options MACROSPACE
+::options NOMACROSPACE
 ```
 
 By default, the macrospace is queried, according to the rules described in rexxref section "7.2.1 Search order".  
@@ -2187,23 +2285,31 @@ Try first `context->rexxVariable`: `.methods`, `.routines`, `.rs`, `.line`, `.co
 then try `context->resolveDotVariable`:  `getSourceObject()->findClass(name)`
 
 ```C++
-    findInstalledClass(internalName)
-    findPublicClass(internalName)
-    ActivityManager::getLocalEnvironment(internalName) controlled by security manager
-    TheEnvironment->at(internalName)                   controlled by security manager
+findInstalledClass(internalName)
+findPublicClass(internalName)
+ActivityManager::getLocalEnvironment(internalName) controlled by security manager
+TheEnvironment->at(internalName)                   controlled by security manager
 ```
 
 The use of `.context` becomes prominent with coactivities, the goal of this change is to find the value of `.context` as fast as possible.
 
 Tested from ooRexxShell where more than 700 classes are loaded:
 
-```rexx {executor}
-    do i=1 to 100000; v=.context ; end
-        5 runs: 0.032 0.047 0.078 0.063 0.078
+```rexx
+do i=1 to 100000; v=.context ; end
+```
 
-    .environment~my.var=1
-    do i=1 to 100000; v=.my.var ; end
-        5 runs: 0.703 0.625 0.593 0.594 0.672
+```
+    5 runs: 0.032 0.047 0.078 0.063 0.078
+```
+
+```rexx
+.environment~my.var=1
+do i=1 to 100000; v=.my.var ; end
+```
+
+```
+    5 runs: 0.703 0.625 0.593 0.594 0.672
 ```
 
 
@@ -2217,9 +2323,9 @@ Tested from ooRexxShell where more than 700 classes are loaded:
 Moved `SysActivity::yield` to the .cpp file to reduce the amount of recompilation when experimenting various settings.  
 For the moment, `sleep(0)` under Windows works fine for me, and is quit faster than sleep(1) used in standard ooRexx.
 
-```rexx {executor}
-    sleep(0): rexx coactivity-stress.rex 100 --> global duration=1.671, duration per consumer=0.01671
-    sleep(1): rexx coactivity-stress.rex 100 --> global duration=24.625, duration per consumer=0.24625
+```
+sleep(0): rexx coactivity-stress.rex 100 --> global duration=1.671, duration per consumer=0.01671
+sleep(1): rexx coactivity-stress.rex 100 --> global duration=24.625, duration per consumer=0.24625
 ```
 
 
@@ -2238,29 +2344,29 @@ While retrofiting this bug fix, I discover that the interpreter is client of his
 [StreamNative.cpp](https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/trunk/interpreter/streamLibrary/StreamNative.cpp)
 
 ```C++
-    RexxMethod3(int, stream_lineout, CSELF, streamPtr, OPTIONAL_RexxStringObject, string, OPTIONAL_int64_t, position)
-    int StreamInfo::lineout(RexxStringObject data, bool _setPosition, int64_t position)
-    ...
-        const char *stringData = context->StringData(data);
-        size_t length = context->StringLength(data);
-    ...
+RexxMethod3(int, stream_lineout, CSELF, streamPtr, OPTIONAL_RexxStringObject, string, OPTIONAL_int64_t, position)
+int StreamInfo::lineout(RexxStringObject data, bool _setPosition, int64_t position)
+...
+    const char *stringData = context->StringData(data);
+    size_t length = context->StringLength(data);
+...
 ```
 
 These calls seems rather costly in term of performance.  
 Any API entry starts with
 
 ```C++
-    ApiContext context(c);
-    which calls:
-        activity->enterCurrentThread();
-            requestAccess();
+ApiContext context(c);
+which calls:
+    activity->enterCurrentThread();
+        requestAccess();
 ```
 
 On return from the API entry, the destructors calls:
 
 ```C++
-    activity->exitCurrentThread();
-        releaseAccess()
+activity->exitCurrentThread();
+    releaseAccess()
 ```
 
 
@@ -2320,18 +2426,18 @@ Each access to the global `.environment` will raise two messages sent to the sec
 Messages sent for nothing, since I return 0 to indicate that the program is authorized to perform the action.  
 if `unknownDisabled` is defined:
 
-```rexx {executor}
-    do 1000000;x=.stdout;end   -- 0.86 sec with ooRexx5, 0.08 sec with Executor (10x faster)
-    do 1000000;x=.context;end  -- 1.64 sec with ooRexx5, 0.06 sec with Executor (27x faster, special optimization)
-    do 1000000;x=1;end         -- 0.03 sec (here, the security manager is not used)
+```rexx
+do 1000000;x=.stdout;end   -- 0.86 sec with ooRexx5, 0.08 sec with Executor (10x faster)
+do 1000000;x=.context;end  -- 1.64 sec with ooRexx5, 0.06 sec with Executor (27x faster, special optimization)
+do 1000000;x=1;end         -- 0.03 sec (here, the security manager is not used)
 ```
 
 if `unknownDisabled` is not defined:
 
-```rexx {executor}
-    do 1000000;x=.stdout;end   -- 0.86 sec with ooRexx5, 0.75 sec with Executor (equivalent)
-    do 1000000;x=.context;end  -- 1.66 sec with ooRexx5, 0.07 sec with Executor (23x faster, special optimization)
-    do 1000000;x=1;end         -- 0.03 sec (here, the security manager is not used)
+```rexx
+do 1000000;x=.stdout;end   -- 0.86 sec with ooRexx5, 0.75 sec with Executor (equivalent)
+do 1000000;x=.context;end  -- 1.66 sec with ooRexx5, 0.07 sec with Executor (23x faster, special optimization)
+do 1000000;x=1;end         -- 0.03 sec (here, the security manager is not used)
 ```
 
 
@@ -2344,6 +2450,7 @@ Add support for variables `#` `@` `$` `¢`.
 Add support for assignment `V=`   -- assign ""
 
 Add support for instruction `UPPER`:
+
 - same syntax as instruction `DROP`
 - translate to upper case the value of each variable
 
@@ -2351,16 +2458,16 @@ The Roseta Code script "`Check-that-file-exists/check-that-file-exists-2.rexx`" 
 Regina supports the following characters as negators:
 
 ```
-    \ Backslash (ANSI Standard)
-    ^ Caret
-    ~ Tilde
-    ¬ Logical Not
+\ Backslash (ANSI Standard)
+^ Caret
+~ Tilde
+¬ Logical Not
 ```
 
 Add support for `^` and `¬`.  
 Not possible to use `~` as a negator character.
 
-```rexx {executor}
+```rexx
 ^0=     -- 1
 ^1=     -- 0
 ¬0=     -- 1
@@ -2373,7 +2480,7 @@ The operators `/=` and `/==` are supported in TSO/E REXX as alternatives to `\=`
 The Roseta Code script "`Determine-if-a-string-is-numeric/determine-if-a-string-is-numeric.rexx`" uses `/==`.  
 Add support for `/=` and `/==`
 
-```rexx {executor}
+```rexx
 "a" /= " a " =      -- 0
 "a" /== " a " =     -- 1
 "a" /== "a" =       -- 0
@@ -2413,10 +2520,10 @@ Some articles:
 
 Goal:
 
-```rexx {executor}
-    x=5; say (x<>0)~?(1/x, "infinity")      -- 0.2
-    x=0; say (x<>0)~?(1/x, "infinity")      -- "infinity", instead of the error "divisor must not be zero"
-    a=1; b=2; call swap a, b; say a b       -- 2 1
+```rexx
+x=5; say (x<>0)~?(1/x, "infinity")      -- 0.2
+x=0; say (x<>0)~?(1/x, "infinity")      -- "infinity", instead of the error "divisor must not be zero"
+a=1; b=2; call swap a, b; say a b       -- 2 1
 ```
 
 When calling a routine, the target is evaluated and found.  
@@ -2429,62 +2536,63 @@ Probably an array of `LazyRexxExpression` which is a wrapper holding the express
 Signature for evaluation:
 
 ```C++
-    virtual RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *)
+virtual RexxObject  *evaluate(RexxActivation *, RexxExpressionStack *)
 ```
 
 Concrete implementations (Executor):
 
 ```C++
-    RexxNumberString::evaluate          stack->push(this); return this;
-    RexxInteger::evaluate               stack->push(this); return this;
-    RexxUnaryOperator::evaluate         stack->prefixResult(result); return result;
-    RexxBinaryOperator::evaluate        stack->operatorResult(result); return result;
-    RexxExpressionMessage::evaluate     loop { this->arguments[i+1]->evaluate(context, stack); } stack->send(this->messageName, argcount, namedArgcount, result); return result;
-    RexxStemVariable::evaluate          value = context->getLocalStem(this->stem, this->index); stack->push(value); return value;
-    RexxCompoundVariable::evaluate      value = context->evaluateLocalCompoundVariable(stemName, index, &tails[0], tailCount);stack->push(value); return value;
-    RexxParseVariable::evaluate         variable = context->getLocalVariable(variableName, index); value = variable->getVariableValue(); stack->push(value); return value;
-    RexxString::evaluate                stack->push(this); return this;
-    RexxInternalObject::evaluate        return OREF_NULL
-    RexxSourceLiteral::evaluate         value = new RexxBlock(this, rexxContext); stack->push(value); return value;
-    RexxExpressionList::evaluate        result = new_array(expressionCount); loop { expr = expressions[i]; value = expr->evaluate(context, stack); result->put(value, i + 1); } stack->push(result); return result;
-    RexxExpressionFunction::evaluate    loop { this->arguments[i]->evaluate(context, stack); call internal or builtin or external...; stack->push(result); return result;
-    RexxDotVariable::evaluate           result = context->rexxVariable(this->variableName); stack->push(result); return result;
-    RexxExpressionLogical::evaluate     loop { value = expressions[i]->evaluate(context, stack); return true or false }
+RexxNumberString::evaluate          stack->push(this); return this;
+RexxInteger::evaluate               stack->push(this); return this;
+RexxUnaryOperator::evaluate         stack->prefixResult(result); return result;
+RexxBinaryOperator::evaluate        stack->operatorResult(result); return result;
+RexxExpressionMessage::evaluate     loop { this->arguments[i+1]->evaluate(context, stack); } stack->send(this->messageName, argcount, namedArgcount, result); return result;
+RexxStemVariable::evaluate          value = context->getLocalStem(this->stem, this->index); stack->push(value); return value;
+RexxCompoundVariable::evaluate      value = context->evaluateLocalCompoundVariable(stemName, index, &tails[0], tailCount);stack->push(value); return value;
+RexxParseVariable::evaluate         variable = context->getLocalVariable(variableName, index); value = variable->getVariableValue(); stack->push(value); return value;
+RexxString::evaluate                stack->push(this); return this;
+RexxInternalObject::evaluate        return OREF_NULL
+RexxSourceLiteral::evaluate         value = new RexxBlock(this, rexxContext); stack->push(value); return value;
+RexxExpressionList::evaluate        result = new_array(expressionCount); loop { expr = expressions[i]; value = expr->evaluate(context, stack); result->put(value, i + 1); } stack->push(result); return result;
+RexxExpressionFunction::evaluate    loop { this->arguments[i]->evaluate(context, stack); call internal or builtin or external...; stack->push(result); return result;
+RexxDotVariable::evaluate           result = context->rexxVariable(this->variableName); stack->push(result); return result;
+RexxExpressionLogical::evaluate     loop { value = expressions[i]->evaluate(context, stack); return true or false }
 ```
 
 Example of lazy evaluation:
 
-```rexx {executor}
-    -- context = theRexxActivation1
-    a=1                 -- theRexxParseVariable1(variableName="A", index=6)
-                        --     when evaluated in the context theRexxActivation1, it's theRexxVariable1(variable_name="A", variableValue=1, creator=theRexxActivation1)
-    b=2                 -- theRexxParseVariable2(variableName="B", index=7)
-                        --     when evaluated in the context theRexxActivation1, it's theRexxVariable2(variable_name="B", variableValue=2, creator=theRexxActivation1)
-    call swap a, -      -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable1)
-              b         -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable2)
-    say a               -- 2
-    say b               -- 1
+```rexx
+-- context = theRexxActivation1
+a=1                 -- theRexxParseVariable1(variableName="A", index=6)
+                    --     when evaluated in the context theRexxActivation1, it's theRexxVariable1(variable_name="A", variableValue=1, creator=theRexxActivation1)
+b=2                 -- theRexxParseVariable2(variableName="B", index=7)
+                    --     when evaluated in the context theRexxActivation1, it's theRexxVariable2(variable_name="B", variableValue=2, creator=theRexxActivation1)
+call swap a, -      -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable1)
+          b         -- pass LazyRexxExpression~new(theRexxActivation1, theRexxParseVariable2)
+say a               -- 2
+say b               -- 1
 
 
-    ::routine swap lazyargs             -- The LAZYARGS option indicates that the arguments must not be evaluated on call
-        -- context = RexxActivation2    -- The callee's context is different from the caller's context
-        use strict arg x, y             -- x = theLazyRexxExpression1(theRexxActivation1, theRexxParseVariable1)
-                                        -- y = theLazyRexxExpression2(theRexxActivation1, theRexxParseVariable2)
-                                        -- If an argument is a LazyRexxExpression whose expression is a subclass of RexxVariableBase supporting assignment
-                                        -- (RexxStemVariable, RexxCompoundVariable, RexxParseVariable, but not RexxDotVariable)
-                                        -- then create an alias variable.
-                                        -- [2021 Jul 7] Better to declare explictly that a special retriever must be used.
-                                        --              The syntax would be the same as variable reference, but on callee side only.
-                                        --              use strict arg >x, >y
-        tmp = x                         -- First evaluation of x, the value 1 is cached on theLazyRexxExpression1
-        x = y                           -- First evaluation of y, the value 2 is cached on theLazyRexxExpression2
-                                        -- The assignment 'x =' is delegated to theRexxParseVariable1
-        y = x                           -- Retrieve the cached value 2 stored on theLazyRexxExpression1
-                                        -- The assignment 'y =' is delegated to theRexxParseVariable1
+::routine swap /*lazyargs*/         -- The LAZYARGS option indicates that the arguments must not be evaluated on call
+    -- context = RexxActivation2    -- The callee's context is different from the caller's context
+    use strict arg x, y             -- x = theLazyRexxExpression1(theRexxActivation1, theRexxParseVariable1)
+                                    -- y = theLazyRexxExpression2(theRexxActivation1, theRexxParseVariable2)
+                                    -- If an argument is a LazyRexxExpression whose expression is a subclass of RexxVariableBase supporting assignment
+                                    -- (RexxStemVariable, RexxCompoundVariable, RexxParseVariable, but not RexxDotVariable)
+                                    -- then create an alias variable.
+                                    -- [2021 Jul 7] Better to declare explictly that a special retriever must be used.
+                                    --              The syntax would be the same as variable reference, but on callee side only.
+                                    --              use strict arg >x, >y
+    tmp = x                         -- First evaluation of x, the value 1 is cached on theLazyRexxExpression1
+    x = y                           -- First evaluation of y, the value 2 is cached on theLazyRexxExpression2
+                                    -- The assignment 'x =' is delegated to theRexxParseVariable1
+    y = x                           -- Retrieve the cached value 2 stored on theLazyRexxExpression1
+                                    -- The assignment 'y =' is delegated to theRexxParseVariable1
 ```
 
 
 To investigate:
+
 - `expose var`  
   `use arg >var`  
   Will it work with `LazyRexxExpression` ?  
@@ -2517,9 +2625,12 @@ Under MacOs, last value before stack overflow when calculating the factorial:
 ### 28.1.   Internal procedure
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```
 x86_64  Executor: 1056      ooRexx5: 17441 (yes! and then segmentation fault)
 arm64   Executor: 3568      ooRexx5: 20073 and then seg fault
+```
+
+```rexx
     use arg n
     say factorial(n)
     return
@@ -2534,9 +2645,12 @@ arm64   Executor: 3568      ooRexx5: 20073 and then seg fault
 ### 28.2.   Routine, recursion by name
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```
 x86_64  Executor:  736      ooRexx5: 793
 arm64   Executor: 3568      ooRexx5: 15230
+```
+
+```rexx
     use arg n
     say factorial(n)
     return
@@ -2551,9 +2665,12 @@ arm64   Executor: 3568      ooRexx5: 15230
 ### 28.3.   Routine, recursion by calling the executable
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```
 x86_64  Executor:  487      ooRexx5: 511
 arm64   Executor: 2214      ooRexx5: 10153
+```
+
+```rexx
     use arg n
     say factorial(n)
     return
@@ -2568,9 +2685,12 @@ arm64   Executor: 2214      ooRexx5: 10153
 ### 28.4.   Block, recursion by calling the executable with ~call
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```
 x86_64   484
 arm64   2211
+```
+
+```rexx
     {use arg n; if n==0 then return 1; else return n * .context~executable~call(n-1) }~call(484)=
 ```
 
@@ -2579,18 +2699,22 @@ arm64   2211
 ### 28.5.   Block, recursion by calling the executable with ~()
 <!-- ------------------------------- -->
 
-```rexx {executor}
+```
 x86_64  197
 arm64   832
+```
+
+```rexx
     {use arg n; if n==0 then return 1; else return n * .context~executable~(n-1) }~(197)=
 ```
 
 I would like to support the same limit 484 when using the doer method ~().
 
-```rexx {executor}
+```rexx
     ::class "Doer" mixinclass Object public inherit DoerFactory
     ::method "~()" unguarded
         forward message "do"
+        
     ::class "RoutineDoer" mixinclass Object public inherit Doer
     ::method do unguarded
         forward message "call"
