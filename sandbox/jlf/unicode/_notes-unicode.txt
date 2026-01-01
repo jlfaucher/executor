@@ -8130,6 +8130,35 @@ https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/
 https://github.com/JetBrains/kotlin/tree/master/libraries/stdlib/jvm/src/kotlin/text
 
 
+https://sam-cooper.medium.com/the-country-that-broke-kotlin-84bdd0afb237
+The Country That Broke Kotlin
+Logic vs language: how a Turkish alphabet bug played a years-long game of hide-and-seek inside the Kotlin compiler
+---
+Turkic languages have two versions of the letter ‘i’:
+    an ‘i’ with a dot, as in the word insan (human),
+    and a separate ‘ı’ without a dot, as in the word ırmak (river).
+What’s more, the dotted/dotless distinction is also preserved in the upper case letters:
+    capital ‘i’ is ‘İ’, as in insan → İnsan,
+    and capital ‘ı’ is ‘I’, as in ırmak → Irmak.
+That uppercase dotless ‘I’ is the same one we use in English.
+As a result, the single Unicode character I (U+0049) has two different lower case forms:
+dotted i (U+0069) in English, and dotless ı (U+0131) in Turkish.
+---
+March 2016: Unknown compiler message tag: INFO
+If your computer is configured in English, "INFO".toLowerCase() is "info", just like we wanted.
+But if your computer is configured in Turkish, "INFO".toLowerCase() turns out to be "ınfo".
+---
+October 2018: Coroutines also impacted.
+map[name] = "box${primitiveType.javaKeywordName.capitalize()}"
+Fix for coroutines:
+map[name] = "box${primitiveType.javaKeywordName.capitalize(Locale.US)}"
+---
+September 2020: intArrayOf()
+StringsKt.decapitalize(type.getArrayTypeName().asString()) + "Of"
+Although it’s written in Java, this code is calling the decapitalize() function from Kotlin’s own standard library.
+And once again, it’s relying on the system’s default language settings, instead of using a fixed Locale.
+
+
 ================================================================================
 Lisp lang
 ================================================================================
