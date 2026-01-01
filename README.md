@@ -23,6 +23,12 @@ Artifacts from 2012:
 Examples of extensions
 ----------------------
 
+### Syntax highlighting
+
+I am a proud user of the [Rexx Highlighter][rexx_highlighter] developed by Josep Maria Blasco.  
+Josep Maria was kind enough to add [support][executor_support] for the Executor extensions.  
+You can see how the current README is [rendered][readme_with_syntax_highlighting] using [md2html][md2html].
+
 ### Encoded strings, Unicode
 
 Start working on a prototype for encoded strings.  
@@ -471,18 +477,22 @@ I gave up my extensions.
 [encoded_strings_concatenation]: https://jlfaucher.github.io/executor.master/tests/encoding/main_concatenation.output.html
 [encoded_strings_diary_exemples]: https://jlfaucher.github.io/executor.master/tests/encoding/diary_examples.output.html
 [encoded_strings_transcoding]: https://jlfaucher.github.io/executor.master/tests/encoding/main_conversion.output.html
+[executor_support]: https://rexx.epbcn.com/rexx-parser/doc/executor "Executor support"
 [internal_documentation_classes]: https://jlfaucher.github.io/executor.master/doxygen/html/classes.html
 [internal_documentation_files]: https://jlfaucher.github.io/executor.master/doxygen/html/files.html
 [internal_notes]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/internals/notes "Internal notes"
 [laisse_beton]:https://www.youtube.com/watch?v=9eU7wv4eOo8 "Laisse béton"
+[md2html]: https://rexx.epbcn.com/rexx-parser/doc/utilities/md2html "md2html"
 [mike_vanier_article]: https://mvanier.livejournal.com/2897.html "Mike Vanier : Y combinator"
-[named_arguments_spec]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md "Specification of named arguments"
+[named_arguments_spec]: https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.html "Specification of named arguments"
 [named_arguments_test_cases_output]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.output.reference.txt "Test cases of named arguments (output)"
 [named_arguments_test_cases_script]: https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/tests/extension/named_arguments-test.rex "Test cases of named arguments (script)"
 [notes_unicode]: https://jlfaucher.github.io/executor.master/unicode/_notes-unicode.html
-[overview_changes]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.md "Overview of changes"
+[overview_changes]: https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.html "Overview of changes"
 [pipes_documentation]: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/packages/pipeline/pipe_readme.txt
+[readme_with_syntax_highlighting]: https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/README.html "README with syntax highlighting"
 [rexx_cub]: https://jlfaucher.github.io/executor.master/docs/RexxCub/RexxCub.html "Rexx Cub"
+[rexx_highlighter]: https://rexx.epbcn.com/rexx-parser/doc/highlighter "Rexx Highlighter"
 [rosetta_code_accumulator_factory]: https://rosettacode.org/wiki/Accumulator_factory "Rosetta code : Accumulator factory"
 [rosetta_code_closures_value_capture]: https://rosettacode.org/wiki/Closures/Value_capture "Rosetta code : Closures/Value capture"
 [rosetta_code_function_composition]: https://rosettacode.org/wiki/Function_composition "Rosetta code : Function composition"
