@@ -132,7 +132,8 @@ pkgLocal~Extension = "html"
           li.classList.add(`level-${heading.tagName.toLowerCase()}`);
 
           const a = document.createElement("a");
-          a.href = `#${heading.id}`;
+          // a.href = `#${heading.id}`;  // Does not work with Github workaround https://htmlpreview.github.io/?...
+          a.setAttribute("href", "#" + heading.id);
           a.textContent = heading.textContent;
 
           li.appendChild(a);
