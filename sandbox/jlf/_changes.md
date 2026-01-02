@@ -1,3 +1,8 @@
+<p align="right" style="font-size:10px;">
+<a style="font-size:10px;" href="https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.md">Markdown</a><br/>
+<a style="font-size:10px;" href="https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/_changes.html">HTML</a>
+</p>
+
 #    Changes applied to ooRexx 4.2
 
 

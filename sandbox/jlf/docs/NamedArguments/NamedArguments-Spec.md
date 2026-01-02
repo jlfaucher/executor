@@ -7,6 +7,11 @@ See the file png_sizes.ods for the calculation of the width attribute in <img>.
 
 -->
 
+<p align="right" style="font-size:10px;">
+<a style="font-size:10px;" href="https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.md">Markdown</a><br/>
+<a style="font-size:10px;" href="https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/docs/NamedArguments/NamedArguments-Spec.html">HTML</a>
+</p>
+
 Named arguments - Specification
 ===============================
 

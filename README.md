@@ -1,3 +1,8 @@
+<p align="right" style="font-size:10px;">
+<a style="font-size:10px;" href="https://github.com/jlfaucher/executor/blob/master/README.md">Markdown</a><br/>
+<a style="font-size:10px;" href="https://htmlpreview.github.io/?https://github.com/jlfaucher/executor/blob/master/README.html">HTML</a>
+</p>
+
 Experimental ooRexx
 ===================
 
