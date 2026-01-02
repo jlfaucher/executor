@@ -2668,6 +2668,29 @@ arm64   832</code></pre>
         })();
     </script>
 
+    <script>
+        // Workaround to have the TOC working with https://htmlpreview.github.io/?...
+        // Watch the DOM and remove <base> whenever it appears.
+        (function () {
+          function removeBase() {
+            const base = document.querySelector("base");
+            if (base) {
+              base.remove();
+            }
+          }
+
+          // Run immediately
+          removeBase();
+
+          // Watch for late injection
+          const observer = new MutationObserver(removeBase);
+          observer.observe(document.head || document.documentElement, {
+            childList: true,
+            subtree: true
+          });
+        })();
+    </script>
+
         </div>
       </div>
     </div>
