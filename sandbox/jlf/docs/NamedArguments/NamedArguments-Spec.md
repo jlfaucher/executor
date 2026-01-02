@@ -57,7 +57,7 @@ is equivalent to
          +-------------------------------| Named arguments |--+
          +--| Positional arguments |--,--| Named arguments |--+
 
-<img src="SyntaxDiagram/sd_Arguments.png" width="43.47%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Arguments.png" width="326"></p>
 
 
 ### Positional arguments
@@ -68,7 +68,7 @@ is equivalent to
           |            |
           +-expression-+
 
-<img src="SyntaxDiagram/sd_Positional_arguments.png" width="22.97%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Positional_arguments.png" width="172"></p>
 
 
 ### Named arguments
@@ -81,7 +81,7 @@ is equivalent to
           |                |
           +------:-varname-+
 
-<img src="SyntaxDiagram/sd_Named_arguments.png" width="28.47%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Named_arguments.png" width="214"></p>
 
 
 
@@ -149,11 +149,11 @@ The named arguments are declared separately from the positional arguments.
     >>-receiver-+- ~ --+-messagename--+----------+--+---------------------+---><
                 +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+
 
-<img src="SyntaxDiagram/sd_Message_term.png" width="75.06%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Message_term.png" width="538"></p>
 
     >>-receiver[--| Arguments |--]----------------------------><
 
-<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="25.39%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Message_term_brackets.png" width="190"></p>
 
 
 ### Instruction ARG
@@ -175,14 +175,14 @@ Not impacted, no access to named arguments.
     >>-CALL----+-name-----+----| Arguments |--------------------><
                +-(-expr-)-+
 
-<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="38.20%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Instruction_CALL.png" width="287"></p>
 
 
 ### Function
 
     >>-function_name(----| Arguments |----)-------------------><
 
-<img src="SyntaxDiagram/sd_Function.png" width="30.20%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Function.png" width="227"></p>
 
 
 ### Instruction FORWARD
@@ -197,7 +197,7 @@ There, `"Array"` is followed by a mandatory array. `"Individual"` is followed by
                 +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                                 +--------------ARRAY----(--| Arguments |--)---------------+
 
-<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="152.24%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="1142"></p>
 
 Possible combinations to override arguments:
 
@@ -217,7 +217,7 @@ Possible combinations to override arguments:
                                                         +--+-------+-----------------------------------+
                                                            +--...--+
 
-<img src="SyntaxDiagram/sd_Instruction_USE.png" width="94.88%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Instruction_USE.png" width="712"></p>
 
 When the option `NAMED` is specified:
 
@@ -255,7 +255,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                                  +--+-------------------+--+--------------------------+--+
                                     +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Message_new.png" width="104.73%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Message_new.png" width="786"></p>
 
 
 ### Message~namedArguments
@@ -274,7 +274,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
                    +--+-------------------+--+--------------------------+--+
                       +-,-"Array"-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_run.png" width="102.97%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Object_run.png" width="702"></p>
 
 
 ### Object~sendWith
@@ -282,7 +282,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
     >>-sendWith(-messagename-,-arguments-+--------------------------+--)---><
                                          +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_sendWith.png" width="79.75%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Object_sendWith.png" width="598"></p>
 
 
 ### Object~startWith
@@ -290,7 +290,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
     >>-startWith(-messagename-,-arguments-+--------------------------+-)---><
                                           +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Object_startWith.png" width="79.55%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Object_startWith.png" width="597"></p>
 
 
 ### Routine~callWith
@@ -298,7 +298,7 @@ There, `ARRAY` is followed by a list of arguments. `ARGUMENTS` is followed by a 
     >>-callWith(-array-+--------------------------+-)---><
                        +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Routine_callWith.png" width="60.16%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Routine_callWith.png" width="451"></p>
 
 
 ### Context~namedArgs
@@ -316,7 +316,7 @@ The `ARG` built-in function doesn't give access to the named arguments.
     >>-setArgs(-array-+--------------------------+-)---><
                       +-,-NAMEDARGUMENTS-:-exprd-+
 
-<img src="SyntaxDiagram/sd_Context_setArgs.png" width="59.43%">
+<p class="img-scroll"><img src="SyntaxDiagram/sd_Context_setArgs.png" width="446"></p>
 
 Used to transfer to a coactivity the arguments passed with `resume`.  
 A coactivity can be suspended, and can receive a new set of arguments after each resume.

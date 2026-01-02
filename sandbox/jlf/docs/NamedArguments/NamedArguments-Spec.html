@@ -74,14 +74,18 @@ still available:</p>
      +--| Positional arguments |--------------------------+
      +-------------------------------| Named arguments |--+
      +--| Positional arguments |--,--| Named arguments |--+</code></pre>
-<p><img src="SyntaxDiagram/sd_Arguments.png" width="43.47%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Arguments.png" width="326">
+</p>
 <h3 id="positional-arguments">Positional arguments</h3>
 <pre><code>    +-,--------------+
     V                |
 |-----+------------+-+----|
       |            |
       +-expression-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Positional_arguments.png" width="22.97%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Positional_arguments.png" width="172">
+</p>
 <h3 id="named-arguments">Named arguments</h3>
 <pre><code>    +-,------------------+
     V                    |
@@ -90,7 +94,9 @@ still available:</p>
       +-name-:---------+
       |                |
       +------:-varname-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Named_arguments.png" width="28.47%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Named_arguments.png" width="214">
+</p>
 <h3 id="shorthand-syntax">Shorthand syntax</h3>
 <pre><code>    name:           -- without expr, pass .true
     :varname        -- without name, pass varname:varname</code></pre>
@@ -141,9 +147,13 @@ arguments.</p>
 <h3 id="message-term">Message term</h3>
 <pre><code>&gt;&gt;-receiver-+- ~ --+-messagename--+----------+--+---------------------+---&gt;&lt;
             +- ~~ -+              +-:-symbol-+  +-(--| Arguments |--)-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Message_term.png" width="75.06%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Message_term.png" width="538">
+</p>
 <pre><code>&gt;&gt;-receiver[--| Arguments |--]----------------------------&gt;&lt;</code></pre>
-<p><img src="SyntaxDiagram/sd_Message_term_brackets.png" width="25.39%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Message_term_brackets.png" width="190">
+</p>
 <h3 id="instruction-arg">Instruction ARG</h3>
 <pre><code>ARG template_list</code></pre>
 <p>Not impacted, no access to named arguments.</p>
@@ -153,10 +163,14 @@ arguments.</p>
 <h3 id="instruction-call">Instruction CALL</h3>
 <pre><code>&gt;&gt;-CALL----+-name-----+----| Arguments |--------------------&gt;&lt;
            +-(-expr-)-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Instruction_CALL.png" width="38.20%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Instruction_CALL.png" width="287">
+</p>
 <h3 id="function">Function</h3>
 <pre><code>&gt;&gt;-function_name(----| Arguments |----)-------------------&gt;&lt;</code></pre>
-<p><img src="SyntaxDiagram/sd_Function.png" width="30.20%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Function.png" width="227">
+</p>
 <h3 id="instruction-forward">Instruction FORWARD</h3>
 <p>Inconsistency with <code>Message~new</code> and
 <code>Object~run</code>.<br />
@@ -167,7 +181,9 @@ There, <code>"Array"</code> is followed by a mandatory array.
 <pre><code>&gt;&gt;-FORWARD--+------------+--+---+--------------------+--+-------------------------+---+--+------------------+--+----------------+--+-------------+----&gt;&lt;
             +--CONTINUE--+  |   +--ARGUMENTS--expra--+  +--NAMEDARGUMENTS--exprd--+   |  +--MESSAGE--exprm--+  +--CLASS--exprs--+  +--TO--exprt--+
                             +--------------ARRAY----(--| Arguments |--)---------------+</code></pre>
-<p><img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="152.24%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Instruction_FORWARD.png" width="1142">
+</p>
 <p>Possible combinations to override arguments:</p>
 <pre><code>                          positional arguments    named arguments
 ARGUMENTS:                     overriden             forwarded
@@ -182,7 +198,9 @@ none:                          forwarded             forwarded</code></pre>
         +--STRICT--+  +--AUTO--+                    |           +-=--expr--+       +--,--...--+    |
                                                     +--+-------+-----------------------------------+
                                                        +--...--+</code></pre>
-<p><img src="SyntaxDiagram/sd_Instruction_USE.png" width="94.88%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Instruction_USE.png" width="712">
+</p>
 <p>When the option <code>NAMED</code> is specified:</p>
 <ul>
 <li>name is a simple symbol, a stem or a compound symbol.</li>
@@ -220,7 +238,9 @@ There, <code>ARRAY</code> is followed by a list of arguments.
                              +-,-&quot;Individual&quot;--| Arguments |-------------------------+
                              +--+-------------------+--+--------------------------+--+
                                 +-,-&quot;Array&quot;-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Message_new.png" width="104.73%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Message_new.png" width="786">
+</p>
 <h3 id="messagenamedarguments">Message~namedArguments</h3>
 <p>Returns a directory of named arguments used to invoke the
 message.</p>
@@ -233,19 +253,27 @@ There, <code>ARRAY</code> is followed by a list of arguments.
                +-,-&quot;Individual&quot;---| Arguments |------------------------+
                +--+-------------------+--+--------------------------+--+
                   +-,-&quot;Array&quot;-,-expra-+  +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Object_run.png" width="102.97%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Object_run.png" width="702">
+</p>
 <h3 id="objectsendwith">Object~sendWith</h3>
 <pre><code>&gt;&gt;-sendWith(-messagename-,-arguments-+--------------------------+--)---&gt;&lt;
                                      +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Object_sendWith.png" width="79.75%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Object_sendWith.png" width="598">
+</p>
 <h3 id="objectstartwith">Object~startWith</h3>
 <pre><code>&gt;&gt;-startWith(-messagename-,-arguments-+--------------------------+-)---&gt;&lt;
                                       +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Object_startWith.png" width="79.55%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Object_startWith.png" width="597">
+</p>
 <h3 id="routinecallwith">Routine~callWith</h3>
 <pre><code>&gt;&gt;-callWith(-array-+--------------------------+-)---&gt;&lt;
                    +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Routine_callWith.png" width="60.16%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Routine_callWith.png" width="451">
+</p>
 <h3 id="contextnamedargs">Context~namedArgs</h3>
 <p>Why not <code>~namedArguments</code> ?<br />
 Because I follow the naming convention used for the method
@@ -258,7 +286,9 @@ arguments.</p>
 <h3 id="contextsetargs">Context~setArgs</h3>
 <pre><code>&gt;&gt;-setArgs(-array-+--------------------------+-)---&gt;&lt;
                   +-,-NAMEDARGUMENTS-:-exprd-+</code></pre>
-<p><img src="SyntaxDiagram/sd_Context_setArgs.png" width="59.43%"></p>
+<p class="img-scroll">
+<img src="SyntaxDiagram/sd_Context_setArgs.png" width="446">
+</p>
 <p>Used to transfer to a coactivity the arguments passed with
 <code>resume</code>.<br />
 A coactivity can be suspended, and can receive a new set of arguments
