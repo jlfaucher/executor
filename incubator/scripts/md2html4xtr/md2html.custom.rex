@@ -118,52 +118,136 @@ pkgLocal~Extension = "html"
     </aside>
 
     <script>
-        /* Auto-Generate the Outline from Headings */
-        const content = document.getElementById("content");
-        const tocList = document.querySelector("#toc ul");
-        const headings = content.querySelectorAll("h2, h3, h4");
+        // TOC with collapse / expand
+        (function () {
+          const content = document.getElementById("content");
+          const tocRoot = document.querySelector("#toc ul");
+          const headings = content.querySelectorAll("h1, h2, h3, h4");
 
-        headings.forEach((heading, index) => {
-          if (!heading.id) {
-            heading.id = `section-${index}`;
-          }
+          // Stack to build hierarchy
+          const stack = [{ level: 0, ul: tocRoot }];
 
-          const li = document.createElement("li");
-          li.classList.add(`level-${heading.tagName.toLowerCase()}`);
+          headings.forEach((heading, index) => {
+            const level = parseInt(heading.tagName.substring(1), 10);
 
-          const a = document.createElement("a");
-          // a.href = `#${heading.id}`;  // Does not work with Github workaround https://htmlpreview.github.io/?...
-          a.setAttribute("href", "#" + heading.id);
-          a.textContent = heading.textContent;
+            if (!heading.id) {
+              heading.id = `section-${index}`;
+            }
 
-          li.appendChild(a);
-          tocList.appendChild(li);
-        });
+            // ---- TOC item ----
+            const li = document.createElement("li");
+            li.className = `level-${heading.tagName.toLowerCase()}`;
+
+            const a = document.createElement("a");
+            a.setAttribute("href", "#" + heading.id);
+
+            // Caret (always present, may be empty)
+            const caret = document.createElement("span");
+            caret.className = "toc-caret";
+
+            // Text
+            const text = document.createElement("span");
+            text.className = "toc-text";
+            text.textContent = heading.textContent;
+
+            a.appendChild(caret);
+            a.appendChild(text);
+            li.appendChild(a);
+
+            // ---- Find correct parent ----
+            while (stack[stack.length - 1].level >= level) {
+              stack.pop();
+            }
+
+            stack[stack.length - 1].ul.appendChild(li);
+
+            // ---- Child container (always created) ----
+            const childUl = document.createElement("ul");
+            childUl.className = "toc-children";
+            li.appendChild(childUl);
+
+            stack.push({ level, ul: childUl });
+          });
+
+          // ---- Enable caret-only toggling ----
+          document.querySelectorAll("#toc li").forEach(li => {
+            const childUl = li.querySelector(":scope > ul");
+            const caret = li.querySelector(":scope > a > .toc-caret");
+
+            if (childUl && childUl.children.length > 0) {
+              li.classList.add("has-children", "expanded"); // expanded by default
+
+              caret.addEventListener("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                li.classList.toggle("collapsed");
+                li.classList.toggle("expanded");
+              });
+            }
+          });
+        })();
     </script>
 
     <script>
-        /* Highlight Active Section While Scrolling */
-        const tocLinks = document.querySelectorAll("#toc a");
+        // Highlight Active Section While Scrolling
+        (function () {
+          const toc = document.getElementById("toc");
+          const tocLinks = toc.querySelectorAll("a");
+          const tocItems = toc.querySelectorAll("li");
+          const headings = Array.from(
+            document.querySelectorAll("#content h1, #content h2, #content h3, #content h4")
+          );
 
-        const observer = new IntersectionObserver(
-          entries => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                tocLinks.forEach(link =>
-                  link.classList.toggle(
-                    "active",
-                    link.getAttribute("href") === `#${entry.target.id}`
-                  )
-                );
+          function updateActiveToc() {
+            let current = null;
+
+            for (const h of headings) {
+              if (h.getBoundingClientRect().top <= 80) {
+                current = h;
+              } else {
+                break;
               }
-            });
-          },
-          {
-            rootMargin: "-80px 0px -70% 0px"
-          }
-        );
+            }
 
-        headings.forEach(h => observer.observe(h));
+            /* RESET STATE */
+            tocLinks.forEach(a => a.classList.remove("active"));
+            tocItems.forEach(li => li.classList.remove("active-parent"));
+
+            if (current) {
+              const link = toc.querySelector(`a[href="#${current.id}"]`);
+              if (link) {
+                link.classList.add("active");
+                markParentsActive(link);
+                ensureTocItemVisible(link);
+              }
+            }
+          }
+
+          function markParentsActive(link) {
+            let li = link.closest("li");
+
+            while (li) {
+              li.classList.add("active-parent");
+              li = li.parentElement.closest("li");
+            }
+          }
+
+          function ensureTocItemVisible(link) {
+            const toc = document.getElementById("toc");
+            const rect = link.getBoundingClientRect();
+            const tocRect = toc.getBoundingClientRect();
+
+            if (rect.top < tocRect.top || rect.bottom > tocRect.bottom) {
+              link.scrollIntoView({
+                block: "nearest",
+                inline: "nearest"
+              });
+            }
+          }
+
+          window.addEventListener("scroll", updateActiveToc, { passive: true });
+          updateActiveToc();
+        })();
     </script>
 
     <script>
