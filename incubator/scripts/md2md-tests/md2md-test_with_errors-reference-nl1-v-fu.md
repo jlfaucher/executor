@@ -51,7 +51,7 @@ line    12    line in  = # Test 1
 line    12               1234567890123456789
 line    12    title level 1    next = 
 line    12    title level 1    startNumber = 3 , endNumber = 7 , startTitle = 3
-line    12    line out = #    Test 1
+line    12    line out = # Test 1
 line    13    line in  = ## Level 2
 line    13               1234567890123456789
 line    13    title level 2    next = 1.
@@ -109,7 +109,7 @@ line    24    line in  = # Test 2
 line    24               1234567890123456789
 line    24    title level 1    next = 
 line    24    title level 1    startNumber = 3 , endNumber = 7 , startTitle = 3
-line    24    line out = #    Test 2
+line    24    line out = # Test 2
 line    25    line in  = ## Level 2
 line    25               1234567890123456789
 line    25    title level 2    next = 1.
@@ -180,13 +180,13 @@ line    39               1234567890123456789
 line    39    title level 1    next = 
 line    39    title level 1    startNumber = 3 , endNumber = 5 , startTitle = 6
 line    39    Number of '#' incorrect? got 1 '#' for a counter level 2
-line    39    line out = #    Level 1 or level 2?
+line    39    line out = # Level 1 or level 2?
 line    40    line in  = # 1.1. Level 1 or level 3?
 line    40               1234567890123456789
 line    40    title level 1    next = 
 line    40    title level 1    startNumber = 3 , endNumber = 7 , startTitle = 8
 line    40    Number of '#' incorrect? got 1 '#' for a counter level 3
-line    40    line out = #    Level 1 or level 3?
+line    40    line out = # Level 1 or level 3?
 line    41    line in  = ## 1.1. Level 2 or level 3?
 line    41               1234567890123456789
 line    41    title level 2    next = 1.
@@ -212,31 +212,31 @@ line    45               1234567890123456789
 line    45    title level 1    next = 
 line    45    title level 1    startNumber = 3 , endNumber = 4 , startTitle = 5
 line    45    Invalid title number: .
-line    45    line out = #    Level 1
+line    45    line out = # Level 1
 line    46    line in  = # .1 Level 1
 line    46               1234567890123456789
 line    46    title level 1    next = 
 line    46    title level 1    startNumber = 3 , endNumber = 5 , startTitle = 6
 line    46    Invalid title number: .1
-line    46    line out = #    Level 1
+line    46    line out = # Level 1
 line    47    line in  = # .1. Level 1
 line    47               1234567890123456789
 line    47    title level 1    next = 
 line    47    title level 1    startNumber = 3 , endNumber = 6 , startTitle = 7
 line    47    Invalid title number: .1.
-line    47    line out = #    Level 1
+line    47    line out = # Level 1
 line    48    line in  = # ..1 Level 1
 line    48               1234567890123456789
 line    48    title level 1    next = 
 line    48    title level 1    startNumber = 3 , endNumber = 6 , startTitle = 7
 line    48    Invalid title number: ..1
-line    48    line out = #    Level 1
+line    48    line out = # Level 1
 line    49    line in  = # ..1.. Level 1
 line    49               1234567890123456789
 line    49    title level 1    next = 
 line    49    title level 1    startNumber = 3 , endNumber = 8 , startTitle = 9
 line    49    Invalid title number: ..1..
-line    49    line out = #    Level 1
+line    49    line out = # Level 1
 line    50    line in  = 
 line    50               1234567890123456789
 line    50    is not a Markdown title
@@ -249,27 +249,27 @@ line    52    line in  = # .Level 1
 line    52               1234567890123456789
 line    52    title level 1    next = 
 line    52    title level 1    startNumber = 3 , endNumber = 9 , startTitle = 3
-line    52    line out = #    .Level 1
+line    52    line out = # .Level 1
 line    53    line in  = # .1Level 1
 line    53               1234567890123456789
 line    53    title level 1    next = 
 line    53    title level 1    startNumber = 3 , endNumber = 10 , startTitle = 3
-line    53    line out = #    .1Level 1
+line    53    line out = # .1Level 1
 line    54    line in  = # .1.Level 1
 line    54               1234567890123456789
 line    54    title level 1    next = 
 line    54    title level 1    startNumber = 3 , endNumber = 11 , startTitle = 3
-line    54    line out = #    .1.Level 1
+line    54    line out = # .1.Level 1
 line    55    line in  = # ..1Level 1
 line    55               1234567890123456789
 line    55    title level 1    next = 
 line    55    title level 1    startNumber = 3 , endNumber = 11 , startTitle = 3
-line    55    line out = #    ..1Level 1
+line    55    line out = # ..1Level 1
 line    56    line in  = # ..1..Level 1
 line    56               1234567890123456789
 line    56    title level 1    next = 
 line    56    title level 1    startNumber = 3 , endNumber = 13 , startTitle = 3
-line    56    line out = #    ..1..Level 1
+line    56    line out = # ..1..Level 1
 line    57    line in  = 
 line    57               1234567890123456789
 line    57    is not a Markdown title
@@ -353,7 +353,7 @@ line    73    line in  = #
 line    73               1234567890123456789
 line    73    title level 1    next = 
 line    73    title level 1    startNumber = 0 , endNumber = 0 , startTitle = 3
-line    73    line out = #    
+line    73    line out = # 
 line    74    line in  = ##
 line    74               1234567890123456789
 line    74    title level 2    next = 1.
@@ -371,7 +371,7 @@ line    77    line in  = #
 line    77               1234567890123456789
 line    77    title level 1    next = 
 line    77    title level 1    startNumber = 0 , endNumber = 0 , startTitle = 3
-line    77    line out = #       
+line    77    line out = #    
 line    78    line in  = ##    
 line    78               1234567890123456789
 line    78    title level 2    next = 1.
@@ -405,12 +405,12 @@ line    85    line in  = # Title    level    1    with    spaces
 line    85               1234567890123456789
 line    85    title level 1    next = 
 line    85    title level 1    startNumber = 3 , endNumber = 8 , startTitle = 3
-line    85    line out = #    Title    level    1    with    spaces    
+line    85    line out = # Title    level    1    with    spaces    
 line    86    line in  = #           Title    level    1    with    spaces    
 line    86               1234567890123456789
 line    86    title level 1    next = 
 line    86    title level 1    startNumber = 13 , endNumber = 18 , startTitle = 13
-line    86    line out = #    Title    level    1    with    spaces    
+line    86    line out = # Title    level    1    with    spaces    
 line    87    line in  = ## Title    level    2    with    spaces    
 line    87               1234567890123456789
 line    87    title level 2    next = 1.
@@ -447,7 +447,7 @@ Reverse order (non-sense)
 
 Normal order
 
-#    Test 1
+# Test 1
 ## 1.   Level 2
 ### 1.1.   Level 3
 #### 1.1.1.   Level 4
@@ -459,7 +459,7 @@ Normal order
 ##### 1.1.1.2.   Level 5
 ## 2.   Level 2
 
-#    Test 2
+# Test 2
 ## 1.   Level 2
 ### 1.1.   Level 3
 #### 1.1.1.   Level 4
@@ -474,24 +474,24 @@ Normal order
 Some particular cases
 
 Detect the mismatch between the markdown tag and the title number (happens when manually edited)
-#    Level 1 or level 2?
-#    Level 1 or level 3?
+# Level 1 or level 2?
+# Level 1 or level 3?
 ## 1.   Level 2 or level 3?
 ## 2.   Level 2 or level 4?
 
 Ill-formed title number
-#    Level 1
-#    Level 1
-#    Level 1
-#    Level 1
-#    Level 1
+# Level 1
+# Level 1
+# Level 1
+# Level 1
+# Level 1
 
 Ill-formed title number, no space after the number
-#    .Level 1
-#    .1Level 1
-#    .1.Level 1
-#    ..1Level 1
-#    ..1..Level 1
+# .Level 1
+# .1Level 1
+# .1.Level 1
+# ..1Level 1
+# ..1..Level 1
 
 Ill-formed title number
 ## 1.   Level 2
@@ -508,11 +508,11 @@ Ill-formed title number, no space after the number
 ## 10.   ..1.1..Level 2
 
 No title text
-#    
+# 
 ## 1.   
 
 4 spaces after the tag
-#       
+#    
 ## 1.      
 
 No space after the tag
@@ -520,8 +520,8 @@ No space after the tag
 ##No space
 
 Title with sequences of several spaces in the middle and at the end
-#    Title    level    1    with    spaces    
-#    Title    level    1    with    spaces    
+# Title    level    1    with    spaces    
+# Title    level    1    with    spaces    
 ## 1.   Title    level    2    with    spaces    
 ## 2.   Title    level    2    with    spaces    
 ## 3.   Title    level    2    with    spaces    

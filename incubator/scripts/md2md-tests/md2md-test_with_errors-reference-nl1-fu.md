@@ -9,7 +9,7 @@ Reverse order (non-sense)
 
 Normal order
 
-#    Test 1
+# Test 1
 ## 1.   Level 2
 ### 1.1.   Level 3
 #### 1.1.1.   Level 4
@@ -21,7 +21,7 @@ Normal order
 ##### 1.1.1.2.   Level 5
 ## 2.   Level 2
 
-#    Test 2
+# Test 2
 ## 1.   Level 2
 ### 1.1.   Level 3
 #### 1.1.1.   Level 4
@@ -36,24 +36,24 @@ Normal order
 Some particular cases
 
 Detect the mismatch between the markdown tag and the title number (happens when manually edited)
-#    Level 1 or level 2?
-#    Level 1 or level 3?
+# Level 1 or level 2?
+# Level 1 or level 3?
 ## 1.   Level 2 or level 3?
 ## 2.   Level 2 or level 4?
 
 Ill-formed title number
-#    Level 1
-#    Level 1
-#    Level 1
-#    Level 1
-#    Level 1
+# Level 1
+# Level 1
+# Level 1
+# Level 1
+# Level 1
 
 Ill-formed title number, no space after the number
-#    .Level 1
-#    .1Level 1
-#    .1.Level 1
-#    ..1Level 1
-#    ..1..Level 1
+# .Level 1
+# .1Level 1
+# .1.Level 1
+# ..1Level 1
+# ..1..Level 1
 
 Ill-formed title number
 ## 1.   Level 2
@@ -70,11 +70,11 @@ Ill-formed title number, no space after the number
 ## 10.   ..1.1..Level 2
 
 No title text
-#    
+# 
 ## 1.   
 
 4 spaces after the tag
-#       
+#    
 ## 1.      
 
 No space after the tag
@@ -82,8 +82,8 @@ No space after the tag
 ##No space
 
 Title with sequences of several spaces in the middle and at the end
-#    Title    level    1    with    spaces    
-#    Title    level    1    with    spaces    
+# Title    level    1    with    spaces    
+# Title    level    1    with    spaces    
 ## 1.   Title    level    2    with    spaces    
 ## 2.   Title    level    2    with    spaces    
 ## 3.   Title    level    2    with    spaces    

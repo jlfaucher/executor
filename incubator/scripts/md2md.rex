@@ -371,8 +371,12 @@ Returns the line with an updated title number
 
     -- Transform the line, using an updated title number
     tag = "#"~copies(titleLevel)
-    separator = self~nbspace~copies(self~nbspaceCount)
-    line = tag || " " || hcounterNext || separator || title
+    -- When the level 1 counter is not displayed, don't use a separator to keep the title left-aligned
+    if hcounterNext \== "" then do
+        separator = self~nbspace~copies(self~nbspaceCount)
+        hcounterNext ||= separator
+    end
+    line = tag || " " || hcounterNext || title
     return line
 
 
