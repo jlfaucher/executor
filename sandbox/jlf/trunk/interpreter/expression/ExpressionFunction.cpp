@@ -54,6 +54,10 @@
 #include "RexxActivity.hpp"
 #include "ProtectedObject.hpp"
 
+// Normally, you don't wnt to disable extensions here.
+// That would disable the global overriding with routines
+// #define DISABLE_EXTENSIONS
+
 RexxExpressionFunction::RexxExpressionFunction(
     RexxString *function_name,         /* name of the function              */
     size_t      argCount,              /* count of positional arguments     */

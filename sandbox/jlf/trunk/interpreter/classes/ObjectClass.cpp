@@ -62,6 +62,8 @@
 #include "TextClass.hpp"
 #include "PackageClass.hpp"
 
+// #define DISABLE_EXTENSIONS
+
 // singleton class instance
 RexxClass *RexxObject::classInstance = OREF_NULL;
 RexxObject *RexxNilObject::nilObject = OREF_NULL;

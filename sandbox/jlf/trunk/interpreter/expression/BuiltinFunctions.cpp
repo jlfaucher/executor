@@ -62,6 +62,8 @@
 #include "SysFileSystem.hpp"
 #include "TextClass.hpp"
 
+// #define DISABLE_EXTENSIONS
+
 
 /**
  * Verify that a function has received all of its required arguments, and did not receive extras.

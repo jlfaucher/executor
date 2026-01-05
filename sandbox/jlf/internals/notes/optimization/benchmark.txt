@@ -6,7 +6,12 @@ replace
 #ifndef DISABLE_EXTENSIONS
 by
 #ifdef DISABLE_EXTENSIONS
-(DISABLE_EXTENSIONS is never defined)
+
+or
+#define DISABLE_EXTENSIONS
+at the begining of each file
+(DISABLE_EXTENSIONS is not defined in a header file)
+
 
 Extensions that can be disabled:
     Messages String/Text polymorphism

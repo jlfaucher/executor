@@ -59,6 +59,8 @@
 #include "SystemInterpreter.hpp"
 #include "PackageClass.hpp"
 
+// #define DISABLE_EXTENSIONS
+
 // singleton class instance
 RexxClass *RexxString::classInstance = OREF_NULL;
 
