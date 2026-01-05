@@ -22,6 +22,8 @@ all:
 md2md-test_without_error :
 	rexx $(md2md) $@.md > $@-output.md 2>&1
 	diff -q $@-reference.md $@-output.md
+	rexx $(md2md) -nl1 $@.md > $@-output-nl1.md 2>&1
+	diff -q $@-reference-nl1.md $@-output-nl1.md
 
 md2md-test_with_errors :
 	-rexx $(md2md) $@.md > $@-output.md 2>&1
@@ -32,10 +34,23 @@ md2md-test_with_errors :
 	diff -q $@-reference-v-fu.md $@-output-v-fu.md
 	-rexx $(md2md) -fu $@.md > $@-output-fu.md 2>&1
 	diff -q $@-reference-fu.md $@-output-fu.md
+	-rexx $(md2md) -nl1 $@.md > $@-output-nl1.md 2>&1
+	diff -q $@-reference-nl1.md $@-output-nl1.md
+	-rexx $(md2md) -nl1 -v $@.md > $@-output-nl1-v.md 2>&1
+	diff -q $@-reference-nl1-v.md $@-output-nl1-v.md
+	-rexx $(md2md) -nl1 -v -fu $@.md > $@-output-nl1-v-fu.md 2>&1
+	diff -q $@-reference-nl1-v-fu.md $@-output-nl1-v-fu.md
+	-rexx $(md2md) -nl1 -fu $@.md > $@-output-nl1-fu.md 2>&1
+	diff -q $@-reference-nl1-fu.md $@-output-nl1-fu.md
 
 clean:
 	rm -f md2md-test_without_error-output.md
+	rm -f md2md-test_without_error-output-nl1.md
 	rm -f md2md-test_with_errors-output.md
 	rm -f md2md-test_with_errors-output-v.md
 	rm -f md2md-test_with_errors-output-v-fu.md
 	rm -f md2md-test_with_errors-output-fu.md
+	rm -f md2md-test_with_errors-output-nl1.md
+	rm -f md2md-test_with_errors-output-nl1-v.md
+	rm -f md2md-test_with_errors-output-nl1-v-fu.md
+	rm -f md2md-test_with_errors-output-nl1-fu.md

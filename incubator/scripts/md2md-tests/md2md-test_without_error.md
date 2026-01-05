@@ -66,5 +66,3 @@ Title with sequences of several spaces in the middle and at the end
 #           Title    level    1    with    spaces    
 ## Title    level    2    with    spaces    
 ##          Title    level    2    with    spaces    
-## 1. Title    level    2    with    spaces    
-## 1.       Title    level    2    with    spaces    

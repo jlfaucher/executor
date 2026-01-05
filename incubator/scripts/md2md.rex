@@ -1,13 +1,22 @@
 /*
 Transform a Markdown file to another Mardown file.
 
-The titles are numbered, except the first level.
-# title         -->     # title
-## title        -->     ## 1 title
-### title       -->     ### 1.1 title
-#### title      -->     #### 1.1.1 title
-##### title     -->     ##### 1.1.1.1 title
-###### title    -->     ###### 1.1.1.1.1 title
+If 0 or 1 level 1 title, or if option --no-level-1 then
+    The level 1 counter is not displayed in the sequence of title counters.
+    # title         -->     # title
+    ## title        -->     ## 1. title
+    ### title       -->     ### 1.1. title
+    #### title      -->     #### 1.1.1. title
+    ##### title     -->     ##### 1.1.1.1. title
+    ###### title    -->     ###### 1.1.1.1.1. title
+otherwise
+    All the counters are displayed in the sequence of title counters.
+    # title         -->     # 1. title
+    ## title        -->     ## 1.1. title
+    ### title       -->     ### 1.1.1. title
+    #### title      -->     #### 1.1.1.1. title
+    ##### title     -->     ##### 1.1.1.1.1. title
+    ###### title    -->     ###### 1.1.1.1.1.1. title
 
 If a title has already a number, then
 - this number is checked for length consistency with the title level;
@@ -26,10 +35,13 @@ signal on syntax name abort
 .local~column.width = 5
 .local~column.separator = "  " -- plus one space before and one space after when written "before" .column.separator "after"
 .local~verbose = .false
+
 if arg() == 0 then signal help
 
+display_level_1 = .true
 force_overwrite = .false
 force_update = .false
+
 parse_options:
     option = c_arg()
     option = option~lower
@@ -40,6 +52,8 @@ parse_options:
     else if option == "--force-update"      then signal option_force_update
     else if option == "-h"                  then signal help
     else if option == "--help"              then signal help
+    else if option == "-nl1"                then signal option_no_level_1
+    else if option == "--no-level-1"        then signal option_no_level_1
     else if option == "-v"                  then signal option_verbose
     else if option == "--verbose"           then signal option_verbose
     else if option == "--"                  then signal option_end_of_options
@@ -59,7 +73,7 @@ end_of_options:
 
     inputobject = setupInputStream(inputname)
     outputobject = setupOutputStream(outputname, force_overwrite, inputobject)
-    if \ transform(inputobject, outputobject, outputname, force_update) then exit -1
+    if \ transform(inputobject, outputobject, outputname, display_level_1, force_update) then exit -1
     exit 0
 
 option_force_overwrite:
@@ -69,6 +83,11 @@ option_force_overwrite:
 
 option_force_update:
     force_update = .true
+    call shift_c_args -- skip the option
+    signal parse_options -- continue parsing
+
+option_no_level_1:
+    display_level_1 = .false
     call shift_c_args -- skip the option
     signal parse_options -- continue parsing
 
@@ -92,7 +111,7 @@ unexpected_arguments:
 help:
     .error~say("Description:")
     .error~say("    Transform a Markdown file to another Mardown file.")
-    .error~say("    The titles are numbered, except the first level.")
+    .error~say("    The titles are numbered.")
     signal usage
 
 usage:
@@ -195,12 +214,21 @@ abort:
 -- Transforms the Markdown stream.
 
 ::routine transform
-    use strict arg inputobject, outputobject, outputname, force_update
+    use strict arg inputobject, outputobject, outputname, display_level_1, force_update
 
     inputLines = inputobject~arrayIn("Lines")
     outputLines = .list~new
 
-    transformer = .MarkdownTransformer~new
+    -- If at least 2 titles at level 1 then the titles at level will be displayed
+    level1TitlesCount = 0
+    do line over inputLines
+        level1TitlesCount += .MarkdownTransformer~isMarkdownTitle(line, 1)
+    end
+    if .verbose then .traceOutput~say("level1TitlesCount =" level1TitlesCount)
+    if display_level_1 then display_level_1 = (level1TitlesCount >= 2)
+
+    transformer = .MarkdownTransformer~new(display_level_1)
+
     lineNumber = 1
     do line over inputLines
         if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "line in  =" line)
@@ -257,14 +285,30 @@ abort:
 ::constant nbspace "C2A0"x
 ::constant nbspaceCount 3
 
-::attribute hcounter -- Hierarchical counter
 
+::method isMarkdownTitle class
+    use strict arg line, titleLevel
+    line = line~changeStr(self~nbspace, " ")
+
+    -- A markdown title tag is made of 1..n #, followed by a space or an end-of-line
+    -- titleLevel 1:    ^# ...$ or ^#$
+    -- titleLevel 2:    ^## ...$ or ^##$
+    -- etc.
+    tag = "#"~copies(titleLevel)
+    nextChar = line~subchar(titleLevel + 1)
+    isMarkdownTitle = (line~pos(tag) == 1) & (nextChar == " " | nextChar == "")
+    return isMarkdownTitle
+
+
+::attribute hcounter -- Hierarchical counter
 ::attribute errors get
+::attribute display_level_1 get
 
 
 ::method init
-    expose hcounter errors
-    hcounter = .HierarchicalCounter~new(self~maxLevel)
+    expose hcounter errors display_level_1
+    use strict arg display_level_1
+    hcounter = .HierarchicalCounter~new(self~maxLevel, display_level_1)
     errors = .List~new
 
 
@@ -289,18 +333,11 @@ Returns the line with an updated title number
 ::method updateTitleNumber_Maybe_
     use strict arg line, lineNumber, titleLevel
 
+    if \ self~class~isMarkdownTitle(line, titleLevel) then return .NIL
+
     -- Standardizes nbspaces
     lineUnchanged = line
     line = line~changeStr(self~nbspace, " ")
-
-    -- Must start with a markdown title tag made of 1..n #, followed by a space or an end-of-line
-    -- titleLevel 1:    ^# ...$ or ^#$
-    -- titleLevel 2:    ^## ...$ or ^##$
-    -- etc.
-    tag = "#"~copies(titleLevel)
-    nextChar = line~subchar(titleLevel + 1)
-    startsWithMarkdownTitle = (line~pos(tag) == 1) & (nextChar == " " | nextChar == "")
-    if \ startsWithMarkdownTitle then return .NIL
 
     hcounterNext = self~hcounter~next(titleLevel)
     if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "title level" titleLevel .column.separator "next =" hcounterNext)
@@ -333,6 +370,7 @@ Returns the line with an updated title number
     title = line~substr(startTitle)
 
     -- Transform the line, using an updated title number
+    tag = "#"~copies(titleLevel)
     separator = self~nbspace~copies(self~nbspaceCount)
     line = tag || " " || hcounterNext || separator || title
     return line
@@ -369,30 +407,48 @@ Returns the line with an updated title number
 ::method checkTitleNumber
     /*
     Pre-condition: titleNumber is well-formed.
-    Correct:
-        titleLevel titleNumber
-            #                          no counter
-            ##          1.          or no counter
-            ###         1.1.        or no counter
-            ####        1.1.1.      or no counter
-            #####       1.1.1.1.    or no counter
-            ######      1.1.1.1.1.  or no counter
-    Incorrect:
-            #           1.          Level 1 or level 2?
-            #           1.1.        Level 1 or level 3?
-            ##          1.1.        Level 2 or level 3?
-            ##          1.1.1.      Level 2 or level 4?
+    If 0..1 title at level 1
+        Correct:
+            titleLevel titleNumber
+                #                          no counter
+                ##          1.          or no counter
+                ###         1.1.        or no counter
+                ####        1.1.1.      or no counter
+                #####       1.1.1.1.    or no counter
+                ######      1.1.1.1.1.  or no counter
+        Incorrect:
+                #           1.          Level 1 or level 2?
+                #           1.1.        Level 1 or level 3?
+                ##          1.1.        Level 2 or level 3?
+                ##          1.1.1.      Level 2 or level 4?
+    If at least 2 titles at level 1
+        Correct:
+            titleLevel titleNumber
+                #           1.              or no counter
+                ##          1.1.            or no counter
+                ###         1.1.1.          or no counter
+                ####        1.1.1.1.        or no counter
+                #####       1.1.1.1.1.      or no counter
+                ######      1.1.1.1.1.1.    or no counter
+        Incorrect:
+                #           1.1.            Level 1 or level 2?
+                #           1.1.1.          Level 1 or level 3?
+                ##          1.1.1.          Level 2 or level 3?
+                ##          1.1.1.1.        Level 2 or level 4?
     */
+    expose display_level_1
     use strict arg lineNumber, titleNumber, titleLevel
     if titleNumber == "" then return .true
     if self~checkTitleNumberSyntax(lineNumber, titleNumber) == .false then return .false
 
-    -- The count of dots gives the level of this title number, minus 1.
-    -- 1 dot    ==> n1.         ==> level 2
-    -- 2 dots   ==> n1.n2.      ==> level 3
-    -- 3 dots   ==> n1.n2.n3.   ==> level 4
+    -- The count of dots gives the level of this title number:
+    -- Titles at level 1 are displayed?     yes        no
+    -- 1 dot    ==> n1.         ==>         level 1 or level 2
+    -- 2 dots   ==> n1.n2.      ==>         level 2 or level 3
+    -- 3 dots   ==> n1.n2.n3.   ==>         level 3 or level 4
     -- etc.
-    titleNumberLevel = titleNumber~countStr(".") + 1
+    titleNumberLevel = titleNumber~countStr(".")
+    if \ display_level_1 then titleNumberLevel += 1
     if titleNumberLevel == titleLevel then return .true
 
     error = "line" lineNumber~right(.column.width) .column.separator "Number of '#' incorrect? got" titleLevel "'#' for a counter level" titleNumberLevel
@@ -403,16 +459,17 @@ Returns the line with an updated title number
 
 -------------------------------------------------------------------------------
 -- Generator of hierarchical counters
--- No counter displayed for the level 1
+-- The level 1 counter can be displayed or not
 
 ::class HierarchicalCounter
 
 ::attribute maxLevel get
+::attribute display_level_1 get
 
 
 ::method init
-    expose counters maxLevel
-    use strict arg maxLevel=9
+    expose counters maxLevel display_level_1
+    use strict arg maxLevel=9, display_level_1=.true
     counters = .array~new(maxLevel)~~fill(0)
 
 
@@ -435,7 +492,7 @@ Returns the line with an updated title number
 
 
 ::method toString
-    expose counters string
+    expose counters display_level_1 string
     use strict arg -- none
 
     -- Display all counters except the first; stop at the first zero counter after a non-zero counter.
@@ -454,7 +511,7 @@ Returns the line with an updated title number
         counter = counters[i]
         if counter == 0, stopWhen0 then leave
         if counter \== 0 then stopWhen0 = .true -- next 0 will be a stop
-        if i > 1 then string ||= counter || "." -- don't display the first counter
+        if display_level_1 | i > 1 then string ||= counter || "." -- display the first counter only if display_level_1 is true
     end
     return string
 
