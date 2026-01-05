@@ -352,7 +352,7 @@ Returns the line with an updated title number
         dotIndex = titleNumber~verify("0123456789", "Nomatch", index) -- first non-digit position
         if dotIndex == index then leave -- no digit
         if dotIndex == 0 then leave -- missing dot
-        if titleNumber[dotIndex] \== "." then leave -- dot expected
+        if titleNumber~subchar(dotIndex) \== "." then leave -- dot expected
         isValid = (dotIndex == titleNumber~length)
         if isValid then leave
         index = dotIndex + 1
