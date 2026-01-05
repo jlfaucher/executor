@@ -26,21 +26,21 @@ md2md-test_without_error :
 	diff -q $@-reference-nl1.md $@-output-nl1.md
 
 md2md-test_with_errors :
-	-rexx $(md2md) $@.md > $@-output.md 2>&1
+	-rexx $(md2md) $@.md > $@-output.md 2>&1 || true
 	diff -q $@-reference.md $@-output.md
-	-rexx $(md2md) -v $@.md > $@-output-v.md 2>&1
+	-rexx $(md2md) -v $@.md > $@-output-v.md 2>&1 || true
 	diff -q $@-reference-v.md $@-output-v.md
-	-rexx $(md2md) -v -fu $@.md > $@-output-v-fu.md 2>&1
+	-rexx $(md2md) -v -fu $@.md > $@-output-v-fu.md 2>&1 || true
 	diff -q $@-reference-v-fu.md $@-output-v-fu.md
-	-rexx $(md2md) -fu $@.md > $@-output-fu.md 2>&1
+	-rexx $(md2md) -fu $@.md > $@-output-fu.md 2>&1 || true
 	diff -q $@-reference-fu.md $@-output-fu.md
-	-rexx $(md2md) -nl1 $@.md > $@-output-nl1.md 2>&1
+	-rexx $(md2md) -nl1 $@.md > $@-output-nl1.md 2>&1 || true
 	diff -q $@-reference-nl1.md $@-output-nl1.md
-	-rexx $(md2md) -nl1 -v $@.md > $@-output-nl1-v.md 2>&1
+	-rexx $(md2md) -nl1 -v $@.md > $@-output-nl1-v.md 2>&1 || true
 	diff -q $@-reference-nl1-v.md $@-output-nl1-v.md
-	-rexx $(md2md) -nl1 -v -fu $@.md > $@-output-nl1-v-fu.md 2>&1
+	-rexx $(md2md) -nl1 -v -fu $@.md > $@-output-nl1-v-fu.md 2>&1 || true
 	diff -q $@-reference-nl1-v-fu.md $@-output-nl1-v-fu.md
-	-rexx $(md2md) -nl1 -fu $@.md > $@-output-nl1-fu.md 2>&1
+	-rexx $(md2md) -nl1 -fu $@.md > $@-output-nl1-fu.md 2>&1 || true
 	diff -q $@-reference-nl1-fu.md $@-output-nl1-fu.md
 
 clean:
