@@ -283,54 +283,6 @@ Similar to ~makeArray(separator), with these differences:
     return "0123456789ABCDEFabcdef"
 
 
-::method contains
-    -- regex.cls uses the method .String~contains which is available only from ooRexx v5.
-    forward message "pos" continue
-    return result <> 0
-
-
-::method caselessContains
-    -- ooRexx v5
-    forward message "caselessPos" continue
-    return result <> 0
-
-
-::method startsWith
-    -- ooRexx v5
-    forward message "pos" continue
-    return result == 1
-
-
-::method caselessStartsWith
-    -- ooRexx v5
-    forward message "caselessPos" continue
-    return result == 1
-
-
-::method endsWith
-    -- ooRexx v5
-    use strict arg substr
-    start = self~length - substr~length + 1
-    if start < 1 then return .false
-    return self~pos(substr, start) == start
-
-
-::method caselessEndsWith
-    -- ooRexx v5
-    use strict arg substr
-    start = self~length - substr~length + 1
-    if start < 1 then return .false
-    return self~caselessPos(substr, start) == start
-
-
-::method "[]"
-    -- ooRexx v5
-    use strict arg n, length=1
-    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
-    if maxLength <= 0 then return ""
-    return self~substr(n, min(length, maxLength))
-
-
 /******************************************************************************/
 ::class "StringPrettyPrinter" mixinclass Object public
 
@@ -351,12 +303,7 @@ Similar to ~makeArray(separator), with these differences:
 /******************************************************************************/
 ::class "MutableBufferCompatibilityWithOORexx5" mixinclass Object public
 
-::method "[]"
-    -- ooRexx v5
-    use strict arg n, length=1
-    maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
-    if maxLength <= 0 then return ""
-    return self~substr(n, min(length, maxLength))
+-- Nothing for the moment, moved to CoreClasses.orx
 
 
 /******************************************************************************/
