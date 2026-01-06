@@ -12,6 +12,10 @@
     return 0
 
 
+::method endOfLine class
+    return .endOfLine
+
+
 ::method internalDigits class
     if self~architecture == 32 then return 9
     else return 18
