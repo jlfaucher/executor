@@ -3,6 +3,16 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Jan 06
+
+Enhance the md2md script.
+(in incubator/scripts)
+Now the titles at level 1 are numbered when the .md stream contains at least
+2 titles at level 1.
+The new option [-nl1 | --no-level-1] forbids the numbering of titles at level 1.
+
+
+===============================================================================
 2025 Dec 19
 
 Rework the md2md script.
