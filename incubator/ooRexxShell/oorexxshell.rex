@@ -185,7 +185,10 @@ if .platform~is("windows") then .ooRexxShell~readline = .false
 */
 
 -- Deactivate the readline mode when the environment variable OOREXXSHELL_RLWRAP is defined.
-if environment_string("OOREXXSHELL_RLWRAP") <> "" then .ooRexxShell~readline = .false
+if environment_string("OOREXXSHELL_RLWRAP") <> "" then do
+    .ooRexxShell~rlwrap = .true
+    .ooRexxShell~readline = .false
+end
 
 .ooRexxShell~readlineAddress = readlineAddress()
 .ooRexxShell~systemAddress = systemAddress()
@@ -1388,6 +1391,7 @@ Helpers
 ::attribute readlineAddress class -- "CMD" under Windows, "bash" under Linux/MacOs
 ::attribute resetColor class
 ::attribute rexxHome class -- value of the environment variable REXX_HOME
+::attribute rlwrap class -- .true if rlwrap is used
 ::attribute routine_dump2 class -- The routine dump2 of extended rgf_util, or .nil
 ::attribute routine_pp2 class -- The routine pp2 of extended rgf_util, or .nil
 ::attribute routine_stringChunks class -- The routine stringChunks, or .nil
@@ -1451,6 +1455,7 @@ Helpers
     self~promptDirectory = .true
     self~promptInterpreter = .true
     self~readline = .false
+    self~rlwrap = .false
 
     -- displayer
     self~maxItemsDisplayed = 1000
@@ -1725,6 +1730,7 @@ Helpers
     ",[info]   readlineAddress",
     ",[custom] resetColor",
     ",[info]   rexxHome",
+    ",[info]   rlwrap",
     ",[info]   runtimeDir",
     ",[info]   settingsFile",
     ",[custom] showColor",

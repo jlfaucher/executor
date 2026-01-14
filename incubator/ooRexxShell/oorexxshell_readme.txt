@@ -446,6 +446,16 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 jan 14
+
+New attribute .ooRexxShell~rlwrap.
+This attribute is true when rlwrap has been used in the ooRexxShell script.
+
+?s = rlwrap
+'[info]   .ooRexxShell~rlwrap'                          :  1
+
+
+-----------------------------------------------
 2025 mar 28
 
 The XDG files are now in the portable root directory.
