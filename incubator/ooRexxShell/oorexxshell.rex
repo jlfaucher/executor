@@ -610,6 +610,8 @@ Helpers
             .ooRexxShell~sayComment("    Options DefaultString is" .Unicode.DefaultString)
             .ooRexxShell~sayComment("    Options Coercions     is" .Unicode.Coercions)
         end
+
+        if .ooRexxShell~isExtended then call checkDisabledExtensions
     end
 
     parse version version
@@ -1336,6 +1338,31 @@ Helpers
             end
         end
     end
+
+
+-------------------------------------------------------------------------------
+::routine checkDisabledExtensions
+    -- Some extensions can be disabled at compile time using
+    -- #define DISABLE_EXTENSIONS in various source files.
+    -- I do this when I want to mesure the impact on execution time.
+    -- But sometimes, I forget that I disabled some extensions!
+    -- Better to display a reminder...
+
+    if \ .ooRexxShell~isExtended then return
+
+    if "🦖"~class == .String then .ooRexxShell~sayError("Automatic conversion of literal strings into RexxText instances is disabled.")
+    if ""~dynamicTarget("🦖")~class == .String then .ooRexxShell~sayError("Dynamic targeting of String messages is disabled.")
+    if length("🦖"~text) \== 1 then .ooRexxShell~sayError("Dynamic targeting of String BIFs is disabled.")
+
+    digits = digits()
+    .globalRoutines["DIGITS"] = .routines~digits
+    if digits() \== "overridden" then .ooRexxShell~sayError("Replacing a built-in function with a global routine is disabled.")
+    .globalRoutines~remove("DIGITS")
+    if digits() \== digits then .ooRexxShell~sayError("Error: Unable to undo overriding built-in function digits().")
+
+-- A global routine with the same name as a builtin function overrides this function.
+::routine digits private
+    return "overridden"
 
 
 -------------------------------------------------------------------------------
