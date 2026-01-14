@@ -448,6 +448,24 @@ History of changes
 -----------------------------------------------
 2026 jan 14
 
+Declare oorexxshell.rex executable.
+
+Change the shebang:
+#!/usr/bin/env rexx
+
+Add this workaround for macOS in oorexxshell.rex:
+The variable $DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
+If $EXECUTOR_DYLD_LIBRARY_PATH is defined then assign it to $DYLD_LIBRARY_PATH.
+
+The workaround above is not working when oorexxshell.rex is directly executed
+from the command line (Not recommended as the reloading command will not work).
+    loadPackage KO for BSF.CLS
+    Error 98.903: Unable to load library "BSF4ooRexx".
+
+
+-----------------------------------------------
+2026 jan 14
+
 New attribute .ooRexxShell~rlwrap.
 This attribute is true when rlwrap has been used in the ooRexxShell script.
 

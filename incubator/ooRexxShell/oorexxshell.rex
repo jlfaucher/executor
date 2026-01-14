@@ -1,4 +1,4 @@
-#!/usr/bin/rexx
+#!/usr/bin/env rexx
 /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /* Copyright (c) 1995, 2004 IBM Corporation. All rights reserved.             */
@@ -227,6 +227,22 @@ builder/scripts/setenv-oorexx :
 ~/.bash_env : defines some aliases, calls $REXX_ENVIRONMENT
 oorexxshell.rex: executes bash and sh in interactive mode (which expand the aliases and redefine $[DY]LD_LIBRARY_PATH)
 */
+
+/*
+macOS: The variable $DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
+
+There is a first workaround in the oorexxshell script:
+[ $EXECUTOR_DYLD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
+The EXECUTOR_DYLD_LIBRARY_PATH variable is defined by:
+- the builder
+- the portable net-oo-rexx
+
+The workaround above is not working when oorexxshell.rex is directly executed
+from the command line (Not recommended as the reloading command will not work).
+Additional workaround here, but it's not working, to investigate:
+*/
+EXECUTOR_DYLD_LIBRARY_PATH = value("EXECUTOR_DYLD_LIBRARY_PATH", , "ENVIRONMENT")
+if EXECUTOR_DYLD_LIBRARY_PATH \== "" then call value "DYLD_LIBRARY_PATH", EXECUTOR_DYLD_LIBRARY_PATH, "ENVIRONMENT"
 
 call loadOptionalComponents
 
