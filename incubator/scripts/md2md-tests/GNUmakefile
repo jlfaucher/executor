@@ -9,7 +9,8 @@
 md2md = ../md2md.rex
 
 mainFiles = md2md-test_without_error \
-            md2md-test_with_errors
+            md2md-test_with_errors \
+            md2md-test_commands
 
 help:
 	@echo "make all"
@@ -42,6 +43,10 @@ md2md-test_with_errors :
 	diff -q $@-reference-nl1-v-fu.md $@-output-nl1-v-fu.md
 	-rexx $(md2md) -nl1 -fu $@.md > $@-output-nl1-fu.md 2>&1 || true
 	diff -q $@-reference-nl1-fu.md $@-output-nl1-fu.md
+
+md2md-test_commands :
+	-rexx $(md2md) -v -fu $@.md > $@-output-v-fu.md 2>&1 || true
+	diff -q $@-reference-v-fu.md $@-output-v-fu.md
 
 clean:
 	rm -f md2md-test_without_error-output.md

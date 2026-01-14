@@ -130,6 +130,11 @@ usage:
     .error~say("        --                      indicates the end of the options")
     .error~say("        The default value for inputname is stdin.")
     .error~say("        The default value for outputname is stdout.")
+    .error~say("")
+    .error~say("Supported commands in markdown title:")
+    .error~say("    ...# <!--no_number-->...")
+    .error~say("    ...# <!--reset-->...")
+    .error~say("No space after the command to keep the titles aligned.")
     exit -1
 
     /*
@@ -340,6 +345,20 @@ Returns the line with an updated title number
     lineUnchanged = line
     line = line~changeStr(self~nbspace, " ")
 
+    -- Is there a <!--command-->?
+    -- Example: # <!--no_number-->Title
+    command = self~command_Maybe_(line, lineNumber, titleLevel)
+    if command \== "" then do
+        if command~caselessEquals("nonumber") then return line
+        else if command~caselessEquals("reset") then self~hcounter~reset(titleLevel)
+        else do
+            error = "line" lineNumber~right(.column.width) .column.separator "Unknown command:" command
+            if .verbose then .traceOutput~say(error)
+            self~errors~append(error)
+            -- don't return, continue despite the unknown command, c'est mon choix
+        end
+    end
+
     hcounterNext = self~hcounter~next(titleLevel)
     if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "title level" titleLevel .column.separator "next =" hcounterNext)
     --if hcounterNext == "" then return lineUnchanged
@@ -379,6 +398,40 @@ Returns the line with an updated title number
     end
     line = tag || " " || hcounterNext || title
     return line
+
+
+::method command_Maybe_
+    /*
+    Is there a <!--command--> after the number signs?
+
+    Example:
+    # <!--no_number-->Title
+    Recommendation: No space after the command to keep the titles aligned.
+
+    Returns "" if no command.
+    Otherwise returns the normalized command.
+
+    Example:
+    "nonumber", "no_number", "no-number", "no.number", "no:number", "no number" are all equivalent.
+    Returns "nonumber".
+    */
+    use strict arg line, lineNumber, titleLevel
+    startCommand = line~verify(" ", "Nomatch", titleLevel + 2) -- 1st non-space position after the markdown title tag
+    if startCommand \== 0 then do
+        rawCommand = line~substr(startCommand)
+        if rawCommand~startsWith("<!--") then do
+            endCommand = rawCommand~pos("-->", 5) -- search "-->" after "<!--"
+            if endCommand \== 0 then do
+                rawCommand = rawCommand~left(endCommand + 3) -- <!-- ... -->
+                if .verbose then .traceOutput~say("line" lineNumber~right(.column.width) .column.separator "title level" titleLevel .column.separator "rawCommand =" rawCommand)
+                parse lower var rawCommand "<!--" command "-->"
+                -- Remove all dash, underscore, dots, colons and spaces:
+                command = command~translate(, "-_.: "," ")~space(0)
+                return command
+            end
+        end
+    end
+    return ""
 
 
 ::method checkTitleNumberSyntax
@@ -492,6 +545,22 @@ Returns the line with an updated title number
         counters[i] = 0
     end
     return self~toString
+
+    invalid_level: raise syntax 88.900 array ("Invalid level:" level". Must be from 1 to" self~maxLevel)
+
+
+::method reset
+    expose counters string
+    use strict arg level
+
+    if level < 1 or level > self~maxLevel then signal invalid_level
+
+    string = "" -- invalidates the string representation
+    -- Reset the counters from specified level
+    do i = level to self~maxLevel
+        counters[i] = 0
+    end
+    return
 
     invalid_level: raise syntax 88.900 array ("Invalid level:" level". Must be from 1 to" self~maxLevel)
 
