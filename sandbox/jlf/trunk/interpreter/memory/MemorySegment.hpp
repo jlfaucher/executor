@@ -123,7 +123,8 @@ class RexxMemory;
 /* A segment of heap memory. A MemorySegment will be associated */
 /* with a particular MemorySegmentSet, which implements the */
 /* suballocation rules. */
-class MemorySegmentHeader {
+class MemorySegmentHeader
+{
  friend class MemorySegmentSet;
  friend class NormalSegmentSet;
  friend class LargeSegmentSet;
@@ -131,16 +132,19 @@ class MemorySegmentHeader {
  friend class RexxMemory;
 
   protected:
+
    size_t segmentSize;                     /* size of the segment */
    size_t liveObjects;                     /* number of live objects in segment */
    MemorySegment *next;                    /* next segment in the chain */
    MemorySegment *previous;                /* previous segment in the chain */
 };
 
+
 /* A segment of heap memory. A MemorySegment will be associated */
 /* with a particular MemorySegmentSet, which implements the */
 /* suballocation rules. */
-class MemorySegment : public MemorySegmentHeader {
+class MemorySegment : public MemorySegmentHeader
+{
  friend class MemorySegmentSet;
  friend class NormalSegmentSet;
  friend class LargeSegmentSet;
@@ -152,43 +156,50 @@ class MemorySegment : public MemorySegmentHeader {
    inline void  operator delete(void *) { }
    inline void  operator delete(void *, void *) { }
 
-   inline MemorySegment(size_t segSize) {
+   inline MemorySegment(size_t segSize)
+   {
        segmentSize = segSize - sizeof(MemorySegmentHeader);
    }
    /* Following is a static constructor, called during RexxMemory */
    /* initialization */
-   inline MemorySegment() {
+   inline MemorySegment()
+   {
        segmentSize = 0;
        /* Chain this segment to itself. */
        next = this;
        previous = this;
    }
 
-   inline void insertAfter(MemorySegment *newSegment) {
+   inline void insertAfter(MemorySegment *newSegment)
+   {
        newSegment->next     = this->next;
        newSegment->previous = this;
        this->next->previous = newSegment;
        this->next           = newSegment;
    };
 
-   inline void insertBefore(MemorySegment *newSegment) {
+   inline void insertBefore(MemorySegment *newSegment)
+   {
        newSegment->next     = this;
        newSegment->previous = this->previous;
        this->previous->next = newSegment;
        this->previous       = newSegment;
    };
 
-   inline void remove() {
+   inline void remove()
+   {
        this->next->previous = this->previous;
        this->previous->next = this->next;
    }
 
-   inline void removeAll() {
+   inline void removeAll()
+   {
        firstObject()->remove();
        remove();
    }
 
-   inline bool isInSegment(RexxObject * object) {
+   inline bool isInSegment(RexxObject * object)
+   {
        return (((char *)object >= segmentStart) && ((char *)object <= segmentStart + segmentSize));
    }
 
@@ -224,13 +235,15 @@ class MemorySegment : public MemorySegmentHeader {
 /* memory segments allocated for different uses by RexxMemory. */
 /* This is a subclass of MemorySegment because the MemorySegmentSet */
 /* object is also the anchor element for the segment chaining. */
-class MemorySegmentSet {
+class MemorySegmentSet
+{
     friend class RexxMemory;
 
   public:
       typedef enum { SET_UNINITIALIZED, SET_NORMAL, SET_LARGEBLOCK, SET_OLDSPACE } SegmentSetID;
         /* the memory segment mimic for anchoring the pool */
-      MemorySegmentSet(RexxMemory *memObject, SegmentSetID id, const char *setName)  {
+      MemorySegmentSet(RexxMemory *memObject, SegmentSetID id, const char *setName, const char *className="MemorySegmentSet")
+      {
           /* Chain this segment to itself.     */
           owner = id;
           count = 0;
@@ -238,65 +251,102 @@ class MemorySegmentSet {
           /* us services. */
           this->memory = memObject;
           this->name = setName;
+#ifdef MEMPROFILE
+          // When this constructor is explicitely called by a subclass, className is the name of the calling subclass.
+          // If memory is NULL then it's a default initialization, don't trace it.
+          if (memory != OREF_NULL) fprintf(stderr, "[%s] constructor this=%p name=\"%s\"\n", className, this, name);
+#endif
       }
+
+#ifdef KEEP_DEFAULT_CONSTRUCTOR
         /* the default constructor */
-      MemorySegmentSet()  {
+      MemorySegmentSet(const char *className="MemorySegmentSet")
+      {
           /* Chain this segment to itself.     */
           owner = SET_UNINITIALIZED;
           count = 0;
           /* The link to the memory object will need to be established later */
           memory = NULL;
+          name = "";
+      }
+#endif
+
+      virtual ~MemorySegmentSet()
+      {
+#ifdef MEMPROFILE
+          // A virtual destructor that calls a virtual dumpMemoryProfile.
+          // virtual means that a delete through a base pointer will call the destructor of the subclass. Good.
+          // The dumpMemoryProfile of the subclass is called. Good.
+          // BUT then the destructor of the base class is called (virtual does not inhibit that).
+          // The dumpMemoryProfile of the base class is called. NOT GOOD.
+          // Conclusion: don't call dumpMemoryProfile from here.
+  #if 0
+          fprintf(stderr, "[MemorySegmentSet] destructor this=%p name=\"%s\"\n", this, name);
+          this->dumpMemoryProfile(stderr);
+  #endif
+#endif
       }
 
-      virtual ~MemorySegmentSet() { ; }
       inline void *operator new(size_t size, void *segment) { return segment; }
       inline void  operator delete(void * size) { }
       inline void  operator delete(void * size, void *segment) { }
 
       /* Following is a static constructor, called during */
-      /* RexxMemeory initialization */
+      /* RexxMemory initialization */
 
-      inline void removeSegment(MemorySegment *segment) {
+      inline void removeSegment(MemorySegment *segment)
+      {
           /* remove both the segment, and any blocks on the dead */
           /* chains. */
           segment->remove();
           count--;
       }
 
-      inline void removeSegmentAndStorage(MemorySegment *segment) {
+      inline void removeSegmentAndStorage(MemorySegment *segment)
+      {
           /* remove both the segment, and any blocks on the dead */
           /* chains. */
           segment->removeAll();
           count--;
       }
 
-      inline void add(MemorySegment *segment) {
+      inline void add(MemorySegment *segment)
+      {
           anchor.insertBefore(segment);
           count++;
       }
 
-      inline MemorySegment *first() {
-          if (anchor.next->isReal()) {
+      inline MemorySegment *first()
+      {
+          if (anchor.next->isReal())
+          {
               return anchor.next;
           }
-          else {
+          else
+          {
               return NULL;
           }
       }
 
-      inline MemorySegment *next(MemorySegment *segment) {
-          if (segment->next->isReal()) {
+      inline MemorySegment *next(MemorySegment *segment)
+      {
+          if (segment->next->isReal())
+          {
               return segment->next;
           }
-          else {
+          else
+          {
               return NULL;
           }
       }
 
-      inline bool isInSegmentSet(RexxObject *object) {
+      inline bool isInSegmentSet(RexxObject *object)
+      {
           MemorySegment *segment = first();
-          while (segment != NULL) {
-              if (segment->isInSegment(object)) {
+          while (segment != NULL)
+          {
+              if (segment->isInSegment(object))
+              {
                   return true;
               }
               segment = next(segment);
@@ -376,15 +426,30 @@ class MemorySegmentSet {
 };
 
 
+/**
+ * The segment set used for "normal" allocations.  This
+ * segment set will be used for smaller allocations, particularly
+ * ones that can be allocated from one of the small allocation pools.
+ */
 class NormalSegmentSet : public MemorySegmentSet
 {
   public:
 
+#ifdef KEEP_DEFAULT_CONSTRUCTOR
     /* the default constructor */
-    NormalSegmentSet()  { ; }
+    NormalSegmentSet() : MemorySegmentSet("NormalSegmentSet")  { ; }
+#endif
     NormalSegmentSet(RexxMemory *memory);
-    virtual ~NormalSegmentSet() { ; }
-    virtual void   dumpMemoryProfile(FILE *outfile);
+
+    virtual ~NormalSegmentSet()
+    {
+#ifdef MEMPROFILE
+        fprintf(stderr, "[NormalSegmentSet] destructor this=%p name=\"%s\"\n", this, name);
+        this->dumpMemoryProfile(stderr);
+#endif
+    }
+
+    void   dumpMemoryProfile(FILE *outfile) override;
     inline  RexxObject *allocateObject(size_t allocationLength)
     {
         DeadObject *newObject;
@@ -398,14 +463,16 @@ class NormalSegmentSet : public MemorySegmentSet
         /* large size. */
         targetPool = LengthToDeadPool(allocationLength);
 
-        if (targetPool < DeadPools) {
+        if (targetPool < DeadPools)
+        {
 
             /* pick up the last successful one */
             size_t currentDead = lastUsedSubpool[targetPool];
             /* loop through the small pool chains looking for a block. */
             /* We only go up to the largest blocks as a last resort to */
             /* reduce the fragmentation. */
-            while (currentDead < DeadPools) {
+            while (currentDead < DeadPools)
+            {
                 /* See if the chain has an object.  Once we get an */
                 /* object, we return this directly.  We accept over */
                 /* allocations when then come from the subpool chain. */
@@ -415,7 +482,8 @@ class NormalSegmentSet : public MemorySegmentSet
                 /* can't split anyway.  When we do split, the result is */
                 /* a very small fragment. */
                 newObject = subpools[currentDead].getFirstSingle();
-                if (newObject != OREF_NULL) {
+                if (newObject != OREF_NULL)
+                {
                     /* Record the success.  Next time around, */
                     /* allocations will come directly here. */
                     lastUsedSubpool[targetPool] = currentDead;
@@ -454,16 +522,19 @@ class NormalSegmentSet : public MemorySegmentSet
         /* one we can use either our object is too big for all the */
         /* small chains, or the small chains are depleted.... */
         newObject = largeDead.findFit(allocationLength, &realLength);
-        if (newObject != NULL) {         /* did we find an object?            */
+        if (newObject != NULL)
+        {         /* did we find an object?            */
             size_t deadLength = realLength - allocationLength;
             /* remainder too small or this is a very large request */
             /* is the remainder two small to reuse? */
-            if (deadLength < MinimumObjectSize) {
+            if (deadLength < MinimumObjectSize)
+            {
                 /* Convert this from a dead object into a real one of the */
                 /* given size. */
                 return (RexxObject *)newObject;
             }
-            else {
+            else
+            {
                 /* potentially split this object into a smaller unit so we */
                 /* can reuse the remainder. */
                 return splitNormalDeadObject(newObject, allocationLength, deadLength);
@@ -472,17 +543,17 @@ class NormalSegmentSet : public MemorySegmentSet
         return OREF_NULL;
     }
 
-            RexxObject *handleAllocationFailure(size_t allocationLength);
-    virtual DeadObject *donateObject(size_t allocationLength);
+    RexxObject *handleAllocationFailure(size_t allocationLength);
+    DeadObject *donateObject(size_t allocationLength) override;
     void    getInitialSet();
-    virtual size_t suggestMemoryExpansion();
-    virtual size_t suggestMemoryContraction();
+    size_t suggestMemoryExpansion() override;
+    size_t suggestMemoryContraction() override;
 
   protected:
-    virtual void addDeadObject(DeadObject *object);
-    virtual void addDeadObject(char *object, size_t length);
-    virtual void prepareForSweep();
-            void completeSweepOperation();
+    void addDeadObject(DeadObject *object) override;
+    void addDeadObject(char *object, size_t length) override;
+    void prepareForSweep() override;
+    void completeSweepOperation() override;
 
   private:
 
@@ -509,13 +580,15 @@ class NormalSegmentSet : public MemorySegmentSet
         DeadObject *largeObject = (DeadObject *)(((char *)object) + allocationLength);
         /* if the length is larger than the biggest subpool we */
         /* maintain, we add this to the large block list. */
-        if (deadLength > LargestSubpool) {
+        if (deadLength > LargestSubpool)
+        {
               /* ideally, we'd like to add this sorted by size, but */
               /* this is called so frequently, attempting to sort */
               /* degrades performance by about 10%. */
               largeDead.add(new (largeObject) DeadObject(deadLength));
         }
-        else {
+        else
+        {
             /* calculate the dead chain          */
             /* and add that to the appropriate chain */
             size_t deadChain = LengthToDeadPool(deadLength);
@@ -536,15 +609,29 @@ class NormalSegmentSet : public MemorySegmentSet
 };
 
 
+/**
+ * A segment set used for allocating "larger" objects, but not necessarily
+ * the largest objects.
+ */
 class LargeSegmentSet : public MemorySegmentSet
 {
   public:
 
+#ifdef KEEP_DEFAULT_CONSTRUCTOR
     /* the default constructor */
-    LargeSegmentSet()  { ; }
+    LargeSegmentSet() : MemorySegmentSet("LargeSegmentSet")  { ; }
+#endif
     LargeSegmentSet(RexxMemory *memory);
-    virtual ~LargeSegmentSet() { ; }
-    virtual void   dumpMemoryProfile(FILE *outfile);
+
+    virtual ~LargeSegmentSet()
+    {
+#ifdef MEMPROFILE
+        fprintf(stderr, "[LargeSegmentSet] destructor this=%p name=\"%s\"\n", this, name);
+        this->dumpMemoryProfile(stderr);
+#endif
+    }
+
+    void   dumpMemoryProfile(FILE *outfile) override;
     RexxObject *handleAllocationFailure(size_t allocationLength);
     inline RexxObject *allocateObject(size_t allocationLength)
         {
@@ -555,7 +642,8 @@ class LargeSegmentSet : public MemorySegmentSet
           /* the small chain are depleted.... */
           largeObject = deadCache.findBestFit(allocationLength);
           /* did we find an object?            */
-          if (largeObject != NULL) {
+          if (largeObject != NULL)
+          {
               /* remember the successful request */
               requests++;
               /* split and prepare this object for use */
@@ -564,17 +652,17 @@ class LargeSegmentSet : public MemorySegmentSet
           return OREF_NULL;                    /* we couldn't get this              */
         }
 
-    virtual DeadObject *donateObject(size_t allocationLength);
+    DeadObject *donateObject(size_t allocationLength) override;
 
 protected:
 
-    virtual void addDeadObject(DeadObject *object);
-    virtual void addDeadObject(char *object, size_t length);
-    virtual MemorySegment *allocateSegment(size_t requestLength, size_t minimumLength);
+    void addDeadObject(DeadObject *object) override;
+    void addDeadObject(char *object, size_t length) override;
+    MemorySegment *allocateSegment(size_t requestLength, size_t minimumLength) override;
     void expandOrCollect(size_t allocationLength);
     void expandSegmentSet(size_t allocationLength);
-    virtual void prepareForSweep();
-            void completeSweepOperation();
+    void prepareForSweep() override;
+    void completeSweepOperation() override;
 
   private:
 
@@ -587,21 +675,35 @@ protected:
 };
 
 
+/**
+ * The segment set for the oldspace containing the ooRexx image.
+ */
 class OldSpaceSegmentSet : public MemorySegmentSet
 {
   public:
 
+#ifdef KEEP_DEFAULT_CONSTRUCTOR
     /* the default constructor */
-    OldSpaceSegmentSet()  { ; }
+    OldSpaceSegmentSet() : MemorySegmentSet("OldSpaceSegmentSet") { ; }
+#endif
     OldSpaceSegmentSet(RexxMemory *memory);
-    virtual ~OldSpaceSegmentSet() { ; }
-            RexxObject *allocateObject(size_t allocationLength);
+
+    virtual ~OldSpaceSegmentSet()
+    {
+#ifdef MEMPROFILE
+        fprintf(stderr, "[OldSpaceSegmentSet] destructor this=%p name=\"%s\"\n", this, name);
+        this->dumpMemoryProfile(stderr);
+#endif
+    }
+
+    void   dumpMemoryProfile(FILE *outfile) override;
+    RexxObject *allocateObject(size_t allocationLength);
 
     void markOldSpaceObjects();
 
   protected:
-    virtual void addDeadObject(DeadObject *object);
-    virtual void addDeadObject(char *object, size_t length);
+    void addDeadObject(DeadObject *object) override;
+    void addDeadObject(char *object, size_t length) override;
     RexxObject *findObject(size_t allocationLength);
 
   private:

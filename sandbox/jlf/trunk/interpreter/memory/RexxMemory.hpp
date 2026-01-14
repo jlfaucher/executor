@@ -177,7 +177,9 @@ class RexxMemory : public RexxInternalObject
 #endif
  public:
   inline RexxMemory();
+#ifdef KEEP_EMPTY_CONSTRUCTOR
   inline RexxMemory(RESTORETYPE restoreType) { ; };
+#endif
 
   inline operator RexxObject*() { return (RexxObject *)this; };
   inline RexxObject *operator=(DeadObject *d) { return (RexxObject *)this; };
@@ -240,30 +242,48 @@ class RexxMemory : public RexxInternalObject
   void        liveStackFull();
   void        dumpMemoryProfile();
   char *      allocateImageBuffer(size_t size);
-  void        logVerboseOutput(const char *message, void *sub1, void *sub2);
+  void        logVerboseOutput(const char *message, void *sub1, void *sub2, void *sub3);
   inline void verboseMessage(const char *message) {
 #ifdef VERBOSE_GC
-      logVerboseOutput(message, NULL, NULL);
+      logVerboseOutput(message, NULL, NULL, NULL);
 #endif
   }
 
   inline void verboseMessage(const char *message, size_t sub1) {
 #ifdef VERBOSE_GC
-      logVerboseOutput(message, (void *)sub1, NULL);
+      logVerboseOutput(message, (void *)sub1, NULL, NULL);
 #endif
   }
 
   inline void verboseMessage(const char *message, size_t sub1, size_t sub2) {
 #ifdef VERBOSE_GC
-      logVerboseOutput(message, (void *)sub1, (void *)sub2);
+      logVerboseOutput(message, (void *)sub1, (void *)sub2, NULL);
 #endif
   }
 
   inline void verboseMessage(const char *message, const char *sub1, size_t sub2) {
 #ifdef VERBOSE_GC
-      logVerboseOutput(message, (void *)sub1, (void *)sub2);
+      logVerboseOutput(message, (void *)sub1, (void *)sub2, NULL);
 #endif
-  }
+    }
+
+    inline void verboseMessage(const char *message, size_t sub1, size_t sub2, size_t sub3) {
+  #ifdef VERBOSE_GC
+        logVerboseOutput(message, (void *)sub1, (void *)sub2, (void *)sub3);
+  #endif
+    }
+
+    inline void verboseMessage(const char *message, size_t sub1, const char *sub2, const char *sub3) {
+  #ifdef VERBOSE_GC
+        logVerboseOutput(message, (void *)sub1, (void *)sub2, (void *)sub3);
+  #endif
+    }
+
+  inline void verboseMessage(const char *message, size_t sub1, const char *sub2) {
+#ifdef VERBOSE_GC
+      logVerboseOutput(message, (void *)sub1, (void *)sub2, NULL);
+#endif
+    }
 
   inline void logObjectStats(RexxObject *obj) { imageStats->logObject(obj); }
   inline void pushSaveStack(RexxObject *obj) { saveStack->push(obj); }

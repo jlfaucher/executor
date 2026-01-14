@@ -45,7 +45,6 @@
 #ifndef Included_DeadObject
 #define Included_DeadObject
 
-void FOUND(); void NOTFOUND();
 /* Dead chains are doubly linked lists.  The anchors are in the memoryobj dead   */
 /* arrays.  The first element of each dead list is a dead object 3 words long.   */
 /* The first and third words are next and prev pointers, and the second is the   */
@@ -56,26 +55,34 @@ void FOUND(); void NOTFOUND();
 
 /* DeadObject must be kept in synch with RexxInternalObject size */
 /* and layout */
-class DeadObject {
+class DeadObject
+{
  friend class DeadObjectPool;
 
  public:
     inline void *operator new(size_t size, void *address) { return address; };
     inline void  operator delete(void *, void *) {;}
 
-    inline void addEyeCatcher(const char *string) { memcpy(VFT, string, 4); }
-    inline DeadObject(size_t objectSize) {
-        header.setObjectSize(objectSize);
-#ifdef CHECKOREFS
-        addEyeCatcher("DEAD");
+    inline void addEyeCatcher(const char *string)
+    {
+#ifdef _DEBUG
+        memcpy(VFT, string, 4);
 #endif
+    }
+    inline DeadObject(size_t objectSize)
+    {
+        header.setObjectSize(objectSize);
+        // header.setDeadObject(); // ooRexx5
+        addEyeCatcher("DEAD");
     }
 
   // Following is a static constructor.
   // Called during RexxMemory initialization
-  inline DeadObject() {
+  inline DeadObject()
+  {
       addEyeCatcher("HEAD");
       header.setObjectSize(0);
+      // header.setDeadObject(); // ooRexx5
       /* Chain this deadobject to itself. */
       next = this;
       previous = this;
@@ -84,21 +91,24 @@ class DeadObject {
   inline void setObjectSize(size_t newSize) { header.setObjectSize(newSize); }
   inline size_t getObjectSize() {  return header.getObjectSize(); };
 
-  inline void insertAfter(DeadObject *newDead) {
+  inline void insertAfter(DeadObject *newDead)
+  {
       newDead->next     = this->next;
       newDead->previous = this;
       this->next->previous = newDead;
       this->next           = newDead;
   };
 
-  inline void insertBefore(DeadObject *newDead) {
+  inline void insertBefore(DeadObject *newDead)
+  {
       newDead->next        = this;
       newDead->previous    = this->previous;
       this->previous->next = newDead;
       this->previous       = newDead;
   };
 
-  inline void remove() {
+  inline void remove()
+  {
       this->next->previous = this->previous;
       this->previous->next = this->next;
   }
@@ -106,7 +116,8 @@ class DeadObject {
   inline bool isReal() { return header.getObjectSize() != 0; }
   inline bool isHeader() { return header.getObjectSize() == 0; }
 
-  inline void reset() {
+  inline void reset()
+  {
       /* Chain this deadobject to itself, removing all of the */
       /* elements from the chain */
       next = this;
@@ -133,11 +144,13 @@ class DeadObjectPool
   public:
     inline DeadObjectPool() { init("Generic DeadChain"); }
 
-    inline DeadObjectPool(const char * poolID) : anchor() {
+    inline DeadObjectPool(const char * poolID)
+    {
         init(poolID);
     }
 
-    inline void init(const char * poolID) {
+    inline void init(const char * poolID)
+    {
         this->id = poolID;
 #ifdef MEMPROFILE                      /* doing memory profiling            */
         allocationCount = 0;
@@ -153,24 +166,28 @@ class DeadObjectPool
 
     inline void  setID(const char *poolID) { this->id = poolID; }
     inline void  empty() { anchor.reset(); }
+#if 0 // not used
     inline bool  isEmpty() { return anchor.next->isReal(); }
+#endif
     inline void  emptySingle() { anchor.next = NULL; }
     inline bool  isEmptySingle() { return anchor.next == NULL; }
-    inline
-           void  checkObjectGrain(DeadObject *obj);
-    inline void  add(DeadObject *obj) {
+    inline void  checkObjectGrain(DeadObject *obj);
+    inline void  add(DeadObject *obj)
+    {
 //      checkObjectOverlap(obj);
 //      checkObjectGrain(obj);
         anchor.insertAfter(obj);
     }
     void addSortedBySize(DeadObject *obj);
+#if 0 // not used
     void addSortedByLocation(DeadObject *obj);
-    void dumpMemoryProfile(FILE *outfile);
+#endif
+    void dumpMemoryProfile(FILE *outfile, size_t indent);
     void checkObjectOverlap(DeadObject *obj);
 
     inline DeadObject *getFirst()
     /******************************************************************************/
-    /* Function:  Get the first object from the deal object pool.  If the pool    */
+    /* Function:  Get the first object from the dead object pool.  If the pool    */
     /* is empty, this returns NULL.  If a block is returned it is removed from the*/
     /* pool before return.                                                        */
     /******************************************************************************/
@@ -178,7 +195,8 @@ class DeadObjectPool
         DeadObject *newObject = anchor.next;
         /* The next item could just be a pointer back to the anchor. */
         /* If it is not, we have a real block to return. */
-        if (newObject->isReal()) {
+        if (newObject->isReal())
+        {
             /* we need to remove the object from the chain before */
             /* returning it. */
             newObject->remove();
@@ -188,8 +206,10 @@ class DeadObjectPool
         logMiss();
         return NULL;
     }
+#if 0 // not used
     inline DeadObject *lastBlock() { return anchor.previous; }
     inline DeadObject *firstBlock() { return anchor.next; }
+#endif
     inline DeadObject *findFit(size_t length)
     /******************************************************************************/
     /* Function:  Find first object large enough to satisfy this request.  If the */
@@ -232,6 +252,7 @@ class DeadObjectPool
                 newObject->remove();
                 logHit();
                 *realLength = newLength;
+#if 1 // optim
                 if (probes > ReorderThreshold)
                 {
                     for (size_t tailLength = tailObject->getObjectSize(); tailLength != 0; tailLength = tailObject->getObjectSize())
@@ -248,6 +269,7 @@ class DeadObjectPool
                         tailObject = nextObject;
                     }
                 }
+#endif
                 return newObject;
             }
             probes++;
@@ -259,7 +281,8 @@ class DeadObjectPool
     DeadObject *findBestFit(size_t length);
     DeadObject *findSmallestFit(size_t minSize);
 
-    inline void  addSingle(DeadObject *obj) {
+    inline void  addSingle(DeadObject *obj)
+    {
 //      checkObjectOverlap(obj);
 //      checkObjectGrain(obj);
         obj->next = anchor.next;
@@ -269,7 +292,7 @@ class DeadObjectPool
 
     inline DeadObject *getFirstSingle()
     /******************************************************************************/
-    /* Function:  Get the first object from the deal object pool.  If the pool    */
+    /* Function:  Get the first object from the dead object pool.  If the pool    */
     /* is empty, this returns NULL.  If a block is returned it is removed from the*/
     /* pool before return.                                                        */
     /******************************************************************************/
@@ -291,7 +314,7 @@ class DeadObjectPool
     inline void    logAllocation()  { allocationCount++; }
     inline void    logReclaim()  { allocationReclaim++; }
     inline void    logHit()  { allocationHits++; }
-    inline void    logMiss() { allocationMisses; }
+    inline void    logMiss() { allocationMisses++; }
     inline void    clearProfile() { allocationCount = 0; allocationReclaim = 0; allocationHits = 0; allocationMisses = 0; }
 #else
     inline void    logAllocation() { ; }

@@ -123,6 +123,7 @@ static void logMemoryCheck(FILE *outfile, const char *message, ...)
 
 
 RexxMemory::RexxMemory()
+    : oldSpaceSegments(OREF_NULL), newSpaceNormalSegments(OREF_NULL), newSpaceLargeSegments(OREF_NULL) /*, newSpaceSingleSegments(OREF_NULL) */
 /******************************************************************************/
 /* Function: Main Constructor for Rexxmemory, called once during main         */
 /*  initialization.  Will create the initial memory Pool(s), etc.             */
@@ -247,12 +248,12 @@ void RexxMemory::initialize(bool restoringImage, const char *imageTarget)
 }
 
 
-void RexxMemory::logVerboseOutput(const char *message, void *sub1, void *sub2)
+void RexxMemory::logVerboseOutput(const char *message, void *sub1, void *sub2, void *sub3)
 /******************************************************************************/
 /* Function:  Log verbose output events                                       */
 /******************************************************************************/
 {
-    logMemoryCheck(NULL, message, sub1, sub2);
+    logMemoryCheck(NULL, message, sub1, sub2, sub3);
 }
 
 void RexxMemory::dumpMemoryProfile()
@@ -750,25 +751,23 @@ MemorySegment *RexxMemory::newSegment(size_t requestedBytes, size_t minBytes)
 {
     MemorySegment *segment;
 
-#ifdef MEMPROFILE
-    printf("Allocating a new segment of %d bytes\n", requestedBytes);
-#endif
+    verboseMessage("Allocating a new segment of %d bytes\n", requestedBytes);
     /* first make sure we've got enough space for the control */
     /* information, and round this to a proper boundary */
     requestedBytes = roundSegmentBoundary(requestedBytes + MemorySegmentOverhead);
-#ifdef MEMPROFILE
-    printf("Allocating boundary a new segment of %d bytes\n", requestedBytes);
-#endif
+    verboseMessage("Allocating a boundary new segment of %d bytes\n", requestedBytes);
     /*Get a new segment                  */
     segment = currentPool->newSegment(requestedBytes);
     /* Did we get a segment              */
     if (segment == NULL)
     {
+        verboseMessage("Allocating a boundary new segment of %d bytes\n", requestedBytes);
         /* Segmentsize is the minimum size request we handle.  If */
         /* minbytes is small, then we're just adding a segment to the */
         /* small pool.  Reduce the request to SegmentSize and try again. */
         /* For all other requests, try once more with the minimum. */
         minBytes = roundSegmentBoundary(minBytes + MemorySegmentOverhead);
+        verboseMessage("Allocating a fallback new segment of %d bytes\n", minBytes);
         /* try to allocate once more...if this fails, the caller will */
         /* have to handle it. */
         segment = currentPool->newSegment(minBytes);
@@ -794,7 +793,7 @@ MemorySegment *RexxMemory::newLargeSegment(size_t requestedBytes, size_t minByte
     /* information, and round this to a proper boundary */
     size_t allocationBytes = roundSegmentBoundary(requestedBytes + MemorySegmentOverhead);
 #ifdef MEMPROFILE
-    printf("Allocating large boundary new segment of %d bytes for request of %d\n", allocationBytes, requestedBytes);
+    printf("Allocating large boundary new segment of %zu bytes for request of %zu\n", allocationBytes, requestedBytes);
 #endif
     /*Get a new segment                  */
     segment = currentPool->newLargeSegment(allocationBytes);
@@ -1360,6 +1359,7 @@ void RexxMemory::scavengeSegmentSets(
     DeadObject *largeObject = donor->donateObject(allocationLength);
     if (largeObject != NULL)
     {
+        verboseMessage("Donating an object of %zu bytes from %s to %s\n", largeObject->getObjectSize(), donor->name, requestor->name);
         /* we need to insert this into the normal dead chain */
         /* locations. */
         requestor->addDeadObject(largeObject);

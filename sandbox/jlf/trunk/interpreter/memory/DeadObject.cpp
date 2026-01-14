@@ -48,17 +48,22 @@
 #include "RexxMemory.hpp"
 #include "Interpreter.hpp"
 
-void DeadObjectPool::dumpMemoryProfile(FILE *outFile)
+void DeadObjectPool::dumpMemoryProfile(FILE *outFile, size_t indent)
 /******************************************************************************/
 /* Function:  Dump statistics for this dead object pool.                      */
 /******************************************************************************/
 {
 #ifdef MEMPROFILE                      /* doing memory profiling            */
-    fprintf(outFile, "Statistics for Dead Object Pool %s\n, id");
-    fprintf(outFile, "    Total memory allocations:  %d\n", allocationCount);
-    fprintf(outFile, "    Unsuccessful requests:  %d\n", allocationMisses);
-    fprintf(outFile, "    Successful requests:  %d\n", allocationHits);
-    fprintf(outFile, "    Objects added back to the pool\n", allocationReclaim);
+    // if (allocationCount == 0 && allocationMisses == 0 && allocationHits == 0 && allocationReclaim == 0) return;
+    const char *indendation = "";
+    if (indent == 1) indendation = "    ";
+    if (indent == 2) indendation = "        ";
+    if (indent == 3) indendation = "            ";
+    fprintf(outFile, "%sStatistics for Dead Object Pool this=%p id=\"%s\"\n", indendation, this, id);
+    fprintf(outFile, "%s    Total memory allocations:  %zu\n", indendation, allocationCount);
+    fprintf(outFile, "%s    Unsuccessful requests:  %zu\n", indendation, allocationMisses);
+    fprintf(outFile, "%s    Successful requests:  %zu\n", indendation, allocationHits);
+    fprintf(outFile, "%s    Objects added back to the pool: %zu\n", indendation, allocationReclaim);
 #endif
 }
 
@@ -150,6 +155,7 @@ void DeadObjectPool::addSortedBySize(DeadObject *obj)
 /* Function:  Add an object to the pool sorted by size (ascending order).     */
 /******************************************************************************/
 {
+#if 1 // optim
 //  checkObjectOverlap(obj);
 //  checkObjectGrain(obj);
     /* we start with the first element in the chain as the */
@@ -169,9 +175,13 @@ void DeadObjectPool::addSortedBySize(DeadObject *obj)
     }
     /* insert this at the given point */
     insertPoint->insertBefore(obj);
+#else
+    add(obj);
+#endif
 }
 
 
+#if 0 // not used
 void DeadObjectPool::addSortedByLocation(DeadObject *obj)
 /******************************************************************************/
 /* Function:  Add an object to the pool sorted by address (ascending order).  */
@@ -196,6 +206,7 @@ void DeadObjectPool::addSortedByLocation(DeadObject *obj)
     /* insert this at the given point */
     insertPoint->insertBefore(obj);
 }
+#endif
 
 
 void DeadObjectPool::checkObjectGrain(DeadObject *obj)

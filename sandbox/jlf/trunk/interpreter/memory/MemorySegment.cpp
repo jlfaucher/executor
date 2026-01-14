@@ -132,12 +132,35 @@ void MemorySegmentSet::dumpSegments(FILE *keyfile, FILE *dumpfile)
     }
 }
 
+#define SegmentSetID_TEXT(code) case MemorySegmentSet::code : return #code;
+const char *SegmentSetID_text(MemorySegmentSet::SegmentSetID id)
+{
+    static char buffer[9]; // Used only to return the id as number, when no text
+    switch(id)
+    {
+        SegmentSetID_TEXT(SET_UNINITIALIZED)
+        SegmentSetID_TEXT(SET_NORMAL)
+        SegmentSetID_TEXT(SET_LARGEBLOCK)
+        SegmentSetID_TEXT(SET_OLDSPACE)
+        default:
+            snprintf(buffer, sizeof(buffer), "%i", id);
+            return buffer;
+    }
+}
+
 void MemorySegmentSet::dumpMemoryProfile(FILE *outfile)
 /******************************************************************************/
 /* Function:  Dump profile informaton about a segment set (empty for base     */
 /* class)                                                                     */
 /******************************************************************************/
 {
+#ifdef MEMPROFILE                      /* doing memory profiling            */
+    if (memory == OREF_NULL) return; // not yet operational
+    fprintf(outfile, "[MemorySegmentSet] Memory profile for memory object allocations\n");
+    fprintf(outfile, "    Instance:  %p\n", this);
+    fprintf(outfile, "    Name:  \"%s\"\n", name);
+    fprintf(outfile, "    Owner:  %s\n", SegmentSetID_text(owner));
+#endif
 }
 
 void LargeSegmentSet::dumpMemoryProfile(FILE *outfile)
@@ -145,9 +168,17 @@ void LargeSegmentSet::dumpMemoryProfile(FILE *outfile)
 /* Function:  Dump profile informaton about the large allocation segment set  */
 /******************************************************************************/
 {
-    fprintf(outfile, "Memory profile for large object allocations\n\n");
+#ifdef MEMPROFILE                      /* doing memory profiling            */
+    if (memory == OREF_NULL) return; // not yet operational
+    fprintf(outfile, "[LargeSegmentSet] Memory profile for large object allocations\n");
+    fprintf(outfile, "    Instance:  %p\n", this);
+    fprintf(outfile, "    Name:  \"%s\"\n", name);
+    fprintf(outfile, "    Owner:  %s\n", SegmentSetID_text(owner));
+    fprintf(outfile, "    Largest object allocated:  %zu\n", largestObject);
+    fprintf(outfile, "    Smallest object allocated:  %zu\n", smallestObject);
     /* all the work is done by the dead caches */
-    deadCache.dumpMemoryProfile(outfile);
+    deadCache.dumpMemoryProfile(outfile, 1);
+#endif
 }
 
 
@@ -156,15 +187,38 @@ void NormalSegmentSet::dumpMemoryProfile(FILE *outfile)
 /* Function:  Dump profile informaton about the normal allocation segment set */
 /******************************************************************************/
 {
-    int i;
-
-    fprintf(outfile, "Memory profile for normal object allocations\n\n");
+#ifdef MEMPROFILE                      /* doing memory profiling            */
+    if (memory == OREF_NULL) return; // not yet operational
+    fprintf(outfile, "[NormalSegmentSet] Memory profile for normal object allocations\n");
+    fprintf(outfile, "    Instance:  %p\n", this);
+    fprintf(outfile, "    Name:  \"%s\"\n", name);
+    fprintf(outfile, "    Owner:  %s\n", SegmentSetID_text(owner));
     /* all the work is done by the dead caches */
-    largeDead.dumpMemoryProfile(outfile);
+    largeDead.dumpMemoryProfile(outfile, 1);
 
-    for (i = FirstDeadPool; i < DeadPools; i++) {
-        subpools[i].dumpMemoryProfile(outfile);
+    for (int i = FirstDeadPool; i < DeadPools; i++) {
+        subpools[i].dumpMemoryProfile(outfile, 1);
     }
+#endif
+}
+
+
+/**
+ * Dump profile informaton about the old space segment set
+ *
+ * @param outfile The target dump file.
+ */
+void OldSpaceSegmentSet::dumpMemoryProfile(FILE *outfile)
+{
+#ifdef MEMPROFILE                      /* doing memory profiling            */
+    if (memory == OREF_NULL) return; // not yet operational
+    fprintf(outfile, "[OldSpaceSegmentSet] Memory profile for old space object allocations\n");
+    fprintf(outfile, "    Instance:  %p\n", this);
+    fprintf(outfile, "    Name:  \"%s\"\n", name);
+    fprintf(outfile, "    Owner:  %s\n", SegmentSetID_text(owner));
+    // all the work is done by the dead caches
+    deadCache.dumpMemoryProfile(outfile, 1);
+#endif
 }
 
 
@@ -187,7 +241,7 @@ void NormalSegmentSet::checkObjectOverlap(DeadObject *obj)
 /* Function:  Constructor for the large segment pool.                         */
 /******************************************************************************/
 LargeSegmentSet::LargeSegmentSet(RexxMemory *mem) :
-    MemorySegmentSet(mem, SET_NORMAL, "Large Allocation Segments"),
+    MemorySegmentSet(mem, SET_NORMAL, "Large Allocation Segments", "LargeSegmentSet"),
     deadCache("Large Block Allocation Pool"), requests(0), smallestObject(0), largestObject(0) { }
 
 
@@ -195,10 +249,8 @@ LargeSegmentSet::LargeSegmentSet(RexxMemory *mem) :
 /* Function:  Constructor for the large segment pool.                         */
 /******************************************************************************/
 OldSpaceSegmentSet::OldSpaceSegmentSet(RexxMemory *mem) :
-    MemorySegmentSet(mem, SET_OLDSPACE, "Old Space Segments"),
-    deadCache("Old Space Allocation Pool")
-{
-
+    MemorySegmentSet(mem, SET_OLDSPACE, "Old Space Segments", "OldSpaceSegmentSet"),
+    deadCache("Old Space Allocation Pool") {
 }
 
 
@@ -206,14 +258,25 @@ OldSpaceSegmentSet::OldSpaceSegmentSet(RexxMemory *mem) :
 /* Function:  Constructor for the normal segment pool.                        */
 /******************************************************************************/
 NormalSegmentSet::NormalSegmentSet(RexxMemory *mem) :
-    MemorySegmentSet(mem, SET_NORMAL, "Normal Allocation Segments"),
+    MemorySegmentSet(mem, SET_NORMAL, "Normal Allocation Segments", "NormalSegmentSet"),
     largeDead("Large Normal Allocation Pool")
 {
+    // The default constructor of NormalSegmentSet is disabled, for better control.
+    // MemoryObject::MemoryObject() must initialize its components by calling a specialized constructor
+    //  : oldSpaceSegments(OREF_NULL), newSpaceNormalSegments(OREF_NULL), newSpaceLargeSegments(OREF_NULL), newSpaceSingleSegments(OREF_NULL)
+    // NormalSegmentSet is a superclass of these component classes.
+    // This constructor is called with mem == OREF_NULL, which indicates a default initialization.
+    // The real initialization will be done by MemoryObject::initialize, after assigining a non-NULL memory object.
+    if (memory == OREF_NULL)
+    {
+        owner = SET_UNINITIALIZED;
+        return;
+    }
+
     /* finish setting up the allocation subpools.  We set up one    */
     /* additional one, to act as a guard pool to redirect things to */
     /* the large pool. */
-    int i;
-    for (i = 0; i < DeadPools; i++)
+    for (int i = 0; i < DeadPools; i++)
     {  /* there are only                    */
         /* DeadPools subpools! (<, not <=)   */
         char buffer[100];
@@ -226,8 +289,8 @@ NormalSegmentSet::NormalSegmentSet(RexxMemory *mem) :
         /* directly to the dead chains. */
         lastUsedSubpool[i] = DeadPools;
     }
-    lastUsedSubpool[i] = DeadPools;    /* add the final entry in            */
-                                       /* the lastUsedSubpool table (extra) */
+    lastUsedSubpool[DeadPools] = DeadPools;    /* add the final entry in            */
+                                               /* the lastUsedSubpool table (extra) */
 
                                        /* This must be the first seg created*/
                                        /* Create a segment for recovery     */
@@ -420,7 +483,7 @@ void LargeSegmentSet::addDeadObject(char *object, size_t length)
 /* Function:  Add a dead object to the segment set.                           */
 /******************************************************************************/
 {
-#ifdef VERBOSE_GC
+#ifdef MEMPROFILE
     if (length > largestObject)
     {
         largestObject = length;
@@ -476,6 +539,8 @@ void MemorySegmentSet::addSegment(MemorySegment *segment, bool createDeadObject)
 /* Function:  Add a segment to the segment pool.                              */
 /******************************************************************************/
 {
+    memory->verboseMessage("Adding a segment of %zu bytes to %s" line_end, segment->size(), name);
+
     /* we want to keep these segments ordered by address so we can */
     /* potentially combine them later. */
     MemorySegment *insertPosition = anchor.next;
@@ -1266,6 +1331,7 @@ RexxObject *NormalSegmentSet::handleAllocationFailure(size_t allocationLength)
 /* Function:  Allocate an object from the normal object segment pool.         */
 /******************************************************************************/
 {
+    memory->verboseMessage("Normal allocation failure for %zu bytes" line_end, allocationLength);
     /* Step 2, force a GC */
     memory->collect();
     /* now that we have good GC data, decide if we need to adjust */
@@ -1339,6 +1405,7 @@ RexxObject *LargeSegmentSet::handleAllocationFailure(size_t allocationLength)
 /* block of memory from the pool reserved for smaller allocations.            */
 /******************************************************************************/
 {
+    memory->verboseMessage("Large object allocation failure for %zu bytes" line_end, allocationLength);
     /* Step 2, decide to expand the heap or GC, or both */
     expandOrCollect(allocationLength);
     /* Step 3, see if can allocate now */
