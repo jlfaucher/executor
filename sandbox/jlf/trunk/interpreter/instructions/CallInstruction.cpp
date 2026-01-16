@@ -53,7 +53,7 @@
 #include "SourceFile.hpp"
 #include "ProtectedObject.hpp"
 
-// Normally, you don't wnt to disable extensions here.
+// Normally, you don't want to disable extensions here.
 // That would disable the global overriding with routines
 // #define DISABLE_EXTENSIONS
 
