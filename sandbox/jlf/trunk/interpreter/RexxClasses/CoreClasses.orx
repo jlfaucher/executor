@@ -92,6 +92,21 @@ class_methods~put(.methods~class_jlfi, "CLASS_JLFI")
 .String~!define_class_method("NULL", .methods~string_cls_null)
 
 -- Compatibility with ooRexx 5
+.String~!define_class_method("ALNUM", .methods~string_alnum)
+.String~!define_class_method("ALPHA", .methods~string_alpha)
+.String~!define_class_method("BLANK", .methods~string_blank)
+.String~!define_class_method("CNTRL", .methods~string_cntrl)
+.String~!define_class_method("DIGIT", .methods~string_digit)
+.String~!define_class_method("GRAPH", .methods~string_graph)
+.String~!define_class_method("LOWER", .methods~string_lower)
+.String~!define_class_method("PRINT", .methods~string_print)
+.String~!define_class_method("PUNCT", .methods~string_punct)
+.String~!define_class_method("SPACE", .methods~string_space)
+.String~!define_class_method("UPPER", .methods~string_upper)
+.String~!define_class_method("XDIGIT", .methods~string_xdigit)
+.String~define("POSIXCLASSCHARACTERS", .methods~string_posixClassCharacters)
+
+-- Compatibility with ooRexx 5
 .String~define("CONTAINS", .methods["SMB_CONTAINS"])
 .String~define("CASELESSCONTAINS", .methods["SMB_CASELESSCONTAINS"])
 .String~define("STARTSWITH", .methods["SMB_STARTSWITH"])
@@ -352,6 +367,78 @@ exit
 /******************************************************************************/
 /* Compatibility with ooRexx 5                                                */
 /******************************************************************************/
+
+::method string_alnum
+    use strict arg -- none
+    return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+::method string_alpha
+    use strict arg -- none
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+
+::method string_blank
+    use strict arg -- none
+    return "09 20"x
+
+
+::method string_cntrl
+    use strict arg -- none
+    return "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 7F"x
+
+
+::method string_digit
+    use strict arg -- none
+    return "0123456789"
+
+
+::method string_graph
+    use strict arg -- none
+    -- !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}
+    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
+
+
+::method string_lower
+    use strict arg -- none
+    return "abcdefghijklmnopqrstuvwxyz"
+
+
+::method string_print
+    use strict arg -- none
+    -- <space>!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}~
+    return "20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
+
+
+::method string_punct
+    use strict arg -- none
+    -- !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 40 5B 5C 5D 5E 5F 60 7B 7C 7D 7E"x
+
+
+::method string_space
+    use strict arg -- none
+    return "09 0A 0B 0C 0D 20"x
+
+
+::method string_upper
+    use strict arg -- none
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+::method string_xdigit
+    use strict arg -- none
+    return "0123456789ABCDEFabcdef"
+
+
+::method string_posixClassCharacters
+    -- If self is a character class name then return the corresponding character sequence
+    -- otherwise return "".
+    use strict arg -- none
+    characterClassNames = "alnum alpha blank cntrl digit graph lower print punct space upper xdigit"
+    if self~words == 1, characterClassNames~wordpos(self~lower) <> 0 then return self~class~send(self)
+    return ""
+
 
 -- To replace by native methods
 -- smb = String MutableBuffer

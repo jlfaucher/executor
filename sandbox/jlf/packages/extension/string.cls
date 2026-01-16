@@ -125,15 +125,6 @@ Similar to ~makeArray(separator), with these differences:
     return self result
 
 
-::method posixClassCharacters
-    -- If self is a character class name then return the corresponding character sequence
-    -- otherwise return "".
-    use strict arg -- none
-    characterClassNames = "alnum alpha blank cntrl digit graph lower print punct space upper xdigit"
-    if self~words == 1, characterClassNames~wordpos(self~lower) <> 0 then return .string~send(self)
-    return ""
-
-
 /******************************************************************************/
 ::class "MutableBufferHelpers"  mixinclass Object public
 
@@ -220,67 +211,7 @@ Similar to ~makeArray(separator), with these differences:
 /******************************************************************************/
 ::class "StringCompatibilityWithOORexx5" mixinclass Object public
 
-::method alnum class
-    use strict arg -- none
-    return "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
-
-::method alpha class
-    use strict arg -- none
-    return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-
-
-::method blank class
-    use strict arg -- none
-    return "09 20"x
-
-
-::method cntrl class
-    use strict arg -- none
-    return "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 7F"x
-
-
-::method digit class
-    use strict arg -- none
-    return "0123456789"
-
-
-::method graph class
-    use strict arg -- none
-    -- !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}
-    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
-
-
-::method lower class
-    use strict arg -- none
-    return "abcdefghijklmnopqrstuvwxyz"
-
-
-::method print class
-    use strict arg -- none
-    -- <space>!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnopqrstuvwxyz{|}~
-    return "20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F 40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F 60 20 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D"x
-
-
-::method punct class
-    use strict arg -- none
-    -- !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
-    return "21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 3A 3B 3C 3D 3E 3F 40 5B 5C 5D 5E 5F 60 7B 7C 7D 7E"x
-
-
-::method space class
-    use strict arg -- none
-    return "09 0A 0B 0C 0D 20"x
-
-
-::method upper class
-    use strict arg -- none
-    return "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-::method xdigit class
-    use strict arg -- none
-    return "0123456789ABCDEFabcdef"
+-- Nothing for the moment, moved to CoreClasses.orx
 
 
 /******************************************************************************/
