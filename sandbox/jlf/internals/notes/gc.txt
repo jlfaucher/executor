@@ -1,3 +1,83 @@
+2012
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/CAPJz3GuHsa3oU1Z%2BAaivP3Qn1Vy_ZNF-%3D%3Dh7WRAhkr_97_PNGw%40mail.gmail.com/#msg29651973
+[Oorexx-devel] More on memory problem, SysFileTree, etc..
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/33bd05330711050626x4021ca8t50b0940af711128d%40mail.gmail.com/#msg8692406
+[Oorexx-devel] Where does the "subclasses" method come from?
+To review! maybe that explains why I have no class in the REXX package.
+
+2017
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/CAPJz3Gsd3Y2qwqP3vw0YqphYHUdMK%3DXguE9ffW_WzXQY6GYs8A%40mail.gmail.com/#msg35921069
+[Oorexx-devel] High memory usage in ooRexx
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/CAB8Mfh0%3DGG41GxrvZ21QUpE3FTX2mYyq6yY_xmCZWvnmpXyEaw%40mail.gmail.com/#msg36400434
+[Oorexx-devel] A simple benchmark result of the new GC code.
+
+
+2024
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/CAPJz3GuLG76i7r93321RY%3DEMVjGbGPU_ayH0jeD3JkGmnrgFgg%40mail.gmail.com/#msg58757891
+[Oorexx-devel] How IntegerZero is GC protected?
+
+
+Description by Rick, the main architect of ooRexx:
+
+Detection of live objects is done by tracing and marking objects from a few root references.
+The free storage is "swept up" by scanning memory looking for unmarked objects and reclaiming that storage.
+Adjacent dead objects are already recombined into larger blocks.
+
+Live marking is how the garbage collector determines which objects still have "live" references.
+The marking process starts from a few root objects, which then identifies what objects it has references to.
+The identified objects are then also marked and asked to identify what object references they contain.
+Eventually, this fans out through the entire active object set.
+When the marking is complete, any objects that have not been touched by the live marking are "dead" and are eligible for garbage collection.
+
+The live and liveGeneral methods only mark fields that are references to other objects (i.e., RexxInternalObject and any of it's subclasses).
+Other fields, such as ints, bools, etc. do not get marked.
+
+If a new field is added to a class, then the live and liveGeneral methods must be updated to include the new field if and only if the field is an object type.
+Failure to do so will likely result in that reference object getting improperly garbage collected because it is not marked as being a live object.
+
+There are two methods that perform this tracing.
+The live() method is only used during garbage collection and is highly optimized for that purpose because it is used a lot.
+The liveGeneral() method performs the same object traversal process, but is used for less frequently used traversals such as saving/restoring programs compiled using rexxc.
+
+This version (year 2018) treats "big" objects differently and will return the memory to the system when the object is garbage collected.
+A "big" object is currently defined as greater than 1/2 meg for the 32-bit version and 1 meg for the 64-bit version.
+A big part of the simplification came from removing a bit of baggage from the original OS/2 code that doesn't really apply any more.
+Removing that allowed a lot of additional code to be deleted that probably was never getting used any way.
+
+With an object like a very big array that holds lots of objects, it is necessary to expand the marking stack size during the GC process.
+
+Ok, now I'm getting the expected out-of-memory error.
+Reworked a bit how the live stack is managed and also added some predictive code to collection class allocations to try to predict ahead of time how large the live stack should be, which allows allocations error to (mostly) be handled as regular errors.
+
+We know how much free space is still available to be given out, but we don't know the total amount of free space there is because it is likely a lot of the previously given out storage is now dead objects.
+A GC event is a fairly expensive process, so you don't want to do one until you really need to, which also maximizes the amount of storage that gets swept up and also reduces memory fragmentation.
+
+The ooRexx garbage collector is partially generational.
+All of the objects contained in the flattened rexx.img file are restored into a separate object space and given a special mark ("OldSpace") that indicates these objects are never to be garbage collected.
+They are also not traced during a garbage collection cycle, which can cause a problem if a reference to an object residing in the normal object heap is ever stored in a field of an oldspace object.
+Without special attention, these objects could end up getting garbage collected inappropriately.
+
+To solve this problem, the OrefSet macro is used to detect the situation where a new space object is being stored in an oldspace object.
+This implements a write barrier that detects that situation and adds the object to a special table that tracks all references from the oldspace to the newspace.
+The reference count is a counter of how many references we have.
+The OrefSet barrier also detects if the field being written into crosses that barrier so that the reference counts can be decremented.
+
+OrefSet is necessary for setting any reference field in a class that might get stored in the saved image.
+Classes that don't implement this properly can result in some very nasty (and hard to debug) garbage collection problems.
+Generally, it is good practice to use OrefSet whenever you are setting an object reference.
+The one exclusion are any of the classes in the <Transient> grouping in PrimitiveClasses.xml.
+These are classes that represent runtime state, and will never be stored in the image file.
+These classes are permitted to just directly assign the fields without requiring OrefSet().
+That is the only exception, but you need to understand the situation when deciding not to use OrefSet().
+If not certain of whether it is required, then use it, since it is never an error to use it, but it might be an error to omit it.
+
+
+================================================================================
+
 Remember :
 To activate the GC diagnostics, add these definitions in RexxCore.h :
 [later]
@@ -34,6 +114,572 @@ in the call stack, to check if an intermediate object must be protected.
 If needed, a data breakpoint can be set on the part of memory which is overwritten
 (here the 'size' attribute). In my case, was triggered when the object was inserted
 in the list of dead objects.
+
+
+================================================================================
+Review occurences of #ifdef in ooRexx5 source
+
+#ifdef MEMPROFILE
+void DeadObjectPool::dumpMemoryProfile(FILE *outFile)
+void LargeSegmentSet::dumpMemoryProfile(FILE *outfile)
+void SingleObjectSegmentSet::dumpMemoryProfile(FILE *outfile)
+void NormalSegmentSet::dumpMemoryProfile(FILE *outfile)
+MemorySegment *MemoryObject::newLargeSegment(size_t requestedBytes, size_t minBytes)
+void MemoryObject::saveImage(const char *imageTarget)
+{
+
+#ifdef VERBOSE_GC
+class MemoryObject
+    inline void verboseMessage(const char *message)
+    inline void verboseMessage(const char *message, size_t sub1) {
+    inline void verboseMessage(const char *message, size_t sub1, size_t sub2) {
+    inline void verboseMessage(const char *message, const char *sub1, size_t sub2) {
+    inline void verboseMessage(const char *message, size_t sub1, const char *sub2) {
+    inline void verboseMessage(const char *message, size_t sub1, size_t sub2, size_t sub3) {
+    inline void verboseMessage(const char *message, size_t sub1, const char *sub2, const char *sub3) {
+
+
+#ifdef _DEBUG
+          // does this object pass the basic validity tests?
+          if (!o->isValid())
+          {
+              // provide a warning message about an invalid object
+              o->dumpObject();
+          }
+
+
+#ifdef CHECKOREFS
+void MemoryObject::mark(RexxInternalObject *markObject)
+
+
+==========================================================================
+MemorySegment.hpp
+==========================================================================
+
+
+--------------------------------------------------------------------------
+ooRexx 4.2 only
+
+class MemorySegment : public MemorySegmentHeader
+{
+
+  public:
+
+   inline void *operator new(size_t size, void *segment) { return segment; }
+   inline void  operator delete(void *) { }
+   inline void  operator delete(void *, void *) { }
+
+   inline void combine(MemorySegment *nextSegment) { segmentSize += nextSegment->segmentSize + MemorySegmentOverhead; }
+   inline void shrink(size_t delta) { segmentSize -= delta; }
+   inline bool isAdjacentTo(MemorySegment *seg) { return end() == (char *)seg; }
+   inline bool isLastBlock(char *addr, size_t length) { return (addr + length) == end(); }
+   inline bool isFirstBlock(char *addr) { return addr == start(); }
+
+   DeadObject *lastDeadObject();
+   DeadObject *firstDeadObject();
+
+
+class MemorySegmentSet
+{
+
+  public:
+
+      inline void *operator new(size_t size, void *segment) { return segment; }
+      inline void  operator delete(void * size) { }
+      inline void  operator delete(void * size, void *segment) { }
+
+      inline bool isInSegmentSet(RexxObject *object)
+
+      inline bool isInSegmentSet(RexxObject *object)
+      {
+          MemorySegment *segment = first();
+          while (segment != NULL)
+          {
+              if (segment->isInSegment(object))
+              {
+                  return true;
+              }
+              segment = next(segment);
+          }
+          return false;
+      }
+
+      virtual MemorySegment *donateSegment(size_t allocationLength);
+
+  protected:
+
+      virtual void collectEmptySegments();
+
+      MemorySegment *findEmptySegment(size_t allocationLength);
+      MemorySegment *splitSegment(size_t allocationLength);
+      void mergeSegments(size_t allocationLength);
+      void combineEmptySegments(MemorySegment *front, MemorySegment *back);
+
+      virtual size_t suggestMemoryContraction();
+
+      MemorySegment *largestActiveSegment();
+      MemorySegment *largestEmptySegment();
+
+      void releaseEmptySegments(size_t releaseSize);
+      void releaseSegment(MemorySegment *segment);
+
+      MemorySegment *getSegment(size_t requestLength, size_t minimumLength);
+      void activateEmptySegments();
+
+    MemorySegment emptySegments;          /* our empty segment chain (used for reserves) */
+
+
+class NormalSegmentSet : public MemorySegmentSet
+{
+  public:
+
+    virtual size_t suggestMemoryContraction();
+
+    inline size_t recommendedMaximumMemorySize() { return (size_t)((float)liveObjectBytes/(1.0 - NormalMemoryContractionThreshold)); }
+
+
+protected:
+
+    void expandOrCollect(size_t allocationLength);
+
+
+--------------------------------------------------------------------------------
+ooRexx 5.2 only
+
+class MemorySegment : public MemorySegmentHeader
+{
+
+  public:
+
+   void transferSegment(MemorySegment *segment);
+
+   inline RexxInternalObject *startObject() { return (RexxInternalObject *)start(); }
+   inline RexxInternalObject *endObject() { return (RexxInternalObject *)end(); }
+
+   // This rounds to segment sized chunks, not taking the overhead into account.
+   static inline size_t roundSegmentBoundary(size_t n) { return Memory::roundUp(n, SegmentSize); }
+
+   static const size_t MemorySegmentOverhead = sizeof(MemorySegmentHeader);
+
+   // default size for a segment allocation, we go larger on 64-bit
+   static const size_t SegmentSize = (256 * Memory::LargeAllocationUnit * 2);
+   // our threshold for moving to a larger block allocation scheme
+   static const size_t LargeBlockThreshold = Memory::LargeAllocationUnit * 4;
+   // our threshold for moving to an object per block allocation scheme
+   // a default segment size seems a logical threshold
+   static const size_t SingleBlockThreshold = SegmentSize;
+
+
+class MemorySegmentSet
+{
+
+  public:
+
+      void transferSegment(MemorySegment *segment);
+
+      void sweepSingleSegment(MemorySegment *sweepSegment);
+
+      MemorySegment *largestActiveSegment();
+
+      static const size_t MinimumSegmentSize;
+      // amount of usable space in a minimum sized segment
+      static const size_t MinimumSegmentDeadSpace;
+      // default size for a larger segment allocation
+      static const size_t LargeSegmentSize;
+      // allocation available in a default segment
+      static const size_t SegmentDeadSpace;
+      // space available in a larger allocation.
+      static const size_t LargeSegmentDeadSpace;
+
+
+class NormalSegmentSet : public MemorySegmentSet
+{
+
+  private:
+
+    // index of first dead free chain.  We start with the previous
+    // chain, as older tokenized images can contain objects smaller
+    // than our minimum.  If these are garbage collected individually,
+    // we need a place to put them.
+    static const size_t FirstDeadPool = Memory::MinimumObjectSize / Memory::ObjectGrain;
+    // The largest size element we'll keep in a subpool
+    static const size_t LargestSubpool = 512;
+    // The index of the last subpool dead chain
+    static const size_t LastDeadPool = LargestSubpool / Memory::ObjectGrain;
+    // number of free chains (we index zero based, so we need to
+    // allocate one additional pool)
+    static const size_t DeadPools = LastDeadPool + 1;
+
+    // the threshold to trigger expansion of the normal segment set.
+    static const double NormalMemoryExpansionThreshold;
+    // allocation request for the recovery segment
+    static const size_t RecoverSegmentSize = ((MemorySegment::SegmentSize/2) - MemorySegment::MemorySegmentOverhead);
+    // initial allocation size for normal space.
+    static const size_t InitialNormalSegmentSpace;
+
+    // map an object length to an allocation deadpool.  NOTE:  this
+    // assumes the length has already been rounded to ObjectGrain!
+    static inline size_t lengthToDeadPool(size_t l) { return ((l) / Memory::ObjectGrain); }
+    // map a dead pool index to the size of blocks held in the pool
+    static inline size_t deadPoolToLength(size_t d) { return ((d) * Memory::ObjectGrain); }
+
+
+class LargeSegmentSet : public MemorySegmentSet
+{
+  public:
+    void    getInitialSet();
+
+protected:
+
+    // initial allocation size for large space.
+    static const size_t InitialLargeSegmentSpace;
+
+    size_t suggestMemoryExpansion() override;
+
+  private:
+
+    // the threshold to trigger expansion of the normal segment set.
+    static const double LargeMemoryExpansionThreshold;
+    inline size_t recommendedMemorySize() { return (size_t)((float)liveObjectBytes/(1.0 - LargeMemoryExpansionThreshold)); }
+
+
+/**
+ * A segment set used for allocating the largest objects. We
+ * allocate a segment dedicated to each object and will return
+ * the segment when the object is garbage collected.
+ */
+class SingleObjectSegmentSet : public MemorySegmentSet
+{
+  public:
+
+#ifdef KEEP_DEFAULT_CONSTRUCTOR
+    /* the default constructor */
+    SingleObjectSegmentSet() : MemorySegmentSet("SingleObjectSegmentSet") { ; }
+#endif
+    SingleObjectSegmentSet(MemoryObject *memory);
+
+    virtual ~SingleObjectSegmentSet()
+    {
+#ifdef MEMPROFILE
+        fprintf(stderr, "[SingleObjectSegmentSet] destructor this=%p name=\"%s\"\n", this, name);
+        this->dumpMemoryProfile(stderr);
+#endif
+    }
+
+    void   dumpMemoryProfile(FILE *outfile) override;
+    RexxInternalObject *handleAllocationFailure(size_t allocationLength);
+    RexxInternalObject *allocateObject(size_t allocationLength);
+
+protected:
+
+    void addDeadObject(DeadObject *object) override;
+    void addDeadObject(char *object, size_t length) override;
+    MemorySegment *allocateSegment(size_t requestLength, size_t minimumLength) override;
+    void completeSweepOperation() override;
+
+  private:
+
+    // the limit of new segments we will allocate before forcing a GC.
+    // this is kept fairly small, since repeated allocations is frequently a
+    // sign that we have segments we can release.
+    static const size_t ForceGCThreshold = 4;
+
+    size_t         allocationsSinceLastGC;// number of objects allocated since the last GC.
+    size_t         allocationCount;       // total number of allocations
+    size_t         returnCount;           // the count of segments we've returned to system
+};
+
+
+================================================================================
+Comparison of ooRexx 4.2 with 5.2
+
+ooRexx 4.2
+----------
+DeadObject.cpp                  almost identical
+DeadObject.hpp                  almost identical
+files.html                      identical
+GlobalProtectedObject.hpp       almost identical
+MemorySegment.cpp               different
+MemorySegment.hpp               roughly identical (many renamings, preprocessor constants replaced by C++ constants)
+MemoryStats.cpp
+MemoryStats.hpp
+ProtectedObject.cpp
+ProtectedObject.hpp
+    RexxEnvelope.cpp
+    RexxEnvelope.hpp
+    RexxInternalStack.cpp
+    RexxInternalStack.hpp
+RexxMemory.cpp
+RexxMemory.hpp
+RexxSmartBuffer.cpp
+RexxSmartBuffer.hpp
+Setup.cpp
+UninitDispatcher.cpp
+UninitDispatcher.hpp
+
+
+ooRexx 5.2
+----------
+DeadObject.cpp                  almost identical
+DeadObject.hpp                  almost identical
+    Envelope.cpp
+    Envelope.hpp
+    ExternalFileBuffer.hpp
+    FileNameBuffer.cpp
+    FileNameBuffer.hpp
+files.html                      identical
+    GlobalNames.cpp
+    GlobalNames.h
+    GlobalNames.hpp
+GlobalProtectedObject.hpp       almost identical
+    InternalStack.cpp
+    InternalStack.hpp
+    MapBucket.cpp
+    MapBucket.hpp
+    MapTable.cpp
+    MapTable.hpp
+    Memory.hpp
+MemorySegment.cpp               different
+MemorySegment.hpp               roughly identical (many renamings, preprocessor constants replaced by C++ constants)
+        #define MemorySegmentOverhead       (sizeof(MemorySegmentHeader))
+            static const size_t MemorySegmentOverhead = sizeof(MemorySegmentHeader);
+        #define MemorySegmentPoolOverhead   (sizeof(MemorySegmentPoolHeader))
+            not found
+        64bit #define SegmentSize (256*1024*2)
+        32bit #define SegmentSize (256*1024)
+           static const size_t SegmentSize = (256 * Memory::LargeAllocationUnit * 2);
+        new class SingleObjectSegmentSet
+    MemoryStack.cpp
+    MemoryStack.hpp
+MemoryStats.cpp
+MemoryStats.hpp
+    NumberArray.cpp
+    NumberArray.hpp
+    PointerBucket.cpp
+    PointerBucket.hpp
+    PointerTable.cpp
+    PointerTable.hpp
+ProtectedObject.cpp
+ProtectedObject.hpp
+RexxMemory.cpp
+RexxMemory.hpp
+Setup.cpp
+SmartBuffer.cpp
+SmartBuffer.hpp
+UninitDispatcher.cpp
+UninitDispatcher.hpp
+
+
+RexxMemory      --> MemoryObject
+new class SingleObjectSegmentSet
+
+
+-------------------------------------------------------------------------------
+diff ooRexx 4.2 / 5.2
+
+class MemorySegmentSet
+{
+
+  public:
+
+      typedef enum { SET_UNINITIALIZED, SET_NORMAL, SET_LARGEBLOCK, SET_OLDSPACE } SegmentSetID;
+      typedef enum { SET_UNINITIALIZED, SET_NORMAL, SET_LARGEBLOCK, SET_OLDSPACE, SET_SINGLEOBJECT } SegmentSetID;
+
+
+      void addSegment(MemorySegment *segment, bool createDeadObject = 1);
+      void addSegment(MemorySegment *segment);
+
+
+  protected:
+
+
+-------------------------------------------------------------------------------
+No equivalent in ooRexx 4.2 (review done 07/01/2026)
+
+// ooRexx 4.2 doesn't have SingleObjectSegmentSet
+RexxInternalObject *SingleObjectSegmentSet::allocateObject(size_t requestLength)
+{
+    memory->verboseMessage("Allocating a single segment object of %zu bytes to %s" line_end, requestLength, name);
+
+    // it is possible that we could have a pattern where a large number of
+    // short-lived objects get allocated without triggering a garbage collection. Since
+    // this segment set expands for each object allocation, we would never trigger a GC
+    // until we had an actual allocation failure. It is better to be proactive and
+    // prune the dead segments before attempting the allocation if they have been
+    // accumulating
+    if (allocationsSinceLastGC > ForceGCThreshold)
+    {
+        memory->verboseMessage("Single object force threshold reached" line_end);
+        return OREF_NULL;       // this will trigger the GC
+    }
+
+
+
+// No transfer in ooRexx 4.2
+// ooRexx 5.2
+void MemorySegmentSet::transferSegment(MemorySegment *segment)
+{
+    memory->verboseMessage("Segment of %zu bytes transferred to %s" line_end, segment->size(), name);
+
+
+// ooRexx 4.2 has no expansion algorithm
+// ooRexx 5.2
+size_t LargeSegmentSet::suggestMemoryExpansion()
+{
+    // since we have just done a GC, we have metrics on the size of live
+    // and dead storage. Get the current percentage
+    float freePercent = freeMemoryPercentage();
+
+    memory->verboseMessage("Large segment set free memory percentage is %d" line_end, (int)(freePercent * 100.0));
+
+
+// ooRexx 5.2 has no contraction algorithm
+// ooRexx 4.2
+size_t MemorySegmentSet::suggestMemoryContraction()
+    return 0
+size_t NormalSegmentSet::suggestMemoryContraction()
+    implemented
+
+
+// ooRexx 4.2 and ooRexx 5.2 : this method is NOP??
+void LargeSegmentSet::completeSweepOperation()
+{
+    memory->verboseMessage("Large segment sweep complete.  Largest block is %zu, smallest block is %zu" line_end, largestObject, smallestObject);
+}
+
+
+// ooRexx 4.2 has some verbose messages, but different from ooRexx 5.2
+I did not align them.
+void  MemoryObject::runUninits()
+{
+    // if we're already processing this, don't try to do this
+    // recursively.
+    if (processingUninits)
+    {
+        return;
+    }
+
+    // ok, turn on the interlock
+    processingUninits = true;
+    verboseMessage("Starting to process pending uninit methods\n");
+...
+    // turn off the interlock
+    processingUninits = false; ;
+    verboseMessage("Done processing pending uninit methods\n");
+}
+
+
+================================================================================
+Verbose messages added in ooRexx 4.2 (07/01/2026)
+================================================================================
+
+
+RexxInternalObject *NormalSegmentSet::handleAllocationFailure(size_t allocationLength)
+{
+    memory->verboseMessage("Normal allocation failure for %zu bytes" line_end, allocationLength);
+
+
+RexxInternalObject *LargeSegmentSet::handleAllocationFailure(size_t allocationLength)
+{
+    memory->verboseMessage("Large object allocation failure for %zu bytes" line_end, allocationLength);
+
+
+RexxInternalObject *SingleObjectSegmentSet::handleAllocationFailure(size_t allocationLength)
+{
+    memory->verboseMessage("Single object allocation failure for %zu bytes" line_end, allocationLength);
+
+
+
+void MemorySegmentSet::addSegment(MemorySegment *segment)
+{
+    memory->verboseMessage("Adding a segment of %zu bytes to %s" line_end, segment->size(), name);
+
+
+
+size_t NormalSegmentSet::suggestMemoryExpansion()
+{
+    // since we have just done a GC, we have metrics on the size of live
+    // and dead storage. Get the current percentage
+    float freePercent = freeMemoryPercentage();
+
+    memory->verboseMessage("Normal segment set free memory percentage is %d" line_end, (int)(freePercent * 100.0));
+
+
+MemorySegment *MemoryObject::newSegment(size_t requestedBytes, size_t minBytes)
+{
+    // first make sure we've got enough space for the control
+    // information. We don't do any rounding. The segment set has already
+    // decided what the apropriate size should be. In some cases (i.e., the single object
+    // segment set), rounding would just waste memory.
+    requestedBytes = requestedBytes + MemorySegment::MemorySegmentOverhead;
+    verboseMessage("Allocating a new segment of %d bytes\n", requestedBytes);
+    // try to allocate a new segment
+    MemorySegment *segment = newSegment(requestedBytes);
+    if (segment == NULL)
+    {
+        verboseMessage("Allocating a boundary new segment of %d bytes\n", requestedBytes);
+        // Segmentsize is the minimum size request we handle.  If
+        // minbytes is small, then we're just adding a segment to the
+        // small pool.  Reduce the request to SegmentSize and try again.
+        // For all other requests, try once more with the minimum.
+        minBytes = minBytes + MemorySegment::MemorySegmentOverhead;
+        verboseMessage("Allocating a fallback new segment of %d bytes\n", minBytes);
+        // try to allocate once more...if this fails, the caller will
+        // have to handle it.
+        segment = newSegment(minBytes);
+    }
+    return segment;                      // return the allocated segment
+}
+
+
+void MemoryObject::scavengeSegmentSets(MemorySegmentSet *requestor, size_t allocationLength)
+{
+...
+    if (largeObject != NULL)
+    {
+        verboseMessage("Donating an object of %zu bytes from %s to %s\n", largeObject->getObjectSize(), donor->name, requestor->name);
+        // we need to insert this into the normal dead chain
+        // locations.
+        requestor->addDeadObject(largeObject);
+    }
+
+
+================================================================================
+Code review to see if TraceObject may be the cause of GC slowdown (done on 07/01/2026)
+================================================================================
+Answer: no
+
+
+RexxActivation::traceInstruction                looks good
+2.00 ms   0,0 %	2.00 ms
+1.00 ms   0,0 %	1.00 ms
+1.00 ms   0,0 %	1.00 ms
+RexxActivation::traceEntry()                    looks good
+1.00 ms   0,0 %	1.00 ms
+14.00 ms   0,0 %	11.00 ms
+2.00 ms   0,0 %	2.00 ms
+3.00 ms   0,0 %	2.00 ms
+RexxActivation::traceVariable                   looks good
+RexxActivation::traceIntermediate               looks good
+RexxActivation::traceResult                     looks good
+RexxActivation::traceOperator                   looks good
+RexxActivation::traceArgument                   looks good
+19.18 s   7,8 %	2.00 ms
+RexxActivation::traceDotVariable
+RexxActivation::traceMessage                    looks good
+2.00 ms   0,0 %	2.00 ms
+RexxActivation::traceAssignment
+RexxActivation::traceKeywordResult
+
+
+traceValue                                      looks good
+   inline void              traceResultValue(RexxObject * v) { traceValue(v, TRACE_PREFIX_RESULT); };
+RexxInstructionAddress::execute
+RexxInstructionCommand::execute
+no impact on json
+but must add a test in traceResultValue!
+
+RexxActivation::traceEntryOrExit
 
 
 ================================================================================
