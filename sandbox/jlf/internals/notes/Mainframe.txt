@@ -75,10 +75,30 @@ Rick
 ===============================================================================
 z/OS
 ===============================================================================
-http://fr.wikipedia.org/wiki/Z/OS
+https://en.wikipedia.org/wiki/Z/OS
+z/OS is a 64-bit operating system for IBM z/Architecture mainframes, introduced by IBM in October 2000.
+It derives from and is the successor to OS/390, which in turn was preceded by a string of MVS versions.
+Like OS/390, z/OS combines a number of formerly separate, related products, some of which are still optional.
+z/OS has the attributes of modern operating systems but also retains much of the older functionality
+that originated in the 1960s and is still in regular use—z/OS is designed for backward compatibility.
 
-z/OS est un système d'exploitation 64-bits développé pour les gros ordinateurs de type «  mainframes » zSeries par IBM en 2001. C'est le successeur du système OS/390. z/OS est une combinaison de MVS et UNIX System Services.
-z/OS a fait son apparition en 1960 et a changé plusieurs fois de nom (en fonction des versions) au cours des années :
+
+https://openmainframeproject.org/blog/an-introduction-to-mvs-ibm-mainframe-and-z-os/
+The IBM z/OS operating system is the latest in a series of names, for the “IBM MVS Operating System”.
+“MVS” stands for “Multiple Virtual Storage”.
+IBM has called the MVS operating system by different names, to show differences in “MVS development stages”.
+For instance, the name z/OS connotes “64-bit operating system”.
+Its previous name, OS/390, was “a new way of bundling components together without charging separately for them”.
+The next-previous name (MVS/ESA) was a 31-bit operating system with some supercharging.
+The previous name to that, MVS/XA, (MVS Extended Architecture) was the first 31-bit operating system for MVS.
+And previously, “MVS”, or “MVS/SP”, was a 24-bit operating system.
+
+
+http://fr.wikipedia.org/wiki/Z/OS
+z/OS est un système d'exploitation 64-bits développé pour les gros ordinateurs de type «  mainframes » zSeries par IBM en 2001.
+C'est le successeur du système OS/390.
+z/OS est une combinaison de MVS et UNIX System Services.
+[jlf: wrong OS name or wrong date?] z/OS a fait son apparition en 1960 et a changé plusieurs fois de nom (en fonction des versions) au cours des années :
 MFT (Multiprogramming with a Fixed number of Tasks),
 MVT (Multiprogramming with a Variable number of Tasks),
 SVS (Single Virtual Storage),
@@ -89,9 +109,36 @@ MVS/ESA (Enterprise Systems Architecture).
 OS/390 (1996)
 z/OS
 Toutes ces versions sont appelées indistinctement MVS dans la langue courante.
-Basé sur une architecture extrêmement fiable ayant fait ses preuves au cours des décennies, il est plébiscité par toutes les sociétés ayant de très gros besoins de disponibilité et de performances, on le retrouve comme site central (ordinateur central = Mainframe) chez la majorité des banques, assurances, mutuelles, industries automobiles, distributeurs car c'est le seul OS permettant de répondre à leurs attentes en termes de fiabilité, performances et accès concurrents.
-Le z/OS est un OS complètement différent des OS courants type Windows ou Unix. L'exemple le plus flagrant est la gestion des fichiers par catalogue et non de manière hiérarchique. Ainsi, sous z/OS , on ne trouve pas de répertoire. Les fichiers sont cataloguées mais non hiérarchisés dans des répertoires. Pour désigner un fichier, on parle de DSN, c'est à dire de Data Set Name. Le DSN est composé de plusieurs alias connectés par un point, dont seul le premier alias renvoie à un catalogue.
+Basé sur une architecture extrêmement fiable ayant fait ses preuves au cours des décennies,
+il est plébiscité par toutes les sociétés ayant de très gros besoins de disponibilité et de performances,
+on le retrouve comme site central (ordinateur central = Mainframe) chez la majorité des banques,
+assurances, mutuelles, industries automobiles, distributeurs car c'est le seul OS permettant
+de répondre à leurs attentes en termes de fiabilité, performances et accès concurrents.
+Le z/OS est un OS complètement différent des OS courants type Windows ou Unix.
+L'exemple le plus flagrant est la gestion des fichiers par catalogue et non de manière hiérarchique.
+Ainsi, sous z/OS , on ne trouve pas de répertoire. Les fichiers sont cataloguées mais non hiérarchisés
+dans des répertoires. Pour désigner un fichier, on parle de DSN, c'est à dire de Data Set Name.
+Le DSN est composé de plusieurs alias connectés par un point, dont seul le premier alias renvoie à un catalogue.
 Ces systèmes peuvent utiliser l'EBCDIC.
+
+
+http://www.indg.fr/MOE/z-os.html
+z/OS est le système d'exploitation des ordinateurs mainframe d'IBM depuis l'an 2000.
+Il est le remplaçant de l'OS/390 qui était apparu en 1995.
+z/OS est donc le système d'exploitation des ordinateurs de la série IBM system z
+qui a changé de nom début 2015 pour devenir IBM z Systems.
+z / OS offre tous les attributs des systèmes d'exploitation modernes mais conserve
+aussi la plupart des fonctionnalités d'origine qui sont apparues dans les années 60 et 70.
+On retrouve toujours TSO, SDSF, MVS. Cette compatibilité ascendante est l'une des
+philosophies de conception des ordinateurs centraux d'IBM. Ce qui n'empêche pas le système
+d'exploitation d'être ouvert à java, unix et au cloud computing.
+z / OS a été introduit en Octobre 2000.
+La dernière version est actuellement z / OS Version 2 Release 2 qui est très récente
+puisqu'elle date de juin 2015. L'année 2015 à d'ailleurs été une année cruciale
+pour IBM avec la sortie de son dernier serveur : le z13. Il s'agit d'un serveur
+tourné vers l'avenir avec des fonctionnalités pour le Cloud et adaptées au monde
+des smartphones. Un support linux est également présent.
+
 
 ================================================================================
 DA Mainframe Disassembler in REXX

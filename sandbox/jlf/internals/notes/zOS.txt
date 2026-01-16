@@ -2,3 +2,6 @@ http://www-01.ibm.com/support/knowledgecenter/SSXJAV_13.1.0/com.ibm.filemanager.
 This section describes the REXX external functions that you can use
 when writing REXX procedures to enhance a File Manager function.
 In addition, File Manager provides access to the REXX internal functions described in the z/OS TSO/E REXX Reference.
+
+
+http://mzelden.com/mvsutil.html
