@@ -10,7 +10,7 @@ Usage:
     rexx scripts/md2html4xtr md/ html/       (from ooRexx 5.2 builder shell)
     rexx md2html4xtr md/ html/               (from net-oo-rexx)
 where md/ is the root directory of the .md files to convert
-and html/ is the destination directoty of the generated .html files.
+and html/ is the destination directory of the generated .html files.
 
 
 --------------------------------------------------------------------------------
