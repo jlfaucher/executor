@@ -1,3 +1,15 @@
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/33bd05330705040841s389fac4j2f09f6006816a77d%40mail.gmail.com/#msg7348187
+[Oorexx-devel] The new ooRexx incubator.
+From: Rick M. <obj...@gm...> - 2007-05-04 15:41:35
+
++ search for "incubator" from https://www.rexxla.org/events/presentation.rsp
+
+
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/33bd05330711150446l30ee70b2m43978a99e5426068%40mail.gmail.com/#msg9775768
+[Oorexx-devel] Playing in the sandbox
+From: Rick M. <obj...@gm...> - 2007-11-15 12:46:19
+
+
 ================================================================================
 Sandbox
 ================================================================================
