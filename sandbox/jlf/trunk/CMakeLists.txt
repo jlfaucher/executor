@@ -168,9 +168,9 @@ if(SUBVERSION_FOUND)
 endif()
 message(STATUS "Revision Number is ${ORX_BLD_LVL}")
 
-# find a xalan executable.
-    FIND_PROGRAM(XALAN_EXECUTABLE xalan
-       DOC "xalan command line xslt converter")
+FIND_PROGRAM(XALAN_EXECUTABLE Xalan
+   DOC "Xalan command line xslt converter")
+message(STATUS "XALAN_EXECUTABLE is ${XALAN_EXECUTABLE}")
 
 # The following supports the versioning of the rexx shared libraries
 # This defines the oorexx library version. For ooRexx this should always be the
