@@ -1,4 +1,48 @@
 ==========================================================================================
+2026, Feb 03
+
+doc:
+trunk/interpreter/files.html                      The error message files are generated from a single source XML file using XSLT transforms.
+trunk/interpreter/behaviour/files.html:           Many of the behaviour files are auto-generated during the build process from a master XML file using XSLT transforms.
+trunk/interpreter/messages/files.html             platform-specific message files, and documentation are generated
+
+Generated files (oorexx5)
+-------------------------
+
+Search for "Autogenerate" in CMakeLists.txt
+Whole section for generation of the files below:
+
+
+
+macro generate_message_file
+from trunk/interpreter/messages/rexxmsg.xml
+generate:
+    trunk/interpreter/messages/RexxErrorCodes.h     with trunk/interpreter/messages/RexxErrorCodes.xsl
+    trunk/interpreter/messages/RexxMessageNumbers.h with trunk/interpreter/messages/RexxMessageNumbers.xsl
+    trunk/interpreter/messages/RexxMessageTable.h   with trunk/interpreter/messages/RexxMessageTable.xsl
+    trunk/interpreter/messages/RexxErrorMessages.h  with trunk/interpreter/messages/RexxErrorMessages.xsl
+    trunk/api/oorexxerrors.h                        with trunk/interpreter/messages/ApiErrorCodes.xsl
+    trunk/interpreter/messages/errnums.xml          with trunk/interpreter/messages/errnums.xsl
+    trunk/interpreter/messages/errnumsrxqueue.xml   with trunk/interpreter/messages/errnumsrxqueue.xsl
+    trunk/interpreter/messages/errnumssubcom.xml    with trunk/interpreter/messages/errnumssubcom.xsl
+    trunk/interpreter/messages/errnumsrexxc.xml     with trunk/interpreter/messages/errnumsrexxc.xsl
+
+
+macro generate_class_header
+from trunk/interpreter/behaviour/PrimitiveClasses.xml
+generate:
+    trunk/interpreter/behaviour/PrimitiveBehaviourNames.h   with trunk/interpreter/behaviour/PrimitiveBehaviourNames.xsl
+    trunk/interpreter/behaviour/PrimitiveBehaviours.cpp     with trunk/interpreter/behaviour/PrimitiveBehaviours.xsl
+    trunk/interpreter/behaviour/VirtualFunctionTable.cpp    with trunk/interpreter/behaviour/VirtualFunctionTable.xsl
+    trunk/interpreter/behaviour/ClassTypeCodes.h            with trunk/interpreter/behaviour/ClassTypeCodes.xsl
+
+
+
+trunk/interpreter/platform/unix/UnixGencat.xsl              no longer used (I think)
+trunk/interpreter/platform/windows/WinMessageResource.xsl   no longer used (I think)
+
+
+==========================================================================================
 Generated source files
 Those files are in subversion.
 
