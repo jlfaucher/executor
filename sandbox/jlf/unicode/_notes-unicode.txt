@@ -477,6 +477,25 @@ https://en.wikipedia.org/wiki/Mathematical_operators_and_symbols_in_Unicode
 This article covers all Unicode characters with a derived property of "Math".
 
 
+https://github.com/SpyC0der77/unicode-atlas
+https://unicode-atlas.vercel.app/
+A modern web application for exploring, searching, and recognizing Unicode characters.
+Draw or upload images to find matching Unicode symbols, browse by category, and
+download characters in various formats.
+jlf: implemented with TypeScript
+
+
+https://news.ycombinator.com/item?id=46384975
+https://fontgenerator.design/symbols
+Unicode reference where each symbol has its own dev-friendly page with all relevant encodings.
+
+
+https://www.fileformat.info/info/unicode/index.htm
+
+
+https://graphemica.com/
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -591,7 +610,7 @@ Unicode tricks in pull requests: Do review tools warn us?
 
 
 ================================================================================
-Segmentation, Grapheme
+Segmentation, Grapheme, Segmentation title, Grapheme title
 ================================================================================
 
 29/05/2021
@@ -1019,7 +1038,7 @@ Spanish-to-Mandarin
 
 
 ================================================================================
-String matching - Lower vs Casefold
+String matching - Lower vs Casefold, String matching title #1
 ================================================================================
 
 https://stackoverflow.com/questions/45745661/lower-vs-casefold-in-string-matching-and-converting-to-lowercase
@@ -1111,7 +1130,7 @@ support for the turkish case.
 
 
 ================================================================================
-String matching - Collation
+String matching - Collation, String matching title #2
 ================================================================================
 
 https://unicode-org.github.io/icu/userguide/collation/string-search.html
@@ -1208,7 +1227,7 @@ The postgresql thread above is interesting, illustration of the collation in SQL
 
 
 ================================================================================
-Locale
+Locale title
 ================================================================================
 
 02/06/2021
@@ -1307,7 +1326,7 @@ that locale being used for the indicated category.
 
 
 ================================================================================
-CLDR Common Locale Data Repository
+CLDR Common Locale Data Repository, CLDR title
 ================================================================================
 
 Unicode CLDR Project
@@ -1339,7 +1358,7 @@ CLDR tickets
 
 
 ================================================================================
-Case mappings
+Case mappings title, case mapping title
 ================================================================================
 
 Rule Final_Sigma in default case algorithms.
@@ -1417,12 +1436,31 @@ Truths programmers should know about case
 
 
 ================================================================================
-Collation, sorting
+Collation, sorting, Collation title, sort title, sorting title
 ================================================================================
 
 https://www.unicode.org/reports/tr35/tr35-collation.html
 UNICODE LOCALE DATA MARKUP LANGUAGE (LDML)
 PART 5: COLLATION
+
+
+https://cldr.unicode.org/index/cldr-spec/collation-guidelines
+jlf: worth reading! it's not just about filing a request...
+Filing a request
+    Rules
+        https://www.unicode.org/charts/collation/
+    Test Data
+    Justification
+    Testing Your Request
+        https://icu4c-demos.unicode.org/icu-bin/collation.html
+        https://icu4c-demos.unicode.org/icu-bin/locexp
+Determining the Order
+    https://www.unicode.org/reports/tr10/#Introduction (UCA)
+    Determining Level Differences
+    Contractions
+Minimal Rules
+Pitfalls
+    Expansions
 
 
 01/06/2021
@@ -1499,6 +1537,102 @@ and they do not sort consistently across versions/environments.
 
 https://collations.info/concepts/
 a site devoted to working with Collations, Unicode, Encodings, Code Pages, etc in Microsoft SQL Server.
+
+
+https://groups.google.com/a/unicode.org/g/icu-design/c/Stt9hrW7mho/m/eX_6t1lCBgAJ?utm_medium=email&utm_source=footer
+Breton collation
+    It is about breton language and its specific characters, that is
+    Ꝃ ( U+A742) and  ꝃ ( U+A743 ), which are respectively contactions of "Ker" and
+    "ker" at the beginning of family names (my mother's name is "Kergresse") and
+    place names (I live near "Kervos"). It was widely used.
+
+    "ker" means "a populated place", wether a house or a megalopolis (yes !).
+
+    Regarding the character, see :  https://fr.wikipedia.org/wiki/%EA%9D%82
+
+    This character was widely used in breton but french law made it disappear :
+    1881 : order form the Navy (there were and there are still many bretons sailors)
+    1895 : prohibition in official use for administrative acts (State Council)
+    1955 : official and definitive disparition since the  k with diagonal stroke is
+           a genuine orthographic alteration (sic ! )
+
+    It is still used in genealogy or historic scientific articles...
+
+    My question is about the way it may be sorted. I'd like to add something about
+    the expansion towards Ker/ker in breton AS WELL AS in french (because french was
+    used for civil registration since the 16th century at least to 1895).
+
+    Regarding alphabetic order, we have  Keq < Ꝃ < Ker  (no worry : there is no Q in breton)
+    and   keq <  ꝃ   < ker
+Markus Scherer
+    First off, the Breton collation tailoring (the rules that make it different from the Unicode default sort order) are here:
+    https://github.com/unicode-org/cldr/blob/main/common/collation/br.xml
+
+    You didn't say what level of difference you expect between ꝃ and ker.
+    See https://cldr.unicode.org/index/cldr-spec/collation-guidelines
+
+    Usually, a ligature or an additional diacritic adds a secondary-level difference.
+
+    To get what you are asking for, you could add a collation tailoring rule like
+    &[before 2]ker<<ꝃ<<<Ꝃ
+
+    which sorts like this:
+    <1 keq
+    <3 Keq
+    <1 ꝃ
+    <3 Ꝃ
+    <2 ker
+    <3 Ker
+
+    where <1 is a primary-level difference (letter-like), <2 secondary (ligatures, diacritics), <3 tertiary (case-like).
+
+    Are you sure that you want ꝃ < ker ?
+    I would expect the letter-with-stroke to sort after the sequence.
+
+    That would be
+    &ker<<ꝃ<<<Ꝃ
+    -->
+    <1 keq
+    <3 Keq
+    <1 ker
+    <3 Ker
+    <2 ꝃ
+    <3 Ꝃ
+
+    I used the ICU Collation Demo for this, editing the “Append rules” and populating the Input box.
+
+    Note that the French sort order is currently the same as the Unicode default sort order.
+    Adding a tailoring has a performance impact, and doing so for a historical character will face hurdles.
+    It's probably easier to argue for its support in the Breton collation, and recommending to use that for French if necessary.
+OP & Markus Scherer
+    > In fact, I don't know if I want ꝃ < ker or ker < ꝃ because I don't know of any document with the 2 forms coexisting !
+
+    Then I would go with what is mostly done, and treat the variant as sorting after the base form.
+
+    > Regarding level of differences, I would think that it is total.
+    > "abc" is different from "a", isn't it ?
+    > But maybe you can provide me an exemple of such a significant difference treatment ?
+    > For string equality, ꝃ is strictly equivalent to "ker".
+
+    This means that you want ꝃ=ker on a primary (letter-like) level.
+    Unless there is better information, a secondary (diacritic-like) difference should be appropriate.
+    This would be like in the German "phonebook" sort order:  &AE<<ä<<<Ä  etc.
+    Again, see https://cldr.unicode.org/index/cldr-spec/collation-guidelines for details.
+
+    > So, what document should I propose to make an official request ?
+
+    Please do look for an authoritative reference.
+    Given that this is not a modern-use character, you probably need to look for
+    examples from phonebooks, dictionaries, lists of book titles, or other sorted
+    lists which can help distinguish between orders and levels.
+
+    Once you have one or more good references, you can create a CLDR ticket:
+    https://cldr.unicode.org/requesting_changes
+
+
+https://unicode-org.atlassian.net/browse/CLDR-19234
+New collation for breton language
+jlf: This is the continuation of the ICU-design ticket
 
 
 ================================================================================
@@ -1662,6 +1796,12 @@ It is much more powerful, faster and better tested.
 
 https://github.com/simdutf/simdutf
 simdutf: Unicode at gigabytes per second
+https://news.ycombinator.com/item?id=32700315
+Unicode routines (UTF8, UTF16, UTF32): billions of characters per second using SSE2, AVX2, NEON, AVX-512.
+---
+jlf: recommended by StringZilla:
+For wide-character environments (Java, JavaScript, Python 2, C#), consider
+transcoding with simdutf.
 
 
 08/06/2021
@@ -1689,11 +1829,6 @@ Referenced from
     His research is focused on software performance and data engineering. He is a techno-optimist.
 
 
-https://github.com/simdutf/simdutf
-https://news.ycombinator.com/item?id=32700315
-Unicode routines (UTF8, UTF16, UTF32): billions of characters per second using SSE2, AVX2, NEON, AVX-512.
-
-
 https://jcdav.is/2016/09/01/How-the-JVM-compares-your-strings/
 (jlf: also referenced in the section "String comparison")
 How the JVM compares your strings using the craziest x86 instruction you've never heard of
@@ -1717,6 +1852,43 @@ Java 17 uses avx in both encoding and decoding
 
 https://lemire.me/blog/2023/02/16/computing-the-utf-8-size-of-a-latin-1-string-quickly-avx-edition/
 Computing the UTF-8 size of a Latin 1 string quickly (AVX edition)
+
+
+https://github.com/ashvardanian/StringZilla
+StringZilla
+Up to 100x faster strings for C, C++, CUDA, Python, Rust, Swift, JS, & Go,
+leveraging NEON, AVX2, AVX-512, SVE, GPGPU, & SWAR to accelerate search,
+hashing, sorting, edit distances, sketches, and memory ops 🦖
+
+
+https://ashvardanian.com/posts/search-utf8/
+https://news.ycombinator.com/item?id=46276826
+Full Unicode Search at 50× ICU Speed with AVX‑512
+jlf:
+    The "-" in this title is U+2011 Pd 1 "NON-BREAKING HYPHEN"
+    That's why you don't find the other AVX-512 in this file when searching for AVX‑512.
+jlf:
+    This article uses an interesting notation with CSS style
+        'ẞ' U+1E9E
+            0x E1 BA 9E
+
+        <span class=runes-annot>
+            <strong>'ẞ'</strong>
+            <span class=runes-stack>
+                <code>U+1E9E</code>
+                <code>0x E1 BA 9E</code>
+            </span>
+        </span>
+    Too bad, I can't find the CSS file.
+    Any relation?
+    https://css-tricks.com/how-to-stack-elements-in-css/
+    https://runebook.dev/en/docs/css/css_positioned_layout/stacking_context
+
+
+https://github.com/ashvardanian/StringWars
+Comparing performance-oriented string-processing libraries for substring search,
+multi-pattern matching, hashing, edit-distances, sketching, and sorting across
+CPUs and GPUs in Rust 🦀 and Python 🐍
 
 
 ================================================================================
@@ -3624,6 +3796,44 @@ Markus Scherer
     Maybe we can clarify -- https://github.com/unicode-org/icu/pull/3684/files
 
 
+https://groups.google.com/a/unicode.org/g/icu-support/c/uI5yxZgGoYM/m/ACodZIn8AQAJ?utm_medium=email&utm_source=footer
+Collation with upper and numeric comparing in unexpected way
+---
+OP
+    I am trying to configure a collation to sort upper case before lower case with numeric ordering.
+    I am getting some unexpected results, so hoped to find a way to configure ICU to sort in a way that matches my expectations.
+
+    I am working with Postgres to implement the sorting of a database column.
+    Hopefully the SQL statements make it obvious how the ICU collation is configured (und-u-kf-upper-kn):
+    CREATE COLLATION testsort (provider = icu, locale = 'und-u-kf-upper-kn’);
+
+    These comparisons are working as I expected:
+    SELECT 'ID' < 'id' COLLATE testsort; -- true (upper before lower)
+    SELECT '45' < '123' COLLATE testsort; --true (45 before 123)
+
+    However combining them like the following resulted in an unexpected result:
+    SELECT 'ID123' < 'id45' COLLATE testsort; -- false, expected true
+
+    I thought that last one would be false because “ID” would come before “id”.
+    Is there a way to configure the collation to achieve that?
+---
+Rich Gillam
+    I’m going to guess that what you’re running into here is that the case difference
+    is a tertiary difference and the numeric value difference is a primary difference.
+    Tertiary differences only count if there are no primary differences between the strings,
+    so if “45” < “123” counts as a primary difference (and I’m guessing it does),
+    that’ll swamp “ID” < “id”.
+    To get the effect you’re after, you’d either have to elevate the case difference to the primary level
+    or split the string into two pieces and compare them separately.
+    I’m guessing you can’t easily do either of those in a regular SQL query.
+---
+Markus Scherer
+    Correct. Collation is a multi-level comparison.
+    See
+    https://www.unicode.org/reports/tr10/#Multi_Level_Comparison
+    https://cldr.unicode.org/index/cldr-spec/collation-guidelines#determining-level-differences
+
+
 ================================================================================
 ICU design
 ================================================================================
@@ -4993,6 +5203,13 @@ https://gist.github.com/XVilka/a0e49e1c65370ba11c17
 This gist will show the support of BiDirectional text in the terminal emulators and console programs.
 
 
+https://news.ycombinator.com/item?id=46734292
+https://github.com/tariqshams/mermaidtui
+Deterministic, readable Unicode/ASCII rendering of Mermaid diagrams in your terminal.
+jlf: out of subject. The only relation with Unicode is the use of a few Unicode
+characters for rendering.
+
+
 ================================================================================
 QT Title
 ================================================================================
@@ -5375,6 +5592,36 @@ The valid values are as follows:
             RECFM=VBS is not supported when checkpoint restart is used.
 
 
+https://www.ibm.com/docs/en/zos/3.2.0?topic=functions-iconv-code-conversion
+iconv() — Code conversion
+    #include <iconv.h>
+        size_t iconv(iconv_t cd, char **__restrict__ inbuf,
+                 size_t *__restrict__ inbytesleft, char **__restrict__ outbuf,
+                 size_t *__restrict__ outbytesleft);
+Converts a sequence of characters, indirectly pointed to by inbuf, from one encoded
+character set into a sequence of corresponding characters in another encoded character
+set. The resulting character sequence is then stored into the array indirectly pointed
+to by outbuf. The encoded character sets are those specified in the iconv_open() call
+that returned the conversion descriptor, cd. If the descriptor refers to the
+state-dependent encoding, then before it is first used, the cd descriptor is in
+its initial shift state.
+
+
+https://www.ibm.com/docs/en/cobol-zos/6.5.0?topic=cobol-converting-from-utf-8-unicode-representation
+IBM Enterprise COBOL for z/OS
+Converting to or from UTF-8 (Unicode) representation
+---
+    You can implicitly convert alphabetic or national data to UTF-8 data by using the MOVE statement.
+    Implicit conversions also take place in other COBOL statements, such as IF statements
+    that compare an alphanumeric data item with a data item that has USAGE UTF-8.
+
+    You can explicitly convert UTF-16 data to UTF-8 data and UTF-8 data to alphanumeric
+    data by using the DISPLAY-OF intrinsic function. You can also explicitly convert
+    UTF-8 data to UTF-16 data by using the NATIONAL-OF intrinsic function. When using
+    the DISPLAY-OF intrinsic function to convert UTF-16 to UTF-8, you must specify
+    an output code page of 1208.
+
+
 ================================================================================
 macOS OS
 ================================================================================
@@ -5609,6 +5856,7 @@ jlf: RxMessageBox is not part of ooDialog.
 interpreter/platform/windows/ExternalFunctions.cpp
 If the changes applied to ooDialogW were applied to RxMessageBox then the
 display would be correct.
+Alternative: add a code page paramter. Done with Executor5-bulk.
 
 
 https://mastodon.gamedev.place/@AshleyGullen/111109299141510319
@@ -5762,6 +6010,57 @@ https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wset
 Set or retrieve the run-time locale.
 char *setlocale(int category, const char *locale);
 wchar_t *_wsetlocale(int category, const wchar_t *locale);
+
+
+Windows clipboard
+    https://devblogs.microsoft.com/oldnewthing/20251208-00/?p=111849
+    How does Windows synthesize CF_OEMTEXT from CF_TEXT and vice versa?
+    Raymond Chen
+    December 8th, 2025
+    Windows has three built-in text formats for the clipboard:
+    - CF_UNICODETEXT: UTF-16 text.
+    - CF_TEXT: 8-bit text in ANSI code page.
+    - CF_OEMTEXT: 8-bit text in OEM code page.
+
+    https://devblogs.microsoft.com/oldnewthing/20251209-00/?p=111854
+    How does Windows synthesize CF_UNICODETEXT from CF_TEXT and vice versa?
+    Raymond Chen
+    December 9th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251210-00/?p=111856
+    How does Windows synthesize the CF_LOCALE clipboard format?
+    Raymond Chen
+    December 10th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251211-00/?p=111858
+    Studying the various locale mismatch scenarios in Windows clipboard text format synthesis
+    Raymond Chen
+    December 11th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251212-00/?p=111862
+    Resolving an ambiguity in the Windows clipboard automated text conversion table
+    Raymond Chen
+    December 12th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251215-00/?p=111869
+    The Windows clipboard automatic text conversion algorithm is path-dependent
+    Raymond Chen
+    December 15th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251216-00/?p=111873
+    Why is the Windows clipboard taking the scenic route when converting from CF_TEXT to CF_OEMTEXT?
+    Raymond Chen
+    December 16th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251217-00/?p=111880
+    Deducing the consequences of Windows clipboard text formats on UTF-8
+    Raymond Chen
+    December 17th, 2025
+
+    https://devblogs.microsoft.com/oldnewthing/20251218-00/?p=111882
+    Concluding thoughts on our deep dive into Windows clipboard text conversion
+    Raymond Chen
+    December 18th, 2025
 
 
 ================================================================================
@@ -5949,12 +6248,60 @@ https://www.unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html
 Encoding italic (was: A last missing link)
 
 
+https://fontgen.cool/number-font-generator
+Number Font Generator
+
+
+https://www.cursivefontgenerator.info/
+https://news.ycombinator.com/item?id=46454232
+jlf: comment of bromuro
+These won’t work either. They cannot be read by screen readers.
+
+
+================================================================================
+wcwidth
+================================================================================
+
+https://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
+Historical reference: Markus Kuhn’s wcwidth.c, which inspired most Unicode width logic used today.
+
+https://github.com/dawsonhuang0/Wcwidth-O1
+glibc-based POSIX wcwidth/wcswidth for Node.js & TypeScript
+
+
 ================================================================================
 youtube
 ================================================================================
 
 https://www.youtube.com/playlist?list=PLMc927ywQmTNQrscw7yvaJbAbMJDIjeBh
 Videos from Unicode's Overview of Internationalization and Unicode Projects
+
+
+================================================================================
+LSP title, Langage Server Protocol title
+================================================================================
+
+https://clangd.llvm.org/extensions#utf-8-offsets
+This extension has been deprecated with clangd-21 in favor of the positionEncoding
+introduced in LSP 3.17.
+---
+LSP specifies that offsets within lines are in UTF-16 code units (for Positions
+and also delta-encoded document updates). This choice of encoding is a legacy of
+VSCode’s JavaScript implementation.
+clangd allows clients to use UTF-8 offsets instead. This allows clients that
+always speak UTF-8 (in violation of the protocol) to work correctly, and those
+that are UTF-8 native to avoid unnecessary transcoding (which may be slow if
+implemented in e.g. vimscript).
+
+
+https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocuments
+New in 3.17
+Prior to 3.17 the offsets were always based on a UTF-16 string representation.
+So in a string of the form a𐐀b the character offset of the character a is 0,
+the character offset of 𐐀 is 1 and the character offset of b is 3 since 𐐀 is
+represented using two code units in UTF-16.
+Since 3.17 clients and servers can agree on a different string encoding
+representation (e.g. UTF-8).
 
 
 ================================================================================
@@ -6312,6 +6659,26 @@ https://news.ycombinator.com/item?id=32534173
 
 
 ================================================================================
+C lang
+================================================================================
+
+https://github.com/railgunlabs/unicorn
+jlf: not usable for ooRexx (GPL or commercial license).
+A part of the source code is reserved to commercial users, not in github.
+
+    https://www.reddit.com/r/C_Programming/comments/1qbxavy/im_open_sourcing_my_unicode_algorithms_library/
+    I'm open sourcing my Unicode algorithms library
+
+    https://news.ycombinator.com/item?id=46578237
+    Show HN: I wrote an embeddable Unicode algorithms library in C
+    https://github.com/railgunlabs/unicorn
+
+
+https://libs.suckless.org/libgrapheme/
+Libgrapheme
+
+
+================================================================================
 C++ lang, cpp lang, Boost
 ================================================================================
 
@@ -6418,17 +6785,13 @@ Date:       2022-01-22
 https://hsivonen.fi/non-unicode-in-cpp/
 Same contents in sg16 mailing list + feedbacks
 https://lists.isocpp.org/sg16/2019/04/0309.php
+It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
+The Microsoft Code Page 932 Issue
 
 
 03/07/2021
 https://news.ycombinator.com/item?id=27695412
 Any Encoding, Ever – ztd.text and Unicode for C++
-
-
-14/07/2021
-https://hsivonen.fi/non-unicode-in-cpp/
-It’s Time to Stop Adding New Features for Non-Unicode Execution Encodings in C++
-The Microsoft Code Page 932 Issue
 
 
 https://stackoverflow.com/questions/58878651/what-is-the-printf-formatting-character-for-char8-t/58895428#58895428.
@@ -6657,6 +7020,30 @@ especially useful for std::filesystem::path and its string() function.
     https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=msvc-160#utf-8-support
 While this works for most functions, it doesn't work for e.g. the program
 arguments (argv and env parameters of main).
+
+
+================================================================================
+cobol lang
+================================================================================
+
+from: IBM-MAIN@LISTSERV.UA.EDU
+(jlf: waste of time... in the end, the guy says it's already implemented.)
+How can a programmer code a (PIC U) constant or initial value?
+   MOVE U'Latin, русский, español, français, Ελληνικά, עִברִית. '
+          TO UtF-8-STRING
+Where UtF-8-STRING is defined with PIC U(length).
+UTF-8 literals in IBM COBOL are U’utf-chars-or-\Unnnn-escapes’.
+---
+“Alphanumeric” is not too restrictive; AFAIK that term has always included ALL
+binary character values, not just alphabetic and numeric, so all punctuation
+and even “control” values (less than the value of a SPACE character) are allowed.
+My guess now is that my “idea” will be rejected as “function already available”, which it is.
+
+
+from: IBM-MAIN@LISTSERV.UA.EDU
+https://www.ibm.com/docs/en/cobol-zos/6.5.0?topic=literals-utf-8
+The format and rules for basic UTF-8 literals
+The format and rules for the hexadecimal notation format of UTF-8 literals
 
 
 ================================================================================
@@ -6918,6 +7305,8 @@ ChatGPT5 Aug 11, 2025: https://jlfaucher.github.io/executor.master/unicode/ChatG
 Copilot May 18, 2025: https://jlfaucher.github.io/executor.master/unicode/Copilot%20on%20Unicode-2025.05.18.html
 Grok Aug 31, 2025: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/Grok%20on%20Unicode-2025.08.31.md
 Perplexity Dec 27, 2025: https://jlfaucher.github.io/executor.master/unicode/Perplexity%20on%20Unicode-2025.12.27.html
+Claude Feb 19, 2026: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/Claude%20on%20Unicode-2026.02.19.md
+
 
 ================================================================================
 Factor lang
@@ -7366,6 +7755,21 @@ utf8proc:
 https://www.reddit.com/r/golang/comments/1d19uon/why_can_the_go_string_type_contain_invalid_utf8/
 Why can the Go `string` type contain invalid UTF-8 data?
 jlf: nothing interesting, it's Go vs Rust, and nobody wins.
+
+
+https://www.tbray.org/ongoing/When/202x/2026/01/14/Unicode-Properties
+https://news.ycombinator.com/item?id=46679802
+building on the Unicode Character Database to support character-property regexp features in Quamina.
+Character property matching
+[\p{L}\p{Zs}\p{Nd}], which matches anything that Unicode classifies as a letter, a space, or a decimal number.
+Unfortunately, Go’s library doesn’t get updated every time Unicode does.
+As of now, January 2026, it’s still stuck at Unicode 15.0.0, which dates to September 2023;
+the latest version is 17.0.0, last September. Which means there are plenty of
+Unicode characters Go doesn’t know about, and I didn’t want Quamina to settle for that.
+
+
+https://github.com/timbray/quamina
+Home of Quamina, a fast pattern-matching library in Go
 
 
 ================================================================================
@@ -9750,6 +10154,11 @@ Raku provides a collate method that implements the Unicode Collation Algorithm.
     say ('a','b','c','D','E','F').collate; # (a b c D E F)
 
 
+https://github.com/rakudo/rakudo/issues/1770
+Incorrect Unicode character names
+jlf: maybe interesting to validate ooRexx/executor/tutor.
+
+
 ================================================================================
 Rexx lang
 ================================================================================
@@ -11787,6 +12196,12 @@ https://devlog.hexops.com/2021/unicode-sorting-why-browsers-added-special-emoji-
     lgorithms for these files specifically in Zig to reduce them to only a few
     tens of kilobytes.
     https://github.com/jecolon/ziglyph/issues/3
+
+
+https://github.com/nektro/zig-unicode-ucd
+Zig bindings for the Unicode Character Database
+jlf: maybe to review to see how they pack the Unicode properties.
+unicode_data.zig contains the Unicode character names.
 
 
 ================================================================================
