@@ -25,10 +25,803 @@ https://news.ycombinator.com/item?id=39708591
 https://stackoverflow.com/questions/1759794/how-to-print-pthread-t
 https://whiteboardtalks.com/maximum-number-of-threads-linux-macos-outofmemory-unable-to-create-new-native-thread/
 
+===============================================================================
+2026 feb 06
+Executor implementation
+
+pthread_create
+int pthread_create(pthread_t *restrict thread,
+                   const pthread_attr_t *restrict attr,
+                   typeof(void *(void *)) *start_routine,
+                   void *restrict arg);
+
+    Before returning, a successful call to pthread_create() stores the
+    ID of the new thread in the buffer pointed to by thread; this
+    identifier is used to refer to the thread in subsequent calls to
+    other pthreads functions.
+
+
+-------------------------------------------
+trunk/common/platform/unix/SysUtilities.cpp
+-------------------------------------------
+
+    wholenumber_t Utilities::currentThreadId()
+    {
+        return (wholenumber_t)pthread_self();
+    }
+
+
+----------------------------------------------
+trunk/interpreter/execution/RexxActivation.cpp
+----------------------------------------------
+
+    // For concurrency trace
+    // This function is called via Utility::GetConcurrencyInfos, because sometimes
+    // it's not possible to include RexxActivation.hpp to call directly this function.
+    void GetConcurrencyInfos(ConcurrencyInfos &infos)
+    {
+        infos.threadId = Utilities::currentThreadId();
+        infos.activity = ActivityManager::currentActivity;
+        infos.activation = (infos.activity ? infos.activity-> getCurrentRexxFrame() : NULL);
+        infos.variableDictionary = (infos.activation ? infos.activation->getVariableDictionary() : NULL);
+        infos.reserveCount = (infos.activation ? infos.activation-> getReserveCount() : 0);
+        infos.lock = (infos.activation && infos.activation->isObjectScopeLocked() ? '*' : ' ');
+    }
+
+----------------------------------------------
+trunk/interpreter/concurrency/RexxActivity.cpp
+----------------------------------------------
+
+    if (Utilities::traceConcurrency())
+    {
+        // Add thread id, activation id and lock flag.
+        // Should help to analyze the traces of a multithreaded script...
+        char buffer[CONCURRENCY_BUFFER_SIZE];
+        struct ConcurrencyInfos concurrencyInfos;
+        Utilities::GetConcurrencyInfos(concurrencyInfos);
+        Utilities::snprintf(buffer, sizeof buffer - 1, CONCURRENCY_TRACE,
+                                                       concurrencyInfos.threadId,
+                                                       concurrencyInfos.activation,
+                                                       concurrencyInfos.variableDictionary,
+                                                       concurrencyInfos.reserveCount,
+                                                       concurrencyInfos.lock);
+        p_line = ((RexxString*)p_line)->concatToCstring(buffer);
+    }
+
+
+------------------------------------
+trunk/common/utilities/Utilities.hpp
+------------------------------------
+
+    #ifdef __REXX64__
+    #define CONCURRENCY_TRACE "%16.16x %16.16x %16.16x %5.5hu%c "
+    #else
+    #define CONCURRENCY_TRACE "%8.8x %8.8x %8.8x %5.5hu%c "
+    #endif
+
+
+===============================================================================
+2026 feb 06
+Executor5 implementation
+
+
+------------------------------------------
+trunk/interpreter/concurrency/Activity.hpp
+------------------------------------------
+
+    static std::atomic<uint32_t> counter(0); // to generate idntfr for concurrency trace
+    static std::unordered_map<thread_id_t, uint32_t> threadIDs; // to associate idntfr to system threads
+
+    static uint32_t threadIDs_getIdntfr(thread_id_t threadID)
+    {
+        if (threadIDs.find(threadID) == threadIDs.end()) threadIDs[threadID] = ++counter;
+        return threadIDs[threadID];
+    }
+
+    uint32_t Activity::getIdntfr()
+    {
+        thread_id_t threadID = currentThread.getThreadID();
+        return threadIDs_getIdntfr(threadID);
+    }
+
+
+------------------------------------------
+trunk/interpreter/concurrency/Activity.cpp
+------------------------------------------
+
+    #define CONCURRENCY_BUFFER_SIZE 100 // Must be enough to support CONCURRENCY_TRACE
+
+    /*
+    Initial settings (no longer used)
+     5      5      7        7       5
+    R1     T1     A2       V1           1*
+    R99999 T99999 A9999999 V9999999 99999*
+    */
+
+    /*
+    Compatibility with tracer (Executor format)
+     3    5      5     2
+    T1   A2     V1      1*
+    T999 A99999 V99999 99*
+    */
+
+    // global format (not used, the components formats are used)
+    #define CONCURRENCY_TRACE               "R%-4u T%-4u A%-6u V%-6u %2hu%c "
+
+    #define CONCURRENCY_TRACE_INTERPRETER       "R%-5u "
+    #define CONCURRENCY_TRACE_NO_INTERPRETER    " %5s "
+
+    #define CONCURRENCY_TRACE_THREAD            "T%-3u "
+
+    #define CONCURRENCY_TRACE_ACTIVATION        "A%-5u "
+    #define CONCURRENCY_TRACE_NO_ACTIVATION     " %5s "
+
+    #define CONCURRENCY_TRACE_VARIABLED         "V%-5u "
+    #define CONCURRENCY_TRACE_NO_VARIABLED      " %5s "
+
+    #define CONCURRENCY_TRACE_RESERVEC          "%2hu"
+    #define CONCURRENCY_TRACE_NO_RESERVEC       "%2s"
+
+    #define CONCURRENCY_TRACE_LOCK              "%c "
+
+
+
+    struct ConcurrencyInfos
+    {
+        uint32_t interpreter;
+        uint32_t activity;
+        uint32_t activation;
+        uint32_t variableDictionary;
+        unsigned short reserveCount;
+        char lock;
+    };
+
+
+    void GetConcurrencyInfos(Activity *activity, RexxActivation *activation, ConcurrencyInfos &infos)
+    {
+        InterpreterInstance *interpreter = (activity ? activity->getInstance() : NULL);
+        VariableDictionary *variableDictionary = (activation ? activation->getVariableDictionary() : NULL);
+
+        /* R */ infos.interpreter = interpreter ? interpreter->getIdntfr() : 0;
+        /* T */ infos.activity = activity ? activity->getIdntfr() : threadIDs_getIdntfr(SysActivity::queryThreadID()); // use current system thread if no activity
+        /* A */ infos.activation = activation ? activation->getIdntfr() : 0;
+        /* V */ infos.variableDictionary = variableDictionary ? variableDictionary->getIdntfr() : 0;
+        /* n */ infos.reserveCount = activation ? activation-> getReserveCount() : 0;
+        /* * */ infos.lock = (activation && activation->isObjectScopeLocked()) ? '*' : ' ';
+    }
+
+
+    bool FormatConcurrencyInfos(Activity *activity, RexxActivation *activation, char *buffer, size_t bufferSize)
+    {
+        if (buffer == NULL) return false;
+        *buffer = '\0';
+        struct ConcurrencyInfos concurrencyInfos;
+        GetConcurrencyInfos(activity, activation, concurrencyInfos);
+        int n =  0;
+
+    #if 0
+        if (concurrencyInfos.interpreter != 0) n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_INTERPRETER, concurrencyInfos.interpreter);
+        else n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_NO_INTERPRETER, "");
+    #endif
+
+        n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_THREAD, concurrencyInfos.activity);
+
+        if (concurrencyInfos.activation != 0) n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_ACTIVATION, concurrencyInfos.activation);
+        else n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_NO_ACTIVATION, "");
+
+        if (concurrencyInfos.variableDictionary != 0) n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_VARIABLED, concurrencyInfos.variableDictionary);
+        else n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_NO_VARIABLED, "");
+
+        if (concurrencyInfos.reserveCount != 0) n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_RESERVEC, concurrencyInfos.reserveCount);
+        else n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_NO_RESERVEC, "");
+
+        n += snprintf(buffer + n, bufferSize - 1 - n, CONCURRENCY_TRACE_LOCK, concurrencyInfos.lock);
+
+        return n > 0;
+    }
+
+
+    void traceSemaphore(const char *format, va_list argptr)
+    {
+        if (SysProcess::concurrencyTrace())
+        {
+            Activity * activity = ActivityManager::currentActivity;
+            RexxActivation *activation = activity ? activity-> getCurrentRexxFrame() : NULL;
+            char buffer[CONCURRENCY_BUFFER_SIZE];
+            FormatConcurrencyInfos(activity, activation, buffer, sizeof buffer);
+            fprintf(stderr, "%s", buffer);
+            vfprintf(stderr, format, argptr);
+        }
+    }
+
+
+    void traceMutex(const char *format, va_list argptr)
+    {
+        if (SysProcess::concurrencyTrace())
+        {
+            Activity * activity = ActivityManager::currentActivity;
+            RexxActivation *activation = activity ? activity-> getCurrentRexxFrame() : NULL;
+            char buffer[CONCURRENCY_BUFFER_SIZE];
+            FormatConcurrencyInfos(activity, activation, buffer, sizeof buffer);
+            fprintf(stderr, "%s", buffer);
+            vfprintf(stderr, format, argptr);
+        }
+    }
+
+
+    class traceSemaphoreMutexInitializer
+    {
+        public:
+        // Store a pointer to the functions traceSemaphore and traceMutex in the Utilities area.
+        traceSemaphoreMutexInitializer()
+        {
+            Utilities::SetTraceSemaphorePtr(&traceSemaphore);
+            Utilities::SetTraceMutexPtr(&traceMutex);
+        }
+    };
+
+
+    // The goal of this declaration is to activate the constructor during the initialization
+    static traceSemaphoreMutexInitializer initializer;
+
+
+    /**
+     * Write out a line of trace output.
+     *
+     * @param activation The current activation context.
+     * @param line       The output line
+     */
+    void  Activity::traceOutput(RexxActivation *activation, RexxString *line)
+    {
+        // make sure this is a real string value (likely, since we constructed it in the first place)
+        Protected<RexxString> pline = line->stringTrace();
+
+        if (SysProcess::concurrencyTrace())
+        {
+            // Add interpreter id, activity id, activation id, reserve count and lock flag.
+            // Should help to analyze the traces of a multithreaded script...
+            char buffer[CONCURRENCY_BUFFER_SIZE];
+            FormatConcurrencyInfos(this, activation, buffer, sizeof buffer);
+            pline = pline->concatToCstring(buffer);
+        }
+
+        // if the exit passes on the call, we write this to the .traceouput
+        if (callTraceExit(activation, pline))
+        {
+            RexxObject *stream = getLocalEnvironment(GlobalNames::TRACEOUTPUT);
+
+            if (stream != OREF_NULL && stream != TheNilObject)
+            {
+                ProtectedObject result;
+                stream->sendMessage(GlobalNames::LINEOUT, pline, result);
+            }
+            // could not find the target, but don't lose the data!
+            else
+            {
+                lineOut(pline);
+            }
+        }
+    }
+
+
+-------------------------------------------
+trunk/common/platform/unix/SysSemaphore.cpp
+-------------------------------------------
+
+    bool SysMutex::request(uint32_t t, const char *ds, int di)
+    {
+        if (!created)
+        {
+            return false;
+        }
+
+        struct timespec ts;                       // fill in the timeout spec
+        SysSemaphore::createTimeOut(t, ts);
+    #ifdef CONCURRENCY_DEBUG
+             Utilities::traceMutex("...... ... (SysMutex)%s.request : before pthread_mutex_timedlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+    #endif
+        bool result = pthread_mutex_timedlock(&mutexMutex, &ts) == 0;
+    #ifdef CONCURRENCY_DEBUG
+             Utilities::traceMutex("...... ... (SysMutex)%s.request : after pthread_mutex_timedlock(0x%x) from %s (0x%x)\n", mutexVariable, &mutexMutex, ds, di);
+    #endif
+        return result;
+    }
+
+
+--------------------------
+trunk/common/Utilities.cpp
+--------------------------
+
+    // Pointer to the function traceSemaphore declared in Activity.cpp
+    static TraceSemaphorePtr traceSemaphorePtr = NULL;
+
+    void Utilities::SetTraceSemaphorePtr(TraceSemaphorePtr ptr)
+    {
+        traceSemaphorePtr = ptr;
+    }
+
+    void Utilities::traceSemaphore(const char *format, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        if (traceSemaphorePtr != NULL) traceSemaphorePtr(format, args);
+        else if (SysProcess::concurrencyTrace())
+        {
+            fprintf(stderr, "*** traceSemaphorePtr is NULL: ");
+            vfprintf(stderr, format, args);
+        }
+        va_end(args);
+    }
+
+
+    // Pointer to the function traceMutex declared in Activity.cpp
+    static TraceMutexPtr traceMutexPtr = NULL;
+
+    void Utilities::SetTraceMutexPtr(TraceMutexPtr ptr)
+    {
+        traceMutexPtr = ptr;
+    }
+
+    void Utilities::traceMutex(const char *format, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        if (traceMutexPtr != NULL) traceMutexPtr(format, args);
+        else if (SysProcess::concurrencyTrace())
+        {
+            fprintf(stderr, "*** traceMutexPtr is NULL: ");
+            vfprintf(stderr, format, args);
+        }
+        va_end(args);
+    }
+
+
+===============================================================================
+2026 feb 06
+ooRexx5 implementation
+
+Thread id, why no duplication?
+activity->getIdntfr()
+
+
+----------------------------------------
+trunk/common/platform/unix/SysThread.hpp
+----------------------------------------
+
+    class SysThread
+    {
+
+    public:
+        static int createThread(pthread_t &id, bool &idValid, size_t stackSize, void *(*startRoutine)(void *), void *startArgument);
+    protected:
+        void createThread();
+
+        bool           valid;      // indicates whether opaque _threadID is valid
+        bool           attached;   // indicates whether this was a created thread or attached
+        pthread_t     _threadID;   // thread identifier
+    };
+
+
+----------------------------------------
+trunk/common/platform/unix/SysThread.cpp
+----------------------------------------
+
+    int SysThread::createThread(pthread_t &id, bool &idValid, size_t stackSize, void *(*startRoutine)(void *), void *startArgument)
+    {
+        pthread_attr_t  newThreadAttr;
+
+        // Create an attr block for Thread.
+        pthread_attr_init(&newThreadAttr);
+
+        // Set the stack size.
+        pthread_attr_setstacksize(&newThreadAttr, stackSize);
+
+        // Now create the thread
+        int rc = pthread_create(&id, &newThreadAttr, startRoutine, (void *)startArgument);
+        idValid = rc == 0; // only on success we have a valid id
+        pthread_attr_destroy(&newThreadAttr);
+        return rc;
+    }
+
+
+-----------------------------------------------
+trunk/interpreter/platform/unix/SysActivity.hpp
+-----------------------------------------------
+
+    class SysActivity
+    {
+    public:
+        inline thread_id_t getThreadID() { return (thread_id_t)threadId; }
+
+        static thread_id_t queryThreadID();
+
+    protected:
+        bool          valid;      // indicates whether opaque threadId is valid
+        pthread_t     threadId;   // the thread identifier
+    };
+
+
+-----------------------------------------------
+trunk/interpreter/platform/unix/SysActivity.cpp
+-----------------------------------------------
+
+    void SysActivity::create(Activity *activity, size_t stackSize)
+    {
+        // try to create the thread and raise an exception for any failure
+        int rc = SysThread::createThread(threadId, valid, stackSize, threadFnc, (void *)activity);
+        if (rc != 0)
+        {
+            reportException(Error_System_service_service, "ERROR CREATING THREAD");
+        }
+    }
+
+
+------------------------------------------
+trunk/interpreter/concurrency/Activity.hpp
+------------------------------------------
+
+    class Activity
+    {
+        SysActivity currentThread;          // descriptor for this thread
+    }
+
+
+------------------------------------------
+trunk/interpreter/concurrency/Activity.cpp
+------------------------------------------
+
+    static std::atomic<uint32_t> counter(0); // to generate idntfr for concurrency trace information
+    static std::unordered_map<thread_id_t, uint32_t> threadIDs; // to associate idntfr to system threads
+
+    uint32_t Activity::getIdntfr()
+    {
+        thread_id_t threadID = currentThread.getThreadID();
+        if (threadIDs.find(threadID) == threadIDs.end()) threadIDs[threadID] = ++counter;
+        return threadIDs[threadID];
+    }
+
+
+----------------------------------------------
+trunk/interpreter/execution/RexxActivation.cpp
+----------------------------------------------
+
+    StringTable * RexxActivation::createTraceObject(Activity *activity, RexxActivation *activation, RexxString *traceline, TracePrefix tracePrefix, RexxString *tag, RexxObject *value)
+    {
+        ProtectedObject result;
+        StringTable *traceObject = (StringTable *) getRexxPackageTraceObject()->messageSend(GlobalNames::NEW, OREF_NULL, 0, result);
+        ProtectedObject p(traceObject);
+
+        traceObject -> put(traceline, GlobalNames::TRACELINE );
+        traceObject -> put(new_integer(activity->getInstance()->getIdntfr()), GlobalNames::INTERPRETER );
+        traceObject -> put(new_integer(activity->getIdntfr()), GlobalNames::THREAD );
+
+        traceObject -> put(new_integer(activation ? activation->getIdntfr() : 0), GlobalNames::INVOCATION);
+
+        // make sure we save the stackFrame information in a StringTable
+        Protected<StackFrameClass> stackFrame = ( activation ?  activation->createStackFrame() : NULL);
+        Protected<RexxObject> sfast = ((RexxObject *)stackFrame) ? getStackFrameAsStringTable(stackFrame) : TheNilObject;
+        traceObject -> put(sfast, GlobalNames::STACKFRAME);
+
+        // tracing a variable, create and fill in a StringTable with the variable related information
+        if (tracePrefix == TRACE_PREFIX_VARIABLE || tracePrefix == TRACE_PREFIX_ASSIGNMENT)
+        {
+            Protected<StringTable> varStringTable = new_string_table();
+            traceObject -> put(varStringTable,   GlobalNames::VARIABLE);
+            varStringTable -> put(tag,           GlobalNames::NAME);
+            varStringTable -> put(value,         GlobalNames::VALUE);
+            varStringTable -> put(tracePrefix == TRACE_PREFIX_ASSIGNMENT ? TheTrueObject : TheFalseObject, GlobalNames::ASSIGNMENT);
+        }
+        else if (tracePrefix == TRACE_PREFIX_INVOCATION)    // tracing an invocation entry
+        {
+            Protected<StackFrameClass> stackFrame = activity -> generateCallerStackFrame(true);
+            if ((RexxObject *)stackFrame)
+            {
+                Protected<StringTable> sfast = getStackFrameAsStringTable(stackFrame);
+                traceObject -> put(sfast, GlobalNames::CALLERSTACKFRAME);
+            }
+            else
+            {
+                if (activity -> spawnerStackFrameInfo)  // spawner's frame infos saved as a StringTable?
+                {
+                    // allows for analyzing trace logs to identify the caller of a spawned activity
+                    traceObject -> put(activity -> spawnerStackFrameInfo, GlobalNames::CALLERSTACKFRAME);
+                }
+                else
+                {
+                    traceObject -> put(TheNilObject, GlobalNames::CALLERSTACKFRAME);
+                }
+            }
+        }
+
+        // METHODCALL, fill in method related information
+        if (activation && activation -> isMethod())
+        {
+            traceObject -> put(new_integer(activation -> getVariableDictionary()->getIdntfr()), GlobalNames::ATTRIBUTEPOOL);
+            traceObject -> put(activation -> isGuarded() ? TheTrueObject : TheFalseObject, GlobalNames::ISGUARDED );
+            traceObject -> put(new_integer(activation -> getReserveCount()), GlobalNames::SCOPELOCKCOUNT);
+            traceObject -> put(activation -> isObjectScopeLocked() ? TheTrueObject : TheFalseObject, GlobalNames::HASSCOPELOCK);
+                // although receiver can be fetched via StackFrame's target, allow speeding up for debugger, hence add it always here as well
+            traceObject -> put(activation -> getReceiver(), GlobalNames::RECEIVER);
+
+            // check result of an evaluated guard condition
+            if (tracePrefix == TRACE_PREFIX_KEYWORD)    // evaluation of the guard condition?
+            {
+                const char* tmpTag = tag -> getStringData();
+                // if a guard condition got evaluated tag will be "WHEN" and value exactly "0" or "1"
+                if (strcmp(tmpTag,"WHEN") == 0)
+                {
+                    const char* tmpValue = value -> requestString() -> getStringData();
+                    traceObject -> put((tmpValue[0]=='0') ? TheTrueObject : TheFalseObject, GlobalNames::ISWAITING);
+                }
+            }
+        }
+
+        // get NOTIFY class object
+        RexxObject *notify = (StringTable *) getRexxPackageTraceObject()->messageSend(GlobalNames::NOTIFY, OREF_NULL, 0, result);
+        if (notify != TheNilObject)
+        {
+            notify->sendMessage(GlobalNames::APPEND, traceObject, result); // append to NOTIFY object
+        }
+
+        return traceObject;
+    }
+
+
+===============================================================================
+2026 feb 06
+
+While debugging
+https://sourceforge.net/p/oorexx/bugs/2003/
+
+I discover that Executor may reuse the same threadId.
+On macOS/Linux, the threadId is the value returned by pthread_self().
+
+ooRexx5 doesn't reuse the same threadId, probably because a counter is incremented each time a system
+thread is requested (to confirm).
+
+
+
+pthread_self() is called by
+    Utilities::currentThreadId()
+    SysGettid()
+    SysActivity::queryThreadID()
+
+
+SOMETHING THAT I DON'T UNDERSTAND
+
+  say "###" SysGetTid() "n" n
+Why don't I retrieve the values of SysGetTid() when converting the hexadecimal pointers to decimal?
+
+with    ::options trace i
+RXTRACE_CONCURRENCY=on rexx guard_when-4.rex > out.txt 2>&1
+
+/local/rexx/oorexx/scripts/multithread/bug#2003$ grep "guard on" out.txt
+000000006f2cb000 000000004e843e50 000000004e82f830 00000      29 *-* guard on when n = n    T2
+000000006f4d7000 000000004e84d440 000000004e82f830 00001      29 *-* guard on when n = n    T3
+000000006f6e3000 000000004e858e70 000000004e82f830 00001      29 *-* guard on when n = n
+000000006f8ef000 000000004e864220 000000004e82f830 00001      29 *-* guard on when n = n
+000000006fafb000 000000004e86fdf0 000000004e82f830 00001      29 *-* guard on when n = n
+000000006f2cb000 000000004e87a880 000000004e82f830 00001      29 *-* guard on when n = n    T2
+000000006fd07000 000000004e885fc0 000000004e82f830 00001      29 *-* guard on when n = n
+000000006ff13000 000000004e8912f0 000000004e82f830 00001      29 *-* guard on when n = n
+000000007011f000 000000004e89c260 000000004e82f830 00001      29 *-* guard on when n = n
+000000006f4d7000 000000004e8a6cf0 000000004e82f830 00001      29 *-* guard on when n = n    T3
+/local/rexx/oorexx/scripts/multithread/bug#2003$ grep "^###" out.txt
+### 6160166912 n 0      T2      16F2CB000
+### 6162313216 n 1      T3      16F4D7000
+### 6164459520 n 2              16F6E3000
+### 6166605824 n 3
+### 6168752128 n 4
+### 6160166912 n 5      T2
+### 6170898432 n 6
+### 6173044736 n 7
+### 6175191040 n 8
+### 6162313216 n 9      T3
+
+
+ADD PRINTF
+
+    trunk/common/platform/unix/SysUtilities.cpp
+    wholenumber_t Utilities::currentThreadId()
+    {
+        //DROPJLF
+        printf("Utilities::currentThreadId() = %16.16x\n", (wholenumber_t)pthread_self());
+        return (wholenumber_t)pthread_self();
+    }
+
+
+    trunk/extensions/platform/unix/rxunixsys/rxunixsys.cpp
+    RexxRoutine0(RexxObjectPtr,
+                 SysGettid)
+    {
+        pthread_t tid = pthread_self();
+        //DROPJLF
+        printf("SysGettid() = %16.16x\n", (wholenumber_t)tid);
+        return context->UnsignedInt64ToObject((uint64_t)tid);
+    }
+
+
+    trunk/interpreter/platform/unix/SysActivity.cpp
+    thread_id_t SysActivity::queryThreadID()
+    {
+        //DROPJLF
+        printf("SysActivity::queryThreadID() = %16.16x\n", (wholenumber_t)pthread_self());
+        return (thread_id_t)pthread_self();      /* just call the correct function */
+    }
+
+
+Only 10 occurences (ok, it's me who calls it from the script)
+/local/rexx/oorexx/scripts/multithread/bug#2003$ grep "SysGettid()" out.txt
+SysGettid() = 000000006f2cb000      T2
+SysGettid() = 000000006f4d7000      T3
+SysGettid() = 000000006f6e3000
+SysGettid() = 000000006f8ef000
+SysGettid() = 000000006fafb000
+SysGettid() = 000000006f2cb000      T2
+SysGettid() = 000000006fd07000
+SysGettid() = 000000006ff13000
+SysGettid() = 000000007011f000
+SysGettid() = 000000006f4d7000      T3
+
+303 occurences, need sort -u
+/local/rexx/oorexx/scripts/multithread/bug#2003$ grep "Utilities::currentThreadId()" out.txt | sort -u
+Utilities::currentThreadId() = 000000006f2cb000     T2
+Utilities::currentThreadId() = 000000006f4d7000     T3
+Utilities::currentThreadId() = 000000006f6e3000
+Utilities::currentThreadId() = 000000006f8ef000
+Utilities::currentThreadId() = 000000006fafb000
+Utilities::currentThreadId() = 000000006fd07000
+Utilities::currentThreadId() = 000000006ff13000
+Utilities::currentThreadId() = 000000007011f000
+Utilities::currentThreadId() = 00000000f7b76240     T1
+
+Only 10 occurences
+/local/rexx/oorexx/scripts/multithread/bug#2003$ grep "SysActivity::queryThreadID()" out.txt
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+SysActivity::queryThreadID() = 00000000f7b76240
+
+-------------------------------------------------------------------------------
+A little bit out of subject,
+but I want to understand why SysGettid() is not returning exactly the decimal
+value of a 64-bit pointer.
+
+numeric digits 18 doesn't help.
+
+
+000000006f2cb000
+    x2d       -> 1865199616 -> d2x ->  6F2CB000       roundtrip ok
+    SysGetTid -> 6160166912 -> d2x -> 16F2CB000
+
+
+trunk/interpreter/api/ThreadContextStubs.cpp
+RexxObjectPtr RexxEntry UnsignedInt64ToObject(RexxThreadContext * c, uint64_t n)
+{
+    ApiContext context(c);
+    try
+    {
+        return context.ret(Numerics::uint64ToObject(n));
+    }
+    catch (RexxNativeActivation *)
+    {
+    }
+    return NULLOBJECT;
+}
+
+
+trunk/interpreter/runtime/Numerics.cpp
+/**
+ * Convert a signed int64 object into the appropriate Rexx
+ * object type.
+ *
+ * @param v      The value to convert.
+ *
+ * @return The Rexx object version of this number.
+ */
+RexxObject *Numerics::int64ToObject(int64_t v)
+{
+    // in the range for an integer object?
+    if (v <= MAX_WHOLENUMBER && v >= MIN_WHOLENUMBER)
+    {
+        return new_integer((wholenumber_t)v);
+    }
+    // out of range, we need to use a numberstring for this, using the full
+    // allowable digits range
+    return new_numberstringFromInt64(v);
+}
+
+
+/**
+ * Convert a signed int64 object into the appropriate Rexx
+ * object type.
+ *
+ * @param v      The value to convert.
+ *
+ * @return The Rexx object version of this number.
+ */
+RexxObject *Numerics::uint64ToObject(uint64_t v)
+{
+    // in the range for an integer object?
+    if (v <= (uint64_t)MAX_WHOLENUMBER)
+    {
+        return new_integer((stringsize_t)v);
+    }
+    // out of range, we need to use a numberstring for this, using the full
+    // allowable digits range
+    return new_numberstringFromUint64(v);
+}
+
+
+/**
+ * Convert an signed number value into the appropriate Rexx
+ * object type.
+ *
+ * @param v      The value to convert.
+ *
+ * @return The Rexx object version of this number.
+ */
+RexxObject *Numerics::wholenumberToObject(wholenumber_t v)
+{
+    // in the range for an integer object?
+    if (v <= MAX_WHOLENUMBER && v >= MIN_WHOLENUMBER)
+    {
+        return new_integer((wholenumber_t)v);
+    }
+    // out of range, we need to use a numberstring for this, using the full
+    // allowable digits range
+    return new_numberstringFromWholenumber(v);
+}
+
+
+/**
+ * Convert an unsigned number value into the appropriate Rexx
+ * object type.
+ *
+ * @param v      The value to convert.
+ *
+ * @return The Rexx object version of this number.
+ */
+RexxObject *Numerics::stringsizeToObject(stringsize_t v)
+{
+    // in the range for an integer object?
+    if (v <= (stringsize_t)MAX_WHOLENUMBER)
+    {
+        return new_integer((stringsize_t)v);
+    }
+    // out of range, we need to use a numberstring for this, using the full
+    // allowable digits range
+    return new_numberstringFromStringsize(v);
+}
+
+
+trunk/interpreter/classes/IntegerClass.hpp
+class RexxIntegerClass : public RexxClass {
+  inline RexxInteger *newCache(wholenumber_t value) {if (value >= INTEGERCACHELOW && value < INTEGERCACHESIZE)
+                                       return this->integercache[value - INTEGERCACHELOW];
+                                     else
+                                       return new RexxInteger (value); };
+
+                                     /* array of fast aloocation integers 0-99      */
+  RexxInteger *integercache[INTEGERCACHESIZE - INTEGERCACHELOW];
+};
+
+
+inline RexxInteger *new_integer(wholenumber_t v) { return TheIntegerClass->newCache(v); }
+
 
 ===============================================================================
 2021 aug 28
 
+Executor5
 Current implementation:
     static std::atomic<uint32_t> atomic_counter(0);
 
