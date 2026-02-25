@@ -1,3 +1,12 @@
+================================================================================
+
+https://github.com/llvm/llvm-project/blob/main/llvm/docs/GarbageCollection.rst
+
+
+================================================================================
+Review mailing lists
+
+
 2012
 https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/CAPJz3GuHsa3oU1Z%2BAaivP3Qn1Vy_ZNF-%3D%3Dh7WRAhkr_97_PNGw%40mail.gmail.com/#msg29651973
 [Oorexx-devel] More on memory problem, SysFileTree, etc..
@@ -78,46 +87,125 @@ If not certain of whether it is required, then use it, since it is never an erro
 
 ================================================================================
 
-Remember :
-To activate the GC diagnostics, add these definitions in RexxCore.h :
-[later]
-no... RexxCore.h is not included by all the files !
-    #define CHECKOREFS      --> MemorySegment.hpp, used in RexxMemory.cpp
-    #define MEMPROFILE      --> RexxMemory.hpp, DeadObject.hpp, RexxMemory.cpp, DeadObject.cpp
-    #define VERBOSE_GC      --> RexxMemory.hpp, MemorySegment.cpp
-or better : could be added in lib/orxwin32.mak to my_cdebug, when debug mode.
-    /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
-or added in CMakeCacheText.txt
-    CMAKE_CXX_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
-    CMAKE_C_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
+Remember:
+    RexxMemory.hpp
+    // this can be enabled to switch on memory profiling info
+    #define MEMPROFILE
+
+    // Keep this declaration here, before #include "MemorySegment.hpp"
+    // Otherwise you will get a compilation error "redefinition of 'validateObject'".
+    #define CHECKOREFS
+
 
 Remember :
-When the crash occurs during GC (ex : in ObjectHeader::isObjectMarked), it's possible
-to see which ooRexx object is corrupted. Here the object is 0x7eeff200
- 	rexx.dll!ObjectHeader::isObjectMarked(unsigned int mark)  Line 106 + 0xa bytes	C++
- 	rexx.dll!RexxInternalObject::isObjectMarked(unsigned int markword)  Line 247 + 0x16 bytes	C++
- 	rexx.dll!RexxListTable::live(unsigned int liveMark)  Line 55 + 0x26 bytes	C++
->	rexx.dll!RexxMemory::markObjectsMain(RexxObject * rootObject)  Line 374	C++                 <-- markObject = 0x7eeff200 {size=2129676696 elements=0x7eeff214 }  RexxListTable with OVERWRITTEN size !!!
- 	rexx.dll!RexxMemory::markObjects()  Line 645	C++
- 	rexx.dll!RexxMemory::collect()  Line 1022	C++
+    To activate the GC diagnostics, add these definitions in RexxCore.h :
+    [later]
+    no... RexxCore.h is not included by all the files !
+        #define CHECKOREFS      --> MemorySegment.hpp, used in RexxMemory.cpp
+        #define MEMPROFILE      --> RexxMemory.hpp, DeadObject.hpp, RexxMemory.cpp, DeadObject.cpp
+        #define VERBOSE_GC      --> RexxMemory.hpp, MemorySegment.cpp
+    or better : could be added in lib/orxwin32.mak to my_cdebug, when debug mode.
+        /DCHECKOREFS /DMEMPROFILE /DVERBOSE_GC
+    or added in CMakeCacheText.txt
+        CMAKE_CXX_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
+        CMAKE_C_FLAGS_DEBUG:STRING=/D_DEBUG /DCHECKOREFS /MDd /Zi /Ob0 /Od /RTC1
 
-A conditional break "newObj == 0x7eeff200" on the last line of RexxMemory::newObject (RexxMemory.cpp)
-lets stop the execution when the object is created. If too long, then modify the source :
-    if (newObj == (RexxObject*)0x7eeff200)
-    {
-        int dummy=0;    //  <-- put breakpoint here
-    }
-    return newObj;
-Once the interpreter is stopped here, it's relatively easy to do a code review of the methods
-in the call stack, to check if an intermediate object must be protected.
 
-If needed, a data breakpoint can be set on the part of memory which is overwritten
-(here the 'size' attribute). In my case, was triggered when the object was inserted
-in the list of dead objects.
+Remember :
+    When the crash occurs during GC (ex : in ObjectHeader::isObjectMarked), it's possible
+    to see which ooRexx object is corrupted. Here the object is 0x7eeff200
+        rexx.dll!ObjectHeader::isObjectMarked(unsigned int mark)  Line 106 + 0xa bytes	C++
+        rexx.dll!RexxInternalObject::isObjectMarked(unsigned int markword)  Line 247 + 0x16 bytes	C++
+        rexx.dll!RexxListTable::live(unsigned int liveMark)  Line 55 + 0x26 bytes	C++
+    >	rexx.dll!RexxMemory::markObjectsMain(RexxObject * rootObject)  Line 374	C++                 <-- markObject = 0x7eeff200 {size=2129676696 elements=0x7eeff214 }  RexxListTable with OVERWRITTEN size !!!
+        rexx.dll!RexxMemory::markObjects()  Line 645	C++
+        rexx.dll!RexxMemory::collect()  Line 1022	C++
+
+    A conditional break "newObj == 0x7eeff200" on the last line of RexxMemory::newObject (RexxMemory.cpp)
+    lets stop the execution when the object is created. If too long, then modify the source :
+        if (newObj == (RexxObject*)0x7eeff200)
+        {
+            int dummy=0;    //  <-- put breakpoint here
+        }
+        return newObj;
+    Once the interpreter is stopped here, it's relatively easy to do a code review of the methods
+    in the call stack, to check if an intermediate object must be protected.
+
+    If needed, a data breakpoint can be set on the part of memory which is overwritten
+    (here the 'size' attribute). In my case, was triggered when the object was inserted
+    in the list of dead objects.
+
+
+================================================================================
+Review occurrences of CHECKOREFS in ooRexx 4.2
+================================================================================
+
+MemorySegment.hpp
+#ifndef CHECKOREFS
+      inline void validateObject(size_t bytes) {};
+#else
+      void validateObject(size_t bytes); // Must be moved to .cpp file because compile error with Interpreter::logicError
+#endif
+
+
+MemorySegment.cpp
+#ifdef CHECKOREFS
+void MemorySegmentSet::validateObject(size_t bytes)
+{
+  /* is object invalid size?           */
+  if (!IsValidSize(bytes)) {
+      /* Yes, this is not good.  Exit      */
+      /* Critical Section and report       */
+      /* unrecoverable error.              */
+      Interpreter::logicError("Bad object detected during Garbage Collection, unable to continue");
+  }
+}
+#endif
+
+
+RexxMemory.cpp
+RexxMemory::RexxMemory()
+    : oldSpaceSegments(OREF_NULL), newSpaceNormalSegments(OREF_NULL), newSpaceLargeSegments(OREF_NULL) /*, newSpaceSingleSegments(OREF_NULL) */
+{
+...
+    /* See if we want this debug info    */
+    /*or not by default, its always      */
+    /*setable from OREXX code.           */
+#ifdef CHECKOREFS
+    this->orphanCheck = true;            /* default value for OREF checking   */
+#else
+    this->orphanCheck = false;           /* default value for OREF checking   */
+#endif
+
+
+RexxMemory.hpp
+// Unlike ooRexx5 before rev 12948, the OrefSet macro doesn't have the problem of double evaluation of v.
+// No need to replace it by an inline function.
+#ifndef CHECKOREFS
+#define OrefSet(o,r,v) ((o)->isOldSpace() ? memoryObject.setOref((void *)&(r),(RexxObject *)v) : (RexxObject *)(r=v))
+#else
+#define OrefSet(o,r,v) memoryObject.checkSetOref((RexxObject *)o, (RexxObject **)&(r), (RexxObject *)v, __FILE__, __LINE__)
+#endif
+
+
+RexxMemory.cpp
+void RexxMemory::restore()
+{
+...
+    memoryObject.enableOrefChecks();     /* enable setCheckOrefs...           */
+}
+
+
+Setup.cpp
+void RexxMemory::createImage(const char *imageTarget)
+{
+...
+  memoryObject.enableOrefChecks();     /* enable setCheckOrefs...           */
 
 
 ================================================================================
 Review occurences of #ifdef in ooRexx5 source
+================================================================================
 
 #ifdef MEMPROFILE
 void DeadObjectPool::dumpMemoryProfile(FILE *outFile)
@@ -150,6 +238,40 @@ class MemoryObject
 
 #ifdef CHECKOREFS
 void MemoryObject::mark(RexxInternalObject *markObject)
+
+
+ObjectClass.cpp
+bool RexxInternalObject::isValid()
+{
+    // Test #1, is the size valid
+    if (!Memory::isValidSize(getObjectSize()))
+    {
+        return false;
+    }
+
+#if 0
+    // The following tests seem line a good idea, but unfortunately
+    // it only works with live objects. A dead object on the pool
+    // has neither a valid bahaviour pointer nor a valid virtual function pointer.
+    // I'm leaving this in here just in case we figure out how to make these tests work.
+
+    size_t typeNumber = getObjectTypeNumber();
+    // Test #2 is the type indicator correct?
+    if (typeNumber > T_Last_Class_Type)
+    {
+        return false;
+    }
+    // Test #3, is the object's virtual function pointer the correct one for the type.
+    // this can detect problems where the front part of the object has been overlayed.
+    if (!checkVirtualFunctions(memoryObject.virtualFunctionTable[typeNumber]))
+    {
+        return false;
+    }
+#endif
+
+    // the object is at least consistent
+    return true;
+}
 
 
 ==========================================================================
@@ -681,10 +803,6 @@ but must add a test in traceResultValue!
 
 RexxActivation::traceEntryOrExit
 
-
-================================================================================
-
-https://github.com/llvm/llvm-project/blob/main/llvm/docs/GarbageCollection.rst
 
 ================================================================================
 2015 Sept
