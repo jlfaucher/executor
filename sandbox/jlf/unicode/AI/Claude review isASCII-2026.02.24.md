@@ -3,7 +3,7 @@
 Since you are talking of the is-ascii optimization, here is my implementation.
 A string is scanned only once, then the result is cached on the string.
 
-
+```
 #define  STRING_ISASCII_CHECKED 0x08    /* string is ASCII only checked     */
 #define  STRING_ISASCII        0x10    /* string is ASCII only              */
    inline bool  isASCIIChecked() {return (this->Attributes & STRING_ISASCII_CHECKED) != 0;};
@@ -63,7 +63,7 @@ bool StringUtil::checkIsASCII(const char *s, size_t length)
     }
     return true;
 }
-
+```
 
 # His Feedback
 
