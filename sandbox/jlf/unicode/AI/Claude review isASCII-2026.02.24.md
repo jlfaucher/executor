@@ -1,4 +1,6 @@
-# My Question
+# isASCII code review
+
+## Question
 
 Since you are talking of the is-ascii optimization, here is my implementation.
 A string is scanned only once, then the result is cached on the string.
@@ -65,7 +67,7 @@ bool StringUtil::checkIsASCII(const char *s, size_t length)
 }
 ```
 
-# His Feedback
+## Feedback
 
 Your `checkIsASCII` implementation is clever and the caching strategy with the
 two-bit flag system is clean. The tri-state logic (unchecked / checked-false /
@@ -129,14 +131,15 @@ a comment but it's worth making it impossible to miss.
 
 
 
+# 32-bit version of ooRexx
 
-# My Question
+## Question
 
 We have a 32-bit version of ooRexx.
 I assume a 32-bit version of your code should be used?
 
 
-# His Answer
+## Answer
 
 Yes, exactly. The word-at-a-time approach should match the natural word size.
 Here's a portable version:

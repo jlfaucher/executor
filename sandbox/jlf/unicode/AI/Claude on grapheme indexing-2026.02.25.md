@@ -1,25 +1,29 @@
+# Graphemes indexer
+
 This discussion happens after I share the Gemini conversation with Claude.
 
-# My Question
+## Question
 
 ok, then can you provide your full code? You don't need to keep the code of the 
 other AI, feel free to provide your own code.
 
 Reminder of the context:
-I know the string length in bytes.
-I know that the string is not ASCII.
-I will iterate over the string by codepoints.
-I call utf8proc's graphemeBreak for each codepoint.
-For each grapheme, I will notify the indexer.
+
+- I know the string length in bytes.
+- I know that the string is not ASCII.
+- I will iterate over the string by codepoints.
+- I call utf8proc's graphemeBreak for each codepoint.
+- For each grapheme, I will notify the indexer.
 
 To be extremely precise, here is the ooRexx code that I use currently to index 
-a string using utf8proc. 
-You will see "encoding = self".
+a string using utf8proc.  
+You will see "encoding = self".  
 Here, "self" is a class of encoding, who knows how to get the next codepoint 
-byte position from the current byte position.
+byte position from the current byte position.  
 When the indexation is finished, an instance of this encoding class is created, 
-which holds the index and the errors.
-In this version, I manage 2 indexes: codepoint index and grapheme index.
+which holds the index and the errors.  
+
+In this version, I manage 2 indexes: codepoint index and grapheme index.  
 In the C implementation, I will keep only the grapheme index, because I don't 
 need a direct access by codepoint.
 
@@ -157,7 +161,7 @@ need a direct access by codepoint.
 
 ```
 
-# His Answer
+## Answer
 
 Looking at your ooRexx code, I can see the exact interface I need to implement against. 
 Let me write a clean C++ `GraphemeIndexer` that matches your actual usage pattern.

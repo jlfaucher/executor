@@ -1,4 +1,6 @@
-# My Question
+# Graphemes indexer
+
+## Question
 
 ooRexx supports only byte-encoded strings.  
 I plan to add a layer above the native strings to support Unicode.  
@@ -41,7 +43,7 @@ Are you aware of better structures?
 
 
 
-# His Answer
+## Answer
 
 Expanding ooRexx to support Unicode while maintaining its "index-heavy" philosophy 
 is an ambitious and necessary evolution.  
@@ -114,9 +116,9 @@ What is the typical size of the "big strings" you're concerned about—are we ta
 
 
 
+# Typical size of the "big strings"
 
-
-# My Feedback
+## Feedback
 
 Well, with ooRexx 64 bits, strings can be gigabytes of text.  
 But the typical size is more in megabytes.  
@@ -127,7 +129,7 @@ in memory because it's more esay to work with a string than a file.
 aStream~makeArray("Line")~makeString("Line")
 ```
 
-# His Answer
+## Answer
 
 Since you are potentially dealing with gigabyte-scale strings, a flat array of 4-byte or 8-byte offsets is a memory "landmine." A 1GB UTF-8 string consisting of 1-byte ASCII characters would require a 4GB index array (using 32-bit offsets) or an 8GB array (using 64-bit offsets), effectively quadrupling or nonupling your memory footprint.
 
@@ -188,8 +190,9 @@ How do you plan to handle string mutations—will these "Unicode-aware" strings 
 
 
 
+# Jump without performing a sequential scan?
 
-# My Question
+## Question
 
 A question about the sparse index.  
 You said "Instead of indexing every grapheme, you index every N-th grapheme (e.g., every 64th or 128th)."  
@@ -200,7 +203,7 @@ I want to respect the U+FFFD Substitution of Maximal Subparts.
 That seems impossible with a jump to a byte, or with a backward scanning.
 
 
-# His Answer
+## Answer
 
 You’ve hit on the "Catch-22" of Unicode: you cannot jump to the N-th grapheme without knowing where the (N-1) previous graphemes ended.
 
@@ -265,9 +268,9 @@ Since you are using `utf8proc`, are you planning to handle the "indexing" at the
 
 
 
+# Architectural choice for ooRexx
 
-
-# My Feedback
+## Feedback
 
 That's a good question! 
 In my current implementation, I attach the indexer when I need to have a grapheme view (called RexxText) of the string (a RexxString).
@@ -321,7 +324,7 @@ then the String message is sent to the RexxText counterpart of the String instan
 otherwise the String message is sent to the String instance.
 
 
-# His Answer
+## Answer
 
 This is a very elegant architectural choice for ooRexx. By making the string BIFs and messages polymorphic, you are essentially introducing "Transparent Unicode" without breaking the legacy byte-oriented behavior of existing scripts.
 
@@ -382,14 +385,14 @@ Would you like to explore how to handle the "polymorphism" for concatenation and
 
 
 
+# Size of the summary table
 
-
-# My Question
+## Question
 
 For a 1GB string, what is the size of the summary table?
 
 
-# His Answer
+## Answer
 
 The size of the summary table depends entirely on your **sampling density** (how often you place a "checkpoint" or "sync point").
 
@@ -454,14 +457,14 @@ or are you looking for something even more compact?
 
 
 
+# Is it possible to be more compact?
 
-
-# My Question
+## Question
 
 Is it possible to be more compact? I'm curious to discover how!
 
 
-# His Answer
+## Answer
 
 It is absolutely possible to be more compact. 
 In the world of **Succinct Data Structures**, we can push the overhead down to 
@@ -550,16 +553,16 @@ around 15% overhead (Two-Level Rank)?
 
 
 
+# Use different strategies in function of the length?
 
-
-# My Question
+## Question
 
 Well, maybe I can have both?  
 When starting the scan, I know already the string's length in bytes.  
-Would it makes do use different strategies in function of the length?
+Would it makes sense to use different strategies in function of the length?
 
 
-# His Answer
+## Answer
 
 That is a very "Rexx-like" way of thinking—pragmatic and adaptive. 
 Since you already know the byte length before you begin the scan, you can 
@@ -622,15 +625,15 @@ entirely to save even more memory?
 
 
 
+# If ASCII-only, I don't create a RexxText
 
-
-# My Feedback
+## Feedback
 
 yes, I know already if the string is ASCII-only.  
 If ASCII-only, I don't create a RexxText, I use the string itself, no need of index.
 
 
-# His Answer
+## Answer
 
 That is the most efficient optimization possible. 
 If the string is **Pure ASCII**, $Index = ByteOffset$, and the overhead is zero. 
@@ -697,9 +700,9 @@ kernel extension, or as an ooRexx class library?
 
 
 
+# Answers to AI questions
 
-
-# My answers to his questions:
+## Answers
 
 If the result of a substr is also ASCII-only...:   
 good question! currently I return a RexxText but I should instead return the string as-is. 
@@ -712,7 +715,7 @@ I return U+FFFD, but internaly, I have the malformed bytes sequence.
 About the implementation, that will be C/C++ directly in the ooRexx implementation.
 
 
-# His Feedback
+## Feedback
 
 Integrating this into the ooRexx C++ core is the right move for performance, 
 especially since you can leverage low-level bit manipulation and memory management 
@@ -805,13 +808,14 @@ handle "In-Place" modifications of the string data?
 
 
 
+# RexxString and RexxText instances are immutable
 
-# My answer
+## Answer to AI
 
-RexxString and RexxText instances are immutable
+RexxString and RexxText instances are immutable.
 
 
-# His Feedback
+## AI Feedback
 
 Immutability is your greatest ally here. It simplifies the architecture significantly 
 because you never have to worry about index invalidation, race conditions during scans, 
@@ -895,9 +899,9 @@ jump-and-scan logic to see how it integrates with `utf8proc`?
 
 
 
+# First pass just to get the graphemes count?
 
-
-# My question
+## Question
 
 Before looking at a specific C++ code, I would like your point of view:
 Before starting the scanning for indexation, I know the length in bytes, 
@@ -913,7 +917,7 @@ Or should I use only one pass, and change of strategy during the indexation
 in function of the count of graphemes already indexed?
 
 
-# His Answer
+## Answer
 
 In performance-critical C++ kernel development, **two passes are almost always slower than one.**
 
@@ -995,14 +999,14 @@ feel acceptable for your memory constraints in ooRexx, or would you prefer a mor
 
 
 
+# Bit-vector
 
-
-# My feedback
+## Answer to AI
 
 Let's go for allocating a bit-vector upfront 
 
 
-# His feedback
+## AI feedback
 
 Excellent choice. Allocating the bit-vector upfront is the most "system-level" 
 way to handle this. It treats memory predictably and allows the CPU to perform 
@@ -1095,14 +1099,15 @@ or would you like to explore a library-based approach for the Rank/Select portio
 
 
 
+# Library-based bit-manipulation?
 
-# My answer
+## Answer
 
 I don't know... If it's a library, I must be able to incorporate its source code 
 in the oorexx source tree, and build it with the CMakeFiles.txt of oorexx.
 
 
-# His feedback
+## Feedback
 
 That is a very sensible constraint. ooRexx has a highly portable build system, 
 and adding heavy external dependencies often creates a "DLL Hell" or compilation 
@@ -1184,49 +1189,57 @@ specifically how it should handle the initialization during that first scan?
 
 
 
+# AI peer review #1
 
-
-# My Feedback
+## Feedback
 
 I asked to another AI to review our conversation.
 Here is his feedback:
 
 This is a fascinating design conversation. The AI's advice is generally solid, 
 but I have some observations and a few places where I'd push back or refine things.
+
 What the AI got right:
-The progression toward a bit-vector with a two-level summary table is well-reasoned. 
-The core insight — that you're already doing a full scan, so you should build 
+
+- The progression toward a bit-vector with a two-level summary table is well-reasoned. 
+
+- The core insight — that you're already doing a full scan, so you should build 
 the most efficient permanent structure in one pass — is correct. The portable 
 popcount wrapper is also genuinely good advice for a cross-platform project like ooRexx.
+
 Where I'd push back or add nuance:
-The "adaptive strategy by size" suggestion is more complex than it's worth. 
+
+- The "adaptive strategy by size" suggestion is more complex than it's worth. 
 The AI proposed switching between flat arrays, block-offset tables, and bit-vectors 
 based on string size thresholds. In practice, this means three separate code paths 
 to maintain, test, and debug. For a kernel implementation, complexity is a real cost. 
-The bit-vector approach works well across all sizes — for a 1KB string, the bit-vector 
+
+- The bit-vector approach works well across all sizes — for a 1KB string, the bit-vector 
 is only 128 bytes. Just use it uniformly.
-The summary table interval deserves more thought. The AI settled on "every 512 bits" 
+
+- The summary table interval deserves more thought. The AI settled on "every 512 bits" 
 somewhat arbitrarily. The right choice depends on your access patterns. If you're 
 building for substr-heavy workloads where users jump around randomly, a denser table 
 (every 256 bits) trades a bit of memory for fewer popcount iterations. For 
 mostly-sequential access, sparser is fine. You probably want this to be a compile-time 
 constant you can tune.
-The find_nth_set_bit loop is the weak point. The AI acknowledged this is "tricky" 
+
+- The find_nth_set_bit loop is the weak point. The AI acknowledged this is "tricky" 
 and offered a naive 64-iteration loop. There's a much better approach using the TZCNT (trailing zero count) instruction combined with bit-clearing, which finds the n-th set bit in roughly n iterations but without branching. On modern hardware, you can also use the BMI2 PDEP/PEXT instructions for this, though that's less portable.
 
-
+```
 inline int find_nth_set_bit(uint64_t word, int n) {
     for (int i = 0; i < n - 1; i++)
         word &= word - 1;  // clear lowest set bit
     return __builtin_ctzll(word);  // position of lowest remaining set bit
 }
+```
 
 
 
 
 
-
-# His feedback
+## Answer
 
 That is some sharp, high-level feedback. Your "reviewer" AI clearly has a background 
 in low-level systems optimization. It's essentially advocating for a **"Keep It Simple, 
@@ -1314,13 +1327,14 @@ enough to get started?
 
 
 
+# "Unified Bit-Vector" approach
 
-# My answer
+## Answer to AI
 
 ok for moving forward with this "Unified Bit-Vector" approach
 
 
-# His feedback
+## AI Feedback
 
 That’s a solid decision. Going with a **Unified Bit-Vector** keeps your kernel 
 code clean, reduces the surface area for bugs, and ensures that the performance 
@@ -1387,13 +1401,14 @@ or would you like to discuss how to handle the integration with the existing ooR
 
 
 
+# Full C++ implementation
 
-# My answer
+## Answer to AI
 
 ok  to look at a full C++ implementation
 
 
-# His feedback
+## AI answer
 
 Here is a concise C++ implementation designed for the ooRexx kernel. 
 This code uses the unified bit-vector approach with the branchless "bit-clearing" 
@@ -1548,74 +1563,111 @@ Would you like to discuss how to structure the first-pass loop that uses `utf8pr
 to populate this `bitVector`?
 
 
-# My feedback
+
+
+
+
+
+
+# AI peer review #2
+
+## Feedback
 
 I asked to another AI to review your code.
 Here is his feedback:
 
 This implementation is a reasonable starting point but has several issues worth 
 addressing before integrating it into the ooRexx kernel.
-Bugs and correctness issues:
-The linear scan of the summary table is a regression from what was discussed earlier. 
-The whole point of the summary table is to enable a binary search or direct index 
-calculation, not a linear walk. For a 1GB string with a 512-bit checkpoint gap, summarySize is about 2 million entries — a linear scan defeats the purpose entirely. It should be:
 
+Bugs and correctness issues:
+
+The linear scan of the summary table is a regression from what was discussed earlier. 
+
+The whole point of the summary table is to enable a binary search or direct index 
+calculation, not a linear walk. 
+
+For a 1GB string with a 512-bit checkpoint gap, summarySize is about 2 million 
+entries — a linear scan defeats the purpose entirely. It should be:
+
+```
 // Direct calculation, no loop needed
 size_t summaryIdx = targetIdx / CHECKPOINT_GAP; // approximate block
 // Then verify and adjust by at most one step
+```
+
 Or a proper std::upper_bound binary search if the approximation isn't tight enough.
+
 The getByteOffset(0) early return is wrong. It returns byte 0 for grapheme index 0, 
 which implies 0-based grapheme indexing. But ooRexx uses 1-based indexing throughout. 
 You need to decide upfront whether this class uses 0-based or 1-based indexing and be consistent. 
 A mismatch here will cause subtle off-by-one bugs everywhere.
-Memory management:
-Using raw new/delete in a kernel class is risky. If new uint64_t[summarySize]() 
-throws after bitVector is already allocated, you leak. Either use std::vector<uint64_t> (which the header already includes but doesn't use), or follow ooRexx's existing memory allocation conventions — which likely means using ooRexx's own allocator rather than new at all.
-The setBoundary / buildSummary split is fragile:
-The design requires the caller to call buildSummary() after all setBoundary() 
-calls are done. If someone calls getByteOffset() before buildSummary(), the 
+
+Memory management:  
+Using raw new/delete in a kernel class is risky.  
+If `new uint64_t[summarySize]()` throws after bitVector is already allocated, you leak. 
+
+- Either use `std::vector<uint64_t>` (which the header already includes but doesn't use), 
+- or follow ooRexx's existing memory allocation conventions — which likely means using ooRexx's own allocator rather than new at all.
+
+The setBoundary / buildSummary split is fragile:  
+The design requires the caller to call `buildSummary()` after all `setBoundary()` 
+calls are done. If someone calls `getByteOffset()` before `buildSummary()`, the 
 summary table is all zeros and results are silently wrong. A simple guard would help:
 
+```
 #ifdef OOREXX_DEBUG
     bool summaryBuilt = false;
     // assert in getByteOffset that summaryBuilt is true
 #endif
+```
 
 What's genuinely good:
-The popcount64 and ctz64 portability wrappers are correct and necessary — though 
+
+- The popcount64 and ctz64 portability wrappers are correct and necessary — though 
 they need a 32-bit __popcnt fallback for MSVC on 32-bit builds, since __popcnt64 
-is 64-bit only on MSVC. The branchless bit-clearing trick for find_nth_set_bit is 
-the right approach. The decision to keep error tracking separate from the main bit-vector is also sound.
+is 64-bit only on MSVC. 
+- The branchless bit-clearing trick for find_nth_set_bit is 
+the right approach. 
+- The decision to keep error tracking separate from the main bit-vector is also sound.
+
 Missing entirely:
-There's no handling for the malformed sequence "negative index" semantics you described. 
-The suggestion to use a secondary std::vector<ErrorEntry> is reasonable but the 
-ErrorEntry struct is never defined, and the integration with getByteOffset isn't shown. 
+
+- There's no handling for the malformed sequence "negative index" semantics you described. 
+- The suggestion to use a secondary `std::vector<ErrorEntry>` is reasonable but the 
+`ErrorEntry struct` is never defined, and the integration with `getByteOffset` isn't shown. 
 This is the part that needs the most design work before implementation.
 
 
 This is still O(n) but branchless and cache-friendly, which matters more in practice.
-Something the AI didn't mention: the error bit-vector.
-You're using negative indices to mark malformed sequences. With a bit-vector architecture, 
-a clean approach is to maintain a second, much sparser structure just for errors — 
+
+Something the AI didn't mention: the error bit-vector.  
+You're using negative indices to mark malformed sequences.   
+With a bit-vector architecture, a clean approach is to maintain a second, much sparser structure just for errors — 
 since malformed sequences are rare in practice, a simple sorted array of (byte_offset, length) 
-pairs for error ranges would be tiny and keep the main bit-vector uniform. 
+pairs for error ranges would be tiny and keep the main bit-vector uniform.  
 This separates the "where are grapheme boundaries" concern from the "which 
 graphemes are errors" concern cleanly.
-Something worth reconsidering: the substr ASCII optimization.
-The AI suggests checking if a substring result is ASCII before returning it. 
+
+Something worth reconsidering: the substr ASCII optimization.  
+The AI suggests checking if a substring result is ASCII before returning it.  
 This is a good idea in principle, but doing a full byte scan on every substr result 
-defeats the purpose. A better approach: during your initial scan, also record the 
-byte ranges that are purely ASCII (run-length or interval encoding). Then the 
-"is this slice ASCII?" check becomes an interval lookup rather than a scan.
-Overall verdict: The AI's final recommendation — single-pass bit-vector with upfront 
-allocation and a summary table — is the right answer. The conversation took a while 
+defeats the purpose.  
+A better approach: during your initial scan, also record the 
+byte ranges that are purely ASCII (run-length or interval encoding).  
+Then the "is this slice ASCII?" check becomes an interval lookup rather than a scan.
+
+Overall verdict:  
+The AI's final recommendation — single-pass bit-vector with upfront 
+allocation and a summary table — is the right answer.  
+The conversation took a while 
 to get there and introduced some unnecessary complexity along the way, but the 
-destination is correct. I'd implement it as a single, uniform structure rather 
+destination is correct.  
+I'd implement it as a single, uniform structure rather 
 than the adaptive multi-strategy approach, use the branchless bit-clearing trick 
 for select, and keep error tracking separate.
 
 
-# His Feedback
+## Answer
 
 Your reviewer is exactly right: my previous sketch prioritized readability over 
 the raw speed and safety required for a 1GB string in a C++ kernel. 
