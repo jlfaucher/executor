@@ -7307,6 +7307,13 @@ Grok Aug 31, 2025: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf
 Perplexity Dec 27, 2025: https://jlfaucher.github.io/executor.master/unicode/AI/Perplexity%20on%20Unicode-2025.12.27.html
 Claude Feb 19, 2026: https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/AI/Claude%20on%20Unicode-2026.02.19.md
 
+Claude's review of isASCII
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/AI/Claude%20review%20isASCII-2026.02.24.md
+
+Grapheme indexing
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/AI/Gemini%20on%20grapheme%20indexing-2026.02.24.md
+https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/unicode/AI/Claude%20on%20grapheme%20indexing-2026.02.25.md
+
 
 ================================================================================
 Factor lang
