@@ -1196,44 +1196,39 @@ specifically how it should handle the initialization during that first scan?
 I asked to another AI to review our conversation.
 Here is his feedback:
 
-This is a fascinating design conversation. The AI's advice is generally solid, 
-but I have some observations and a few places where I'd push back or refine things.
+This is a fascinating design conversation. The AI's advice is generally solid, but I have some observations and a few places where I'd push back or refine things.
 
-What the AI got right:
+**What the AI got right:**
 
-- The progression toward a bit-vector with a two-level summary table is well-reasoned. 
+The progression toward a bit-vector with a two-level summary table is well-reasoned. The core insight — that you're already doing a full scan, so you should build the most efficient permanent structure in one pass — is correct. The portable `popcount` wrapper is also genuinely good advice for a cross-platform project like ooRexx.
 
-- The core insight — that you're already doing a full scan, so you should build 
-the most efficient permanent structure in one pass — is correct. The portable 
-popcount wrapper is also genuinely good advice for a cross-platform project like ooRexx.
+**Where I'd push back or add nuance:**
 
-Where I'd push back or add nuance:
+*The "adaptive strategy by size" suggestion is more complex than it's worth.* The AI proposed switching between flat arrays, block-offset tables, and bit-vectors based on string size thresholds. In practice, this means three separate code paths to maintain, test, and debug. For a kernel implementation, complexity is a real cost. The bit-vector approach works well across all sizes — for a 1KB string, the bit-vector is only 128 bytes. Just use it uniformly.
 
-- The "adaptive strategy by size" suggestion is more complex than it's worth. 
-The AI proposed switching between flat arrays, block-offset tables, and bit-vectors 
-based on string size thresholds. In practice, this means three separate code paths 
-to maintain, test, and debug. For a kernel implementation, complexity is a real cost. 
+*The summary table interval deserves more thought.* The AI settled on "every 512 bits" somewhat arbitrarily. The right choice depends on your access patterns. If you're building for `substr`-heavy workloads where users jump around randomly, a denser table (every 256 bits) trades a bit of memory for fewer `popcount` iterations. For mostly-sequential access, sparser is fine. You probably want this to be a compile-time constant you can tune.
 
-- The bit-vector approach works well across all sizes — for a 1KB string, the bit-vector 
-is only 128 bytes. Just use it uniformly.
+*The `find_nth_set_bit` loop is the weak point.* The AI acknowledged this is "tricky" and offered a naive 64-iteration loop. There's a much better approach using the `TZCNT` (trailing zero count) instruction combined with bit-clearing, which finds the n-th set bit in roughly n iterations but without branching. On modern hardware, you can also use the BMI2 `PDEP`/`PEXT` instructions for this, though that's less portable.
 
-- The summary table interval deserves more thought. The AI settled on "every 512 bits" 
-somewhat arbitrarily. The right choice depends on your access patterns. If you're 
-building for substr-heavy workloads where users jump around randomly, a denser table 
-(every 256 bits) trades a bit of memory for fewer popcount iterations. For 
-mostly-sequential access, sparser is fine. You probably want this to be a compile-time 
-constant you can tune.
-
-- The find_nth_set_bit loop is the weak point. The AI acknowledged this is "tricky" 
-and offered a naive 64-iteration loop. There's a much better approach using the TZCNT (trailing zero count) instruction combined with bit-clearing, which finds the n-th set bit in roughly n iterations but without branching. On modern hardware, you can also use the BMI2 PDEP/PEXT instructions for this, though that's less portable.
-
-```
+```c
 inline int find_nth_set_bit(uint64_t word, int n) {
     for (int i = 0; i < n - 1; i++)
         word &= word - 1;  // clear lowest set bit
     return __builtin_ctzll(word);  // position of lowest remaining set bit
 }
 ```
+
+This is still O(n) but branchless and cache-friendly, which matters more in practice.
+
+**Something the AI didn't mention: the error bit-vector.**
+
+You're using negative indices to mark malformed sequences. With a bit-vector architecture, a clean approach is to maintain a *second*, much sparser structure just for errors — since malformed sequences are rare in practice, a simple sorted array of `(byte_offset, length)` pairs for error ranges would be tiny and keep the main bit-vector uniform. This separates the "where are grapheme boundaries" concern from the "which graphemes are errors" concern cleanly.
+
+**Something worth reconsidering: the `substr` ASCII optimization.**
+
+The AI suggests checking if a substring result is ASCII before returning it. This is a good idea in principle, but doing a full byte scan on every `substr` result defeats the purpose. A better approach: during your initial scan, also record the byte ranges that are purely ASCII (run-length or interval encoding). Then the "is this slice ASCII?" check becomes an interval lookup rather than a scan.
+
+**Overall verdict:** The AI's final recommendation — single-pass bit-vector with upfront allocation and a summary table — is the right answer. The conversation took a while to get there and introduced some unnecessary complexity along the way, but the destination is correct. I'd implement it as a single, uniform structure rather than the adaptive multi-strategy approach, use the branchless bit-clearing trick for `select`, and keep error tracking separate.
 
 
 
@@ -1576,95 +1571,44 @@ to populate this `bitVector`?
 I asked to another AI to review your code.
 Here is his feedback:
 
-This implementation is a reasonable starting point but has several issues worth 
-addressing before integrating it into the ooRexx kernel.
+This implementation is a reasonable starting point but has several issues worth addressing before integrating it into the ooRexx kernel.
 
-Bugs and correctness issues:
+**Bugs and correctness issues:**
 
-The linear scan of the summary table is a regression from what was discussed earlier. 
+The linear scan of the summary table is a regression from what was discussed earlier. The whole point of the summary table is to enable a binary search or direct index calculation, not a linear walk. For a 1GB string with a 512-bit checkpoint gap, `summarySize` is about 2 million entries — a linear scan defeats the purpose entirely. It should be:
 
-The whole point of the summary table is to enable a binary search or direct index 
-calculation, not a linear walk. 
-
-For a 1GB string with a 512-bit checkpoint gap, summarySize is about 2 million 
-entries — a linear scan defeats the purpose entirely. It should be:
-
-```
+```cpp
 // Direct calculation, no loop needed
 size_t summaryIdx = targetIdx / CHECKPOINT_GAP; // approximate block
 // Then verify and adjust by at most one step
 ```
 
-Or a proper std::upper_bound binary search if the approximation isn't tight enough.
+Or a proper `std::upper_bound` binary search if the approximation isn't tight enough.
 
-The getByteOffset(0) early return is wrong. It returns byte 0 for grapheme index 0, 
-which implies 0-based grapheme indexing. But ooRexx uses 1-based indexing throughout. 
-You need to decide upfront whether this class uses 0-based or 1-based indexing and be consistent. 
-A mismatch here will cause subtle off-by-one bugs everywhere.
+The `getByteOffset(0)` early return is wrong. It returns byte 0 for grapheme index 0, which implies 0-based grapheme indexing. But ooRexx uses 1-based indexing throughout. You need to decide upfront whether this class uses 0-based or 1-based indexing and be consistent. A mismatch here will cause subtle off-by-one bugs everywhere.
 
-Memory management:  
-Using raw new/delete in a kernel class is risky.  
-If `new uint64_t[summarySize]()` throws after bitVector is already allocated, you leak. 
+**Memory management:**
 
-- Either use `std::vector<uint64_t>` (which the header already includes but doesn't use), 
-- or follow ooRexx's existing memory allocation conventions — which likely means using ooRexx's own allocator rather than new at all.
+Using raw `new`/`delete` in a kernel class is risky. If `new uint64_t[summarySize]()` throws after `bitVector` is already allocated, you leak. Either use `std::vector<uint64_t>` (which the header already includes but doesn't use), or follow ooRexx's existing memory allocation conventions — which likely means using ooRexx's own allocator rather than `new` at all.
 
-The setBoundary / buildSummary split is fragile:  
-The design requires the caller to call `buildSummary()` after all `setBoundary()` 
-calls are done. If someone calls `getByteOffset()` before `buildSummary()`, the 
-summary table is all zeros and results are silently wrong. A simple guard would help:
+**The `setBoundary` / `buildSummary` split is fragile:**
 
-```
+The design requires the caller to call `buildSummary()` after all `setBoundary()` calls are done. If someone calls `getByteOffset()` before `buildSummary()`, the summary table is all zeros and results are silently wrong. A simple guard would help:
+
+```cpp
 #ifdef OOREXX_DEBUG
     bool summaryBuilt = false;
     // assert in getByteOffset that summaryBuilt is true
 #endif
 ```
 
-What's genuinely good:
+**What's genuinely good:**
 
-- The popcount64 and ctz64 portability wrappers are correct and necessary — though 
-they need a 32-bit __popcnt fallback for MSVC on 32-bit builds, since __popcnt64 
-is 64-bit only on MSVC. 
-- The branchless bit-clearing trick for find_nth_set_bit is 
-the right approach. 
-- The decision to keep error tracking separate from the main bit-vector is also sound.
+The `popcount64` and `ctz64` portability wrappers are correct and necessary — though they need a 32-bit `__popcnt` fallback for MSVC on 32-bit builds, since `__popcnt64` is 64-bit only on MSVC. The branchless bit-clearing trick for `find_nth_set_bit` is the right approach. The decision to keep error tracking separate from the main bit-vector is also sound.
 
-Missing entirely:
+**Missing entirely:**
 
-- There's no handling for the malformed sequence "negative index" semantics you described. 
-- The suggestion to use a secondary `std::vector<ErrorEntry>` is reasonable but the 
-`ErrorEntry struct` is never defined, and the integration with `getByteOffset` isn't shown. 
-This is the part that needs the most design work before implementation.
-
-
-This is still O(n) but branchless and cache-friendly, which matters more in practice.
-
-Something the AI didn't mention: the error bit-vector.  
-You're using negative indices to mark malformed sequences.   
-With a bit-vector architecture, a clean approach is to maintain a second, much sparser structure just for errors — 
-since malformed sequences are rare in practice, a simple sorted array of (byte_offset, length) 
-pairs for error ranges would be tiny and keep the main bit-vector uniform.  
-This separates the "where are grapheme boundaries" concern from the "which 
-graphemes are errors" concern cleanly.
-
-Something worth reconsidering: the substr ASCII optimization.  
-The AI suggests checking if a substring result is ASCII before returning it.  
-This is a good idea in principle, but doing a full byte scan on every substr result 
-defeats the purpose.  
-A better approach: during your initial scan, also record the 
-byte ranges that are purely ASCII (run-length or interval encoding).  
-Then the "is this slice ASCII?" check becomes an interval lookup rather than a scan.
-
-Overall verdict:  
-The AI's final recommendation — single-pass bit-vector with upfront 
-allocation and a summary table — is the right answer.  
-The conversation took a while 
-to get there and introduced some unnecessary complexity along the way, but the 
-destination is correct.  
-I'd implement it as a single, uniform structure rather 
-than the adaptive multi-strategy approach, use the branchless bit-clearing trick 
-for select, and keep error tracking separate.
+There's no handling for the malformed sequence "negative index" semantics you described. The suggestion to use a secondary `std::vector<ErrorEntry>` is reasonable but the `ErrorEntry` struct is never defined, and the integration with `getByteOffset` isn't shown. This is the part that needs the most design work before implementation.
 
 
 ## Answer
@@ -1790,3 +1734,77 @@ one clean pass that populates the `bitVector` and the `errors` list simultaneous
 Does the choice of 1-based indexing feel natural for your C++ layer, given that 
 it will be speaking directly to the ooRexx message handlers?
 
+
+
+
+
+
+# AI peer review #3
+
+## Feedback
+
+I asked to another AI to review your code.
+Here is his feedback:
+
+The binary search fix is a genuine improvement — that was the most serious bug. But there are still several issues worth raising.
+
+**The `lower_bound` logic is subtly wrong:**
+
+```cpp
+const uint64_t* it = std::lower_bound(summaryTable, summaryTable + summarySize, targetIdx);
+size_t summaryIdx = (it == summaryTable) ? 0 : (it - summaryTable - 1);
+```
+
+`lower_bound` finds the first entry `>= targetIdx`. You want the last entry `< targetIdx`, which means you actually want `upper_bound` minus one, not `lower_bound` minus one. These are different when `targetIdx` exactly equals a summary entry. Consider: if `summaryTable[3] == targetIdx` exactly, `lower_bound` returns index 3, and you subtract 1 to get index 2 — jumping back one checkpoint unnecessarily. Use `upper_bound` instead:
+
+```cpp
+const uint64_t* it = std::upper_bound(summaryTable, summaryTable + summarySize, targetIdx);
+size_t summaryIdx = (it - summaryTable) - 1; // Safe because summaryTable[0] is always 0, so it never equals summaryTable
+```
+
+**The 1-based boundary condition for `targetIdx < 1`:**
+
+```cpp
+if (targetIdx < 1) return 0;
+```
+
+Since `targetIdx` is `size_t` (unsigned), the condition `targetIdx < 1` is equivalent to `targetIdx == 0`. That's correct but fragile — if a caller ever passes a value that wrapped around from a negative number, you silently return 0 instead of catching the error. Worth an assertion in debug builds.
+
+**`buildSummary` counts graphemes incorrectly for the boundary case:**
+
+The summary table stores the cumulative grapheme count *before* each checkpoint block. But the loop structure:
+
+```cpp
+if (i % WORDS_PER_GAP == 0) {
+    summaryTable[i / WORDS_PER_GAP] = runningSum;
+}
+runningSum += popcount64(bitVector[i]);
+```
+
+...stores `runningSum` before adding the current word's bits, which is correct. However `runningSum` starts at 0 and `summaryTable[0]` is always 0, which is fine for 0-based grapheme counting but you're now claiming 1-based indexing. The summary table itself can remain 0-based internally as long as `getByteOffset` accounts for this consistently — but this needs a clear comment, because the 0-based summary feeding a 1-based public API is exactly the kind of thing that causes bugs six months later.
+
+**The `ErrorEntry` integration is still incomplete in a critical way:**
+
+The proposal marks malformed sequences as normal grapheme boundaries in the bit-vector, then uses a secondary binary search on an error list to detect them. This means every `getByteOffset` call requires two lookups — one in the bit-vector, one in the error list. For the common case (no errors), this is wasted work on every single call.
+
+A cleaner approach: since you already use negative values as sentinels, maintain a parallel error bit-vector — just 1 bit per grapheme (not per byte), allocated after you know `totalGraphemes`. For a string with 500 million graphemes, that's only 60MB. Then the error check is a single bit test at the grapheme index, not a binary search on a separate list.
+
+**What's still missing: the `popcount64` and `ctz64` wrappers**
+
+The comment says "as before" but the 32-bit MSVC issue I raised previously — `__popcnt64` not being available on 32-bit MSVC — is still unresolved. This will cause a compilation failure on 32-bit Windows builds. The fix is straightforward:
+
+```cpp
+inline int popcount64(uint64_t v) const {
+#if defined(_MSC_VER)
+  #if defined(_WIN64)
+    return (int)__popcnt64(v);
+  #else
+    return (int)(__popcnt((uint32_t)v) + __popcnt((uint32_t)(v >> 32)));
+  #endif
+#else
+    return __builtin_popcountll(v);
+#endif
+}
+```
+
+The overall direction is right, but the code isn't ready for the kernel yet. The `upper_bound` vs `lower_bound` bug in particular would cause incorrect grapheme lookups silently.
