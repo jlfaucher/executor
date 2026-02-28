@@ -1983,3 +1983,22 @@ args-windows.c
 https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/args-windows.c
 args-windows-output.txt
 https://github.com/jlfaucher/executor/blob/master/sandbox/jlf/internals/notes/args-windows-output.txt
+
+----------
+
+https://sourceforge.net/p/oorexx/mailman/message/59248974/
+Re: [Oorexx-devel] Simplifying Windows' "rexx.exe" launcher?
+
+Full thread:
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/thread/76548AE4-5CBE-41EE-8AE2-1571FB71B42B@gmail.com/
+
+----------
+
+2026, jan 24
+Another illustration of the problem.
+
+Y:\local\rexx\oorexx\scripts\tae - Алексей Евгеньевич Тарасов> rexx Timer_en.rex
+Error 3:  Failure during initialization.
+Error 3.1:  Failure during initialization: File "Y:\local\rexx\oorexx\scripts\tae - ??????? ?????????? ???????\Timer_en.rex" is unreadable.
+
+No problem on macOS.
