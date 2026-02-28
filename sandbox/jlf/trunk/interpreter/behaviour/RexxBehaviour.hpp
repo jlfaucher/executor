@@ -67,6 +67,7 @@
   RexxMethod *define(const char *, PCPPM, size_t, bool);
   void        addMethod(RexxString *, RexxMethod *);
   void        removeMethod(RexxString *);
+  void        hideMethod(const char *name); // ooRexx5
   RexxMethod *methodObject(RexxString *);
   RexxMethod *methodLookup( RexxString *);
   RexxMethod *getMethod( RexxString *);

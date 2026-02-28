@@ -300,6 +300,30 @@ RexxObject *RexxBehaviour::define(
     return OREF_NULL;                    /* always return nothing             */
 }
 
+// ooRexx5
+/**
+ * Block use of an inherited method by adding TheNilObject
+ * as an entry in the table.
+ *
+ * @param name   The target name.
+ */
+void RexxBehaviour::hideMethod(const char *name)
+{
+    // we're doing this during an image build, so make sure we use the interned string name.
+    RexxString *n = RexxMemory::getUpperGlobalName(name);
+    ProtectedObject p(n);
+    // create a method dictionary if we don't have one yet.
+    if (this->methodDictionary == OREF_NULL)
+    {
+        /* allocate a table                  */
+        OrefSet(this, this->methodDictionary, new_table());
+    }
+
+    // methodDictionary->hideMethod(n); // ooRexx5
+    methodDictionary->stringPut(TheNilObject, n);
+}
+
+
 void RexxBehaviour::removeMethod(
     RexxString *methodName )           /* name of the removed method        */
 /******************************************************************************/
