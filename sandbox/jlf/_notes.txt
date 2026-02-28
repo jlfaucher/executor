@@ -136,6 +136,37 @@ ooRexx4 has these helpers in RexxCore.h. Move them out of RexxCore.h.
 
 
 ================================================================================
+Tickets, Mailing Lists, Discussion - Review on 2026-02-19
+================================================================================
+
+Tickets
+https://sourceforge.net/p/oorexx/bugs/                          Bugs,              152, last 2026-02-02
+https://sourceforge.net/p/oorexx/feature-requests/              Feature Requests,  220, last 2025-12-08
+https://sourceforge.net/p/oorexx/documentation/                 Documentation Bugs, 16, last 2026-02-06
+https://sourceforge.net/p/oorexx/patches/                       Patches,            17, last 2025-11-16
+https://sourceforge.net/p/oorexx/support-requests/              Support Requests,   12, last 2015-07-08
+https://sourceforge.net/p/oorexx/tasks/                         Tasks,               6, last 2012-08-14
+https://sourceforge.net/p/oorexx/test-cases/                    Test Cases,          1, last 2012-08-14
+
+Mailing Lists
+https://sourceforge.net/p/oorexx/mailman/oorexx-announce/       Open Object Rexx announcements,                173, last 2022-12-24
+https://sourceforge.net/p/oorexx/mailman/oorexx-bugs/           ooRexx bugs are tracked using this list,      6416, last 2014-11-19
+https://sourceforge.net/p/oorexx/mailman/oorexx-devel/          Open Object Rexx Developer Mailing List,     18561, last 2026-02-10
+https://sourceforge.net/p/oorexx/mailman/oorexx-patches/        ooRexx patches tracker mailing list,             0
+https://sourceforge.net/p/oorexx/mailman/oorexx-pmc/            RexxLA OORexx Project Committee List,          817, last 2016-06-27
+https://sourceforge.net/p/oorexx/mailman/oorexx-rfes/           Monitor the RFE tracker,                      1367, last 2012-08-13
+https://sourceforge.net/p/oorexx/mailman/oorexx-svn/            SVN repository updates will be tracked here, 12879, last 2026-02-08
+https://sourceforge.net/p/oorexx/mailman/oorexx-users/          For discussion by users of ooRexx,            2441, last 2025-04-24
+
+Discussion
+https://sourceforge.net/p/oorexx/discussion/408478/             Help,               409, last 2026-02-18
+https://sourceforge.net/p/oorexx/discussion/general/            General Discussion,  42, 2026-02-02
+https://sourceforge.net/p/oorexx/discussion/408479/             Developers,          97, last 2025-08-30
+https://sourceforge.net/p/oorexx/discussion/408477/             Open Discussion,    140, last 2026-01-22
+https://sourceforge.net/p/oorexx/discussion/buildteam/          Build Team,           6, last 2023-09-28
+
+
+================================================================================
 cmake, makefile
 ================================================================================
 
