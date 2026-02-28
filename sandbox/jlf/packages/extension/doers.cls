@@ -2,6 +2,11 @@
 This script requires a modified ooRexx interpreter that supports extending the predefined ooRexx classes.
 */
 
+-- Needed for CoreClasses.orx where this test is made:
+-- if expression~isA(.doer)
+-- By default, this test is always false because the Doer class is not imported.
+.environment["DOER"] = .Doer
+
 ::extension Routine     inherit RoutineDoer
 ::extension Method      inherit MethodDoer
 ::extension RexxBlock   inherit RexxBlockDoer

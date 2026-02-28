@@ -116,6 +116,15 @@ class_methods~put(.methods~class_jlfi, "CLASS_JLFI")
 .String~define("[]", .methods["SMB_[]"])
 
 -- Compatibility with ooRexx 5
+-- Inheriting from a mixin class doesn't work, crash.
+-- Class_LogicalExtension = .context~package~classes["LOGICALEXTENSION"]
+-- .String~inherit(Class_LogicalExtension)
+.String~define("?", .methods["STRING_?"])
+.String~define("IFTRUE", .methods["STRING_IFTRUE"])
+.String~define("IFFALSE", .methods["STRING_IFFALSE"])
+.String~define("?EVALEXPRESSION", .methods["STRING_?EVALEXPRESSION"])
+
+-- Compatibility with ooRexx 5
 .MutableBuffer~define("CONTAINS", .methods["SMB_CONTAINS"])
 .MutableBuffer~define("CASELESSCONTAINS", .methods["SMB_CASELESSCONTAINS"])
 .MutableBuffer~define("STARTSWITH", .methods["SMB_STARTSWITH"])
@@ -228,6 +237,7 @@ say ('Base objects created')
 
 -- add all of the defined routine functions into our global list
 .kernel~functions['RXQUEUE'] = .routines~rxqueue
+.kernel~functions['IF'] = .routines~if -- related to String LogicalExtension
 
 exit
 
@@ -489,6 +499,67 @@ exit
     maxLength = self~length - n + 1 -- don't care about n<=0, will be caught by substr
     if maxLength <= 0 then return ""
     return self~substr(n, min(length, maxLength))
+
+
+/******************************************************************************/
+/* Compatibility with ooRexx 5                                                */
+/******************************************************************************/
+
+-- ::class "LogicalExtension" mixinclass Object public
+/*
+When passing a Doer, the evaluation is delayed
+num=0; if(num==0, "INF", {expose num; 100/num})=        -- 'INF'
+num=0; (num==0)~ifTrue("INF", {expose num; 100/num})=   -- 'INF'
+
+When not passing a Doer, the evaluation is immediate
+num=0; if(num==0, "INF", 100/num)=          -- Arithmetic overflow; divisor must not be zero
+num=0; (num==0)~ifTrue("INF", 100/num)=     -- Arithmetic overflow; divisor must not be zero
+
+If you don't need to return a value, this alternative notation is possible
+num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
+*/
+
+-- Compatibility with ooRexx 5
+::method string_?
+    forward message "ifTrue"
+
+::method string_ifTrue unguarded
+    use arg whenTrue, whenFalse
+    if \ self~dataType("O") then raise syntax 34.901 array(self)
+    if arg() > 2 then raise syntax 93.902 array(2)
+    whenTrueSpecified = arg(1, "e") -- whenTrue explicitely passed ?
+    whenFalseSpecified = arg(2, "e") -- whenFalse explicitely passed ?
+    if self then self~?evalExpression( whenTrue, whenTrueSpecified )
+            else self~?evalExpression( whenFalse, whenFalseSpecified )
+    if var("result") then return result
+
+::method string_ifFalse unguarded
+    use arg whenFalse, whenTrue
+    if \ self~dataType("O") then raise syntax 34.901 array(self)
+    if arg() > 2 then raise syntax 93.902 array(2)
+    whenFalseSpecified = arg(1, "e") -- whenFalse explicitely passed ?
+    whenTrueSpecified = arg(2, "e") -- whenTrue explicitely passed ?
+    if self then self~?evalExpression( whenTrue, whenTrueSpecified )
+            else self~?evalExpression( whenFalse, whenFalseSpecified )
+    if var("result") then return result
+
+-- Was a private routine, but apparently rexx.img supports public routines only.
+-- I don't want to make it a public routine.
+::method string_?evalExpression private
+    use arg expression, expressionSpecified
+    if \ expressionSpecified then return
+    -- The test \ expression~needsObject lets eliminate the StringDoers and the MethodDoers
+    if expression~isA(.doer), \ expression~needsObject then do
+        doer = expression~doer
+        doer~()
+        if var("result") then return result
+    end
+    else return expression
+
+::routine if public
+    use strict arg logical, whenTrue, whenFalse
+    logical~ifTrue(whenTrue, whenFalse)
+    if var("result") then return result
 
 
 /*============================================================================*/

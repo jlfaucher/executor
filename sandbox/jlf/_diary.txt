@@ -3,6 +3,24 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Feb 28
+
+[Compatibility with ooRexx5]
+
+logical.cls no longer used.
+
+Moved the following methods from logical.cls to CoreClasses.orx, to have them in rexx.img.
+LogicalExtension
+    ?
+    ifTrue
+    ifFalse
+
+Moved the following routines from logical.cls to CoreClasses.orx, to have them in rexx.img.
+    eval --> becomes a private method ::method string_?evalExpression private
+    if
+
+
+===============================================================================
 2026 Jan 28
 
 [Trace]

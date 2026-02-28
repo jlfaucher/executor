@@ -1,3 +1,8 @@
+/*
+No longer used.
+Moved into rexx.img, see CoreClasses.orx.
+*/
+
 ::extension String inherit LogicalExtension
 
 --::options trace i

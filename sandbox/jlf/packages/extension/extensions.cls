@@ -12,7 +12,6 @@ This script needs a modified ooRexx interpreter which support extension of prede
 ::requires "extension/functionals.cls"
 ::requires "extension/indeterminate.cls"
 ::requires "extension/infinity.cls"
-::requires "extension/logical.cls"
 ::requires "extension/notrace.cls"
 ::requires "extension/object.cls"
 ::requires "extension/package.cls"
