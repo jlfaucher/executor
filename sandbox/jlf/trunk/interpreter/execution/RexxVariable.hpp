@@ -45,59 +45,76 @@
 #define Included_RexxVariable
 
 #include "StringClass.hpp"
+#include "ObjectClass.hpp"
 
-class RexxVariable : public RexxInternalObject {
+class VariableReference;
+
+class RexxVariable : public RexxInternalObject
+{
  public:
-  inline void *operator new(size_t size, void *ptr) { return ptr; }
-  inline void  operator delete(void *) { }
-  inline void  operator delete(void *, void *) { }
+    void *operator new(size_t);
+    inline void *operator new(size_t size, void *ptr) { return ptr; }
+    inline void  operator delete(void *) { }
+    inline void  operator delete(void *, void *) { }
 
-  inline RexxVariable() {;};
-  inline RexxVariable(RESTORETYPE restoreType) { ; };
+    inline RexxVariable() : variable_name(OREF_NULL), variableValue(OREF_NULL), creator(OREF_NULL), dependents(OREF_NULL) {;};
+    inline RexxVariable(RexxString *n) : variable_name(n), variableValue(OREF_NULL), creator(OREF_NULL), dependents(OREF_NULL) {;};
+    inline RexxVariable(RESTORETYPE restoreType) { ; };
 
-  void         live(size_t);
-  void         liveGeneral(int reason);
-  void         flatten(RexxEnvelope *);
-  void         inform(RexxActivity *);
-  void         drop();
-  void         notify();
-  void         uninform(RexxActivity *);
+    void live(size_t) override;
+    void liveGeneral(int reason) override;
+    void flatten(RexxEnvelope *) override;
 
+    void inform(RexxActivity *);
+    void drop();
+    void notify();
+    void uninform(RexxActivity *);
+    void setStem(RexxObject *);
 
-  inline void set(RexxObject *value) {
-      OrefSet(this, this->variableValue, value);
-      if (this->dependents != OREF_NULL)
-          this->notify(); };
+    inline void set(RexxObject *value)
+    {
+        OrefSet(this, this->variableValue, value);
+        if (this->dependents != OREF_NULL)
+        {
+            this->notify();
+        }
+    }
 
-  inline RexxObject *getVariableValue() { return this->variableValue; };
-  inline RexxObject *getResolvedValue() { return variableValue != OREF_NULL ? variableValue : (RexxObject *)variable_name; };
-  inline RexxString *getName() { return variable_name; }
-  inline void setName(RexxString *name) { OrefSet(this, this->variable_name, name); }
+    void setValue(RexxObject *value);
 
-  inline void reset(RexxString *name)
-  {
-      creator       = OREF_NULL;        /* this is unowned                   */
-      variableValue = OREF_NULL;        /* clear out the hash value          */
-      variable_name = name;             /* fill in the name                  */
-      dependents = OREF_NULL;           /* and the dependents                */
-  }
+    inline void setCreator(RexxActivation *creatorActivation) { creator = creatorActivation; }
+    inline bool isLocal() { return creator != OREF_NULL; }
+    inline bool isLocal(RexxActivation *act) { return act == creator; }
+           bool isAliasable();
+    inline RexxObject *getVariableValue() { return variableValue; };
+    inline RexxObject *getResolvedValue() { return variableValue != OREF_NULL ? variableValue : variable_name; };
+    inline RexxString *getName() { return variable_name; }
+    inline void setName(RexxString *name) { OrefSet(this, this->variable_name, name); }
+    inline bool isDropped() { return variableValue == OREF_NULL; }
 
-  /* Note:  This does not use OrefSet since it will only occur with */
-  /* local variables that can never be part of oldspace; */
-  inline void setCreator(RexxActivation *creatorActivation) { this->creator = creatorActivation; }
-  inline RexxVariable *getNext() { return (RexxVariable *)variableValue; }
-  inline void cache(RexxVariable *next) { reset(OREF_NULL); variableValue = (RexxObject *)next; }
-  inline bool isLocal(RexxActivation *act) { return act == creator; }
-  inline bool isStem() { return variable_name->endsWith('.'); }
+    inline void reset(RexxString *name)
+    {
+        creator       = OREF_NULL;        /* this is unowned                   */
+        variableValue = OREF_NULL;        /* clear out the hash value          */
+        variable_name = name;              /* fill in the name                  */
+        dependents = OREF_NULL;           /* and the dependents                */
+    }
 
-  static RexxVariable *newInstance(RexxString *name);
+    // Note:  This does not use OrefSet since it will only occur with
+    // local variables that can never be part of oldspace;
+    inline RexxVariable *getNext() { return (RexxVariable *)variableValue; }
+    inline void cache(RexxVariable *next) { reset(OREF_NULL); variableValue = (RexxObject *)next; }
+    inline bool isStem() { return variable_name->endsWith('.'); }
+    VariableReference *createReference();
+
+    static RexxVariable *newInstance(RexxString *name);
 
 protected:
 
-  RexxString *variable_name;           /* the name of the variable       */
-  RexxObject *variableValue;           // the assigned value of the variable.
-  RexxActivation *creator;             /* the activation that created this variable */
-  RexxIdentityTable  *dependents;        /* guard expression dependents       */
+    RexxString *variable_name;           // the name of the variable
+    RexxObject *variableValue;           // the assigned value of the variable.
+    RexxActivation *creator;             // the activation that created this variable
+    RexxIdentityTable  *dependents;      // guard expression dependents
 };
 
 

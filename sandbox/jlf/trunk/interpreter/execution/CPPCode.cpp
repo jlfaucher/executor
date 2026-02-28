@@ -580,6 +580,7 @@ void AbstractCode::run(RexxActivity *activity, RexxMethod *method, RexxObject *r
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
 #include "TextClass.hpp"
+#include "VariableReference.hpp" // ooRexx5
 
 PCPPM CPPCode::exportedMethods[] =     /* start of exported methods table   */
 {
@@ -1198,6 +1199,14 @@ CPPM(Unicode::utf8proc_codepointIsUpper),
 CPPM(Unicode::utf8proc_transform),
 
 CPPM(Unicode::unialgo_version),
+
+// ooRexx5
+CPPM(VariableReference::newRexx),
+CPPM(VariableReference::getName),
+CPPM(VariableReference::getValue),
+CPPM(VariableReference::setValueRexx),
+CPPM(VariableReference::unknownRexx),
+CPPM(VariableReference::request),
 
 NULL                                   /* final terminating method          */
 };

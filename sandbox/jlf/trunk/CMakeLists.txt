@@ -825,7 +825,7 @@ set (classes_sources ${build_classes_dir}/ArrayClass.cpp
             ${build_classes_dir}/IdentityTableClass.cpp
             ${build_classes_dir}/WeakReferenceClass.cpp
             ${build_classes_dir}/StackFrameClass.cpp
-#            ${build_classes_dir}/VariableReference.cpp                                            # official only
+            ${build_classes_dir}/VariableReference.cpp                                              # oorexx5
             )
 set (package_sources ${build_package_dir}/LibraryPackage.cpp
             ${build_package_dir}/PackageManager.cpp)

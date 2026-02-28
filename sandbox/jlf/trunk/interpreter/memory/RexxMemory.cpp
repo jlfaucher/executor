@@ -73,6 +73,7 @@
 #include "UninitDispatcher.hpp"
 #include "GlobalProtectedObject.hpp"
 #include "TextClass.hpp"
+#include "VariableReference.hpp"
 
 // restore a class from its
 // associated primitive behaviour
@@ -2463,6 +2464,7 @@ void RexxMemory::restore()
     RESTORE_CLASS(RexxBlock, RexxClass);
     RESTORE_CLASS(RexxText, RexxTextClass);
     RESTORE_CLASS(Unicode, RexxClass);
+    RESTORE_CLASS(VariableReference, RexxClass);
 
     memoryObject.setOldSpace();          /* Mark Memory Object as OldSpace    */
     /* initialize the tables used for garbage collection. */

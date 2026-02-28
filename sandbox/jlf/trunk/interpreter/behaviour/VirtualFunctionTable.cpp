@@ -79,6 +79,7 @@
 #include "StackFrameClass.hpp"
 #include "BlockClass.hpp"
 #include "TextClass.hpp"
+#include "VariableReference.hpp"
 #include "RexxBehaviour.hpp"
 #include "SourceFile.hpp"
 #include "LibraryPackage.hpp"
@@ -345,6 +346,12 @@ void RexxMemory::buildVirtualFunctionTable()
    
    objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
    virtualFunctionTable[T_UnicodeClass] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) VariableReference(RESTOREIMAGE);
+   virtualFunctionTable[T_VariableReference] = getVftPointer(objectLoc);
+   
+   objectPtr = new (objectLoc) RexxClass(RESTOREIMAGE);
+   virtualFunctionTable[T_VariableReferenceClass] = getVftPointer(objectLoc);
    
    objectPtr = new (objectLoc) RexxNilObject(RESTOREIMAGE);
    virtualFunctionTable[T_NilObject] = getVftPointer(objectLoc);

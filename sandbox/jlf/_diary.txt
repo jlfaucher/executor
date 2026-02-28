@@ -7,6 +7,16 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 [Compatibility with ooRexx5]
 
+Retrofit the VariableReference class.
+For internal use only.
+Variable reference terms (<var and >var) are not yet supported.
+
+
+===============================================================================
+2026 Feb 28
+
+[Compatibility with ooRexx5]
+
 logical.cls no longer used.
 
 Moved the following methods from logical.cls to CoreClasses.orx, to have them in rexx.img.

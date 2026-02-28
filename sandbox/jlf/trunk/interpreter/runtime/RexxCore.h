@@ -167,6 +167,7 @@ EXTERNMEM RexxMemory  memoryObject;   /* memory object                     */
 #define TheRexxBlockClass RexxBlock::classInstance
 #define TheRexxTextClass RexxText::classInstance
 #define TheUnicodeClass Unicode::classInstance
+#define TheVariableReferenceClass VariableReference::classInstance
 
 #define TheEnvironment RexxMemory::environment
 #define TheStaticRequires RexxMemory::staticRequires
@@ -292,7 +293,18 @@ inline void requiredArgument(RexxObject *object, RexxString *kind, size_t positi
 {
     if (object == OREF_NULL)             /* missing argument?                 */
     {
-        missingArgument(kind, position);        /* raise an error                    */
+        missingArgument(kind, position); /* raise an error                    */
+    }
+}
+
+
+// The next routine checks for required arguments and raises a missing argument
+// error for the given argument name.
+inline void requiredArgument(RexxObject *object, RexxString *kind, const char *name)
+{
+    if (object == OREF_NULL)             /* missing argument?                 */
+    {
+        missingArgument(kind, name);  /* raise an error                    */
     }
 }
 

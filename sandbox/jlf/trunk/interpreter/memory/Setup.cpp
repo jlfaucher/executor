@@ -89,6 +89,7 @@
 #include "BlockClass.hpp"
 #include "TextClass.hpp"
 #include "SourceFile.hpp"
+#include "VariableReference.hpp"
 
 
 void RexxMemory::defineKernelMethod(
@@ -311,6 +312,7 @@ void RexxMemory::createImage(const char *imageTarget)
   StackFrameClass::createInstance();
   RexxBlock::createInstance();
   Unicode::createInstance();
+  VariableReference::createInstance();
 
                                        /* build the common retriever tables */
   TheCommonRetrievers = (RexxDirectory *)new_directory();
@@ -329,6 +331,14 @@ void RexxMemory::createImage(const char *imageTarget)
 /* The following Rexx classes that are exposed to the users are set up as    */
 /* subclassable classes.                                                     */
 /*****************************************************************************/
+
+// jlf REMEMBER!
+// The restricted paramter HAS NO EFFECT!
+// See by yourself RexxClass::subClassable in ClassClass.cpp (2 methods).
+// So stop scratching your head trying to decide what value to pass on....
+//     TheMyclassClass->subClassable(true);
+//     TheMyclassClass->subClassable(false);
+// BOTH ARE OK!
 
      /* The NEW method is exposed for the CLASS class behaviour.             */
      /* The CLASS class needs the methods of the CLASS instance behaviour    */
@@ -1597,6 +1607,55 @@ void RexxMemory::createImage(const char *imageTarget)
   completeSystemClass("UNICODE", TheUnicodeClass);
 
 
+/***************************************************************************/
+/*           VariableReference                                             */
+/***************************************************************************/
+
+                                       /* Add the NEW methods to the        */
+                                       /* class behaviour                   */
+  defineKernelMethod(CHAR_NEW, TheVariableReferenceClassBehaviour, CPPM(VariableReference::newRexx), A_COUNT);
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheVariableReferenceClassBehaviour->setMethodDictionaryScope(TheVariableReferenceClass);
+
+  defineKernelMethod("NAME"    ,TheVariableReferenceBehaviour, CPPM(VariableReference::getName), 0);
+  defineKernelMethod("VALUE"   ,TheVariableReferenceBehaviour, CPPM(VariableReference::getValue), 0);
+  defineKernelMethod("VALUE="  ,TheVariableReferenceBehaviour, CPPM(VariableReference::setValueRexx), 1);
+  defineKernelMethod("UNKNOWN" ,TheVariableReferenceBehaviour, CPPM(VariableReference::unknownRexx), 2, true); // pass named arguments
+  defineKernelMethod("REQUEST" ,TheVariableReferenceBehaviour, CPPM(VariableReference::request), 1);
+
+                                       /* set the scope of the methods to   */
+                                       /* this classes oref                 */
+  TheVariableReferenceBehaviour->setMethodDictionaryScope(TheVariableReferenceClass);
+
+// Both work
+#if 1 // Mimic ooRexx4 way for Stem
+                                       /* delete these methods by    */
+                                       /* using .nil as the methobj  */
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_STRICT_EQUAL)          , OREF_NULL);
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_EQUAL)                 , OREF_NULL);
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_STRICT_BACKSLASH_EQUAL), OREF_NULL);
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_BACKSLASH_EQUAL)       , OREF_NULL);
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_LESSTHAN_GREATERTHAN)  , OREF_NULL);
+  TheVariableReferenceBehaviour->define(getGlobalName(CHAR_GREATERTHAN_LESSTHAN)  , OREF_NULL);
+
+#else // ooRexx5 way
+  // We want various operator methods that we inherit from the object
+  // class to be redirected to our unknown method, so we block these methods
+  // in our instance method directory.
+  TheVariableReferenceBehaviour->hideMethod("==");
+  TheVariableReferenceBehaviour->hideMethod("=");
+  TheVariableReferenceBehaviour->hideMethod("\\==");
+  TheVariableReferenceBehaviour->hideMethod("\\=");
+  TheVariableReferenceBehaviour->hideMethod("<>");
+  TheVariableReferenceBehaviour->hideMethod("><");
+#endif
+
+  TheVariableReferenceClass->subClassable(true);
+  completeSystemClass("VARIABLEREFERENCE", TheVariableReferenceClass);
+
+
+
   /***************************************************************************/
   /***************************************************************************/
   /***************************************************************************/
@@ -1622,6 +1681,7 @@ void RexxMemory::createImage(const char *imageTarget)
   kernel_public(CHAR_REXXBLOCK        ,TheRexxBlockClass ,TheEnvironment);
   kernel_public(CHAR_REXXTEXT         ,TheRexxTextClass ,TheEnvironment);
   kernel_public(CHAR_UNICODE          ,TheUnicodeClass ,TheEnvironment);
+  kernel_public(CHAR_VARIABLEREFERENCE,TheVariableReferenceClass ,TheEnvironment);
   kernel_public(CHAR_NIL              ,TheNilObject    ,TheEnvironment);
   kernel_public(CHAR_OBJECT           ,TheObjectClass  ,TheEnvironment);
   kernel_public(CHAR_QUEUE            ,TheQueueClass   ,TheEnvironment);

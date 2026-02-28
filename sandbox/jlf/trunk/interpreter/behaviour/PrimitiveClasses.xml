@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <Class id="RexxBlock" class="RexxBlock" include="BlockClass.hpp"/>
 <Class id="RexxText" class="RexxText" include="TextClass.hpp"/>
 <Class id="Unicode" class="Unicode" include="TextClass.hpp"/>
+<Class id="VariableReference" class="VariableReference" include="VariableReference.hpp"/>
 </Exported>
 <Internal>
 <Class id="NilObject" class="RexxNilObject" include="ObjectClass.hpp"/>

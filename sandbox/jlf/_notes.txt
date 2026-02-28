@@ -2002,3 +2002,254 @@ Error 3:  Failure during initialization.
 Error 3.1:  Failure during initialization: File "Y:\local\rexx\oorexx\scripts\tae - ??????? ?????????? ???????\Timer_en.rex" is unreadable.
 
 No problem on macOS.
+
+
+================================================================================
+Retrofit VariableReference
+================================================================================
+
+trunk/api/rexx.h
+    _RexxVariableReferenceObject
+
+
+DONE
+CMakeLists.txt
+    #            ${build_expression_dir}/VariableReferenceOp.cpp                                        # official only
+
+
+trunk/interpreter/api/CallContextStubs.cpp
+    RexxVariableReferenceObject
+
+
+trunk/interpreter/api/MethodContextStubs.cpp
+    RexxVariableReferenceObject
+
+
+trunk/interpreter/api/ThreadContextStubs.cpp
+    VariableReference
+
+
+trunk/interpreter/behaviour/PrimitiveClasses.xml
+    <Class id="VariableReferenceOp" class="VariableReferenceOp" include="VariableReferenceOp.hpp"/>
+
+
+trunk/interpreter/behaviour/RexxBehaviour.hpp
+    inline bool isVariableReference(RexxInternalObject *o) { return isOfClass(VariableReference, o); }
+
+
+DONE
+trunk/interpreter/execution/CPPCode.cpp
+    #include "VariableReference.hpp"
+    CPPM(VariableReference::newRexx),
+    CPPM(VariableReference::getName),
+    CPPM(VariableReference::getValue),
+    CPPM(VariableReference::setValueRexx),
+    CPPM(VariableReference::unknownRexx),
+    CPPM(VariableReference::request),
+
+
+trunk/interpreter/execution/RexxNativeActivation.cpp
+    case REXX_VALUE_RexxVariableReferenceObject:
+    VariableReference *NativeActivation::getContextVariableReference(const char *name)
+    VariableReference *NativeActivation::getObjectVariableReference(const char *name)
+
+
+trunk/interpreter/execution/RexxNativeActivation.hpp
+    VariableReference *getContextVariableReference(const char *name);
+    VariableReference *getObjectVariableReference(const char *name);
+
+
+trunk/interpreter/expression/ExpressionBaseVariable.hpp
+    virtual VariableReference *getVariableReference(RexxActivation *) { return OREF_NULL; }
+    virtual VariableReference *getVariableReference(VariableDictionary *) { return OREF_NULL; }
+
+
+trunk/interpreter/expression/ExpressionStem.cpp
+    #include "VariableReference.hpp"
+    VariableReference *RexxStemVariable::getVariableReference(VariableDictionary *dictionary)
+    VariableReference *RexxStemVariable::getVariableReference(RexxActivation *context)
+
+
+trunk/interpreter/expression/ExpressionStem.hpp
+    VariableReference *getVariableReference(VariableDictionary *) override;
+    VariableReference *getVariableReference(RexxActivation *) override;
+
+
+trunk/interpreter/expression/ExpressionVariable.cpp
+    #include "VariableReference.hpp"
+    VariableReference *RexxSimpleVariable::getVariableReference(VariableDictionary *dictionary)
+    VariableReference *RexxSimpleVariable::getVariableReference(RexxActivation *context)
+
+
+trunk/interpreter/expression/ExpressionVariable.hpp
+    VariableReference *getVariableReference(VariableDictionary *) override;
+    VariableReference *getVariableReference(RexxActivation *) override;
+
+
+trunk/interpreter/expression/IndirectVariableReference.cpp
+    not impacted?
+
+
+trunk/interpreter/expression/IndirectVariableReference.hpp
+    not impacted?
+
+
+new trunk/interpreter/expression/VariableReferenceOp.cpp
+
+
+new trunk/interpreter/expression/VariableReferenceOp.hpp
+
+
+trunk/interpreter/instructions/UseStrictInstruction.cpp
+    new UseArgVariableRef.cpp
+    new UseInstruction.cpp
+
+
+DONE
+trunk/interpreter/memory/RexxMemory.cpp
+    #include "VariableReference.hpp"
+    RESTORE_CLASS(VariableReference, RexxClass);
+
+
+DONE
+trunk/interpreter/memory/Setup.cpp
+    #include "VariableReference.hpp"
+        VariableReference::createInstance();
+    /***************************************************************************/
+    /*           VariableReference                                             */
+    /***************************************************************************/
+
+    StartClassDefinition(VariableReference)
+
+    AddClassMethod("New", VariableReference::newRexx, A_COUNT);
+
+    CompleteClassMethodDefinitions();
+
+    AddMethod("Name", VariableReference::getName, 0);
+    AddMethod("Value", VariableReference::getValue, 0);
+    AddMethod("Value=", VariableReference::setValueRexx, 1);
+    AddMethod("Unknown", VariableReference::unknownRexx, 2);
+    AddMethod("Request", VariableReference::request, 1);
+
+    // We want various operator methods that we inherit from the object
+    // class to be redirected to our unknown method, so we block these methods
+    // in our instance method directory.
+    HideMethod("==");
+    HideMethod("=");
+    HideMethod("\\==");
+    HideMethod("\\=");
+    HideMethod("<>");
+    HideMethod("><");
+
+    CompleteMethodDefinitions();
+
+    CompleteClassDefinition(VariableReference);
+
+    EndClassDefinition(VariableReference);
+
+
+trunk/interpreter/messages/errnums.xml
+    <varlistentry>
+    <term>928</term>
+    <listitem>
+    <para>The <emphasis role="italic">argument</emphasis> argument must be a VariableReference instance; found "<emphasis role="italic">value</emphasis>".</para>
+    </listitem>
+    </varlistentry>
+    <varlistentry>
+    <term>929</term>
+    <listitem>
+    <para>The <emphasis role="italic">argument</emphasis> argument must be a VariableReference for a Stem variable; found "<emphasis role="italic">value</emphasis>".</para>
+    </listitem>
+    </varlistentry>
+    <varlistentry>
+    <term>930</term>
+    <listitem>
+    <para>The <emphasis role="italic">argument</emphasis> argument must be a VariableReference for a simple variable; found "<emphasis role="italic">value</emphasis>".</para>
+    </listitem>
+    </varlistentry>
+    <varlistentry>
+    <term>931</term>
+    <listitem>
+    <para>Argument <emphasis role="italic">argument</emphasis> was omitted. A VariableReference argument is required.</para>
+    </listitem>
+    </varlistentry>
+
+
+trunk/interpreter/messages/rexxmsg.xml
+        <SubMessage>
+          <Code>88</Code>
+          <Subcode>928</Subcode>
+          <MessageNumber>792</MessageNumber>
+          <Component>Rexx</Component>
+          <Severity>Warning</Severity>
+          <SymbolicName>Error_Invalid_argument_variable_reference</SymbolicName>
+          <Text>The <Sub position="1" name="argument"/> argument must be a VariableReference instance; found <q><Sub position="2" name="value"/></q>.</Text>
+        </SubMessage>
+        <SubMessage>
+          <Code>88</Code>
+          <Subcode>929</Subcode>
+          <MessageNumber>793</MessageNumber>
+          <Component>Rexx</Component>
+          <Severity>Warning</Severity>
+          <SymbolicName>Error_Invalid_argument_variable_reference_stem</SymbolicName>
+          <Text>The <Sub position="1" name="argument"/> argument must be a VariableReference for a Stem variable; found <q><Sub position="2" name="value"/></q>.</Text>
+        </SubMessage>
+        <SubMessage>
+          <Code>88</Code>
+          <Subcode>930</Subcode>
+          <MessageNumber>794</MessageNumber>
+          <Component>Rexx</Component>
+          <Severity>Warning</Severity>
+          <SymbolicName>Error_Invalid_argument_variable_reference_simple</SymbolicName>
+          <Text>The <Sub position="1" name="argument"/> argument must be a VariableReference for a simple variable; found <q><Sub position="2" name="value"/></q>.</Text>
+        </SubMessage>
+        <SubMessage>
+          <Code>88</Code>
+          <Subcode>931</Subcode>
+          <MessageNumber>796</MessageNumber>
+          <Component>Rexx</Component>
+          <Severity>Warning</Severity>
+          <SymbolicName>Error_Invalid_argument_no_reference</SymbolicName>
+          <Text>Argument <Sub position="1" name="argument"/> was omitted. A VariableReference argument is required.</Text>
+        </SubMessage>
+
+
+trunk/interpreter/parser/
+    new InstructionParser.cpp
+        (maybe out of subject?)
+        #include "IndirectVariableReference.hpp"
+        // and wrap this in a variable reference, which handles the indirection.
+        retriever = new RexxVariableReference(retriever);
+    new LangageParser.cpp
+        #include "VariableReferenceOp.hpp"
+                    case OPERATOR_GREATERTHAN:
+                    {
+                        // parse off the term
+                        return parseVariableReferenceTerm();
+                    }
+        RexxInternalObject* LanguageParser::parseVariableReferenceTerm()
+            // create a new expression term to retrieve the variable
+            return new VariableReferenceOp(retriever);
+                        case OPERATOR_GREATERTHAN:
+                        {
+                            // parse off the term
+                            return parseVariableReferenceTerm();
+                        }
+    new LangageParser.hpp
+        RexxInternalObject *parseVariableReferenceTerm();
+
+
+DONE
+trunk/interpreter/runtime/RexxCore.h
+    (documentation howto)
+    #define TheVariableReferenceClass VariableReference::classInstance
+
+
+new trunk/testbinaries/
+    orxmethod.cpp
+        (several tests)
+        REXX_METHOD(TestGetObjectVariableReference, TestGetObjectVariableReference),
+        REXX_METHOD(TestIsVariableReference,     TestIsVariableReference),
+        REXX_METHOD(TestSetVariableReferenceValue, TestSetVariableReferenceValue),
+        REXX_METHOD(TestVariableReferenceName,   TestVariableReferenceName),
+        REXX_METHOD(TestVariableReferenceValue,  TestVariableReferenceValue),
