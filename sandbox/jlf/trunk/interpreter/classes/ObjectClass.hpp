@@ -469,20 +469,20 @@ class RexxObject : public RexxInternalObject {
 
      RexxMethod  *checkPrivate(RexxMethod *, RexxErrorCodes &);
      RexxMethod  *checkPackage(RexxMethod *, RexxErrorCodes &); // ooRexx5
-     void         processUnknown(RexxErrorCodes, RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
+     virtual void processUnknown(RexxErrorCodes, RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
      void         processProtectedMethod(RexxString *, RexxMethod *, RexxObject **, size_t, size_t, ProtectedObject &);
 
      // This method should be named "sendWith"
-     void         sendMessage(RexxString *, RexxArray *, RexxDirectory *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxArray *, RexxDirectory *, ProtectedObject &);
 
-     inline void  sendMessage(RexxString *message, RexxObject **args, size_t argCount, size_t named_argCount, ProtectedObject &result) { this->messageSend(message, args, argCount, named_argCount, result); };
+     RexxObject  *sendMessage(RexxString *, RexxObject **, size_t, size_t, ProtectedObject &);
 
-     inline void  sendMessage(RexxString *message, ProtectedObject &result) { this->messageSend(message, OREF_NULL, 0, 0, result); };
-     void         sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result);
-     void         sendMessage(RexxString *, RexxObject *, RexxObject *, ProtectedObject &);
-     void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
-     void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
-     void         sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject&);
+     RexxObject  *sendMessage(RexxString *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxObject *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject &);
+     RexxObject  *sendMessage(RexxString *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, RexxObject *, ProtectedObject&);
 
      // This method should be named "sendWith"
      RexxObject  *sendMessage(RexxString *, RexxArray *, RexxDirectory* = OREF_NULL);

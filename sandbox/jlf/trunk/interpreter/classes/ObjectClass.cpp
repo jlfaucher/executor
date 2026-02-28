@@ -718,7 +718,7 @@ RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, 
 }
 
 
-void RexxObject::sendMessage(
+RexxObject *RexxObject::sendMessage(
     RexxString      *message,          /* name of the message to process    */
     RexxArray  *arguments,             /* array of arguments                */
     RexxDirectory * named_arguments,
@@ -740,16 +740,30 @@ void RexxObject::sendMessage(
 
         this->messageSend(message, args->data(), argumentsCount, namedArgumentsCount, result);
     }
+    return (RexxObject *)result;
 }
 
-void RexxObject::sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result)
+RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject **args, size_t argCount, size_t named_argCount, ProtectedObject &result)
+{
+    this->messageSend(message, args, argCount, named_argCount, result);
+    return (RexxObject *)result;
+}
+
+RexxObject *RexxObject::sendMessage(RexxString *message, ProtectedObject &result)
+{
+    this->messageSend(message, OREF_NULL, 0, 0, result);
+    return (RexxObject *)result;
+}
+
+RexxObject *RexxObject::sendMessage(RexxString *message, RexxObject *argument1, ProtectedObject &result)
 {
     RexxObject *arguments[1];
     arguments[0] = argument1; // positional argument
     this->messageSend(message, arguments, 1, 0, result);
+    return (RexxObject *)result;
 }
 
-void RexxObject::sendMessage(
+RexxObject *RexxObject::sendMessage(
     RexxString *message,               /* name of the message to process    */
     RexxObject *argument1,             /* first argument                    */
     RexxObject *argument2,             /* second argument                   */
@@ -764,9 +778,10 @@ void RexxObject::sendMessage(
     arguments[1] = argument2;
     /* just pass on to message send      */
     this->messageSend(message, arguments, 2, 0, result);
+    return (RexxObject *)result;
 }
 
-void RexxObject::sendMessage(
+RexxObject *RexxObject::sendMessage(
     RexxString *message,               /* name of the message to process    */
     RexxObject *argument1,             /* first argument                    */
     RexxObject *argument2,             /* second argument                   */
@@ -783,9 +798,10 @@ void RexxObject::sendMessage(
     arguments[2] = argument3;
     /* just pass on to message send      */
     this->messageSend(message, arguments, 3, 0, result);
+    return (RexxObject *)result;
 }
 
-void RexxObject::sendMessage(
+RexxObject *RexxObject::sendMessage(
     RexxString *message,               /* name of the message to process    */
     RexxObject *argument1,             /* first argument                    */
     RexxObject *argument2,             /* second argument                   */
@@ -804,9 +820,10 @@ void RexxObject::sendMessage(
     arguments[3] = argument4;
     /* just pass on to message send      */
     this->messageSend(message, arguments, 4, 0, result);
+    return (RexxObject *)result;
 }
 
-void RexxObject::sendMessage(
+RexxObject *RexxObject::sendMessage(
     RexxString *message,               /* name of the message to process    */
     RexxObject *argument1,             /* first argument                    */
     RexxObject *argument2,             /* second argument                   */
@@ -827,6 +844,7 @@ void RexxObject::sendMessage(
     arguments[4] = argument5;
     /* just pass on to message send      */
     this->messageSend(message, arguments, 5, 0, result);
+    return (RexxObject *)result;
 }
 
 bool RexxObject::messageSend(
@@ -2947,6 +2965,7 @@ RexxObject *RexxObject::unknownRexx(
     NamedArguments expectedNamedArguments(1); // At most, one named argument
     expectedNamedArguments[0] = NamedArgument("NAMEDARGUMENTS", TheNilObject); // Default value = .NIL
     expectedNamedArguments.match(named_arglist, named_argcount, /*strict*/ true, /*extraAllowed*/ false);
+    // No need to protect namedArguments, this object is already protected by named_arglist
     RexxDirectory *namedArguments = (RexxDirectory*)expectedNamedArguments[0].value;
 
     /* forward to the virtual function   */
