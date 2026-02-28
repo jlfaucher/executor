@@ -129,6 +129,12 @@ constants.=
     'The positive infinity' : 'very big'
 
 
+Arguments helpers todo:
+ooRexx5 has an include file for all the argument helpers in the runtime directory.
+ooRexx4 has these helpers in RexxCore.h. Move them out of RexxCore.h.
+#include "MethodArguments.hpp"
+
+
 ================================================================================
 cmake, makefile
 ================================================================================
