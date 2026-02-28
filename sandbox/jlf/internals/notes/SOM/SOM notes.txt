@@ -1,0 +1,2 @@
+https://sourceforge.net/p/oorexx/discussion/408479/thread/1f93f87f/
+Where did SOM support go in 4.0.0?

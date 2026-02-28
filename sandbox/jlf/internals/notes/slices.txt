@@ -1,0 +1,41 @@
+--------------------------------------------------------------------------------
+Go
+--------------------------------------------------------------------------------
+
+https://go.dev/blog/slices-intro
+Go Slices: usage and internals
+Andrew Gerrand
+5 January 2011
+
+
+https://go.dev/blog/slices
+Arrays, slices (and strings): The mechanics of 'append'
+
+
+https://go.dev/doc/effective_go#slices
+Slices
+
+
+https://go.dev/ref/spec#Slice_expressions
+Slice expressions¶
+
+
+https://medium.com/@andreiboar/demystifying-golang-slices-83ffe3550db5
+Demystifying Golang Slices
+
+
+https://stackoverflow.com/questions/27938177/golang-slice-slicing-a-slice-with-sliceabc
+golang slice, slicing a slice with slice[a:b:c]
+
+
+--------------------------------------------------------------------------------
+Rust
+--------------------------------------------------------------------------------
+
+https://doc.rust-lang.org/book/ch04-03-slices.html
+The Slice Type
+
+
+https://doc.rust-lang.org/std/primitive.slice.html
+Primitive Type slice Copy item path
+Since 1.0.0

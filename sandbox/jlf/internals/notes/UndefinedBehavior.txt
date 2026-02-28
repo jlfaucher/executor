@@ -1,0 +1,31 @@
+https://sourceforge.net/p/oorexx/bugs/2029/
+#2029 Buil fails with strict-aliasing violations
+
+I tried to build with the following *FLAGS to optimize the build: -flto=4 -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing
+
+The -Werror=* flags are important to detect cases where the compiler can try to
+optimiaze based on assuming Undefined Behavior (UB) cannot happen, and miscompile
+code that has UB in it. strict-aliasing issues are always bad but LTO can make
+them even worse.
+
+--------------------------------------------------------------------------------
+
+The flags are different for clang, an AI proposed :
+
+---
+Recommended Clang Set (closest possible)
+-flto=4 \
+-fstrict-aliasing \
+-Wl,-fatal_warnings \
+-Werror
+
+If you want maximal UB detection, add:
+-fsanitize=undefined
+-fsanitize=float-divide-by-zero
+-fsanitize=implicit-conversion
+
+And optionally for link-time UB catching:
+-fsanitize=undefined -fsanitize-minimal-runtime
+
+
+Configuation detect_UB incorporated into the builder.

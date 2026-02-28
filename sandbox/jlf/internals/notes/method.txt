@@ -1,0 +1,73 @@
+https://sourceforge.net/p/oorexx/bugs/2038/
+#2038 say .buffer~method("INIT") crashes the interpreter
+
+
+When executing
+~~~
+say .buffer~method("INIT")
+~~~
+
+ooRexx 4.2 returns a method
+
+ooRexx 5 crashes
+instanceMethodDictionary is NULL.
+
+~~~
+MethodDictionary::getMethod at MethodDictionary.hpp:69
+RexxClass::method at ClassClass.cpp:991
+CPPCode::run at CPPCode.cpp:174
+MethodClass::run at MethodClass.cpp:171
+RexxObject::messageSend at ObjectClass.cpp:899
+ExpressionStack::send at ExpressionStack.hpp:80
+RexxExpressionMessage::evaluate at ExpressionMessage.cpp:189
+RexxInstructionExpression::evaluateStringExpression at RexxInstruction.cpp:255
+RexxInstructionSay::execute at SayInstruction.cpp:74
+~~~
+
+
+********** not put in ticket **********
+
+
+The implementation has been reworked in ooRexx 5, it's not easy to compare with ooRexx 4.2.
+
+**ooRexx 4.2**
+I see OREF_NULL tests in ObjectClass.cpp and RexxBehaviour.cpp
+`if (this->instanceMethodDictionary != OREF_NULL)`
+whenever instanceMethodDictionary is about to be used.
+In ClassClass.cpp, there is no such test.
+
+~~~
+RexxMethod *RexxClass::method(
+    RexxString  *method_name)
+/*****************************************************************************/
+/* Function:  Return the method object for the method name                   */
+/*****************************************************************************/
+{
+    /* make sure we have a proper name    */
+    method_name = stringArgument(method_name, OREF_positional, ARG_ONE)->upper();
+    ProtectedObject p(method_name);
+    RexxMethod *method_object = (RexxMethod *)this->instanceBehaviour->getMethodDictionary()->stringGet(method_name);
+~~~
+
+~~~
+class RexxBehaviour : public RexxInternalObject
+ {
+...
+inline RexxTable  *getMethodDictionary()   { return this->methodDictionary; };
+~~~
+
+**ooRexx 5**
+instanceMethodDictionary is used only in ClassClass.cpp.
+There are no tests for OREF_NULL anywhere.
+
+~~~
+MethodClass *RexxClass::method(RexxString  *method_name)
+{
+    // make sure we have a proper name
+    method_name = stringArgument(method_name, "method name")->upper();
+    // we keep the instance methods defined at this level in a separate
+    // method dictionary that is used to build the behaviour.  We can retrieve
+    // the method directly from there.
+    MethodClass *method_object = instanceMethodDictionary->getMethod(method_name);
+~~~
+

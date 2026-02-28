@@ -1,0 +1,191 @@
+WSL Ubuntu 22.04.5 LTS
+
+--------------------------------------------------------------------------------
+BUILD
+--------------------------------------------------------------------------------
+
+clang is 3x faster than gcc.
+
+cdbuild
+cd ..
+rm -fr build
+mkdir build
+cdbuild
+run_cmake
+time make install
+
+
+-----------------
+Build without IPO
+-----------------
+
+clang   -02
+real    4m18.780s
+user    1m15.234s
+sys     1m10.109s
+
+clang   -03
+real    4m37.036s
+user    1m18.578s
+sys     1m14.047s
+
+gcc     -02
+real    12m50.882s
+user    1m41.875s
+sys     3m7.000s
+
+gcc     -03
+real    12m39.029s
+user    1m41.594s
+sys     3m4.531s
+
+--------------
+Build with IPO
+--------------
+
+clang   -O2
+real    4m16.704s
+user    1m29.469s
+sys     1m10.828s
+
+clang   -O3
+real    4m21.216s
+user    1m33.219s
+sys     1m10.203s
+
+gcc     -O2
+real    12m58.136s
+user    1m52.016s
+sys     3m12.141s
+
+gcc     -O3
+real    12m43.219s
+user    1m46.297s
+sys     3m9.313s
+
+
+--------------------------------------------------------------------------------
+rexx testOORexx.rex ooRexx/base/class/Alarm.testGroup
+--------------------------------------------------------------------------------
+
+without IPO
+clang   -O2     ok
+clang   -O3     ok
+gcc     -O2     ok
+gcc     -O3     ok
+
+with IPO
+clang   -O2     ok
+clang   -O3     ok
+gcc     -O2     crash
+gcc     -O3     crash
+
+
+--------------------------------------------------------------------------------
+time rexx testOORexx.rex -S -R ooRexx/base/class
+--------------------------------------------------------------------------------
+
+with IPO
+clang   -O3
+Tests ran:          11468
+Assertions:         238876
+Failures:           7
+Errors:             0
+Total time:         00:01:36.745474
+real    1m36.891s
+
+--------------------------------------------------------------------------------
+time rexx testOORexx.rex -S -R ooRexx/base
+--------------------------------------------------------------------------------
+
+without IPO
+gcc     -O2
+Tests ran:          22602
+Assertions:         338214
+Failures:           11
+Errors:             0
+Total time:         00:05:12.120066
+real    5m12.397s
+
+
+without IPO
+gcc     -O3
+Tests ran:          22602
+Assertions:         338208
+Failures:           12
+Errors:             0
+Total time:         00:04:50.029163
+real    4m50.324s
+
+
+without IPO
+clang   -O2
+blocked at:
+Executing The SYSFILEXXX.TESTGROUP class with 43 test cases
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_ONE_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_THREE_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NIL_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE_INVALID
+killed
+real    146m6.803s
+user    139m40.625s
+sys     1m4.250s
+
+
+with IPO
+clang   -O2
+no visible crash but the tests are ended without displaying a report.
+Executing The SYSFILEXXX.TESTGROUP class with 43 test cases
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_ONE_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_THREE_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NIL_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE_INVALID
+real    5m2.821s
+
+
+with IPO
+clang   -O3
+no visible crash but the tests are ended without displaying a report.
+Executing The SYSFILEXXX.TESTGROUP class with 43 test cases
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_ONE_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILECOPY_THREE_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEDELETE_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NIL_INVALID
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_NO_ARG
+.. Executing SysFileXXX.testGroup test case TEST_FILEEXISTS_TWO_ARGS
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE
+.. Executing SysFileXXX.testGroup test case TEST_FILEMOVE_INVALID
+real    5m18.102s
+
