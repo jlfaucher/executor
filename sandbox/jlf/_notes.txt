@@ -917,15 +917,45 @@ thinking about grapheme indexes (draft)
         71 : +16
 
 
-https://code.google.com/archive/p/judyarray/
+24/02/206
+Data-structure suggested by Geminy: Bit-Vector
 
+    size's size String size                                                             Bit-Vector size
+    1 byte      FF                  0..255                               256 B           32 B
+    2 bytes     FFFF                0..65,535                             64 KB           8 KB
+    3 bytes     FFFFFF              0..16,777,215                         16 MB           2 MB
+    4 bytes     FFFFFFFF            0..4,294,967,295                       4 GB         512 MB
+    5 bytes     FFFFFFFFFF          0..1,099,511,627,775                1024 GB         128 GB
+    6 bytes     FFFFFFFFFFFF        0..281,474,976,710,655               256 TB          32 TB
+    7 bytes     FFFFFFFFFFFFFF      0..72,057,594,037,927,900             64 PB           8 PB
+    8 bytes     FFFFFFFFFFFFFFFF    0..18,446,744,073,709,600,000      16384 PB        2048 PB
+
+For a 1GB string, this bit-vector is 128MB ($1/8$th the size of the string).
+For a 1GB string, what is the size of the summary table?
+Let’s assume you store a 64-bit (8-byte) cumulative grapheme count every 512 bits (64 bytes) of the original string.
+---
+Original String: 1,073,741,824 bytes (1 GB).
+Bit-Vector Size: 1 bit per byte = 134,217,728 bytes (~128 MB).
+Number of Checkpoints: 1,073,741,824 \div 64 = 16,777,216 checkpoints.
+Summary Table Size: 16,777,216 \times 8 bytes = 134,217,728 bytes (~128 MB).
+---
+Total Memory Overhead
+For a 1GB string, your total "Unicode Indexer" footprint would be:
+Bit-Vector: 128 MB
+Summary Table: 128 MB
+Total: 256 MB (or roughly 25\% overhead).
+
+
+
+Forget Judy arrays! GNU license...
+    https://code.google.com/archive/p/judyarray/
 
 https://juliapackages.com/p/judydicts           deprecated
 
 https://judy.sourceforge.net/
 https://sourceforge.net/projects/judy/
 
-https://nanxiao.me/en/a-judy-array-example/
+    https://nanxiao.me/en/a-judy-array-example/     no longer accessible
 
 
 ================================================================================
