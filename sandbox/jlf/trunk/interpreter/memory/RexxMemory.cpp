@@ -2369,6 +2369,46 @@ RexxString *RexxMemory::getGlobalName(const char *value)
 }
 
 
+// ooRexx5
+/**
+ * Add a string to the global name table, in uppercase
+ *
+ * @param value  The new value to add.
+ *
+ * @return The single instance of this string.
+ */
+RexxString *RexxMemory::getUpperGlobalName(const char *value)
+{
+    // see if we have a global table.  If not collecting currently,
+    // just return the non-unique value
+
+    RexxString *stringValue = new_upper_string(value);
+    if (globalStrings == OREF_NULL)
+    {
+        return stringValue;                /* just return the string            */
+    }
+
+    // now see if we have this string in the table already
+    RexxString *result = (RexxString *)globalStrings->at(stringValue);
+    if (result != OREF_NULL)
+    {
+        return result;                       // return the previously created one
+    }
+    /* add this to the table             */
+    globalStrings->put((RexxObject *)stringValue, stringValue);
+
+    // This string is common to all packages, so the rule "assign the package encoding" is not possible
+    // Declare that this string is byte encoded
+    ProtectedObject p_result;
+    RexxObject *args[1];
+    args[0] = OREF_BYTE; // positional argument
+    bool messageUnderstood = stringValue->messageSend(OREF_SETENCODING, args, 1, 0, p_result, false);
+    // OREF_SETENCODING do that: stringValue~!setEncoding(OREF_BYTE);
+    // don't touch this->text (currently OREF_NULL). Maybe will be converted to RexxText during evaluation.
+    return stringValue;              // return the newly created one
+}
+
+
 void RexxMemory::create()
 /******************************************************************************/
 /* Function:  Initial memory setup during image build                         */

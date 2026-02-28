@@ -315,6 +315,7 @@ class RexxMemory : public RexxInternalObject
   static void create();
   static void createImage(const char *imageTarget);
   static RexxString *getGlobalName(const char *value);
+  static RexxString *getUpperGlobalName(const char *value);
   static void createStrings();
   static RexxArray *saveStrings();
   static void restoreStrings(RexxArray *stringArray);
