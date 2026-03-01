@@ -372,7 +372,7 @@ RexxInteger *RexxMutableBuffer::isASCIIRexx()
 
 
 // in behaviour
-RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
+RexxMutableBuffer *RexxMutableBuffer::appendRexx(RexxObject *obj)
 /******************************************************************************/
 /* Function:  append to the mutable buffer                                    */
 /******************************************************************************/
@@ -393,7 +393,7 @@ RexxMutableBuffer *RexxMutableBuffer::append(RexxObject *obj)
 }
 
 
-RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *_data, size_t blength)
+RexxMutableBuffer *RexxMutableBuffer::append(const char *_data, size_t blength)
 /******************************************************************************/
 /* Function:  append to the mutable buffer                                    */
 /******************************************************************************/
@@ -410,6 +410,27 @@ RexxMutableBuffer *RexxMutableBuffer::appendCstring(const char *_data, size_t bl
         if (!_dataIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
     }
     return this;
+}
+
+
+/**
+ * Append a character to this buffer.
+ *
+ * @param c      The character to append.
+ */
+void RexxMutableBuffer::append(char c)
+{
+    // make sure we have enough room
+    ensureCapacity(1);
+
+    copyData(dataLength, &c, 1);
+    dataLength += 1;
+
+    if (this->isASCII())
+    {
+        bool _dataIsASCII = StringUtil::checkIsASCII(&c, 1);
+        if (!_dataIsASCII) this->setIsASCII(false); // no need to check again, we are sure it's not ASCII
+    }
 }
 
 

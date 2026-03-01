@@ -1104,7 +1104,7 @@ void RexxMemory::createImage(const char *imageTarget)
 
                                        /* Add the instance methods to the   */
                                        /* instance behaviour mdict          */
-  defineKernelMethod(CHAR_APPEND                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::append), 1);
+  defineKernelMethod(CHAR_APPEND                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::appendRexx), 1);
   defineKernelMethod(CHAR_INSERT                       ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::insert), 4);
   defineKernelMethod(CHAR_OVERLAY                      ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::overlay), 4);
   defineKernelMethod(CHAR_REPLACEAT                    ,TheMutableBufferBehaviour, CPPM(RexxMutableBuffer::replaceAt), 4);

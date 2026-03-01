@@ -77,8 +77,14 @@ class RexxMutableBufferClass : public RexxClass {
 
    RexxObject        *lengthRexx(); // in behaviour
 
-   RexxMutableBuffer *append(RexxObject*); // in behaviour
-   RexxMutableBuffer *appendCstring(const char*, size_t blength); // Must not overload append : would generate error cannot convert from 'overloaded-function' to 'PCPPM' in memory/setup.cpp
+   RexxMutableBuffer *appendRexx(RexxObject*); // in behaviour
+   RexxMutableBuffer *append(const char*, size_t blength);
+
+    // ooRexx5
+    void append(char c);
+    void append(RexxString *s) { append(s->getStringData(), s->getLength()); };
+    void append(const char *string) { append(string, strlen(string)); }
+
    RexxMutableBuffer *insert(RexxObject*, RexxObject*, RexxObject*, RexxObject*); // in behaviour
    RexxMutableBuffer *overlay(RexxObject*, RexxObject*, RexxObject*, RexxObject*); // in behaviour
    RexxMutableBuffer *replaceAt(RexxObject *str, RexxObject *pos, RexxObject *len, RexxObject *pad); // in behaviour

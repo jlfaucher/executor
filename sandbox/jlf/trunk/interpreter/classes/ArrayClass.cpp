@@ -1608,7 +1608,7 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
             item = newArray->get(i);           /* get the next item                */
             if (item != OREF_NULL)
             {
-                RexxObject * _stringValue = item->requiredString();
+                RexxString * _stringValue = item->requiredString();
                 if (_stringValue != TheNilObject)
                 {
                     ProtectedObject p(_stringValue);
@@ -1639,9 +1639,9 @@ RexxString *RexxArray::toString(       /* concatenate array elements to create s
                 // append a linend between the previous item and this one.
                 if (!first)
                 {
-                    mutbuffer->append((RexxObject *) line_end_string);
+                    mutbuffer->append(line_end_string);
                 }
-                RexxObject *_stringValue = item->requiredString();
+                RexxString *_stringValue = item->requiredString();
                 if (_stringValue != TheNilObject)
                 {
                     ProtectedObject p(_stringValue);
