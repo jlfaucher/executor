@@ -3,6 +3,102 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Mar 1
+
+[String]
+
+Retrofit from Executor5-bulk:
+Added a new "translateInto" method to the String class.
+This is a generalization of the "translate" method.
+
+string~translate(                  [tableo], [tablei], [pad], [n], [length]           )
+string~translateInto( destination, [tableo], [tablei], [pad], [n], [length], [refEnd] )
+
+Documentation:
+--------------
+
+Translate sequences of characters into another sequence of characters.
+Append the translated sequences of characters to the destination.
+Currently, the destination must be a mutable buffer, but it could be any object
+supporting the "append" method at C++ level..
+The resulting string may be shorter or longer than the receiving string.
+
+tablei and tableo can be either a string or an array.
+
+If tablei is a string:
+  - each character in the receiving string is searched in tablei.
+  - If the character is found, the corresponding translation item in tableo
+    is tried.
+If tablei is an array, the matcher items are:
+  - either a routine that may match a sequence of characters,
+  - or any non-NIL object whose string representation is used as a sequence
+    of characters for matching in the receiving string.
+  - or .NIL which is ignored
+  - or OREF_NULL (an omitted item in the array) which is ignored.
+  - If there is a match, the corresponding translation item in tableo is tried.
+
+If tableo is a string, the translation items are characters.
+If tableo is an array, the translation items are:
+  - either a routine that may append a sequence of characters,
+  - or any non-NIL object whose string representation is used as a sequence
+    of characters to append. A string representation is always applicable.
+  - or .NIL to stop the translation.
+  - or OREF_NULL (an omitted item in the array) to stop the translation.
+
+Arguments passed to a matcher routine in tablei:
+    string: The string that received the "translateInto" message.
+    pos:    The current matching position in string (first character).
+
+Arguments passed to a translation routine in tableo:
+    destination: The destination of the translation.
+                 The routine can append text to it.
+    string:      The string that received the "translateInto" message.
+    pad:         The pad string passed with the "translateInto" message, can be
+                 omitted.
+    pos:         The current matching position in string (first character).
+    matchLength: The length of the current matched substring. The routine can
+                 either return this length or return a different length.
+
+Interpretation of the result returned by a routine:
+          |    no result     | 0 or not a number | > 0 (offset of next position)
+in tablei | stop translation | no match          | match
+in tableo | stop translation | not applicable    | translation applied
+
+If there are duplicates in tablei:
+  - the first (leftmost if string) occurrence is selected.
+  - if the corresponding translation item is a routine and this routine
+    returns 0, then the next occurrence in tablei is selected.
+    Repeat until a translation item is applicable, or until there are no more
+    occurences.
+  - otherwise only the first corresponding translation item is used.
+
+If there is a match and the corresponding translation item is applicable, the
+translation is appended to the destination. The next position in the receiving
+string is updated:
+  - Character matching: advance by one character.
+  - String matching: advance by the length of the corresponding string.
+  - Matching by routine: advance by the returned number (unless overriden)
+  - Translation by routine: advance by the returned number (override)
+
+If there is no match or no applicable translation item, the current character
+in the receiving string is appended to the destination. The next position in
+the receiving string is advanced by one character.
+
+At the end of the translation, the current position in the receiving string
+is returned in the optional refEnd variable reference.
+
+
+Validation:
+-----------
+
+tests/retrofit/translateInto.rex
+
+cdtests
+[macOS, Linux] make translateInto
+[Windows]      nmake translateInto
+
+
+===============================================================================
 2026 Feb 28
 
 [Compatibility with ooRexx5]

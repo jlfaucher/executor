@@ -1006,6 +1006,7 @@ CPPM(RexxString::posRexx),
 CPPM(RexxString::caselessLastPosRexx),
 CPPM(RexxString::caselessPosRexx),
 CPPM(RexxString::translate),
+CPPM(RexxString::translateInto),
 CPPM(RexxString::verify),
 
                                           /* following methods are in OKBBITS  */

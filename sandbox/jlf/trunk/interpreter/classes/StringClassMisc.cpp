@@ -51,6 +51,10 @@
 #include "SourceFile.hpp"
 #include "ActivityManager.hpp"
 #include "StringUtil.hpp"
+#include "MutableBufferClass.hpp"
+#include "RoutineClass.hpp"
+#include "VariableReference.hpp"
+#include "VariableReference.hpp"
 
 int RexxString::isSymbol()
 /*********************************************************************/
@@ -860,6 +864,405 @@ RexxString *RexxString::translate(
         ScanPtr++;                          /* step the pointer                  */
     }
     return Retval;                        /* return translated string          */
+}
+
+
+/**
+ * Translate sequences of characters into another sequence of characters.
+ * Append the translated sequences of characters to the destination mutable buffer.
+ * The resulting string may be shorter or longer than the receiving string.
+ *
+ * tablei and tableo can be either a string or an array.
+ *
+ * If tablei is a string:
+ *   - each character in the receiving string is searched in tablei.
+ *   - If the character is found, the corresponding translation item in tableo
+ *     is tried.
+ * If tablei is an array, the matcher items are:
+ *   - either a routine that maybe matches a sequence of characters,
+ *   - or any non-NIL object whose string representation is used as a sequence
+ *     of characters for matching in the receiving string.
+ *   - or .NIL which is ignored
+ *   - or OREF_NULL (an omitted item in the array) which is ignored.
+ *   - If there is a match, the corresponding translation item in tableo is tried.
+ *
+ * If tableo is a string, the translation items are characters.
+ * If tableo is an array, the translation items are:
+ *   - either a routine that maybe appends a sequence of characters,
+ *   - or any non-NIL object whose string representation is used as a sequence
+ *     of characters to append. A string representation is always applicable.
+ *   - or .NIL to stop the translation.
+ *   - or OREF_NULL (an omitted item in the array) to stop the translation.
+ *
+ * Interpretation of the result returned by a routine:
+ *           |    no result     | 0 or not a number | > 0 (offset of next position)
+ * in tablei | stop translation | no match          | match
+ * in tableo | stop translation | not applicable    | translation applied
+ *
+ * If there are duplicates in tablei:
+ *   - the first (leftmost if string) occurrence is selected.
+ *   - if the corresponding translation item is a routine and this routine
+ *     returns 0, then the next occurrence in tablei is selected.
+ *     Repeat until a translation item is applicable, or until there are no more
+ *     occurences.
+ *   - otherwise only the first corresponding translation item is used.
+ *
+ * If there is a match and the corresponding translation item is applicable, the
+ * translation is appended to the destination. The next position in the receiving
+ * string is updated:
+ *   - Character matching: advance by one character.
+ *   - String matching: advance by the length of the corresponding string.
+ *   - Matching by routine: advance by the returned number (unless overriden)
+ *   - Translation by routine: advance by the returned number (override)
+ *
+ * If there is no match or no applicable translation item, the current character
+ * in the receiving string is appended to the destination. The next position in
+ * the receiving string is advanced by one character.
+ *
+ * At the end of the translation, the current position in the receiving string
+ * is returned in the optional _endedat variable reference.
+ *
+ * @param destination The destination of the translations (a mutable buffer)
+ * @param tableo      The output translate table (either a string or an array).
+ * @param tablei      The input translate table (either a string or an array).
+ * @param pad         The pad character.
+ * @param _start      The starting position for the translate.
+ * @param _range      The length to apply the translation to.
+ * @param _end        The ending position of the translation (output argument).
+ *
+ * @return The destination object with the translations applied.
+ */
+RexxMutableBuffer *RexxString::translateInto(RexxMutableBuffer *destination, RexxObject *tableo, RexxObject *tablei, RexxString *pad,
+    RexxInteger *_start, RexxInteger *_range, VariableReference *_end)
+{
+    classArgument(destination, TheMutableBufferClass, OREF_positional, OREF_DESTINATION);
+
+    // get our tables...
+
+    size_t outTableLength = 0;
+    Protected<RexxString> outString = (RexxString *)OREF_NULL;
+    const char *outStringData = OREF_NULL;
+    Protected<RexxArray> outArray = (RexxArray *)OREF_NULL;
+    if (tableo == OREF_NULL || tableo->isInstanceOf(TheStringClass))
+    {
+        // a null string is the default, which means we use the
+        // pad character for everything.
+        outString = optionalStringArgument(tableo, OREF_NULLSTRING, OREF_positional, ARG_TWO);
+        outTableLength = outString->getLength();
+        outStringData = outString->getStringData();
+    }
+    else
+    {
+        outArray = (RexxArray *)arrayArgument(tableo, OREF_positional, ARG_TWO)->copy();
+        outTableLength = outArray->size(); // yes! size(), not items()
+        // requestString now, to avoid repetitive requests when translating
+        for (size_t i=1; i <= outTableLength; i++)
+        {
+            RexxObject *item = (RexxObject *)outArray->get(i);
+            if (item != OREF_NULL && item != TheNilObject && !item->isInstanceOf(TheRoutineClass))
+            {
+                Protected<RexxString> string = item->requestString();
+                outArray->put(string, i);
+            }
+        }
+    }
+
+    size_t inTableLength = 0;
+    Protected<RexxString> inString = (RexxString *)OREF_NULL;
+    const char *inStringData = OREF_NULL;
+    Protected<RexxArray> inArray = (RexxArray *)OREF_NULL;
+    if (tablei == OREF_NULL || tablei->isInstanceOf(TheStringClass))
+    {
+        // a null string is the default, which means the position is the
+        // character itself.
+        inString = optionalStringArgument(tablei, OREF_NULLSTRING, OREF_positional, ARG_THREE);
+        inTableLength = inString->getLength();
+        inStringData = inString->getStringData();
+    }
+    else
+    {
+        inArray = (RexxArray *)arrayArgument(tablei, OREF_positional, ARG_TWO)->copy();
+        inTableLength = inArray->size(); // yes! size(), not items()
+        // requestString now, to avoid repetitive requests when translating
+        for (size_t i=1; i <= inTableLength; i++)
+        {
+            RexxObject *item = (RexxObject *)inArray->get(i);
+            if (item != OREF_NULL && item != TheNilObject && !item->isInstanceOf(TheRoutineClass))
+            {
+                Protected<RexxString> string = item->requestString();
+                inArray->put(string, i);
+            }
+        }
+    }
+
+    // now the pad character, which defaults to a blank
+    char padChar = optionalPadArgument(pad, ' ', ARG_FOUR);
+
+    // get the optional start position and length
+    size_t startPos = optionalPositionArgument(_start, 1, ARG_FIVE);
+    size_t range = optionalLengthArgument(_range, getLength() - startPos + 1, ARG_SIX);
+
+    // check the optional _end output argument
+    if (_end != OREF_NULL) classArgument(_end, TheVariableReferenceClass, OREF_positional, OREF_END);
+
+    // cap the real range
+    range = std::min(range, getLength() - startPos + 1);
+
+    // if there are no input or output table specified, and no pad, this is just an uppercase.
+    if (tableo == OREF_NULL && tablei == OREF_NULL && pad == OREF_NULL)
+    {
+        destination->append(upperRexx(_start, _range));
+        // returns the current position in the receiving string via a variable reference
+        if (_end != OREF_NULL)
+        {
+            size_t pos = startPos + range;
+            Protected<RexxInteger> rexxPos = new_integer(pos);
+            _end->setValue(rexxPos);
+        }
+        return destination;
+    }
+
+    // if nothing to translate, we can return now
+    if (startPos > getLength() || range == 0)
+    {
+        destination->append(this);
+        // returns the current position in the receiving string via a variable reference
+        if (_end != OREF_NULL)
+        {
+            Protected<RexxInteger> rexxStartPos = new_integer(startPos);
+            _end->setValue(rexxStartPos);
+        }
+        return destination;
+    }
+
+    // copy the characters before startPos (one-based)
+    if (startPos > 1) destination->append(this->getStringData(), startPos - 1);
+
+    size_t pos = startPos; // one-based current position in the receiving string, will be passed to the routines
+    const char *scanPtr = this->getStringData() + startPos - 1; // the equivalent of pos, as a pointer
+    size_t scanLength = range;
+
+    // The translation can be stopped by an omitted item or .NIL in tableo,
+    // or by a routine that doesn't return a result.
+    bool stopped = false;
+
+    // now scan the range section
+    while (scanLength && !stopped)
+    {
+        // In case of matching by character, the number of characters to skip is 1.
+        // In case of matching by string, the number of characters to skip is the matched string length.
+        // In case of matching by routine, the routine will return the number of matched characters to skip.
+        // In case of translation by routine, the routine will return the number of characters to skip (overriding the number calculated during the matching).
+        size_t matchLength = 1;
+
+        // zero-based position in tablei.
+        // if the corresponding translation item in tableo is a string then the first occurence is always applied.
+        // if the corresponding translation item in tableo is a routine that is not applicable then try the next occurence
+        // until a translation item is applicable, or until there are no more occurences.
+        size_t position=0;
+        bool translated = false;
+        do {
+            matchLength = 1; // reset, we try a new occurence
+
+            // Step 1: Matching
+            if (inStringData != OREF_NULL)
+            {
+                // case tablei is a string
+                char ch = *scanPtr;
+
+                // if we have a real input table, then scan for the
+                // character.
+                if (inString != OREF_NULLSTRING)
+                {
+                    // search for the character
+                    size_t previousPosition = position;
+                    position = StringUtil::memPos(inStringData + previousPosition, inTableLength - position, ch);
+                    // if found then the returned position is relative to inStringData + previousPosition, make it relative to inStringData
+                    if (position != (size_t)(-1))
+                    {
+                        position += previousPosition;
+                    }
+                }
+                // the position is the character itself
+                else
+                {
+                    // no input table, so the position is the character itself
+                    position = ((size_t)ch) & 0xff;
+                }
+            }
+            else
+            {
+                // case tablei is an array (of strings or routines)
+                bool match = false;
+                RexxObject *item;
+                for ( ; position < inTableLength; position++)
+                {
+                    item = (RexxObject *)inArray->get(position + 1);
+                    if (item == OREF_NULL || item == TheNilObject) continue; // ignorable items
+                    else if (item->isInstanceOf(TheRoutineClass))
+                    {
+                        // call (routine) this, pos
+                        // if var("RESULT"), result \== 0 then matchLength = result
+                        RoutineClass *routine = (RoutineClass *)item;
+                        const size_t argumentsCount = 2; // not sure I can use std::size(arguments) (C++17)
+                        RexxObject *arguments[argumentsCount];
+                        arguments[0] = this;
+                        Protected<RexxInteger> rexxPos = new_integer(pos);
+                        arguments[1] = rexxPos;
+                        ProtectedObject result;
+                        routine->call(ActivityManager::currentActivity, routine->getName(), arguments, argumentsCount, 0, result);
+                        if (result == OREF_NULL)
+                        {
+                            // The routine did not return a result. That stops the translation.
+                            stopped = true;
+                            break;
+                        }
+                        wholenumber_t value = 0;
+                        if (!result->numberValue(value, Numerics::DEFAULT_DIGITS))
+                        {
+                            value = 0;
+                        }
+                        // if result is not a number or result == 0 then the routine did not match
+                        // otherwise we have match
+                        if (value > 0)
+                        {
+                            match = true;
+                            matchLength = value; // will skip all the characters matched by the routine
+                            break; // break now, before position is incremented
+                        }
+                    }
+                    else
+                    {
+                        RexxString *string = (RexxString *)item; // requestString already done
+                        match = this->primitiveMatch(pos, string, 1, string->getLength());
+                        if (match)
+                        {
+                            matchLength = string->getLength(); // will skip all the matched characters
+                            break; // break now, before position is incremented
+                        }
+                    }
+                }
+                if (!match)
+                {
+                    position = (size_t)(-1);
+                }
+            }
+
+            if (stopped) break;
+
+            // Step 2: Translation
+            if (position != (size_t)(-1))
+            {
+                // if the output table is large enough, use the table value, otherwise
+                // use the pad character.
+                if (position < outTableLength)
+                {
+                    if (outStringData != OREF_NULL)
+                    {
+                        // case tableo is a string
+                        destination->append( *(outStringData + position) );
+                        translated = true;
+                    }
+                    else
+                    {
+                        // case tableo is an array (of strings or routines)
+                        RexxObject *item = (RexxObject *)outArray->get(position + 1);
+                        if (item == OREF_NULL || item == TheNilObject)
+                        {
+                            // an omitted item or .NIL means stop translation
+                            stopped = true;
+                            break;
+                        }
+                        else if (item->isInstanceOf(TheRoutineClass))
+                        {
+                            // call (routine) destination, this, pad, pos, matchLength
+                            // if var("RESULT"), result \== 0 then matchLength = result
+                            RoutineClass *routine = (RoutineClass *)item;
+                            const size_t argumentsCount = 5; // not sure I can use std::size(arguments) (C++17)
+                            RexxObject *arguments[argumentsCount];
+                            arguments[0] = destination;
+                            arguments[1] = this;
+                            arguments[2] = pad; // can be OREF_NULL
+                            Protected<RexxInteger> rexxPos = new_integer(pos);
+                            arguments[3] = rexxPos;
+                            Protected<RexxInteger> rexxMatchLength = new_integer(matchLength);
+                            arguments[4] = rexxMatchLength;
+                            ProtectedObject result;
+                            routine->call(ActivityManager::currentActivity, routine->getName(), arguments, argumentsCount, 0, result);
+                            if (result == OREF_NULL)
+                            {
+                                // The routine did not return a result. That stops the translation.
+                                stopped = true;
+                                break;
+                            }
+                            wholenumber_t value = 0;
+                            if (!result->numberValue(value, Numerics::DEFAULT_DIGITS))
+                            {
+                                value = 0;
+                            }
+                            if (value == 0)
+                            {
+                                // if result is not a number or result == 0 then the routine was not applicable
+                                // will try the next occurence in tablei, if any
+                                position++;
+                            }
+                            else
+                            {
+                                translated = true;
+                                matchLength = value;
+                            }
+                        }
+                        else
+                        {
+                            // The translation item is a string
+                            RexxString *string = (RexxString *)item; // requestString already done
+                            destination->append(string);
+                            translated = true;
+                        }
+                    }
+                }
+                else
+                {
+                    // No corresponding translation item in tableo
+                    destination->append( padChar );
+                    translated = true;
+                }
+            }
+            else
+            {
+                // no match in tablei, the translation is the current character, unchanged
+                destination->append(*scanPtr);
+                translated = true;
+            }
+        } while (!translated && position < inTableLength && !stopped);
+
+        if (stopped) break;
+
+        pos += matchLength;
+        scanPtr += matchLength;
+        if (scanLength < matchLength) break;
+        scanLength -= matchLength;
+    }
+
+    if (!stopped)
+    {
+        // copy the remaining characters
+        size_t from = startPos + range; // one-based
+        if (from <= this->getLength())
+        {
+            size_t length = this->getLength() - from + 1;
+            destination->append(this->getStringData() + from - 1, length);
+        }
+    }
+
+    // returns the current position in the receiving string via a variable reference
+    if (_end != OREF_NULL)
+    {
+        Protected<RexxInteger> rexxPos = new_integer(pos);
+        _end->setValue(rexxPos);
+    }
+
+    return destination;
 }
 
 

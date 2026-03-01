@@ -1,0 +1,212 @@
+*********************************
+* Test case - inString outArray *
+*********************************
+
+(some strings contain control characters, displayed in hexadecimal between [])
+
+          inString      outArray
+     1    "a"           "aA"           
+     2    "b"           "bBb"          
+     3    "c"           "cCcC"         
+     4    "d"           "dDdDd"        
+     5    "\"           a Routine      MAYBE_TRANSLATE_BACKSLASH_U_4_HEXDIGITS
+     6    "[08]"        "\b"           
+     7    "[09]"        "\t"           
+     8    "[0A]"        "\n"           
+     9    "[0C]"        "\f"           
+    10    "[0D]"        "\r"           
+    11    """           "\""           
+    12    "\"           "\\"           
+    13    "/"           "\/"           
+    14    "[00]"        "\u0000"       
+    15    "[01]"        "\u0001"       
+    16    "[02]"        "\u0002"       
+    17    "[03]"        "\u0003"       
+    18    "[04]"        "\u0004"       
+    19    "[05]"        "\u0005"       
+    20    "[06]"        "\u0006"       
+    21    "[07]"        "\u0007"       
+    22    "[08]"        "\u0008"       
+    23    "[09]"        "\u0009"       
+    24    "[0A]"        "\u000A"       
+    25    "[0B]"        "\u000B"       
+    26    "[0C]"        "\u000C"       
+    27    "[0D]"        "\u000D"       
+    28    "[0E]"        "\u000E"       
+    29    "[0F]"        "\u000F"       
+    30    "[10]"        "\u0010"       
+    31    "[11]"        "\u0011"       
+    32    "[12]"        "\u0012"       
+    33    "[13]"        "\u0013"       
+    34    "[14]"        "\u0014"       
+    35    "[15]"        "\u0015"       
+    36    "[16]"        "\u0016"       
+    37    "[17]"        "\u0017"       
+    38    "[18]"        "\u0018"       
+    39    "[19]"        "\u0019"       
+    40    "[1A]"        "\u001A"       
+    41    "[1B]"        "\u001B"       
+    42    "[1C]"        "\u001C"       
+    43    "[1D]"        "\u001D"       
+    44    "[1E]"        "\u001E"       
+    45    "[1F]"        "\u001F"       
+    46    "[7F]"        "\u007F"       
+
+string =      "ab\u123456[000D0A]0 \uNOT_HEX cdef"
+translation = "aAbBb\u123456\u0000\r\n0 \\uNOT_HEX cCcCdDdDdef"
+
+*********************************
+* Test case - inArray outString *
+*********************************
+
+(some strings contain control characters, displayed in hexadecimal between [])
+
+          inArray            outString
+     1    "[00]"             "0"       
+     2    "[07]"             "7"       
+     3    a Routine          "*"       MATCH_CNTRL
+     4    "James"            "J"       
+     5    "Bond"             "B"       
+
+string =      "My name is Bond, James Bond! My public ID is [000007]. My secret ID is [01000500020807]."
+translation = "My name is B, J B! My public ID is 007. My secret ID is *0*0**7."
+
+********************************
+* Test case - inArray outArray *
+********************************
+
+(some strings contain control characters, displayed in hexadecimal between [])
+
+          inArray            outArray
+     1    "[00]"             "0️⃣"      
+     2    "[07]"             "7️⃣"      
+     3    a Routine          a Routine      MATCH_CNTRL    TRANSLATE_CNTRL
+     4    "<script>"         a Routine      TRANSLATE_TO_SCRIPT_FONT
+     5    "<LOL>"            "😂"         
+
+string =      "My name is <script>Bond, James Bond</script> <LOL>! My public ID is [000007]. My secret ID is [01000500020807]."
+translation = "My name is 𝓑𝓸𝓷𝓭, 𝓙𝓪𝓶𝓮𝓼 𝓑𝓸𝓷𝓭 😂! My public ID is 0️⃣0️⃣7️⃣. My secret ID is \u00010️⃣\u00050️⃣\u0002\u00087️⃣."
+
+*************************
+* Test case - no tables *
+*************************
+
+The 'end' variable is passed by reference.
+
+string =      "No tables, no pad: uppercase."
+translation = "NO TABLES, NO PAD: UPPERCASE."
+end = END
+
+string =      "No tables, no pad, startPos=4, length=6: uppercase."
+translation = "No TABLES, no pad, startPos=4, length=6: uppercase."
+end = END
+
+string =      "No tables, no pad, startPos=20, length=100: uppercase."
+translation = "No tables, no pad, STARTPOS=20, LENGTH=100: UPPERCASE."
+end = END
+
+string =      "startPos=100"
+translation = "startPos=100"
+end = END
+
+string =      "startPos=10, length=0"
+translation = "startPos=10, length=0"
+end = END
+
+********************************
+* Test case - stop translation *
+********************************
+
+(some strings contain control characters, displayed in hexadecimal between [])
+
+          inArray            outArray
+     1    "\""               """            
+     2    "\\"               "\"            
+     3    "\/"               "/"            
+     4    "\b"               "[08]"         
+     5    "\f"               "[0C]"         
+     6    "\n"               "[0A]"         
+     7    "\r"               "[0D]"         
+     8    "\t"               "[09]"         
+     9    "\u00"             a Routine      TRANSLATE_BACKSLASH_U00_2_HEXDIGITS
+    10    "\u"               a Routine      TRANSLATE_BACKSLASH_U_4_HEXDIGITS
+    11    """                The NIL object 
+
+Translate a JSON string, starting at position 15.
+The next unescaped double quote will stop the translation.
+Its position will be collected with the 'end' variable passed by reference.
+
+string =      "[ { "key1" : "My name is \"Bond\", \"James Bond\".\r\nMy ID is \"007\"." }]"
+               123456789012345........................................................^
+translation = "[ { "key1" : "My name is "Bond", "James Bond".[0D0A]My ID is "007"."
+end = END
+
+********************************************
+* Non-regression test - inString outString *
+********************************************
+
+nop -- The RexxRef examples for translate.
+                                                                            Expected  Result    Status
+ 2    "abcdef"~translateInto(.mutableBuffer~new)                            "ABCDEF"  "ABCDEF"  ok
+ 3    "abcdef"~translateInto(.mutableBuffer~new, "")                        "      "  "      "  ok
+ 4    "abcdef"~translateInto(.mutableBuffer~new, , "")                      "abcdef"  "abcdef"  ok
+ 5    "abcdef"~translateInto(.mutableBuffer~new, , , , 3, 2)                "abCDef"  "abCDef"  ok
+ 6    "abcdef"~translateInto(.mutableBuffer~new, "", , , 3, 2)              "ab  ef"  "ab  ef"  ok
+ 7    "abcdef"~translateInto(.mutableBuffer~new, , "", , 3, 2)              "abcdef"  "abcdef"  ok
+ 8    "abcdef"~translateInto(.mutableBuffer~new, "12", "ec")                "ab2d1f"  "ab2d1f"  ok
+ 9    "abcdef"~translateInto(.mutableBuffer~new, "12", "abcd", ".")         "12..ef"  "12..ef"  ok
+10    "APQRV"~translateInto(.mutableBuffer~new, , "PR")                     "A Q V"   "A Q V"   ok
+11    "APQRV"~translateInto(.mutableBuffer~new, "", "PR")                   "A Q V"   "A Q V"   ok
+12    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q"))         "APQ  "   "APQ  "   ok
+13    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q"), "")     "APQRV"   "APQRV"   ok
+14    "4123"~translateInto(.mutableBuffer~new, "abcd", "1234", , 2, 2)      "4ab3"    "4ab3"    ok
+15    "4123"~translateInto(.mutableBuffer~new, "abcd", "1234")              "dabc"    "dabc"    ok
+
+
+*******************************************
+* Non-regression test - inString outArray *
+*******************************************
+
+nop -- The RexxRef examples for translate, where tableo is an array.
+                                                                                           Expected  Result    Status
+ 2    "abcdef"~translateInto(.mutableBuffer~new, v())                                      "      "  "      "  ok
+ 3    "abcdef"~translateInto(.mutableBuffer~new, v(), , , 3, 2)                            "ab  ef"  "ab  ef"  ok
+ 4    "abcdef"~translateInto(.mutableBuffer~new, v("1","2"), "ec")                         "ab2d1f"  "ab2d1f"  ok
+ 5    "abcdef"~translateInto(.mutableBuffer~new, v("1","2"), "abcd", ".")                  "12..ef"  "12..ef"  ok
+ 6    "APQRV"~translateInto(.mutableBuffer~new, v(), "PR")                                 "A Q V"   "A Q V"   ok
+ 7    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q")~makeArray(""))          "APQ  "   "APQ  "   ok
+ 8    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q")~makeArray(""), "")      "APQRV"   "APQRV"   ok
+ 9    "4123"~translateInto(.mutableBuffer~new, v("a","b","c","d"), "1234", , 2, 2)         "4ab3"    "4ab3"    ok
+10    "4123"~translateInto(.mutableBuffer~new, v("a","b","c","d"), "1234")                 "dabc"    "dabc"    ok
+
+
+*******************************************
+* Non-regression test - inArray outString *
+*******************************************
+
+nop -- The RexxRef examples for translate, where tablei is an array.
+                                                                                           Expected  Result    Status
+ 2    "abcdef"~translateInto(.mutableBuffer~new, , v())                                    "abcdef"  "abcdef"  ok
+ 3    "abcdef"~translateInto(.mutableBuffer~new, , v(), , 3, 2)                            "abcdef"  "abcdef"  ok
+ 4    "abcdef"~translateInto(.mutableBuffer~new, "12", v("e","c"))                         "ab2d1f"  "ab2d1f"  ok
+ 5    "abcdef"~translateInto(.mutableBuffer~new, "12", v("a","b","c","d"), ".")            "12..ef"  "12..ef"  ok
+ 6    "APQRV"~translateInto(.mutableBuffer~new, , v("P","R"))                              "A Q V"   "A Q V"   ok
+ 7    "APQRV"~translateInto(.mutableBuffer~new, "", v("P","R"))                            "A Q V"   "A Q V"   ok
+ 8    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q"), v())                   "APQRV"   "APQRV"   ok
+ 9    "4123"~translateInto(.mutableBuffer~new, "abcd", v("1","2","3","4"), , 2, 2)         "4ab3"    "4ab3"    ok
+10    "4123"~translateInto(.mutableBuffer~new, "abcd", v("1","2","3","4"))                 "dabc"    "dabc"    ok
+
+
+******************************************
+* Non-regression test - inArray outArray *
+******************************************
+
+nop -- The RexxRef examples for translate, where tablei and tableo are arrays.
+                                                                                                Expected  Result    Status
+ 2    "abcdef"~translateInto(.mutableBuffer~new, v("1","2"), v("e","c"))                        "ab2d1f"  "ab2d1f"  ok
+ 3    "abcdef"~translateInto(.mutableBuffer~new, v("1","2"), v("a","b","c","d"), ".")           "12..ef"  "12..ef"  ok
+ 4    "APQRV"~translateInto(.mutableBuffer~new, v(), v("P","R"))                                "A Q V"   "A Q V"   ok
+ 5    "APQRV"~translateInto(.mutableBuffer~new, XRANGE("00"X, "Q")~makeArray(""), v())          "APQRV"   "APQRV"   ok
+ 6    "4123"~translateInto(.mutableBuffer~new, v("a","b","c","d"), v("1","2","3","4"), , 2, 2)  "4ab3"    "4ab3"    ok
+ 7    "4123"~translateInto(.mutableBuffer~new, v("a","b","c","d"), v("1","2","3","4"))          "dabc"    "dabc"    ok
+

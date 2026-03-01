@@ -7,7 +7,8 @@
 # Under Windows, nmake will ignore GNUmakefile and use Makefile.
 
 # ooRexx scripts in the current directory
-scriptsFiles = class method
+scriptsFiles = class method \
+               translateInto
 
 mainFiles = main_array_literal
 

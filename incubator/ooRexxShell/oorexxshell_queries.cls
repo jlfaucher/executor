@@ -92,6 +92,7 @@ loadPackage:
         'Table',
         'TimeSpan',
         'Unicode',              -- extension
+        'VariableReference',    -- ooRexx5
         'WeakReference',
         'server'
 

@@ -49,6 +49,9 @@
 #include "StringUtil.hpp"
 #include "Utilities.hpp"
 
+class RexxMutableBuffer;
+class VariableReference;
+
                                        /* return values from the is_symbol  */
                                        /* validation method                 */
 #define  STRING_BAD_VARIABLE   0
@@ -287,6 +290,7 @@ inline char IntToHexDigit(int n)
    size_t       caselessPos(RexxString *, size_t);
 
    RexxString  *translate(RexxString *, RexxString *, RexxString *, RexxInteger *, RexxInteger *); // in behaviour
+   RexxMutableBuffer *translateInto(RexxMutableBuffer *, RexxObject *, RexxObject *, RexxString *, RexxInteger *, RexxInteger *, VariableReference *);
    RexxInteger *verify(RexxString *, RexxString *, RexxInteger *, RexxInteger *); // in behaviour
    RexxInteger *countStrRexx(RexxString *); // in behaviour
    RexxInteger *caselessCountStrRexx(RexxString *); // in behaviour
