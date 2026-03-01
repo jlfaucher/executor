@@ -41,6 +41,92 @@
 #include "ListClass.hpp"
 
 
+/**
+ * Default contstructor for a ProtectedBase object.
+ */
+ProtectedBase::ProtectedBase()
+{
+    // save the activity
+    activity = ActivityManager::currentActivity;
+
+    // it would be better to have the activity class do this, but because
+    // we're doing this with inline methods, we run into a bit of a
+    // circular reference problem
+
+    // NOTE:  ProtectedObject gets used in a few places during image
+    // restore before we have a valid activity.  If we don't have
+    // one, then just assume this will be safe.
+    if (activity != OREF_NULL)
+    {
+        next = activity->protectedObjects;
+        activity->protectedObjects = this;
+    }
+}
+
+
+/**
+ * Create a ProtectedBase object with an explicitly specified activity.
+ *
+ * @param a      The current activity.
+ */
+ProtectedBase::ProtectedBase(RexxActivity *a) : activity(a)
+{
+    // it would be better to have the activity class do this, but because
+    // we're doing this with inline methods, we run into a bit of a
+    // circular reference problem
+
+    // NOTE:  ProtectedObject gets used in a few places during image
+    // restore before we have a valid activity.  If we don't have
+    // one, then just assume this will be safe.
+    if (activity != OREF_NULL)
+    {
+        next = activity->protectedObjects;
+        activity->protectedObjects = this;
+    }
+}
+
+
+/**
+ * Destructor for a ProtectedBase object.
+ */
+ProtectedBase::~ProtectedBase()
+{
+    // remove ourselves from the list and give this object a
+    // little hold protection.
+
+    // NOTE:  ProtectedObject gets used in a few places during image
+    // restore before we have a valid activity.  If we don't have
+    // one, then just assume this will be safe.
+    if (activity != OREF_NULL)
+    {
+        activity->protectedObjects = next;
+    }
+}
+
+
+/**
+ * Destructor for a Protected object.
+ */
+ProtectedObject::~ProtectedObject()
+{
+    // ooRexx5 no longer use holdObject.
+    // I don't know why...
+
+    // give this object a little hold protection.
+
+    // NOTE:  ProtectedObject gets used in a few places during image
+    // restore before we have a valid activity.  If we don't have
+    // one, then just assume this will be safe.
+    if (activity != OREF_NULL)
+    {
+        if (protectedObject != OREF_NULL)
+        {
+            holdObject(protectedObject);
+        }
+    }
+}
+
+
 void ProtectedSet::add(RexxObject *o)
 {
     // first one we've added?

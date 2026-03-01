@@ -58,6 +58,7 @@
 
 
 class ProtectedObject;                 // needed for look aheads
+class ProtectedBase;
 class RexxSource;
 class RexxMethod;
 class InterpreterInstance;
@@ -126,7 +127,7 @@ typedef enum
                                        /* might be using the activity class */
                                        /* methods                           */
  class RexxActivity : public RexxInternalObject {
-  friend class ProtectedObject;
+  friend class ProtectedBase;
   friend class ActivationFrame;
   public:
    void *operator new(size_t);
@@ -400,7 +401,7 @@ typedef enum
    bool        clauseExitUsed;         /* halt/trace sys exit not set ==> 1 */
    uint64_t    randomSeed;             /* random number seed                */
    ExitHandler sysexits[LAST_EXIT];    /* Array to hold system exits        */
-   ProtectedObject *protectedObjects;  // list of stack-based object protectors
+   ProtectedBase *protectedObjects;    // list of stack-based object protectors
    ActivationFrame *activationFrames;  // list of stack-based object protectors
    RexxActivity *nestedActivity;       // used to push down activities in threads with more than one instance
 

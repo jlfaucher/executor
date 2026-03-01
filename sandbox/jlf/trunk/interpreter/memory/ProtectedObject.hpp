@@ -43,116 +43,44 @@
 
 class RexxInstruction;
 
-class ProtectedObject
+/**
+ * Base class for a protected object.
+ */
+class ProtectedBase
 {
 friend class RexxActivity;
 public:
-    inline ProtectedObject() : protectedObject(OREF_NULL)
-    {
-        // save the activity
-        activity = ActivityManager::currentActivity;
+    ProtectedBase();
+    ProtectedBase(RexxActivity *a);
+    ~ProtectedBase();
 
-        // it would be better to have the activity class do this, but because
-        // we're doing this with inline methods, we run into a bit of a
-        // circular reference problem
+    virtual void mark(size_t liveMark) = 0;
+    virtual void markGeneral(int reason) = 0;
 
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
+protected:
 
-    inline ProtectedObject(RexxActivity *a) : protectedObject(OREF_NULL), activity(a)
-    {
-        // it would be better to have the activity class do this, but because
-        // we're doing this with inline methods, we run into a bit of a
-        // circular reference problem
+    ProtectedBase  *next;            // next in the chain of protected object
+    RexxActivity   *activity;        // the activity we're running on
+};
 
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
 
-    inline ProtectedObject(RexxObject *o) : protectedObject(o), next(NULL)
-    {
-        // save the activity
-        activity = ActivityManager::currentActivity;
+/**
+ * Normal untyped ProtectedObject class.  This protects
+ * an object reference from garbage collection.
+ */
+class ProtectedObject : public ProtectedBase
+{
+public:
+    inline ProtectedObject() : protectedObject(OREF_NULL), ProtectedBase() { }
+    inline ProtectedObject(RexxActivity *a) : protectedObject(OREF_NULL), ProtectedBase(a) { }
+    inline ProtectedObject(RexxObject *o) : protectedObject(o), ProtectedBase() { }
+    inline ProtectedObject(RexxObject *o, RexxActivity *a) : protectedObject(o), ProtectedBase(a) { }
+    inline ProtectedObject(RexxInternalObject *o) : protectedObject((RexxObject *)o), ProtectedBase() { }
+    inline ProtectedObject(RexxInternalObject *o, RexxActivity *a) : protectedObject((RexxObject *)o), ProtectedBase(a) { }
+    ~ProtectedObject();
 
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
-
-    inline ProtectedObject(RexxObject *o, RexxActivity *a) : protectedObject(o), next(NULL), activity(a)
-    {
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
-
-    inline ProtectedObject(RexxInternalObject *o) : protectedObject((RexxObject *)o), next(NULL)
-    {
-        // save the activity
-        activity = ActivityManager::currentActivity;
-
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
-
-    inline ProtectedObject(RexxInternalObject *o, RexxActivity *a) : protectedObject((RexxObject *)o), next(NULL), activity(a)
-    {
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            next = activity->protectedObjects;
-            activity->protectedObjects = this;
-        }
-    }
-
-    inline ~ProtectedObject()
-    {
-        // remove ourselves from the list and give this object a
-        // little hold protection.
-
-        // NOTE:  ProtectedObject gets used in a few places during image
-        // restore before we have a valid activity.  If we don't have
-        // one, then just assume this will be safe.
-        if (activity != OREF_NULL)
-        {
-            activity->protectedObjects = next;
-            if (protectedObject != OREF_NULL)
-            {
-                holdObject(protectedObject);
-            }
-        }
-    }
+    void mark(size_t liveMark)override { memory_mark(protectedObject); }
+    void markGeneral(int reason)override { memory_mark_general(protectedObject); }
 
     inline ProtectedObject & operator=(RexxObject *o)
     {
@@ -212,6 +140,19 @@ public:
         return (void *)protectedObject;
     }
 
+     // oorexx5
+     inline bool isNull()
+     {
+         return protectedObject == OREF_NULL;
+     }
+
+     // oorexx5
+     // pointer access
+     inline RexxObject * operator->()
+     {
+         return (RexxObject *)protectedObject;
+     }
+
 // To let the compiler tell you it's forbidden !
 // You want to assign a rexx object, not an other protected object.
 // The list of protected objects is broken if such an assignement is done
@@ -222,12 +163,18 @@ private:
 
 
 protected:
-    RexxObject *protectedObject;       // next in the chain of protected object
-    ProtectedObject *next;             // the pointer protected by the object
-    RexxActivity *activity;            // the activity we're running on
+    RexxObject *protectedObject;       // the pointer protected by the object
+    // ProtectedObject *next;             // next in the chain of protected object
+    // RexxActivity *activity;            // the activity we're running on
 };
 
 
+/**
+ * A single proctected object that can
+ * protect multiple object instances.  Useful for
+ * situations where there are a variable number of
+ * things that require protecting.
+ */
 class ProtectedSet : public ProtectedObject
 {
 public:
@@ -236,6 +183,69 @@ public:
     inline ~ProtectedSet() { }
 
     void add(RexxObject *);
+};
+
+
+/**
+ * Typed version of a protected object.  Because this
+ * uses templates, it is possible to use these like
+ * normal pointers to invoke methods.  More useful where
+ * operations need to be performed on a protected object
+ * since it avoids lots of cast operations.
+ */
+template<class objType> class Protected : public ProtectedBase
+{
+ public:
+     inline Protected() : protectedObject(OREF_NULL), ProtectedBase() { }
+     inline Protected(RexxActivity *a) : protectedObject(OREF_NULL), ProtectedBase(a) { }
+     inline Protected(objType *o) : protectedObject(o), ProtectedBase() { }
+     inline Protected(objType *o, RexxActivity *a) : protectedObject(o), ProtectedBase(a) { }
+
+     inline ~Protected() { }
+
+     void mark(size_t liveMark)override { memory_mark(protectedObject); }
+     void markGeneral(int reason)override { memory_mark_general(protectedObject); }
+
+     inline ProtectedBase & operator=(objType *o)
+     {
+         protectedObject = o;
+         return *this;
+     }
+
+     inline bool operator==(objType *o)
+     {
+         return protectedObject == o;
+     }
+
+     inline operator RexxObjectPtr()
+     {
+         return (RexxObjectPtr)protectedObject;
+     }
+
+     inline operator objType *()
+     {
+         return protectedObject;
+     }
+
+     inline operator void *()
+     {
+         return (void *)protectedObject;
+     }
+
+     inline bool isNull()
+     {
+         return protectedObject == OREF_NULL;
+     }
+
+     // pointer access
+     inline objType *operator->()
+     {
+         return protectedObject;
+     }
+
+ protected:
+
+    objType *protectedObject;          // the protected object.
 };
 
 

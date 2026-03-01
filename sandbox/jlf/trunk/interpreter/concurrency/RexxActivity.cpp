@@ -652,9 +652,9 @@ void RexxActivity::reportAnException(
 /******************************************************************************/
 {
     RexxString *ssubstitution1 = new_string(substitution1);
-    ProtectedObject psubstitution1 = ssubstitution1;
+    ProtectedObject psubstitution1(ssubstitution1);
     RexxString *ssubstitution3 = new_string(substitution3);
-    ProtectedObject psubstitution3 = ssubstitution3;
+    ProtectedObject psubstitution3(ssubstitution3);
     RexxArray *substitutions = new_array(ssubstitution1, substitution2, ssubstitution3, substitution4);
     ProtectedObject p(substitutions);
     this->raiseException(errcode, OREF_NULL, substitutions, OREF_NULL);
@@ -1658,10 +1658,11 @@ void RexxActivity::live(size_t liveMark)
   frameStack.live(liveMark);
   // mark any protected objects we've been watching over
 
-  ProtectedObject *p = protectedObjects;
+  ProtectedBase *p = protectedObjects;
   while (p != NULL)
   {
-      memory_mark(p->protectedObject);
+      p->mark(liveMark);
+      // memory_mark(p->protectedObject);
       p = p->next;
   }
 }
@@ -1682,10 +1683,11 @@ void RexxActivity::liveGeneral(int reason)
   /* have the frame stack do its own marking. */
   frameStack.liveGeneral(reason);
 
-  ProtectedObject *p = protectedObjects;
+  ProtectedBase *p = protectedObjects;
   while (p != NULL)
   {
-      memory_mark_general(p->protectedObject);
+      p->markGeneral(reason);
+      // memory_mark_general(p->protectedObject);
       p = p->next;
   }
 }
