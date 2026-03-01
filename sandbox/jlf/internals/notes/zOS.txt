@@ -5,3 +5,15 @@ In addition, File Manager provides access to the REXX internal functions describ
 
 
 http://mzelden.com/mvsutil.html
+
+
+https://www.ibm.com/docs/en/zos/3.2.0?topic=tef-storage
+related to
+https://listserv.ua.edu/cgi-bin/wa?A2=IBM-MAIN;b91bdb40.2602
+Is anyone familiar with CEEPIPI (LE pre-initialization)?
+
+
+https://www.ibm.com/docs/en/zos/3.2.0?topic=services-bpxwdyn-text-interface-dynamic-allocation-dynamic-output
+BPXWDYN: a text interface to dynamic allocation and dynamic output
+https://www.ibm.com/docs/en/zos/3.2.0?topic=output-examples-calling-bpxwdyn-from-rexx-program
+Examples: Calling BPXWDYN from a REXX program
