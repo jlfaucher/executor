@@ -2304,3 +2304,106 @@ RexxObject  *RexxParseVariable::evaluate(
     return value;                        /* return the located variable       */
 }
 
+
+================================================================================
+Code review of hasReferences
+================================================================================
+
+Object.hpp
+     inline void setHasNoReferences() { flags |= NoRefBit; }
+     inline void setHasReferences() { flags &= ~NoRefBit; }
+     inline bool hasReferences() { return (flags & NoRefBit) == 0; }
+     inline bool hasNoReferences() { return (flags & NoRefBit) != 0; }
+
+
+setHasNoReferences
+used by
+    BufferClass
+    IntegerClass
+    NumberStringClass
+    PointerClass
+    StringClass
+    NativeActivation
+    RexxActivation for default constructor
+    NumberArray
+
+
+setHasReferences
+used by
+    IntegerClass
+    NumberStringClass
+    ObjectClass when getObjectVariables
+    StringClass when numberString, setNumberString
+    RexxActivation when allocateStackFrame
+
+
+/**
+ * Perform a marking operation on all objects in a segment
+ * (only called for an image restore)
+ */
+void MemorySegment::markAllObjects()
+{
+    RexxInternalObject *op = startObject();
+    RexxInternalObject *ep = endObject();
+    while (op < ep)
+    {
+        // all objects have an associated behaviour, make sure it is marked
+        memory_mark_general(op->behaviour);
+
+        // not every object has references to other objects (strings are
+        // a good example). We can skip calling the live method if we know they don't
+        if (op->hasReferences())
+        {
+            // yes, there are references, we need to fix them up.
+            op->liveGeneral(RESTORINGIMAGE);
+        }
+        op =op->nextObject();   // we are just marking each object in order.
+    }
+}
+
+
+
+void MemoryObject::restoreImage()
+{
+...
+    // now loop through the image buffer fixing up the objects.
+    while (objectPointer < endPointer)
+    {
+...
+        // if the object has references, call liveGeneral() to cause these references to
+        // be converted back into real pointers
+        if (objectPointer->hasReferences())
+        {
+            objectPointer->liveGeneral(RESTORINGIMAGE);
+        }
+        // advance to the next object in the image
+        objectPointer = objectPointer->nextObject();
+    }
+
+
+
+void MemoryObject::liveGeneral(MarkReason reason)
+{
+    memory_mark_general(saveStack);
+    memory_mark_general(old2new);
+    memory_mark_general(globalStrings);
+    memory_mark_general(environment);
+    memory_mark_general(commonRetrievers);
+    memory_mark_general(system);
+    memory_mark_general(rexxPackage);
+    memory_mark_general(globalReferences);
+
+    // now call the various subsystem managers to mark their references
+    Interpreter::liveGeneral(reason);
+    SystemInterpreter::liveGeneral(reason);
+    ActivityManager::liveGeneral(reason);
+    PackageManager::liveGeneral(reason);
+    // mark any protected objects we've been watching over
+
+    GlobalProtectedObject *p = protectedObjects;
+    while (p != NULL)
+    {
+        memory_mark_general(p->protectedObject);
+        p = p->next;
+    }
+}
