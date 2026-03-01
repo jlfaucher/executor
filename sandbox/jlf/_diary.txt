@@ -126,6 +126,18 @@ Moved the following routines from logical.cls to CoreClasses.orx, to have them i
     if
 
 
+Validation:
+    num=0; if(num==0, "INF", {expose num; 100/num})=        -- 'INF'
+    num=0; (num==0)~ifTrue("INF", {expose num; 100/num})=   -- 'INF'
+
+    When not passing a Doer, the evaluation is immediate
+    num=0; if(num==0, "INF", 100/num)=          -- Arithmetic overflow; divisor must not be zero
+    num=0; (num==0)~ifTrue("INF", 100/num)=     -- Arithmetic overflow; divisor must not be zero
+
+    If you don't need to return a value, this alternative notation is possible
+    num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}     -- zero
+
+
 ===============================================================================
 2026 Jan 28
 
