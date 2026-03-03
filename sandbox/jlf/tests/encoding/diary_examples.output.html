@@ -31,18 +31,24 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 2 Jul 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: S1cb9Q600001d700d0
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb0b4Q6000019d5860
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
-<span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
-</span>............................................<span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">Total loaded character names: 149813
-</span><span style="font-weight:bold;color:green;">Total character name aliases: 473
+<span style="font-weight:bold;color:green;">Load the Unicode character names 17.0.0 
+</span>..............................................<span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">Total loaded character names: 159801
+</span><span style="font-weight:bold;color:green;">Total character name aliases: 481
 </span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 </span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTranscodings = .false</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~memorizeTransformations = .false</span>
+
+<span style="font-weight:bold;color:blue;">-- These regression tests were designed before the introduction of the immediate
+</span><span style="font-weight:bold;color:blue;">-- &quot;invalid text&quot; error and before the introduction of the privileged encoding
+</span><span style="font-weight:bold;color:blue;">-- status of Byte_Encoding.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~immediateError = .false   </span><span style="font-weight:bold;color:blue;">-- no immediate error</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~promoteByteEncoding = .false </span><span style="font-weight:bold;color:blue;">-- the Byte_Encoding is not the privileged resulting encoding</span>
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -89,10 +95,10 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncodin
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;wtf8&quot;                          </span><span style="font-weight:bold;color:blue;">-- ok</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;unicode8&quot;                      </span><span style="font-weight:bold;color:blue;">-- ok</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf16&quot;                         </span><span style="font-weight:bold;color:blue;">-- Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII</span>
-<span style="font-weight:bold;color:red;">Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII.
+<span style="font-weight:bold;color:red;">Encoding: 'UTF-16BE' is not supported as default encoding. Must be compatible with ASCII.
 </span><span style="font-weight:bold;color:red;">Error code= 93.900
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~defaultEncoding = &quot;utf32&quot;                         </span><span style="font-weight:bold;color:blue;">-- Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII</span>
-<span style="font-weight:bold;color:red;">Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII.
+<span style="font-weight:bold;color:red;">Encoding: 'UTF-32BE' is not supported as default encoding. Must be compatible with ASCII.
 </span><span style="font-weight:bold;color:red;">Error code= 93.900
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.encoding~setDefaultEncoding(oldEncoding)=                  </span><span style="font-weight:bold;color:blue;">-- (The Unicode8_Encoding class)    last default encoding successfully assigned</span>
 (The Unicode8_Encoding class)
@@ -182,7 +188,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">t~string~hasEncoding=   
 </span><span style="font-weight:bold;color:blue;">    setEncoding
 </span><span style="font-weight:bold;color:blue;">Examples:
 </span><span style="font-weight:bold;color:blue;">*/
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">block = {say .context~package~encoding; s1 = &quot;Père Noël&quot;; say s1~class s1~encoding; s2 = &quot;Père&quot; &quot;Noël&quot;; say s~class s~encoding}</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">block = {say .context~package~encoding; s1 = &quot;Père Noël&quot;; say s1~class s1~encoding; s2 = &quot;Père&quot; &quot;Noël&quot;; say s2~class s2~encoding}</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">block~hasEncoding=                                  </span><span style="font-weight:bold;color:blue;">-- 1</span>
  1
 ooRexx&gt; <span style="font-weight:bold;color:purple;">block~encoding=                                     </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
@@ -190,7 +196,7 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">block~encoding=         
 ooRexx&gt; <span style="font-weight:bold;color:purple;">block~()</span>
 The UTF8_Encoding class
 The RexxText class The UTF8_Encoding class
-The String class The UTF8_Encoding class
+The RexxText class The UTF8_Encoding class
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">    The UTF8_Encoding class                         -- encoding of the definition package
 </span><span style="font-weight:bold;color:blue;">    The RexxText class The UTF8_Encoding class      -- encoding of the definition package (string literal)
@@ -198,7 +204,7 @@ The String class The UTF8_Encoding class
 </span><span style="font-weight:bold;color:blue;">*/
 </span>
 <span style="font-weight:bold;color:blue;">-- Changing the block encoding
-</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">block = {say .context~package~encoding; s1 = &quot;Père Noël&quot;; say s1~class s1~encoding; s2 = &quot;Père&quot; &quot;Noël&quot;; say s~class s~encoding}</span>
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">block = {say .context~package~encoding; s1 = &quot;Père Noël&quot;; say s1~class s1~encoding; s2 = &quot;Père&quot; &quot;Noël&quot;; say s2~class s2~encoding}</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding = block~setEncoding(&quot;byte&quot;)</span>
 ooRexx&gt; <span style="font-weight:bold;color:purple;">oldEncoding=                                        </span><span style="font-weight:bold;color:blue;">-- (The UTF8_Encoding class)</span>
 (The UTF8_Encoding class)
@@ -247,35 +253,25 @@ The String class The UTF8_Encoding class
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">system rexx string_literal_encoding/package_main.rex</span>
 prolog of package_byte.cls     The Byte_Encoding class
-prolog of package_cp1252.cls   The WINDOWS1252_Encoding class
-prolog of package_utf8.cls     The UTF8_Encoding class
-prolog of package_utf16be.cls  The UTF16BE_Encoding class
-prolog of package_utf32be.cls  The UTF32BE_Encoding class
-
 .package_byte~m_name           package_byte                   String                         The Byte_Encoding class
 .package_byte~m_noel           Noël                          String                         The Byte_Encoding class
 .package_byte~m_noel_x         Noël                          String                         The Byte_Encoding class
 .package_byte~m_noel_x2c       Noël                          String                         The UTF8_Encoding class
 
+prolog of package_cp1252.cls   The WINDOWS1252_Encoding class
 .package_cp1252~m_name         package_cp1252                 String                         The WINDOWS1252_Encoding class
-.package_cp1252~m_noel         Noël                          String                         The WINDOWS1252_Encoding class
+.package_cp1252~m_noel         No�l                           String                         The WINDOWS1252_Encoding class
 .package_cp1252~m_noel_x       Noël                          String                         The WINDOWS1252_Encoding class
 .package_cp1252~m_noel_x2c     Noël                          String                         The UTF8_Encoding class
 
+prolog of package_utf8.cls     The UTF8_Encoding class
 .package_utf8~m_name           package_utf8                   String                         The UTF8_Encoding class
 .package_utf8~m_noel           Noël                           RexxText                       The UTF8_Encoding class
 .package_utf8~m_noel_x         Noël                           RexxText                       The UTF8_Encoding class
 .package_utf8~m_noel_x2c       Noël                          String                         The UTF8_Encoding class
 
-.package_utf16be~m_name        package_utf16be                String                         The UTF16BE_Encoding class
-.package_utf16be~m_noel        乯쎫氀                          � RexxText                       The UTF16BE_Encoding class
-.package_utf16be~m_noel_x      Noël                           RexxText                       The UTF16BE_Encoding class
-.package_utf16be~m_noel_x2c     N o � l                       String                         The UTF8_Encoding class
-
-.package_utf32be~m_name        package_utf32be                String                         The UTF32BE_Encoding class
-.package_utf32be~m_noel        ������������������������������ RexxText                       The UTF32BE_Encoding class
-.package_utf32be~m_noel_x      Noël                           RexxText                       The UTF32BE_Encoding class
-.package_utf32be~m_noel_x2c       N   o   �   l               String                         The UTF8_Encoding class
+loadPackage KO for package_utf16be.cls: Encoding: 'UTF-16BE' is not supported as package encoding. Must be compatible with ASCII.
+loadPackage KO for package_utf32be.cls: Encoding: 'UTF-32BE' is not supported as package encoding. Must be compatible with ASCII.
 
 
 <span style="font-weight:bold;color:blue;">/*
@@ -1468,7 +1464,7 @@ M'1[000000]2[000000]'
 
 <span style="font-weight:bold;color:blue;">-- Examples of invalid U+ string/text
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;U+004E u+006F U+00EB U+006C U+1F936 U+1F385&quot;~text~utf16~u2c=           </span><span style="font-weight:bold;color:blue;">-- UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.</span>
-<span style="font-weight:bold;color:red;">UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+<span style="font-weight:bold;color:red;">UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] [00]u[00]+[00]0...' is not compatible with an U+ string.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">&quot;A+004E&quot;~u2c=                                                           </span><span style="font-weight:bold;color:blue;">-- Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'</span>
 <span style="font-weight:bold;color:red;">Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'.
@@ -5755,20 +5751,20 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">        (&quot;\uD83D&qu
 <span style="font-weight:bold;color:blue;">-- For convenience, add an optional parameter 'filter' to the method .unicode~characters
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    .unicode~characters(&quot;*rex*&quot;)==</span>
 an Array (shape [15], 15 items)
- 1  : ( &quot;꜌&quot;   U+A70C Sk 1 &quot;MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR&quot; )
+ 1  : ( &quot;˥&quot;   U+02E5 Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH TONE BAR&quot; )
  2  : ( &quot;˩&quot;   U+02E9 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW TONE BAR&quot; )
- 3  : ( &quot;꜍&quot;   U+A70D Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR&quot; )
- 4  : ( &quot;꜑&quot;   U+A711 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR&quot; )
- 5  : ( &quot;˥&quot;   U+02E5 Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH TONE BAR&quot; )
+ 3  : ( &quot;ꎅ&quot;  U+A385 Lo 2 &quot;YI SYLLABLE RREX&quot; )
+ 4  : ( &quot;ꎜ&quot;  U+A39C Lo 2 &quot;YI SYLLABLE NREX&quot; )
+ 5  : ( &quot;ꏑ&quot;  U+A3D1 Lo 2 &quot;YI SYLLABLE REX&quot; )
  6  : ( &quot;꜈&quot;   U+A708 Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH DOTTED TONE BAR&quot; )
- 7  : ( &quot;🖕&quot;  U+1F595 So 2 &quot;REVERSED HAND WITH MIDDLE FINGER EXTENDED&quot; )
- 8  : ( &quot;ꎅ&quot;  U+A385 Lo 2 &quot;YI SYLLABLE RREX&quot; )
- 9  : ( &quot;꜒&quot;   U+A712 Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR&quot; )
- 10 : ( &quot;ꏑ&quot;  U+A3D1 Lo 2 &quot;YI SYLLABLE REX&quot; )
- 11 : ( &quot;ꎜ&quot;  U+A39C Lo 2 &quot;YI SYLLABLE NREX&quot; )
- 12 : ( &quot;꜖&quot;   U+A716 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR&quot; )
- 13 : ( &quot;𖩿&quot;   U+16A7F Lo 1 &quot;TANGSA LETTER EX&quot; )
- 14 : ( &quot;𝍊&quot;   U+1D34A So 1 &quot;TETRAGRAM FOR EXHAUSTION&quot; )
+ 7  : ( &quot;꜌&quot;   U+A70C Sk 1 &quot;MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR&quot; )
+ 8  : ( &quot;꜍&quot;   U+A70D Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR&quot; )
+ 9  : ( &quot;꜑&quot;   U+A711 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR&quot; )
+ 10 : ( &quot;꜒&quot;   U+A712 Sk 1 &quot;MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR&quot; )
+ 11 : ( &quot;꜖&quot;   U+A716 Sk 1 &quot;MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR&quot; )
+ 12 : ( &quot;𖩿&quot;   U+16A7F Lo 1 &quot;TANGSA LETTER EX&quot; )
+ 13 : ( &quot;𝍊&quot;  U+1D34A So 2 &quot;TETRAGRAM FOR EXHAUSTION&quot; )
+ 14 : ( &quot;🖕&quot;  U+1F595 So 2 &quot;REVERSED HAND WITH MIDDLE FINGER EXTENDED&quot; )
  15 : ( &quot;🦖&quot;  U+1F996 So 2 &quot;T-REX&quot; )
 <span style="font-weight:bold;color:blue;">-- is equivalent to
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">    matcher = &quot;*rex*&quot;~matcher; .unicode~characters~select{expose matcher; matcher~(item~name)}==</span>
@@ -6832,7 +6828,7 @@ an UnicodeCharacterSupplier
  658  : ( &quot;ʒ&quot;   U+0292 Ll 1 &quot;LATIN SMALL LETTER EZH&quot; )
  659  : ( &quot;ʓ&quot;   U+0293 Ll 1 &quot;LATIN SMALL LETTER EZH WITH CURL&quot; )
  660  : ( &quot;ʔ&quot;   U+0294 Lo 1 &quot;LATIN LETTER GLOTTAL STOP&quot; )
- 661  : ( &quot;ʕ&quot;   U+0295 Ll 1 &quot;LATIN LETTER PHARYNGEAL VOICED FRICATIVE&quot; )
+ 661  : ( &quot;ʕ&quot;   U+0295 Lo 1 &quot;LATIN LETTER PHARYNGEAL VOICED FRICATIVE&quot; )
  662  : ( &quot;ʖ&quot;   U+0296 Ll 1 &quot;LATIN LETTER INVERTED GLOTTAL STOP&quot; )
  663  : ( &quot;ʗ&quot;   U+0297 Ll 1 &quot;LATIN LETTER STRETCHED C&quot; )
  664  : ( &quot;ʘ&quot;   U+0298 Ll 1 &quot;LATIN LETTER BILABIAL CLICK&quot; )
@@ -7187,37 +7183,39 @@ an UnicodeCharacterIntervalSupplier
  2  : (U+4E00..U+9FFF &quot;CJK UNIFIED IDEOGRAPH-*&quot; 20991 characters)
  3  : (U+F900..U+FA6D &quot;CJK COMPATIBILITY IDEOGRAPH-*&quot; 365 characters)
  4  : (U+FA70..U+FAD9 &quot;CJK COMPATIBILITY IDEOGRAPH-*&quot; 105 characters)
- 5  : (U+17000..U+187F7 &quot;TANGUT IDEOGRAPH-*&quot; 6135 characters)
- 6  : (U+18B00..U+18CD5 &quot;KHITAN SMALL SCRIPT CHARACTER-*&quot; 469 characters)
- 7  : (U+18D00..U+18D08 &quot;TANGUT IDEOGRAPH-*&quot; 8 characters)
- 8  : (U+1B170..U+1B2FB &quot;NUSHU CHARACTER-*&quot; 395 characters)
- 9  : (U+20000..U+2A6DF &quot;CJK UNIFIED IDEOGRAPH-*&quot; 42719 characters)
- 10 : (U+2A700..U+2B739 &quot;CJK UNIFIED IDEOGRAPH-*&quot; 4153 characters)
- 11 : (U+2B740..U+2B81D &quot;CJK UNIFIED IDEOGRAPH-*&quot; 221 characters)
- 12 : (U+2B820..U+2CEA1 &quot;CJK UNIFIED IDEOGRAPH-*&quot; 5761 characters)
+ 5  : (U+13460..U+143FA &quot;EGYPTIAN HIEROGLYPH-*&quot; 3994 characters)
+ 6  : (U+17000..U+187FF &quot;TANGUT IDEOGRAPH-*&quot; 6143 characters)
+ 7  : (U+18B00..U+18CD5 &quot;KHITAN SMALL SCRIPT CHARACTER-*&quot; 469 characters)
+ 8  : (U+18D00..U+18D1E &quot;TANGUT IDEOGRAPH-*&quot; 30 characters)
+ 9  : (U+1B170..U+1B2FB &quot;NUSHU CHARACTER-*&quot; 395 characters)
+ 10 : (U+20000..U+2A6DF &quot;CJK UNIFIED IDEOGRAPH-*&quot; 42719 characters)
+ 11 : (U+2A700..U+2B81D &quot;CJK UNIFIED IDEOGRAPH-*&quot; 4381 characters)
+ 12 : (U+2B820..U+2CEAD &quot;CJK UNIFIED IDEOGRAPH-*&quot; 5773 characters)
  13 : (U+2CEB0..U+2EBE0 &quot;CJK UNIFIED IDEOGRAPH-*&quot; 7472 characters)
  14 : (U+2EBF0..U+2EE5D &quot;CJK UNIFIED IDEOGRAPH-*&quot; 621 characters)
  15 : (U+2F800..U+2FA1D &quot;CJK COMPATIBILITY IDEOGRAPH-*&quot; 541 characters)
  16 : (U+30000..U+3134A &quot;CJK UNIFIED IDEOGRAPH-*&quot; 4938 characters)
- 17 : (U+31350..U+323AF &quot;CJK UNIFIED IDEOGRAPH-*&quot; 4191 characters)
+ 17 : (U+31350..U+33479 &quot;CJK UNIFIED IDEOGRAPH-*&quot; 8489 characters)
 
 
 <span style="font-weight:bold;color:blue;">-- Informations about Unicode:
 </span><span style="font-weight:bold;color:blue;">-- Remove dataDirectory because the value is different between Windows and Macos/Linux
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~informations~~remove(&quot;dataDirectory&quot;)=</span>
-a Directory (12 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44189 size=918000)
+a Directory (14 items)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 114034 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=45836 size=918000)
+'immediateError'                     :  0
 'maxCodepoint'                       :  1114111
 'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
+'promoteByteEncoding'                :  0
 'systemIsLittleEndian'               :  1
-'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149813
-'totalIntervalCharacters'            :  105693
-'totalIntervalCharactersNotExpanded' :  105693
+'totalCharacterNameAliases'          :  481
+'totalCharactersLoaded'              :  159801
+'totalIntervalCharacters'            :  114034
+'totalIntervalCharactersNotExpanded' :  114034
 'unckeckedConversionToString'        :  1
-'version'                            : '15.1.0'
+'version'                            : '17.0.0'
 
 
 <span style="font-weight:bold;color:blue;">-- ===============================================================================
@@ -7923,7 +7921,7 @@ an UnicodeCharacterSupplier
  658  : ( &quot;ʒ&quot;   U+0292 Ll 1 &quot;LATIN SMALL LETTER EZH&quot; )
  659  : ( &quot;ʓ&quot;   U+0293 Ll 1 &quot;LATIN SMALL LETTER EZH WITH CURL&quot; )
  660  : ( &quot;ʔ&quot;   U+0294 Lo 1 &quot;LATIN LETTER GLOTTAL STOP&quot; )
- 661  : ( &quot;ʕ&quot;   U+0295 Ll 1 &quot;LATIN LETTER PHARYNGEAL VOICED FRICATIVE&quot; )
+ 661  : ( &quot;ʕ&quot;   U+0295 Lo 1 &quot;LATIN LETTER PHARYNGEAL VOICED FRICATIVE&quot; )
  662  : ( &quot;ʖ&quot;   U+0296 Ll 1 &quot;LATIN LETTER INVERTED GLOTTAL STOP&quot; )
  663  : ( &quot;ʗ&quot;   U+0297 Ll 1 &quot;LATIN LETTER STRETCHED C&quot; )
  664  : ( &quot;ʘ&quot;   U+0298 Ll 1 &quot;LATIN LETTER BILABIAL CLICK&quot; )

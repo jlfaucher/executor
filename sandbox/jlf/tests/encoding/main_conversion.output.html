@@ -31,8 +31,8 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: SbfedQ600001c5f400
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb08cQ6000019d5860
 </span>ooRexx&gt; <span style="font-weight:bold;color:purple;">trap on novalue</span>
 
 ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encoding = &quot;byte&quot;</span>
@@ -40,6 +40,11 @@ ooRexx&gt; <span style="font-weight:bold;color:purple;">.context~package~encodin
 <span style="font-weight:bold;color:blue;">-- .Unicode~loadDerivedName(/*action*/ &quot;load&quot;)=    -- load all the Unicode characters
 </span><span style="font-weight:bold;color:blue;">-- .Unicode~loadNameAliases(/*action*/ &quot;load&quot;)=    -- load the name aliases
 </span>
+<span style="font-weight:bold;color:blue;">-- These regression tests were designed before the introduction of the immediate
+</span><span style="font-weight:bold;color:blue;">-- &quot;invalid text&quot; error and before the introduction of the privileged encoding
+</span><span style="font-weight:bold;color:blue;">-- status of Byte_Encoding.
+</span>ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~immediateError = .false   </span><span style="font-weight:bold;color:blue;">-- no immediate error</span>
+ooRexx&gt; <span style="font-weight:bold;color:purple;">.Unicode~promoteByteEncoding = .false </span><span style="font-weight:bold;color:blue;">-- the Byte_Encoding is not the privileged resulting encoding</span>
 
 <span style="font-weight:bold;color:blue;">--------------------------------------------------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Supported encodings
