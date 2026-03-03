@@ -102,6 +102,8 @@ Depends on
 ::attribute memorizeTranscodings class -- global flag to control if the results of ~transcodeTo are memorized on the text
 ::attribute memorizeTransformations class -- global flag to control if the NFC, NFD, ... transformtions are memorized on the text
 ::attribute unckeckedConversionToString class
+::attribute immediateError class -- global flag to control if the "invalid text" error is raised immediatly
+::attribute promoteByteEncoding class -- global flag to control if the Byte_Encoding is the privileged resulting encoding
 
 ::method initialize class
     expose dataDirectory characters characterNames -
@@ -112,7 +114,9 @@ Depends on
                          totalCharacterNameAliases -
                          memorizeTranscodings -
                          memorizeTransformations -
-                         unckeckedConversionToString
+                         unckeckedConversionToString -
+                         immediateError -
+                         promoteByteEncoding
     use strict arg -- none
     packageDirectory = .file~new(.context~package~name)~parent
     dataDirectory = .file~new("Unicode-".Unicode~version, packageDirectory)
@@ -129,6 +133,8 @@ Depends on
     memorizeTranscodings = .false
     memorizeTransformations = .false
     unckeckedConversionToString = .true
+    immediateError = .true
+    promoteByteEncoding = .true
 
 
 ::method version class
@@ -140,9 +146,11 @@ Depends on
     "characters",,
     "characterIntervals",,
     "dataDirectory",,
+    "immediateError",,
     "maxCodepoint",,
     "memorizeTranscodings",,
     "memorizeTransformations",,
+    "promoteByteEncoding",,
     "systemIsLittleEndian",,
     "totalCharactersLoaded",,
     "totalCharacterNameAliases",,
@@ -282,7 +290,7 @@ Depends on
         -- I must explicitly pass NO positional argument.
         forward message "matcher" arguments (.array~new(0)) to (UAX44_LM2(filter)) continue
         looseMatcher = result
-        return characterNames~each{ expose looseMatcher; if looseMatcher~(index) then .Unicode~character(item) }
+        return characterNames~each{ expose looseMatcher; if looseMatcher~(index) then .Unicode~character(item) }~sort
     end
     return .UnicodeCharacterSupplier~new(characters) -- This supplier returns index-1
 
@@ -728,7 +736,7 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 
 
 /******************************************************************************/
-::class "UnicodeCharacter" public
+::class "UnicodeCharacter" public inherit Comparable
 
 ::attribute codepoint get
 ::attribute name get
@@ -1089,6 +1097,15 @@ https://unicode.org/reports/tr44/#UAX44-LM3
 ::routine .UnicodeCharacter public
     -- For convenience: equivalent to .Unicode~character
     return .Unicode~sendWith("character", .context~args, namedArguments: .context~namedArgs)
+
+
+::method compareTo
+    use arg other
+    cp1 = self~codepoint
+    cp2 = other~codepoint
+    if cp1 < cp2 then return -1
+    if cp1 > cp2 then return 1
+    return 0
 
 
 /******************************************************************************/

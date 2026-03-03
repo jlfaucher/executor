@@ -48,6 +48,10 @@ Depends on
     return self~isCompatibleWithASCII
 
 
+::method canBePackageEncoding class
+    return self~isCompatibleWithASCII
+
+
 ::method codeUnitSizeInBytes class abstract -- constant 1 2 or 4
 
 
@@ -228,8 +232,8 @@ For example, if startB==6 then previousCodepointIndexB==3
     if bufferEncoding == targetEncoding then return bufferEncoding
 
     -- The Byte_Encoding can be always absorbed
-    if bufferEncoding == .Byte_Encoding then return targetEncoding
-    if targetEncoding == .Byte_Encoding then return bufferEncoding
+    if bufferEncoding == .Byte_Encoding then return .Unicode~promoteByteEncoding~?(.Byte_Encoding, targetEncoding)
+    if targetEncoding == .Byte_Encoding then return .Unicode~promoteByteEncoding~?(.Byte_Encoding, bufferEncoding)
 
     if bufferEncoding~isUTF8, targetEncoding~isWTF8 then return .WTF8_Encoding
     if bufferEncoding~isWTF8, targetEncoding~isUTF8 then return .WTF8_Encoding
@@ -307,6 +311,10 @@ For example, if startB==6 then previousCodepointIndexB==3
     return self~encoding~isCompatibleWithASCII
 
 
+::method canBePackageEncoding
+    return self~encoding~isCompatibleWithASCII
+
+
 ::method description
     /*
     "noël👩‍👨‍👩‍👧🎅"~text~description(short:1)           -- 'UTF-8 not-ASCII'
@@ -344,8 +352,11 @@ For example, if startB==6 then previousCodepointIndexB==3
     use strict arg length=10
     use strict named arg short=.true, technical=.false -- minimal description
     text = self~string~text
-    -- must convert to string to avoid an error like "Encoding: cannot append UTF-8 ASCII by default '...' to UTF-16BE"
-    if text~length > length then text = text~left(length - 3)~string"..."
+    if text~length > length then do
+        -- must use a buffer to avoid the creation of a text that could raise an error "invalid string"
+        -- must convert to a byte string to avoid an error like "Encoding: cannot append UTF-8 ASCII '...' to UTF-16BE"
+        text = text~left(length, buffer:.MutableBuffer~new)~string~byte || "..."
+    end
     -- escape3 is needed to have a proper display for this:
     -- say "41"~text~utf16~string  -- 41
     -- say escape3("41"~text~utf16~string)  -- [00]4[00]1
@@ -559,7 +570,7 @@ Executor supports
     \N{Unicode name}    Character name in the Unicode database or codepoint Label
     \u{Unicode name}    Character name in the Unicode database or codepoint Label
     \U{Unicode name}    same as \u{Unicode name}
-    \u{X..X}            Unicode character denoted by 1-8 hex digits. The first character must be a digit 0..9 ('u' lowercase)
+    \u{X..X}            Unicode character denoted by 1..n hex digits. The first character must be a digit 0..9
     \U{X..X}            same as \u{X..X}
     \uXXXX              Unicode character denoted by 4 hex digits ('u' lowercase)
     \UXXXXXXXX          Unicode character denoted by 8 hex digits ('U' uppercase)
@@ -567,16 +578,18 @@ Executor supports
     \XXXXX              2 bytes denoted by 4 hex digits ('X' uppercase)
 
 How other languages are supporting escape characters for Unicode:
-    \N{Unicode name}    Character name in the Unicode database (Python, Julia)
+    \N{Unicode name}    Character name in the Unicode database (Python, C++23)
+    \o{X..X}            Arbitrary number of octal digits (C++23)
     \u{Unicode name}
     \U{Unicode name}
     \u{nnnn ...}        Unicode character(s), where each nnnn is 1-6 hexadecimal digits (Ruby)
-    \u{X..X}            Unicode character denoted by a 1–8 hex digits (Swift)
-    \u{XXXXXX}          hexadecimal Unicode code point UTF-8 encoded (1 or more digits) (zig)
-    \uXXXX              Unicode character denoted by 4 hex digits (Go, Java, JSON, Julia, Netrexx, Python, Ruby)
-    \UXXXXXXXX          Unicode character denoted by 8 hex digits (Go, Julia, Python)
-    \xXX                1 byte denoted by 2 hex digits (Go, Netrexx, Python, Ruby)
-    \XXX                Unicode character denoted by 3 octal digits (Go)
+    \u{X..X}            Unicode scalar value denoted by 1..8 hex digits (C++23, Swift)
+    \u{X..X}            hexadecimal Unicode scalar value UTF-8 encoded (1 or more digits) (zig)
+    \uXXXX              Unicode scalar value denoted by 4 hex digits (C++, Go, Java, JSON, Julia, Netrexx, Python, Ruby)
+    \UXXXXXXXX          Unicode scalar value denoted by 8 hex digits (C++, Go, Julia, Python)
+    \x{X..X}            Arbitrary number of hex digits (C++23)
+    \xNN                1 byte denoted by 2 hex digits (Go, Netrexx, Python, Ruby, Zig)
+    \NNN                Unicode character denoted by 3 octal digits (Go)
 
     https://javajee.com/unicode-escapes-in-java
     The compiler translates Unicode escapes into the characters they represent

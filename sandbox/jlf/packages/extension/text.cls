@@ -578,13 +578,27 @@ Return directly the buffer, without requesting a string from it.
         self~!setEncoding -- OREF_NULL
     end
     else do
-        encoding = .Encoding~factory(newEncoding, self~string)
-        self~!setEncoding(encoding)
+        newEncoding = .Encoding~factory(newEncoding, self~string)
+        if newEncoding~canBePackageEncoding then do
+            encoding = newEncoding
+            self~!setEncoding(newEncoding)
+            return
+        end
+        raise syntax 93.900 array("Encoding: '"newEncoding~name"' is not supported as package encoding. Must be compatible with ASCII")
     end
 
 
 ::method setEncoding
-    use strict arg newEncoding=(self~encoding)
+    use strict arg newEncoding=(self~encoding), forString=.nil
+    /*
+    say "+++ EncodedPackage~setEncoding"
+    say "+++ package" self~name
+    say "+++ package" self~identityhash
+    call charout , "+++ forString "
+    say forString
+    say "+++ forString" forString~identityhash
+    say "+++ newEncoding" newEncoding
+    */
     if self~hasEncoding then previousEncoding = self~encoding
                         else previousEncoding = .nil
     self~encoding = newEncoding
@@ -645,7 +659,14 @@ Return directly the buffer, without requesting a string from it.
 
     -- store itself as counterpart of string
     -- string~text = self                               -- can't do that because infinite recursion
-    forward to (string) message "TEXT=" array(self)     -- no dynamic target ==> no infinite recursion
+    forward to (string) message "TEXT=" array(self) continue     -- no dynamic target ==> no infinite recursion
+
+    -- Raise immediatly an error in case of invalid text
+    -- The error message doesn't give all the details (could be several errors detected by the indexer)
+    -- To let retrieve all the details, the text is stored as 2nd item in the "additional" entry of the condition object
+    --   condition("O")~additional[2]           -- The invalid text
+    --   condition("O")~additional[2]~errors    -- The array of errors attached to the invalid text
+    if .Unicode~immediateError, .nil \== indexer~errors then raise syntax 23.900 array("Invalid" self~descriptionForError(short:.false), self)
 
 
 /*

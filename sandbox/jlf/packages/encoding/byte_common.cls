@@ -13,21 +13,30 @@
     -- to use RexxText API instead of String API. But would be way slower...
     -- Would it make sense ? Nobody is editing string literals encoded in 16-bit
     -- or 32-bit.
+    use strict arg -- none
     use strict named arg buffer=.nil
-    string = self~string
+    string = self~string    -- remember: the encoding of self~string is equal to self~encoding
     pos = string~pos("\")
     if pos == 0 then do
         -- optim: don't create intermediate buffer if nothing to unescape
         if .nil == buffer then return self~string~text
-        return buffer~~append(string)
+        return buffer~~appendEncoded(string)
     end
     returnBuffer = .nil <> buffer
-    if .nil == buffer then buffer = .MutableBuffer~new(, string~length)
+    if .nil == buffer then do
+        buffer = .MutableBuffer~new(, string~length)
+        buffer~setEncoding(self~encoding)
+    end
     from = 1
     do until pos == 0
-        buffer~append(string~substr(from, pos - from))
+        -- substr loses the encoding, temporary workaround
+        substring = string~substr(from, pos - from)
+        substring~setEncoding(string~encoding)
+
+        buffer~appendEncoded(substring)
+
         pos += 1
-        character = string~subchar(pos)
+        character = string~subchar(pos)     -- here, no need of encoding workaround
         pos += 1
         select
             when character == "\" then buffer~append("\")   -- escaped \
@@ -50,7 +59,7 @@
                     length = pos - first
                     if length == 0 then signal expecting_name
                     pos += 1 -- skip }
-                    idntfr = string~substr(first, length)
+                    idntfr = string~substr(first, length)   -- here, no need of encoding workaround
                     character = .Unicode~character(idntfr, by:"NL") -- by Name or codepoint Label
                     character~transcodeTo(self~encoding, :buffer)
                 end
@@ -61,8 +70,8 @@
 
                 -- \u{Unicode name}    Character name in the Unicode database, or codepoint label
                 -- \U{Unicode name}    Character name in the Unicode database, or codepoint label
-                -- \u{X..X}            Unicode character denoted by 1-8 hex digits (must start with a digit 0..9)
-                -- \U{X..X}            Unicode character denoted by 1-8 hex digits (must start with a digit 0..9)
+                -- \u{X..X}            Unicode character denoted by 1..n hex digits (must start with a digit 0..9)
+                -- \U{X..X}            Unicode character denoted by 1..n hex digits (must start with a digit 0..9)
                 if string~subchar(pos) == "{" then do
                     pos += 1 -- skip {
                     first = pos
@@ -71,7 +80,7 @@
                     length = pos - first
                     if length == 0 then signal expecting_name_or_sequence_of_hexadecimal_digits
                     pos += 1 -- skip }
-                    idntfr = string~substr(first, length)
+                    idntfr = string~substr(first, length)   -- here, no need of encoding workaround
                     idntfr = idntfr~strip
                     startWithDigit = idntfr~left(1)~datatype("9")
                     character = .Unicode~character(idntfr, by: "NHLU", hexadecimal: startWithDigit) -- by Name or by Hexadecimal codepoint or by codepoint Label or by U+ codepoint
@@ -81,7 +90,7 @@
                 else if character == "u" then do
                     -- \uXXXX
                     length = min(4, string~length - pos + 1)
-                    hexadecimalDigits = string~substr(pos, length)
+                    hexadecimalDigits = string~substr(pos, length)  -- here, no need of encoding workaround
                     if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
                     if \hexadecimalDigits~datatype("X") then signal expecting_4_hexadecimal_digits
                     character = .Unicode~character(hexadecimalDigits, by: "H", hexadecimal: .true) -- by Hexadecimal codepoint
@@ -112,30 +121,33 @@
                     length = pos - first
                     if length == 0 then signal expecting_sequence_of_hexadecimal_digits
                     pos += 1 -- skip }
-                    hexadecimalDigits = string~substr(first, length)
+                    hexadecimalDigits = string~substr(first, length)    -- here, no need of encoding workaround
                     bytes = hexadecimalDigits~x2c -- 1..n bytes
-                    buffer~append(bytes)
+                    bytes~setEncoding(self~encoding)
+                    buffer~appendEncoded(bytes)
                 end
 
                 else if character == "x" then do
                     -- \xXX
                     length = min(2, string~length - pos + 1)
-                    hexadecimalDigits = string~substr(pos, length)
+                    hexadecimalDigits = string~substr(pos, length)  -- here, no need of encoding workaround
                     if hexadecimalDigits~length < 2 then signal expecting_2_hexadecimal_digits
                     if \hexadecimalDigits~datatype("X") then signal expecting_2_hexadecimal_digits
                     bytes = hexadecimalDigits~x2c -- 2 bytes
-                    buffer~append(bytes)
+                    bytes~setEncoding(self~encoding)
+                    buffer~appendEncoded(bytes)
                     pos += 2
                 end
 
                 else if character == "X" then do
                     -- \XXXXX
                     length = min(4, string~length - pos + 1)
-                    hexadecimalDigits = string~substr(pos, length)
+                    hexadecimalDigits = string~substr(pos, length)  -- here, no need of encoding workaround
                     if hexadecimalDigits~length < 4 then signal expecting_4_hexadecimal_digits
                     if \hexadecimalDigits~datatype("X") then signal expecting_4_hexadecimal_digits
                     bytes = hexadecimalDigits~x2c -- 4 bytes
-                    buffer~append(bytes)
+                    bytes~setEncoding(self~encoding)
+                    buffer~appendEncoded(bytes)
                     pos += 4
                 end
 

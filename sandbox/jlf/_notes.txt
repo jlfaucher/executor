@@ -633,6 +633,52 @@ translate               " "     func    MutableBuffer
 
 
 ================================================================================
+Encoded strings
+================================================================================
+
+TODO
+Fix the examples of encoding for RexxBlock.
+
+TODO
+About New methods:
+    .String~byte
+    .RexxText~byte
+Returns a copy of the string or text, with encoding = The Byte_Encoding.
+I find this name confusing... It doesn't return a byte.
+Maybe
+    .String~byteEncoding
+    .RexxText~byteEncoding
+?
+or maybe
+    .String~transcodeToByte
+    .Text~transcodeToByte
+    ---
+    careful: there is already these private methods, would need a renaming (like  transcodeToByteEncoding)
+    .Byte_Encoding~transcodeToByte
+    .Unicode_CommonServices~transcodeToByte
+    .Byte_Encoding~transcotranscodeToUnicodedeToByte
+    .Unicode_CommonServices~transcodeToUnicode
+
+
+TODO
+Unicode.cls
+Is it needed to pass arguments? should be automatically forwarded, no?
+::method transcodeTo
+    use strict arg targetEncoding
+    -- no need to declare the named arguments, they are forwarded
+    forward message "transcodeTo" to (self~UnicodeN) arguments ( .array~of(targetEncoding) )
+
+REMEMBER
+The rules for concatenation may introduce problems.
+See descriptionForError which uses a byte string to avoid raising a concatenation error.
+
+REMEMBER
+text.cls, class EncodedString
+Update this comment when appropriate:
+The string's encoding is lost when using a string's method which returns a string
+
+
+================================================================================
 Encoded stream
 ================================================================================
 

@@ -177,7 +177,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         defaultEncoding = newEncoding
         return
     end
-    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
+    raise syntax 93.900 array("Encoding: '"newEncoding~name"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultEncoding class
@@ -202,7 +202,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         defaultInputEncoding = newEncoding
         return
     end
-    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
+    raise syntax 93.900 array("Encoding: '"newEncoding~name"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultInputEncoding class
@@ -227,7 +227,7 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
         defaultOutputEncoding = newEncoding
         return
     end
-    raise syntax 93.900 array("Encoding: '"encoding"' is not supported as default encoding. Must be compatible with ASCII")
+    raise syntax 93.900 array("Encoding: '"newEncoding~name"' is not supported as default encoding. Must be compatible with ASCII")
 
 
 ::method setDefaultOutputEncoding class
@@ -1010,6 +1010,8 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     expose encodings
     use strict arg -- none
     return encodings~map{if item~canBeDefaultEncoding then item}
+    -- Don't use ~select because it returns an array. We need a directory.
+    -- return encodings~select{item~canBeDefaultEncoding}
 
 
 ::method factory class
@@ -1064,8 +1066,8 @@ https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
     if leftEncoding == rightEncoding then return leftEncoding
 
     -- The Byte_Encoding can be always absorbed
-    if leftEncoding == .Byte_Encoding then return rightEncoding
-    if rightEncoding == .Byte_Encoding then return leftEncoding
+    if leftEncoding == .Byte_Encoding then return .Unicode~promoteByteEncoding~?(.Byte_Encoding, rightEncoding)
+    if rightEncoding == .Byte_Encoding then return .Unicode~promoteByteEncoding~?(.Byte_Encoding, leftEncoding)
 
     if leftEncoding~isUTF8, rightEncoding~isWTF8 then return .WTF8_Encoding
     if leftEncoding~isWTF8, rightEncoding~isUTF8 then return .WTF8_Encoding

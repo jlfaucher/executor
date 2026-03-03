@@ -5,6 +5,143 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 ===============================================================================
 2026 Mar 3
 
+[Encoded strings]
+
+Raise immediatly an error in case of invalid text when creating a new RexxText
+instance. The error message doesn't give all the details (several errors could
+be detected by the indexer). To let retrieve all the details, the text is stored
+as 2nd item in the "additional" entry of the condition object.
+    condition("O")~additional[2]            -- The invalid text
+    condition("O")~additional[2]~errors     -- The array of errors attached to the invalid text
+
+Example:
+    s = "FFFF"x                                         -- Invalid UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 2 errors) '[FFFF]'.
+    .oorexxshell~lastCondition~additional[2]=           -- T'[FFFF]'
+    .oorexxshell~lastCondition~additional[2]~errors==
+        an Array (shape [2], 2 items)
+         1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 255 (FFx) (codepoint > U+10FFFF).'
+         2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 255 (FFx) (codepoint > U+10FFFF).'
+
+    s = "\Xffff"                                        -- For the moment, no problem
+    t = s~unescape                                      -- Invalid UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 2 errors) '[FFFF]'.
+    .oorexxshell~lastCondition~additional[2]=           -- T'[FFFF]'
+    .oorexxshell~lastCondition~additional[2]~errors==
+        an Array (shape [2], 2 items)
+         1 : 'UTF-8 encoding: byte sequence at byte-position 1 has an invalid start byte 255 (FFx) (codepoint > U+10FFFF).'
+         2 : 'UTF-8 encoding: byte sequence at byte-position 2 has an invalid start byte 255 (FFx) (codepoint > U+10FFFF).'
+
+The immediate error in case of invalid text breaks many regression tests.
+To not invalidate these tests, it's possible to deactivate the immediate error:
+    .Unicode~immediateError = .false   -- no immediate error
+    "FFFF"x=                            -- T'[FFFF]'
+    result~description=                 -- 'UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 2 errors)'
+    .Unicode~immediateError = .true    -- immediate error
+    "FFFF"x=                            -- Invalid UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 2 errors) '[FFFF]'.
+
+Reason why I do this change:
+    When running this RosettaCode task
+    https://rosettacode.org/wiki/Compare_sorting_algorithms%27_performance#REXX
+    I had:
+               *-* Compiled method "UTF8PROC_TRANSFORM" with scope "Unicode".
+           506 *-*       string = .Unicode~utf8proc_transform(self~string, :normalization, :casefold, :lump, :stripMark, :stripIgnorable, :stripCC, :stripNA)
+          1054 *-* forward to (self~indexer)
+          1979 *-* selfNormalized = self~transform(normalization: .Unicode~defaultNormalization(:strict), lump: \strict, stripIgnorable: \strict)
+          1997 *-* forward to (self) message "compareLeftSelf" array (left, '<<', strict: .true)
+           212 *-*               if _<<L
+            23 *-*     call radix      #;
+               *-* Compiled method "CALL" with scope "Routine".
+        Error 22 /local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/utf8_common.cls line 506: Invalid character string.
+        Error 22.900: Invalid UTF-8 string.
+
+    It's because of: L= 'ffff'x;    (line 209)
+    When testing if _<<L, L can't be normalized because invalid.
+
+    Now, whith the change applied, I get:
+           649 *-*     raise syntax 23.900 array("invalid string" self~descriptionForError(short:.false))
+               *-* Compiled method "NEW" with scope "RexxText".
+           190 *-*       myText = .RexxText~new(self, textEncoding) -- store the RexxText counterpart created from itself with specified encoding
+           209 *-*       L= 'ffff'x;
+            23 *-*     call radix      #;
+               *-* Compiled method "CALL" with scope "Routine".
+        Error 23 /local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls line 649: Invalid data string.
+        Error 23.900: Invalid UTF-8 not-ASCII (2 characters, 2 codepoints, 2 bytes, 2 errors) '[FFFF]'.
+
+    It's more easy to spot the problem line 209.
+
+
+[Encoded strings]
+
+Byte_Encoding is now the privileged resulting encoding when concatenating or
+comparing with it.
+
+Reason: with the immediate error, the Byte_Encoding is the only encoding that
+can work with invalid strings.
+
+Example:
+    "Père" "Noël"~byte=     -- T'Père Noël'
+    result~encoding=        -- (The Byte_Encoding class)
+    "Père"~byte "Noël"=     -- T'Père Noël'
+    result~encoding=        -- (The Byte_Encoding class)
+
+This new rule breaks many regression tests.
+To avoid invalidating these tests, it is possible to disable the privileged
+encoding status of Byte_Encoding.
+    .Unicode~promoteByteEncoding = .false
+
+Example:
+    .Unicode~promoteByteEncoding = .false
+    "Père" "Noël"~byte=     -- T'Père Noël'
+    result~encoding=        -- (The UTF8_Encoding class)
+    "Père"~byte "Noël"=     -- T'Père Noël'
+    result~encoding=        -- (The UTF8_Encoding class)
+    .Unicode~promoteByteEncoding = .true
+
+
+[Encoded strings]
+
+Only ASCII compatible encodings can be used as package encoding.
+
+Reason:
+The ooRexx interpreter supports only ASCII compatible encodings.
+It doesn't support a source file encoded in UTF-16 or UTF-32.
+
+Example:
+    .context~package~encoding = "utf16be"   -- Encoding: 'UTF-16BE' is not supported as package encoding. Must be compatible with ASCII
+
+
+[Encoded strings]
+
+Unescape:
+Workaround to avoid losing the encoding of intermediate strings.
+
+
+[Encoded strings]
+
+.unicode~characters returns a list of Unicode characters sorted by codepoint.
+
+Example:
+    .unicode~characters("*rex*")==
+        an Array (shape [15], 15 items)
+         1  : ( "˥"   U+02E5 Sk 1 "MODIFIER LETTER EXTRA-HIGH TONE BAR" )
+         2  : ( "˩"   U+02E9 Sk 1 "MODIFIER LETTER EXTRA-LOW TONE BAR" )
+         3  : ( "ꎅ"  U+A385 Lo 2 "YI SYLLABLE RREX" )
+         4  : ( "ꎜ"  U+A39C Lo 2 "YI SYLLABLE NREX" )
+         5  : ( "ꏑ"  U+A3D1 Lo 2 "YI SYLLABLE REX" )
+         6  : ( "꜈"   U+A708 Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED TONE BAR" )
+         7  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
+         8  : ( "꜍"   U+A70D Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR" )
+         9  : ( "꜑"   U+A711 Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR" )
+         10 : ( "꜒"   U+A712 Sk 1 "MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR" )
+         11 : ( "꜖"   U+A716 Sk 1 "MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR" )
+         12 : ( "𖩿"   U+16A7F Lo 1 "TANGSA LETTER EX" )
+         13 : ( "𝍊"  U+1D34A So 2 "TETRAGRAM FOR EXHAUSTION" )
+         14 : ( "🖕"  U+1F595 So 2 "REVERSED HAND WITH MIDDLE FINGER EXTENDED" )
+         15 : ( "🦖"  U+1F996 So 2 "T-REX" )
+
+
+===============================================================================
+2026 Mar 3
+
 [utf8proc]
 
 Install version 2.11.3 of utf8proc with Unicode 17 support.
