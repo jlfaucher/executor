@@ -24,6 +24,8 @@ help:
 	@echo "make html"
 	@echo "make txt"
 	@echo "make force"
+	@echo "----------"
+	@for d in $(demoFiles); do echo "make" $$d; done
 
 all: cast html txt
 
@@ -39,11 +41,18 @@ txt:
 force:
 	@for d in $(demoFiles); do (touch $$d.rex); done
 
+$(demoFiles) :
+	@# Force execution
+	touch $@.rex
+	make $@.cast
+	make $@-output.html
+	make $@-output.txt
+
 %.cast : %.rex
 	-asciinema rec -c "bash -i -c 'cat $? | oorexxshell --showInitialization'" --overwrite $@
 
 %-output.html : %.cast
-	asciinema cat $? | aha --title "$@" > $@
+	asciinema convert -f raw $? - | aha --title "$@" > $@
 
 # 1) Remember! $ has special meaning in makefiles. If you want to use it in a
 #    shell command, you have to double it.
@@ -52,7 +61,7 @@ force:
 # 3) See below for a detailled description of the perl regex
 #    Used to remove the escape characters for colors.
 %-output.txt : %.cast
-	asciinema cat $? | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' > $@
+	asciinema convert -f raw $? - | perl -pe 's/\e([^\[\]]|\[.*?[a-zA-Z]|\].*?\a)//g' > $@
 
 # No longer used because it's a re-execution instead of a simple cat
 # %-output.txt : %.rex

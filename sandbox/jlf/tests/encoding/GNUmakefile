@@ -80,7 +80,7 @@ $(uscriptsFiles) :
 
 .PHONY: always
 %.output.html : %.cast always
-	asciinema cat $< | aha --title "$@" > $@
+	asciinema convert -f raw $< - | aha --title "$@" > $@
 
 clean:
 	@for f in $(testFiles); do rm -f $$f.output.txt; done

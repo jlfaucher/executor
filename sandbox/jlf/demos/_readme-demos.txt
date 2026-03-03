@@ -8,6 +8,7 @@ Current demos:
 executor-demo-array.rex
 executor-demo-classic_rexx.rex
 executor-demo-extensions.rex
+executor-demo-text-compatibility-auto-conv.rex
 executor-demo-text-compatibility.rex
 executor-demo-text-internal_checks.rex
 executor-demo-text-unicode.rex
@@ -24,8 +25,8 @@ etc...
 
 To capture the output of a demo in html format, with colors:
 cd demos
-asciinema cat executor-demo-array.cast | aha > executor-demo-array-output.html
-asciinema cat executor-demo-classic_rexx.cast | aha > executor-demo-classic_rexx-output.html
+asciinema convert -f raw executor-demo-array.cast - | aha > executor-demo-array-output.html
+asciinema convert -f raw executor-demo-classic_rexx.cast - | aha > executor-demo-classic_rexx-output.html
 etc...
 
 To capture the output of a demo in text format:
