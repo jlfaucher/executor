@@ -8,6 +8,12 @@ The Byte_Encoding can be always absorbed.
 
 */
 
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
+
 -- Test all the combinations of encodings.
 -- For each combination, test ASCII,ASCII, not-ASCII,ASCII and ASCII,not-ASCII.
 errors = .array~new

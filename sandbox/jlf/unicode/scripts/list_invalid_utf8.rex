@@ -24,6 +24,8 @@ the following byte values are disallowed in UTF-8:
 C0–C1, F5–FF.
 */
 
+.Unicode~immediateError = .false   -- no immediate error
+
 counter = 0
 
 say "----------"

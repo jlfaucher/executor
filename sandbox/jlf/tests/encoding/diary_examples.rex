@@ -6,6 +6,12 @@ call loadUnicodeCharacterNames
 .Unicode~memorizeTranscodings = .false
 .Unicode~memorizeTransformations = .false
 
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
+
 
 -- ===============================================================================
 -- 2024 Jul 02
@@ -82,7 +88,7 @@ New methods:
     setEncoding
 Examples:
 */
-block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s2~class s2~encoding}
 block~hasEncoding=                                  -- 1
 block~encoding=                                     -- (The UTF8_Encoding class)
 block~()
@@ -93,7 +99,7 @@ block~()
 */
 
 -- Changing the block encoding
-block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s2~class s2~encoding}
 oldEncoding = block~setEncoding("byte")
 oldEncoding=                                        -- (The UTF8_Encoding class)
 block~hasEncoding=                                  -- 1

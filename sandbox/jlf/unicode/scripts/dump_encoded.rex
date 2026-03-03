@@ -5,6 +5,8 @@ The lines of the file are dumped as-is, in their native encoding. The non-printa
 The rest of the output is in byte encoding (description, hexadecimal characters, errors).
 */
 
+.Unicode~immediateError = .false   -- no immediate error
+
 cmdargs = .local~syscargs
 if cmdargs~size == 0  then do
     call sayUsage

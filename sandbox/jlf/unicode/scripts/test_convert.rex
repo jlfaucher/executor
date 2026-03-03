@@ -3,6 +3,12 @@ Usage:
 rexx test_convert.rex > test_convert-output.txt
 */
 
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
+
 s = "hello"
 t_BYTE    = s~text("BYTE"); call all_conversions t_BYTE
 

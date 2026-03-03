@@ -2,6 +2,8 @@
 Checks if the specified files are correctly encoded
 */
 
+.Unicode~immediateError = .false   -- no immediate error
+
 cmdargs = .local~syscargs
 if cmdargs~size == 0  then do
     call sayUsage

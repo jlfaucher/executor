@@ -7,6 +7,11 @@ demo on
 -- .Unicode~loadDerivedName(/*action*/ "load")=    -- load all the Unicode characters
 -- .Unicode~loadNameAliases(/*action*/ "load")=    -- load the name aliases
 
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
 
 --------------------------------------------------------------------------------
 -- Supported encodings

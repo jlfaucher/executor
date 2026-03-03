@@ -3,6 +3,11 @@ demo on
 
 call loadUnicodeCharacterNames
 
+-- These demos were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false
+.Unicode~promoteByteEncoding = .false
 
 ----------------------------------------------------------------
 -- Text encoding - Compatibility with String

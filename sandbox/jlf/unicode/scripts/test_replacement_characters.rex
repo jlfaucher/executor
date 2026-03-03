@@ -3,6 +3,12 @@ Usage:
 rexx test_replacement_characters.rex > test_replacement_characters-output.txt
 */
 
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
+
 counter = 0
 
 /*

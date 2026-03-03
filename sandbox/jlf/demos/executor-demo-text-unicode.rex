@@ -1,18 +1,22 @@
 prompt off directory
 demo on
 
+-- These demos were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+.Unicode~immediateError = .false   -- no immediate error
+.Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
+
 --------------------
 -- Unicode libraries
 --------------------
 
 /*
-The prototype is currently using 2 libraries:
+The prototype is currently using 1 library:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
-- uni-algo    https://github.com/uni-algo/uni-algo
 
 Current usage:
 - utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
-- uni-algo is used for full upper/lower/title.
 */
 sleep no prompt
 
@@ -22,7 +26,7 @@ sleep no prompt
 ---------------------
 
 -- Unicode version
-.unicode~version=               -- 15.1.0
+.unicode~version=               -- 17.0.0
 
 -- Unicode character names are not loaded by default
 call loadUnicodeCharacterNames
