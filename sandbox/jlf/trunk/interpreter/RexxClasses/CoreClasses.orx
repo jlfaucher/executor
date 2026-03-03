@@ -529,8 +529,18 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
     if arg() > 2 then raise syntax 93.902 array(2)
     whenTrueSpecified = arg(1, "e") -- whenTrue explicitely passed ?
     whenFalseSpecified = arg(2, "e") -- whenFalse explicitely passed ?
+
+    -- if whenTrue is a RexxText then the "?EVALEXPRESSION" message is sent to
+    -- self~text. A RexxText object does not have an "?EVALEXPRESSION" method,
+    -- hence the error Object does not understand message "?EVALEXPRESSION".
+    -- The forward instruction must be used to avoid a dynamic target here.
+    /*
     if self then self~?evalExpression( whenTrue, whenTrueSpecified )
             else self~?evalExpression( whenFalse, whenFalseSpecified )
+    */
+    if self then forward message "?evalExpression" array ( whenTrue, whenTrueSpecified )
+            else forward message "?evalExpression" array ( whenFalse, whenFalseSpecified )
+
     if var("result") then return result
 
 ::method string_ifFalse unguarded
@@ -539,8 +549,18 @@ num=0; (num==0)~~ifTrue{say "zero"}~ifFalse{say "not zero"}
     if arg() > 2 then raise syntax 93.902 array(2)
     whenFalseSpecified = arg(1, "e") -- whenFalse explicitely passed ?
     whenTrueSpecified = arg(2, "e") -- whenTrue explicitely passed ?
+
+    -- if whenTrue is a RexxText then the "?EVALEXPRESSION" message is sent to
+    -- self~text. A RexxText object does not have an "?EVALEXPRESSION" method,
+    -- hence the error Object does not understand message "?EVALEXPRESSION".
+    -- The forward instruction must be used to avoid a dynamic target here.
+    /*
     if self then self~?evalExpression( whenTrue, whenTrueSpecified )
             else self~?evalExpression( whenFalse, whenFalseSpecified )
+    */
+    if self then forward message "?evalExpression" array ( whenTrue, whenTrueSpecified )
+            else forward message "?evalExpression" array ( whenFalse, whenFalseSpecified )
+
     if var("result") then return result
 
 -- Was a private routine, but apparently rexx.img supports public routines only.
