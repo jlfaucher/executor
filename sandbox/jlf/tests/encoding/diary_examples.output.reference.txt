@@ -1,13 +1,19 @@
 
 ooRexx> call loadUnicodeCharacterNames
-Load the Unicode character names 15.1.0 
-............................................
-Total loaded character names: 149813
-Total character name aliases: 473
+Load the Unicode character names 17.0.0 
+..............................................
+Total loaded character names: 159801
+Total character name aliases: 481
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 
 ooRexx> .Unicode~memorizeTranscodings = .false
 ooRexx> .Unicode~memorizeTransformations = .false
+
+-- These regression tests were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+ooRexx> .Unicode~immediateError = .false   -- no immediate error
+ooRexx> .Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
 
 
 -- ===============================================================================
@@ -54,10 +60,10 @@ ooRexx> .encoding~defaultEncoding = "utf8"                          -- ok
 ooRexx> .encoding~defaultEncoding = "wtf8"                          -- ok
 ooRexx> .encoding~defaultEncoding = "unicode8"                      -- ok
 ooRexx> .encoding~defaultEncoding = "utf16"                         -- Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII
-Encoding: 'utf16' is not supported as default encoding. Must be compatible with ASCII.
+Encoding: 'UTF-16BE' is not supported as default encoding. Must be compatible with ASCII.
 Error code= 93.900
 ooRexx> .encoding~defaultEncoding = "utf32"                         -- Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII
-Encoding: 'utf32' is not supported as default encoding. Must be compatible with ASCII.
+Encoding: 'UTF-32BE' is not supported as default encoding. Must be compatible with ASCII.
 Error code= 93.900
 ooRexx> .encoding~setDefaultEncoding(oldEncoding)=                  -- (The Unicode8_Encoding class)    last default encoding successfully assigned
 (The Unicode8_Encoding class)
@@ -147,7 +153,7 @@ New methods:
     setEncoding
 Examples:
 */
-ooRexx> block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+ooRexx> block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s2~class s2~encoding}
 ooRexx> block~hasEncoding=                                  -- 1
  1
 ooRexx> block~encoding=                                     -- (The UTF8_Encoding class)
@@ -155,7 +161,7 @@ ooRexx> block~encoding=                                     -- (The UTF8_Encodin
 ooRexx> block~()
 The UTF8_Encoding class
 The RexxText class The UTF8_Encoding class
-The String class The UTF8_Encoding class
+The RexxText class The UTF8_Encoding class
 /*
     The UTF8_Encoding class                         -- encoding of the definition package
     The RexxText class The UTF8_Encoding class      -- encoding of the definition package (string literal)
@@ -163,7 +169,7 @@ The String class The UTF8_Encoding class
 */
 
 -- Changing the block encoding
-ooRexx> block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s~class s~encoding}
+ooRexx> block = {say .context~package~encoding; s1 = "Père Noël"; say s1~class s1~encoding; s2 = "Père" "Noël"; say s2~class s2~encoding}
 ooRexx> oldEncoding = block~setEncoding("byte")
 ooRexx> oldEncoding=                                        -- (The UTF8_Encoding class)
 (The UTF8_Encoding class)
@@ -212,35 +218,25 @@ Examples:
 */
 ooRexx> system rexx string_literal_encoding/package_main.rex
 prolog of package_byte.cls     The Byte_Encoding class
-prolog of package_cp1252.cls   The WINDOWS1252_Encoding class
-prolog of package_utf8.cls     The UTF8_Encoding class
-prolog of package_utf16be.cls  The UTF16BE_Encoding class
-prolog of package_utf32be.cls  The UTF32BE_Encoding class
-
 .package_byte~m_name           package_byte                   String                         The Byte_Encoding class
 .package_byte~m_noel           Noël                          String                         The Byte_Encoding class
 .package_byte~m_noel_x         Noël                          String                         The Byte_Encoding class
 .package_byte~m_noel_x2c       Noël                          String                         The UTF8_Encoding class
 
+prolog of package_cp1252.cls   The WINDOWS1252_Encoding class
 .package_cp1252~m_name         package_cp1252                 String                         The WINDOWS1252_Encoding class
-.package_cp1252~m_noel         Noël                          String                         The WINDOWS1252_Encoding class
+.package_cp1252~m_noel         No�l                           String                         The WINDOWS1252_Encoding class
 .package_cp1252~m_noel_x       Noël                          String                         The WINDOWS1252_Encoding class
 .package_cp1252~m_noel_x2c     Noël                          String                         The UTF8_Encoding class
 
+prolog of package_utf8.cls     The UTF8_Encoding class
 .package_utf8~m_name           package_utf8                   String                         The UTF8_Encoding class
 .package_utf8~m_noel           Noël                           RexxText                       The UTF8_Encoding class
 .package_utf8~m_noel_x         Noël                           RexxText                       The UTF8_Encoding class
 .package_utf8~m_noel_x2c       Noël                          String                         The UTF8_Encoding class
 
-.package_utf16be~m_name        package_utf16be                String                         The UTF16BE_Encoding class
-.package_utf16be~m_noel        乯쎫氀                          � RexxText                       The UTF16BE_Encoding class
-.package_utf16be~m_noel_x      Noël                           RexxText                       The UTF16BE_Encoding class
-.package_utf16be~m_noel_x2c     N o � l                       String                         The UTF8_Encoding class
-
-.package_utf32be~m_name        package_utf32be                String                         The UTF32BE_Encoding class
-.package_utf32be~m_noel        ������������������������������ RexxText                       The UTF32BE_Encoding class
-.package_utf32be~m_noel_x      Noël                           RexxText                       The UTF32BE_Encoding class
-.package_utf32be~m_noel_x2c       N   o   �   l               String                         The UTF8_Encoding class
+loadPackage KO for package_utf16be.cls: Encoding: 'UTF-16BE' is not supported as package encoding. Must be compatible with ASCII.
+loadPackage KO for package_utf32be.cls: Encoding: 'UTF-32BE' is not supported as package encoding. Must be compatible with ASCII.
 
 
 /*
@@ -1433,7 +1429,7 @@ ooRexx> buffer~description=                                                     
 
 -- Examples of invalid U+ string/text
 ooRexx> "U+004E u+006F U+00EB U+006C U+1F936 U+1F385"~text~utf16~u2c=           -- UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
-UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] ...' is not compatible with an U+ string.
+UTF-16BE '[00]U[00]+[00]0[00]0[00]4[00]E[00] [00]u[00]+[00]0...' is not compatible with an U+ string.
 Error code= 23.900
 ooRexx> "A+004E"~u2c=                                                           -- Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'
 Expecting U+ or u+ followed by 4..6 hex digits, got 'A+004E'.
@@ -5720,20 +5716,20 @@ ooRexx> .unicode~characters("/father", wholeString:0, trace:1, prefix:"> ")
 -- For convenience, add an optional parameter 'filter' to the method .unicode~characters
 ooRexx>     .unicode~characters("*rex*")==
 an Array (shape [15], 15 items)
- 1  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
+ 1  : ( "˥"   U+02E5 Sk 1 "MODIFIER LETTER EXTRA-HIGH TONE BAR" )
  2  : ( "˩"   U+02E9 Sk 1 "MODIFIER LETTER EXTRA-LOW TONE BAR" )
- 3  : ( "꜍"   U+A70D Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR" )
- 4  : ( "꜑"   U+A711 Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR" )
- 5  : ( "˥"   U+02E5 Sk 1 "MODIFIER LETTER EXTRA-HIGH TONE BAR" )
+ 3  : ( "ꎅ"  U+A385 Lo 2 "YI SYLLABLE RREX" )
+ 4  : ( "ꎜ"  U+A39C Lo 2 "YI SYLLABLE NREX" )
+ 5  : ( "ꏑ"  U+A3D1 Lo 2 "YI SYLLABLE REX" )
  6  : ( "꜈"   U+A708 Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED TONE BAR" )
- 7  : ( "🖕"  U+1F595 So 2 "REVERSED HAND WITH MIDDLE FINGER EXTENDED" )
- 8  : ( "ꎅ"  U+A385 Lo 2 "YI SYLLABLE RREX" )
- 9  : ( "꜒"   U+A712 Sk 1 "MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR" )
- 10 : ( "ꏑ"  U+A3D1 Lo 2 "YI SYLLABLE REX" )
- 11 : ( "ꎜ"  U+A39C Lo 2 "YI SYLLABLE NREX" )
- 12 : ( "꜖"   U+A716 Sk 1 "MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR" )
- 13 : ( "𖩿"   U+16A7F Lo 1 "TANGSA LETTER EX" )
- 14 : ( "𝍊"   U+1D34A So 1 "TETRAGRAM FOR EXHAUSTION" )
+ 7  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
+ 8  : ( "꜍"   U+A70D Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR" )
+ 9  : ( "꜑"   U+A711 Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR" )
+ 10 : ( "꜒"   U+A712 Sk 1 "MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR" )
+ 11 : ( "꜖"   U+A716 Sk 1 "MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR" )
+ 12 : ( "𖩿"   U+16A7F Lo 1 "TANGSA LETTER EX" )
+ 13 : ( "𝍊"  U+1D34A So 2 "TETRAGRAM FOR EXHAUSTION" )
+ 14 : ( "🖕"  U+1F595 So 2 "REVERSED HAND WITH MIDDLE FINGER EXTENDED" )
  15 : ( "🦖"  U+1F996 So 2 "T-REX" )
 -- is equivalent to
 ooRexx>     matcher = "*rex*"~matcher; .unicode~characters~select{expose matcher; matcher~(item~name)}==
@@ -6797,7 +6793,7 @@ an UnicodeCharacterSupplier
  658  : ( "ʒ"   U+0292 Ll 1 "LATIN SMALL LETTER EZH" )
  659  : ( "ʓ"   U+0293 Ll 1 "LATIN SMALL LETTER EZH WITH CURL" )
  660  : ( "ʔ"   U+0294 Lo 1 "LATIN LETTER GLOTTAL STOP" )
- 661  : ( "ʕ"   U+0295 Ll 1 "LATIN LETTER PHARYNGEAL VOICED FRICATIVE" )
+ 661  : ( "ʕ"   U+0295 Lo 1 "LATIN LETTER PHARYNGEAL VOICED FRICATIVE" )
  662  : ( "ʖ"   U+0296 Ll 1 "LATIN LETTER INVERTED GLOTTAL STOP" )
  663  : ( "ʗ"   U+0297 Ll 1 "LATIN LETTER STRETCHED C" )
  664  : ( "ʘ"   U+0298 Ll 1 "LATIN LETTER BILABIAL CLICK" )
@@ -7152,37 +7148,39 @@ an UnicodeCharacterIntervalSupplier
  2  : (U+4E00..U+9FFF "CJK UNIFIED IDEOGRAPH-*" 20991 characters)
  3  : (U+F900..U+FA6D "CJK COMPATIBILITY IDEOGRAPH-*" 365 characters)
  4  : (U+FA70..U+FAD9 "CJK COMPATIBILITY IDEOGRAPH-*" 105 characters)
- 5  : (U+17000..U+187F7 "TANGUT IDEOGRAPH-*" 6135 characters)
- 6  : (U+18B00..U+18CD5 "KHITAN SMALL SCRIPT CHARACTER-*" 469 characters)
- 7  : (U+18D00..U+18D08 "TANGUT IDEOGRAPH-*" 8 characters)
- 8  : (U+1B170..U+1B2FB "NUSHU CHARACTER-*" 395 characters)
- 9  : (U+20000..U+2A6DF "CJK UNIFIED IDEOGRAPH-*" 42719 characters)
- 10 : (U+2A700..U+2B739 "CJK UNIFIED IDEOGRAPH-*" 4153 characters)
- 11 : (U+2B740..U+2B81D "CJK UNIFIED IDEOGRAPH-*" 221 characters)
- 12 : (U+2B820..U+2CEA1 "CJK UNIFIED IDEOGRAPH-*" 5761 characters)
+ 5  : (U+13460..U+143FA "EGYPTIAN HIEROGLYPH-*" 3994 characters)
+ 6  : (U+17000..U+187FF "TANGUT IDEOGRAPH-*" 6143 characters)
+ 7  : (U+18B00..U+18CD5 "KHITAN SMALL SCRIPT CHARACTER-*" 469 characters)
+ 8  : (U+18D00..U+18D1E "TANGUT IDEOGRAPH-*" 30 characters)
+ 9  : (U+1B170..U+1B2FB "NUSHU CHARACTER-*" 395 characters)
+ 10 : (U+20000..U+2A6DF "CJK UNIFIED IDEOGRAPH-*" 42719 characters)
+ 11 : (U+2A700..U+2B81D "CJK UNIFIED IDEOGRAPH-*" 4381 characters)
+ 12 : (U+2B820..U+2CEAD "CJK UNIFIED IDEOGRAPH-*" 5773 characters)
  13 : (U+2CEB0..U+2EBE0 "CJK UNIFIED IDEOGRAPH-*" 7472 characters)
  14 : (U+2EBF0..U+2EE5D "CJK UNIFIED IDEOGRAPH-*" 621 characters)
  15 : (U+2F800..U+2FA1D "CJK COMPATIBILITY IDEOGRAPH-*" 541 characters)
  16 : (U+30000..U+3134A "CJK UNIFIED IDEOGRAPH-*" 4938 characters)
- 17 : (U+31350..U+323AF "CJK UNIFIED IDEOGRAPH-*" 4191 characters)
+ 17 : (U+31350..U+33479 "CJK UNIFIED IDEOGRAPH-*" 8489 characters)
 
 
 -- Informations about Unicode:
 -- Remove dataDirectory because the value is different between Windows and Macos/Linux
 ooRexx> .Unicode~informations~~remove("dataDirectory")=
-a Directory (12 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44189 size=918000)
+a Directory (14 items)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 114034 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=45836 size=918000)
+'immediateError'                     :  0
 'maxCodepoint'                       :  1114111
 'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
+'promoteByteEncoding'                :  0
 'systemIsLittleEndian'               :  1
-'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149813
-'totalIntervalCharacters'            :  105693
-'totalIntervalCharactersNotExpanded' :  105693
+'totalCharacterNameAliases'          :  481
+'totalCharactersLoaded'              :  159801
+'totalIntervalCharacters'            :  114034
+'totalIntervalCharactersNotExpanded' :  114034
 'unckeckedConversionToString'        :  1
-'version'                            : '15.1.0'
+'version'                            : '17.0.0'
 
 
 -- ===============================================================================
@@ -7888,7 +7886,7 @@ an UnicodeCharacterSupplier
  658  : ( "ʒ"   U+0292 Ll 1 "LATIN SMALL LETTER EZH" )
  659  : ( "ʓ"   U+0293 Ll 1 "LATIN SMALL LETTER EZH WITH CURL" )
  660  : ( "ʔ"   U+0294 Lo 1 "LATIN LETTER GLOTTAL STOP" )
- 661  : ( "ʕ"   U+0295 Ll 1 "LATIN LETTER PHARYNGEAL VOICED FRICATIVE" )
+ 661  : ( "ʕ"   U+0295 Lo 1 "LATIN LETTER PHARYNGEAL VOICED FRICATIVE" )
  662  : ( "ʖ"   U+0296 Ll 1 "LATIN LETTER INVERTED GLOTTAL STOP" )
  663  : ( "ʗ"   U+0297 Ll 1 "LATIN LETTER STRETCHED C" )
  664  : ( "ʘ"   U+0298 Ll 1 "LATIN LETTER BILABIAL CLICK" )

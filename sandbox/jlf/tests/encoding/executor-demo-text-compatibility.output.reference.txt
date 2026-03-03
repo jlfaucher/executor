@@ -1,11 +1,17 @@
 
 ooRexx> call loadUnicodeCharacterNames
-Load the Unicode character names 15.1.0 
-............................................
-Total loaded character names: 149813
-Total character name aliases: 473
+Load the Unicode character names 17.0.0 
+..............................................
+Total loaded character names: 159801
+Total character name aliases: 481
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 
+
+-- These demos were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+ooRexx> .Unicode~immediateError = .false   -- no immediate error
+ooRexx> .Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
 
 --------------------------------------------
 -- Text encoding - Compatibility with String
@@ -119,7 +125,7 @@ ooRexx> "not a boolean value"~text~?("true"~text, "false"~text)=
 Logical value must be exactly "0" or "1"; found "not a boolean value".
 Error code= 34.901
 ooRexx> "not a boolean value 🤔"~text~?("true"~text, "false"~text)=
-UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
+UTF-8 not-ASCII 'not a bool...' is not compatible with a Rexx logical value.
 Error code= 23.900
 ooRexx> "0"~text~?("true 🤔"~text, "false 🤔"~text)=
 T'false 🤔'
@@ -744,7 +750,7 @@ ooRexx> "not an hexadecimal value"~text~x2c
 Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found "n".
 Error code= 93.933
 ooRexx> "not an hexadecimal value 🤔"~text~x2c
-UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
+UTF-8 not-ASCII 'not an hex...' is not compatible with a Rexx hexadecimal value.
 Error code= 23.900
 
 
