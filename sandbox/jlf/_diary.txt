@@ -3,6 +3,19 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Mar 3
+
+[utf8proc]
+
+Install version 2.11.3 of utf8proc with Unicode 17 support.
+
+
+[Unicode]
+
+Install the data files of Unicode 17.0.0
+
+
+===============================================================================
 2026 Mar 1
 
 [String]
@@ -767,6 +780,7 @@ Examples:
     "41"~x2c~encoding=          -- (The UTF8_Encoding class)    This is the default encoding
 
 
+(interned strings)
 For the proper management of the encoding of string literals, the globalStrings
 directory is no longer used by the parser when building an image.
 Now, each source (package) manages its own directory, even when building an image.

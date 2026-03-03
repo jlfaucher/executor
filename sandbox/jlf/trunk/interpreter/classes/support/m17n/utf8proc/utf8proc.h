@@ -71,15 +71,15 @@
 /** The MAJOR version number (increased when backwards API compatibility is broken). */
 #define UTF8PROC_VERSION_MAJOR 2
 /** The MINOR version number (increased when new functionality is added in a backwards-compatible manner). */
-#define UTF8PROC_VERSION_MINOR 9
+#define UTF8PROC_VERSION_MINOR 11
 /** The PATCH version (increased for fixes that do not change the API). */
-#define UTF8PROC_VERSION_PATCH 0
+#define UTF8PROC_VERSION_PATCH 3
 /** @} */
 
 #include <stdlib.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1800
-// MSVC prior to 2013 lacked stdbool.h and inttypes.h
+// MSVC prior to 2013 lacked stdbool.h and stdint.h
 typedef signed char utf8proc_int8_t;
 typedef unsigned char utf8proc_uint8_t;
 typedef short utf8proc_int16_t;
@@ -107,7 +107,7 @@ typedef bool utf8proc_bool;
 #else
 #  include <stddef.h>
 #  include <stdbool.h>
-#  include <inttypes.h>
+#  include <stdint.h>
 typedef int8_t utf8proc_int8_t;
 typedef uint8_t utf8proc_uint8_t;
 typedef int16_t utf8proc_int16_t;
@@ -121,7 +121,9 @@ typedef bool utf8proc_bool;
 #include <limits.h>
 
 #ifdef UTF8PROC_STATIC
-#  define UTF8PROC_DLLEXPORT
+#  ifndef UTF8PROC_DLLEXPORT
+#    define UTF8PROC_DLLEXPORT
+#  endif
 #else
 #  ifdef _WIN32
 #    ifdef UTF8PROC_EXPORTS
@@ -150,7 +152,7 @@ typedef enum {
   UTF8PROC_STABLE    = (1<<1),
   /** Compatibility decomposition (i.e. formatting information is lost). */
   UTF8PROC_COMPAT    = (1<<2),
-  /** Return a result with decomposed characters. */
+  /** Return a result with composed characters. */
   UTF8PROC_COMPOSE   = (1<<3),
   /** Return a result with decomposed characters. */
   UTF8PROC_DECOMPOSE = (1<<4),
@@ -255,7 +257,43 @@ typedef struct utf8proc_property_struct {
   utf8proc_uint16_t uppercase_seqindex;
   utf8proc_uint16_t lowercase_seqindex;
   utf8proc_uint16_t titlecase_seqindex;
-  utf8proc_uint16_t comb_index;
+  /**
+   * Character combining table.
+   *
+   * The character combining table is formally indexed by two
+   * characters, the first and second character that might form a
+   * combining pair. The table entry then contains the combined
+   * character. Most character pairs cannot be combined. There are
+   * about 1,000 characters that can be the first character in a
+   * combining pair, and for most, there are only a handful for
+   * possible second characters.
+   *
+   * The combining table is stored as sparse matrix in the CSR
+   * (compressed sparse row) format. That is, it is stored as two
+   * arrays, `utf8proc_uint32_t utf8proc_combinations_second[]` and
+   * `utf8proc_uint32_t utf8proc_combinations_combined[]`. These
+   * contain the second combining characters and the combined
+   * character of every combining pair.
+   *
+   * - `comb_index`: Index into the combining table if this character
+   *   is the first character in a combining pair, else 0x3ff
+   *
+   * - `comb_length`: Number of table entries for this first character
+   *
+   * - `comb_is_second`: As optimization we also record whether this
+   *   character is the second combining character in any pair. If
+   *   not, we can skip the table lookup.
+   *
+   * A table lookup starts from a given character pair. It first
+   * checks whether the first character is stored in the table
+   * (checking whether the index is 0x3ff) and whether the second
+   * index is stored in the table (looking at `comb_is_second`). If
+   * so, the `comb_length` table entries will be checked sequentially
+   * for a match.
+   */
+  utf8proc_uint16_t comb_index:10;
+  utf8proc_uint16_t comb_length:5;
+  utf8proc_uint16_t comb_issecond:1;
   unsigned bidi_mirrored:1;
   unsigned comp_exclusion:1;
   /**
@@ -268,7 +306,9 @@ typedef struct utf8proc_property_struct {
   unsigned control_boundary:1;
   /** The width of the codepoint. */
   unsigned charwidth:2;
-  unsigned pad:2;
+  /** East Asian width class A */
+  unsigned ambiguous_width:1;
+  unsigned pad:1;
   /**
    * Boundclass.
    * @see utf8proc_boundclass_t.
@@ -479,7 +519,7 @@ UTF8PROC_DLLEXPORT const utf8proc_property_t *utf8proc_get_property(utf8proc_int
  * @param dst the destination buffer.
  * @param bufsize the size of the destination buffer.
  * @param options one or more of the following flags:
- * - @ref UTF8PROC_REJECTNA  - return an error `codepoint` is unassigned
+ * - @ref UTF8PROC_REJECTNA  - return an error if `codepoint` is unassigned
  * - @ref UTF8PROC_IGNORE    - strip "default ignorable" codepoints
  * - @ref UTF8PROC_CASEFOLD  - apply Unicode casefolding
  * - @ref UTF8PROC_COMPAT    - replace certain codepoints with their
@@ -493,6 +533,11 @@ UTF8PROC_DLLEXPORT const utf8proc_property_t *utf8proc_get_property(utf8proc_int
  * the previous codepoint's (boundclass + indic_conjunct_break << 1) if the @ref UTF8PROC_CHARBOUND
  * option is used.  If the string is being processed in order, this can be initialized to 0 for
  * the beginning of the string, and is thereafter updated automatically.  Otherwise, this parameter is ignored.
+ *
+ * In the current version of utf8proc, the maximum destination buffer with the @ref UTF8PROC_DECOMPOSE
+ * option is 4 elements (or double that with @ref UTF8PROC_CHARBOUND), so this is a good default size.
+ * However, this may increase in future Unicode versions, so you should always check the return value
+ * as described below.
  *
  * @return
  * In case of success, the number of codepoints written is returned; in case
@@ -668,6 +713,14 @@ UTF8PROC_DLLEXPORT int utf8proc_isupper(utf8proc_int32_t c);
 UTF8PROC_DLLEXPORT int utf8proc_charwidth(utf8proc_int32_t codepoint);
 
 /**
+ * Given a codepoint, return whether it has East Asian width class A (Ambiguous)
+ *
+ * Codepoints with this property are considered to have charwidth 1 (if they are printable)
+ * but some East Asian fonts render them as double width.
+ */
+UTF8PROC_DLLEXPORT utf8proc_bool utf8proc_charwidth_ambiguous(utf8proc_int32_t codepoint);
+
+/**
  * Return the Unicode category for the codepoint (one of the
  * @ref utf8proc_category_t constants.)
  */
@@ -697,6 +750,10 @@ UTF8PROC_DLLEXPORT const char *utf8proc_category_string(utf8proc_int32_t codepoi
  *
  * @note The memory of the new UTF-8 string will have been allocated
  * with `malloc`, and should therefore be deallocated with `free`.
+ *
+ * @note `utf8proc_map` simply calls `utf8proc_decompose` followed by `utf8proc_reencode`,
+ * and applications requiring greater control over memory allocation should instead call
+ * those two functions directly.
  */
 UTF8PROC_DLLEXPORT utf8proc_ssize_t utf8proc_map(
   const utf8proc_uint8_t *str, utf8proc_ssize_t strlen, utf8proc_uint8_t **dstptr, utf8proc_option_t options
