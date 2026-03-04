@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-Input queue name: Sade9Q600001c5ebe0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+Input queue name: SbccdQ6000019d5d40
 
 --------------------
 -- Array programming

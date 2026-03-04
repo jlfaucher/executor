@@ -31,16 +31,21 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Saf22Q600001c5ef20
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb3abQ6000019d5ba0
 </span>
 ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">call loadUnicodeCharacterNames</span>
-<span style="font-weight:bold;color:green;">Load the Unicode character names 15.1.0 
-</span>............................................<span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">Total loaded character names: 149813
-</span><span style="font-weight:bold;color:green;">Total character name aliases: 473
+<span style="font-weight:bold;color:green;">Load the Unicode character names 17.0.0 
+</span>..............................................<span style="font-weight:bold;color:green;">
+</span><span style="font-weight:bold;color:green;">Total loaded character names: 159801
+</span><span style="font-weight:bold;color:green;">Total character name aliases: 481
 </span><span style="font-weight:bold;color:blue;">Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 </span>
+<span style="font-weight:bold;color:blue;">-- These demos were designed before the introduction of the immediate
+</span><span style="font-weight:bold;color:blue;">-- &quot;invalid text&quot; error and before the introduction of the privileged encoding
+</span><span style="font-weight:bold;color:blue;">-- status of Byte_Encoding.
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~immediateError = .false</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~promoteByteEncoding = .false</span>
 
 <span style="font-weight:bold;color:blue;">----------------------------------------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Compatibility with String
@@ -155,7 +160,7 @@ ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolea
 <span style="font-weight:bold;color:red;">Logical value must be exactly &quot;0&quot; or &quot;1&quot;; found &quot;not a boolean value&quot;.
 </span><span style="font-weight:bold;color:red;">Error code= 34.901
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not a boolean value 🤔&quot;~?(&quot;true&quot;, &quot;false&quot;)=</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not a b...' is not compatible with a Rexx logical value.
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not a bool...' is not compatible with a Rexx logical value.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;0&quot;~?(&quot;true 🤔&quot;, &quot;false 🤔&quot;)=</span>
 T'false 🤔'
@@ -794,7 +799,7 @@ ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexad
 <span style="font-weight:bold;color:red;">Only 0-9, a-f, A-F, and whitespace characters are valid in a hexadecimal string; character found &quot;n&quot;.
 </span><span style="font-weight:bold;color:red;">Error code= 93.933
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">&quot;not an hexadecimal value 🤔&quot;~x2c</span>
-<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not an ...' is not compatible with a Rexx hexadecimal value.
+<span style="font-weight:bold;color:red;">UTF-8 not-ASCII 'not an hex...' is not compatible with a Rexx hexadecimal value.
 </span><span style="font-weight:bold;color:red;">Error code= 23.900
 </span>
 

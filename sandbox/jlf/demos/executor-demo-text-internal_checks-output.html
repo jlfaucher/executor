@@ -31,9 +31,15 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-</span><span style="font-weight:bold;color:green;">Input queue name: Sae6eQ600001c5ed80
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: Sb1fcQ6000019d5930
 </span>
+<span style="font-weight:bold;color:blue;">-- These demos were designed before the introduction of the immediate
+</span><span style="font-weight:bold;color:blue;">-- &quot;invalid text&quot; error and before the introduction of the privileged encoding
+</span><span style="font-weight:bold;color:blue;">-- status of Byte_Encoding.
+</span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~immediateError = .false   </span><span style="font-weight:bold;color:blue;">-- no immediate error</span>
+ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">.Unicode~promoteByteEncoding = .false </span><span style="font-weight:bold;color:blue;">-- the Byte_Encoding is not the privileged resulting encoding</span>
+
 <span style="font-weight:bold;color:blue;">----------------------------------
 </span><span style="font-weight:bold;color:blue;">-- Text encoding - Internal checks
 </span><span style="font-weight:bold;color:blue;">----------------------------------

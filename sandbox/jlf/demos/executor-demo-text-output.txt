@@ -21,8 +21,14 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-Input queue name: Sae4cQ600001c5ecb0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+Input queue name: Sb183Q6000019d5860
+
+-- These demos were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+ooRexx[bash]> .Unicode~immediateError = .false   -- no immediate error
+ooRexx[bash]> .Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
 
 ----------------
 -- Text encoding

@@ -21,21 +21,25 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-Input queue name: Sacc7Q600001c5ebe0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+Input queue name: Sb25eQ6000019d5a00
+
+-- These demos were designed before the introduction of the immediate
+-- "invalid text" error and before the introduction of the privileged encoding
+-- status of Byte_Encoding.
+ooRexx[bash]> .Unicode~immediateError = .false   -- no immediate error
+ooRexx[bash]> .Unicode~promoteByteEncoding = .false -- the Byte_Encoding is not the privileged resulting encoding
 
 --------------------
 -- Unicode libraries
 --------------------
 
 /*
-The prototype is currently using 3 libraries:
+The prototype is currently using 1 library:
 - utf8proc    https://github.com/JuliaStrings/utf8proc
-- uni-algo    https://github.com/uni-algo/uni-algo
 
 Current usage:
 - utf8proc is used for grapheme segmentation, characters properties, normalization, simple upper/lower/title.
-- uni-algo is used for full upper/lower/title.
 */
 
 
@@ -44,38 +48,40 @@ Current usage:
 ---------------------
 
 -- Unicode version
-ooRexx[bash]> .unicode~version=               -- 15.1.0
-'15.1.0'
+ooRexx[bash]> .unicode~version=               -- 17.0.0
+'17.0.0'
 
 -- Unicode character names are not loaded by default
 ooRexx[bash]> call loadUnicodeCharacterNames
-Load the Unicode character names 15.1.0 
-............................................
-Total loaded character names: 149813
-Total character name aliases: 473
+Load the Unicode character names 17.0.0 
+..............................................
+Total loaded character names: 159801
+Total character name aliases: 481
 Unicode character intervals not expanded, execute: call expandUnicodeCharacterIntervals
 ooRexx[bash]> .unicode~characters=
-(an UnicodeCharacterSupplier count=44185 size=918000)
+(an UnicodeCharacterSupplier count=45832 size=918000)
 
 /*
 Unicode character names defined by interval are not loaded by default.
 The following method gives informations about these intervals.
 */
 ooRexx[bash]> .Unicode~informations=
-a Directory (13 items)
-'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 105693 characters)
-'characters'                         : (an UnicodeCharacterSupplier count=44185 size=918000)
-'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-15.1.0)
+a Directory (15 items)
+'characterIntervals'                 : (an UnicodeCharacterIntervalSupplier count=17 notExpanded:17 intervals, 114034 characters)
+'characters'                         : (an UnicodeCharacterSupplier count=45832 size=918000)
+'dataDirectory'                      : (/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/Unicode-17.0.0)
+'immediateError'                     :  0
 'maxCodepoint'                       :  1114111
 'memorizeTranscodings'               :  0
 'memorizeTransformations'            :  0
+'promoteByteEncoding'                :  0
 'systemIsLittleEndian'               :  1
-'totalCharacterNameAliases'          :  473
-'totalCharactersLoaded'              :  149813
-'totalIntervalCharacters'            :  105693
-'totalIntervalCharactersNotExpanded' :  105693
+'totalCharacterNameAliases'          :  481
+'totalCharactersLoaded'              :  159801
+'totalIntervalCharacters'            :  114034
+'totalIntervalCharactersNotExpanded' :  114034
 'unckeckedConversionToString'        :  1
-'version'                            : '15.1.0'
+'version'                            : '17.0.0'
 
 -- Select the characters whose category is Cc (Control)
 ooRexx[bash]> .unicode~characters~select{item~categoryName=="Cc"}==
@@ -151,20 +157,20 @@ an Array (shape [65], 65 items)
 -- Spaces are ignored (among others), that's why "LETTER EXTRA" is matching "*rex*"
 ooRexx[bash]> .unicode~characters("*rex*")==
 an Array (shape [15], 15 items)
- 1  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
+ 1  : ( "˥"   U+02E5 Sk 1 "MODIFIER LETTER EXTRA-HIGH TONE BAR" )
  2  : ( "˩"   U+02E9 Sk 1 "MODIFIER LETTER EXTRA-LOW TONE BAR" )
- 3  : ( "꜍"   U+A70D Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR" )
- 4  : ( "꜑"   U+A711 Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR" )
- 5  : ( "˥"   U+02E5 Sk 1 "MODIFIER LETTER EXTRA-HIGH TONE BAR" )
+ 3  : ( "ꎅ"  U+A385 Lo 2 "YI SYLLABLE RREX" )
+ 4  : ( "ꎜ"  U+A39C Lo 2 "YI SYLLABLE NREX" )
+ 5  : ( "ꏑ"  U+A3D1 Lo 2 "YI SYLLABLE REX" )
  6  : ( "꜈"   U+A708 Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED TONE BAR" )
- 7  : ( "🖕"  U+1F595 So 2 "REVERSED HAND WITH MIDDLE FINGER EXTENDED" )
- 8  : ( "ꎅ"  U+A385 Lo 2 "YI SYLLABLE RREX" )
- 9  : ( "꜒"   U+A712 Sk 1 "MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR" )
- 10 : ( "ꏑ"  U+A3D1 Lo 2 "YI SYLLABLE REX" )
- 11 : ( "ꎜ"  U+A39C Lo 2 "YI SYLLABLE NREX" )
- 12 : ( "꜖"   U+A716 Sk 1 "MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR" )
- 13 : ( "𖩿"   U+16A7F Lo 1 "TANGSA LETTER EX" )
- 14 : ( "𝍊"   U+1D34A So 1 "TETRAGRAM FOR EXHAUSTION" )
+ 7  : ( "꜌"   U+A70C Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED TONE BAR" )
+ 8  : ( "꜍"   U+A70D Sk 1 "MODIFIER LETTER EXTRA-HIGH DOTTED LEFT-STEM TONE BAR" )
+ 9  : ( "꜑"   U+A711 Sk 1 "MODIFIER LETTER EXTRA-LOW DOTTED LEFT-STEM TONE BAR" )
+ 10 : ( "꜒"   U+A712 Sk 1 "MODIFIER LETTER EXTRA-HIGH LEFT-STEM TONE BAR" )
+ 11 : ( "꜖"   U+A716 Sk 1 "MODIFIER LETTER EXTRA-LOW LEFT-STEM TONE BAR" )
+ 12 : ( "𖩿"   U+16A7F Lo 1 "TANGSA LETTER EX" )
+ 13 : ( "𝍊"  U+1D34A So 2 "TETRAGRAM FOR EXHAUSTION" )
+ 14 : ( "🖕"  U+1F595 So 2 "REVERSED HAND WITH MIDDLE FINGER EXTENDED" )
  15 : ( "🦖"  U+1F996 So 2 "T-REX" )
 
 /*
@@ -305,7 +311,7 @@ a Directory (56 items)
  6   : ( "𖿱"  U+16FF1 Mc 2 "VIETNAMESE ALTERNATE READING MARK NHAY" )
  7   : ( "𞥊"    U+1E94A Mn 0 "ADLAM NUKTA" )
  8   : ( "゚"    U+309A Mn 0 "COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK" )
- 9   : ( "𑽂"    U+11F42 Mn 0 "KAWI CONJOINER" )
+ 9   : ( "𖄯"    U+1612F Mn 0 "GURUNG KHEMA SIGN THOLHOMA" )
  10  : ( "ְ"    U+05B0 Mn 0 "HEBREW POINT SHEVA" )
  11  : ( "ֱ"    U+05B1 Mn 0 "HEBREW POINT HATAF SEGOL" )
  12  : ( "ֲ"    U+05B2 Mn 0 "HEBREW POINT HATAF PATAH" )

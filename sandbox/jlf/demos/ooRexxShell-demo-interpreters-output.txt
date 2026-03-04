@@ -21,8 +21,8 @@ loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 22 Jun 2024
-Input queue name: Saf91Q600001c5ef20
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
+Input queue name: SbafaQ6000019d5c70
 
 --------------
 -- ooRexxShell
@@ -72,8 +72,8 @@ ooRexx[bash]> properties = jsystem~getProperties
 ooRexx[bash]> enum = properties~propertyNames
 ooRexx[bash]> do while enum~hasMoreElements; key=enum~nextElement; say "key:" left("["key"]",30) "value: ["properties~getProperty(key)"]"; end
 key: [java.runtime.name]            value: [OpenJDK Runtime Environment]
-key: [java.vm.version]              value: [20.0.1+10]
-key: [sun.boot.library.path]        value: [/Users/Shared/local/java/jdk/bellsoft/jdk-20.0.1-full.jdk/lib]
+key: [java.vm.version]              value: [23.0.2+9]
+key: [sun.boot.library.path]        value: [/Users/Shared/local/java/jdk/bellsoft/jdk-23.0.2-full.jdk/lib]
 key: [java.vm.vendor]               value: [BellSoft]
 key: [java.vendor.url]              value: [https://bell-sw.com/]
 key: [path.separator]               value: [:]
@@ -82,7 +82,7 @@ key: [user.country]                 value: [FR]
 key: [java.vm.specification.name]   value: [Java Virtual Machine Specification]
 key: [user.dir]                     value: [/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/demos]
 key: [java.vm.compressedOopsMode]   value: [Zero based]
-key: [java.runtime.version]         value: [20.0.1+10]
+key: [java.runtime.version]         value: [23.0.2+9]
 key: [os.arch]                      value: [aarch64]
 key: [java.io.tmpdir]               value: [/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/]
 key: [line.separator]               value: [
@@ -92,30 +92,31 @@ key: [stderr.encoding]              value: [UTF-8]
 key: [os.name]                      value: [Mac OS X]
 key: [sun.jnu.encoding]             value: [UTF-8]
 key: [stdout.encoding]              value: [UTF-8]
-key: [java.library.path]            value: [/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/lib/macos-arm64::]
+key: [java.library.path]            value: [/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx/lib:/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx/lib/macos-arm64::]
 key: [jdk.debug]                    value: [release]
-key: [java.class.version]           value: [64.0]
+key: [java.class.version]           value: [67.0]
 key: [java.specification.name]      value: [Java Platform API Specification]
 key: [sun.management.compiler]      value: [HotSpot 64-Bit Tiered Compilers]
-key: [os.version]                   value: [13.5.2]
+key: [os.version]                   value: [15.7.3]
 key: [http.nonProxyHosts]           value: [local|*.local|169.254/16|*.169.254/16]
 key: [user.home]                    value: [/Users/jlfaucher]
+key: [user.timezone]                value: [Europe/Paris]
 key: [file.encoding]                value: [UTF-8]
-key: [java.specification.version]   value: [20]
+key: [java.specification.version]   value: [23]
 key: [user.name]                    value: [jlfaucher]
-key: [java.class.path]              value: [/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-bin.jar:]
-key: [java.vm.specification.version value: [20]
+key: [java.class.path]              value: [/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx/bsf4ooRexx-v641-20221002-bin.jar:]
+key: [java.vm.specification.version value: [23]
 key: [sun.arch.data.model]          value: [64]
-key: [java.home]                    value: [/Users/Shared/local/java/jdk/bellsoft/jdk-20.0.1-full.jdk]
+key: [java.home]                    value: [/Users/Shared/local/java/jdk/bellsoft/jdk-23.0.2-full.jdk]
 key: [user.language]                value: [en]
 key: [java.specification.vendor]    value: [Oracle Corporation]
 key: [java.vm.info]                 value: [mixed mode, sharing]
-key: [java.version]                 value: [20.0.1]
+key: [java.version]                 value: [23.0.2]
 key: [native.encoding]              value: [UTF-8]
 key: [java.vendor]                  value: [BellSoft]
 key: [java.awt.headless]            value: [true]
 key: [file.separator]               value: [/]
-key: [java.version.date]            value: [2023-04-18]
+key: [java.version.date]            value: [2025-01-21]
 key: [java.vendor.url.bug]          value: [https://bell-sw.com/support]
 key: [sun.io.unicode.encoding]      value: [UnicodeBig]
 key: [sun.cpu.endian]               value: [little]
@@ -126,18 +127,18 @@ ooRexx[bash]>
 A shell command can be used in ooRexx mode, surrounded with quotes.
 */
 ooRexx[bash]> 'ls -lap *demo*.txt'
--rw-r--r--@ 1 jlfaucher  wheel    1190 Nov  5  2022 _readme-demos.txt
--rw-r--r--@ 1 jlfaucher  wheel    8720 Sep 14  2023 executor-demo-array-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel    1263 Mar  3 18:15 _readme-demos.txt
+-rw-r--r--@ 1 jlfaucher  wheel    8855 Jun 22  2024 executor-demo-array-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel  305774 May 31  2023 executor-demo-classic_rexx-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   57279 Apr 11 20:39 executor-demo-extensions-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   42422 Apr 22 14:48 executor-demo-text-compatibility-auto-conv-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   42487 Apr 22 14:48 executor-demo-text-compatibility-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   23335 Apr 11 20:39 executor-demo-text-internal_checks-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   21806 Apr 22 14:48 executor-demo-text-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   54212 Jun 22 17:17 executor-demo-text-unicode-output.txt
--rw-r--r--@ 1 jlfaucher  wheel    5315 Feb 22  2023 ooRexxShell-demo-helpers-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   16308 Feb 22  2023 ooRexxShell-demo-interpreters-output.txt
--rw-r--r--@ 1 jlfaucher  wheel  551259 Apr 11 21:40 ooRexxShell-demo-queries-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   57250 Jun 22  2024 executor-demo-extensions-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   43331 Mar  4 01:25 executor-demo-text-compatibility-auto-conv-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   43474 Mar  4 01:25 executor-demo-text-compatibility-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   23941 Mar  4 01:25 executor-demo-text-internal_checks-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   22371 Mar  4 01:25 executor-demo-text-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   54577 Mar  4 01:25 executor-demo-text-unicode-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel    5514 Mar  3 23:28 ooRexxShell-demo-helpers-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   16023 Jun 22  2024 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel  538730 Mar  4 06:28 ooRexxShell-demo-queries-output.txt
 ooRexx[bash]> 
 /*
 When not in ooRexx mode, you enter raw commands that are passed directly to the external environment.
@@ -173,17 +174,17 @@ Now the default interpreter is the system shell.
 No need to surround the commands with quotes.
 */
 sh> ls -lap *demo*.cast
--rw-r--r--@ 1 jlfaucher  wheel   44582 Jun 22 18:06 executor-demo-array.cast
+-rw-r--r--@ 1 jlfaucher  wheel   44582 Jun 22  2024 executor-demo-array.cast
 -rw-r--r--@ 1 jlfaucher  wheel  374800 May 31  2023 executor-demo-classic_rexx.cast
--rw-r--r--@ 1 jlfaucher  wheel  125281 Jun 22 18:15 executor-demo-extensions.cast
--rw-r--r--@ 1 jlfaucher  wheel  376010 Jun 22 19:38 executor-demo-text-compatibility-auto-conv.cast
--rw-r--r--@ 1 jlfaucher  wheel  384918 Jun 22 19:07 executor-demo-text-compatibility.cast
--rw-r--r--@ 1 jlfaucher  wheel  144755 Jun 22 18:36 executor-demo-text-internal_checks.cast
--rw-r--r--@ 1 jlfaucher  wheel  202156 Jun 22 17:17 executor-demo-text-unicode.cast
--rw-r--r--@ 1 jlfaucher  wheel  114733 Jun 22 18:27 executor-demo-text.cast
--rw-r--r--@ 1 jlfaucher  wheel   11238 Jun 22 19:39 ooRexxShell-demo-helpers.cast
--rw-r--r--@ 1 jlfaucher  wheel   20899 Jun 22 19:41 ooRexxShell-demo-interpreters.cast
--rw-r--r--@ 1 jlfaucher  wheel  603105 Apr 11 21:40 ooRexxShell-demo-queries.cast
+-rw-r--r--@ 1 jlfaucher  wheel  125281 Jun 22  2024 executor-demo-extensions.cast
+-rw-r--r--@ 1 jlfaucher  wheel  268857 Mar  4 01:25 executor-demo-text-compatibility-auto-conv.cast
+-rw-r--r--@ 1 jlfaucher  wheel  281947 Mar  4 00:54 executor-demo-text-compatibility.cast
+-rw-r--r--@ 1 jlfaucher  wheel  123472 Mar  4 00:10 executor-demo-text-internal_checks.cast
+-rw-r--r--@ 1 jlfaucher  wheel  171525 Mar  4 00:22 executor-demo-text-unicode.cast
+-rw-r--r--@ 1 jlfaucher  wheel   93762 Mar  4 00:01 executor-demo-text.cast
+-rw-r--r--@ 1 jlfaucher  wheel   11092 Mar  3 23:28 ooRexxShell-demo-helpers.cast
+-rw-r--r--@ 1 jlfaucher  wheel   19808 Mar  4 06:30 ooRexxShell-demo-interpreters.cast
+-rw-r--r--@ 1 jlfaucher  wheel  667133 Mar  4 06:28 ooRexxShell-demo-queries.cast
 sh> 
 /*
 HostEmu is a subcommand environment that partially emulates a TSO/CMS environment.
@@ -243,27 +244,22 @@ Find the commands containing "rexx":
 */
 pwsh> get-command *rexx* | select -property name, source
 
-Name                             Source
-----                             ------
-bsf4ooRexx-v641-20220131-bin.jar /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-…
-oorexxshell                      /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
-oorexx_collect_docfiles          /Users/Shared/local/rexx/builder/scripts/oorexx_collect_docfiles
-oorexx_vars                      /Users/Shared/local/rexx/builder/scripts/oorexx_vars
-refcardBSF4ooRexx.pdf            /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/refcardBSF4ooRexx.pdf
-rexx                             /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/relea…
-rexx.cat                         /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/relea…
-rexx.img                         /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/relea…
-rexxc                            /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/relea…
-rexxcUtil.rex                    /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxcUtil.rex
-rexxj2-32.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-32.sh
-rexxj2-64.sh                     /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-64.sh
-rexxj2.cmd                       /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.cmd
-rexxj2.sh                        /local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.sh
-rexxscriptlib.rex                /Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex
-rexxtry.rex                      /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/relea…
-setenv-oorexx                    /Users/Shared/local/rexx/builder/scripts/setenv-oorexx
-setenv-rexx                      /Users/Shared/local/rexx/builder/scripts/setenv-rexx
-testOORexx.rex                   /local/rexx/oorexx/official/test/trunk/testOORexx.rex
+Name                    Source
+----                    ------
+oorexxshell             /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell
+oorexxshell.rex         /local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex
+oorexx_collect_docfiles /Users/Shared/local/rexx/builder/scripts/oorexx_collect_docfiles
+oorexx_vars             /Users/Shared/local/rexx/builder/scripts/oorexx_vars
+rexx                    /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+rexx.cat                /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+rexx.img                /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+rexxc                   /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+rexxscriptlib.rex       /Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex
+rexxtry.rex             /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+setenv-oorexx           /Users/Shared/local/rexx/builder/scripts/setenv-oorexx
+setenv-rexx             /Users/Shared/local/rexx/builder/scripts/setenv-rexx
+setenv-rexxlocal        /Users/Shared/local/rexx/builder/scripts/setenv-rexxlocal
+testOORexx.rex          /local/rexx/oorexx/official/test/trunk/testOORexx.rex
 
 pwsh> 
 /*
@@ -276,26 +272,21 @@ pwsh>
 Collect the lines of the rexx queue in an array, and then parse the lines to create an ooRexx directory.
 */
 pwsh> oorexx .rexxqueue~new~makearray~select{item <> ""}~reduce(.directory~new){parse value item~space with name source; accu[name]=source}=
-a Directory (19 items)
-'bsf4ooRexx-v641-20220131-bin.jar' : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/bsf4ooRexx-v641-20220131-b…'
-'oorexxshell'                      : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
-'oorexx_collect_docfiles'          : '/Users/Shared/local/rexx/builder/scripts/oorexx_collect_docfiles'
-'oorexx_vars'                      : '/Users/Shared/local/rexx/builder/scripts/oorexx_vars'
-'refcardBSF4ooRexx.pdf'            : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/refcardBSF4ooRexx.pdf'
-'rexx'                             : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/releas…'
-'rexx.cat'                         : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/releas…'
-'rexx.img'                         : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/releas…'
-'rexxc'                            : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/releas…'
-'rexxcUtil.rex'                    : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxcUtil.rex'
-'rexxj2-32.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-32.sh'
-'rexxj2-64.sh'                     : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2-64.sh'
-'rexxj2.cmd'                       : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.cmd'
-'rexxj2.sh'                        : '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20220131-ga/bsf4oorexx/rexxj2.sh'
-'rexxscriptlib.rex'                : '/Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex'
-'rexxtry.rex'                      : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/releas…'
-'setenv-oorexx'                    : '/Users/Shared/local/rexx/builder/scripts/setenv-oorexx'
-'setenv-rexx'                      : '/Users/Shared/local/rexx/builder/scripts/setenv-rexx'
-'testOORexx.rex'                   : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
+a Directory (14 items)
+'oorexxshell'             : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell'
+'oorexxshell.rex'         : '/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex'
+'oorexx_collect_docfiles' : '/Users/Shared/local/rexx/builder/scripts/oorexx_collect_docfiles'
+'oorexx_vars'             : '/Users/Shared/local/rexx/builder/scripts/oorexx_vars'
+'rexx'                    : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'rexx.cat'                : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'rexx.img'                : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'rexxc'                   : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'rexxscriptlib.rex'       : '/Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex'
+'rexxtry.rex'             : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'setenv-oorexx'           : '/Users/Shared/local/rexx/builder/scripts/setenv-oorexx'
+'setenv-rexx'             : '/Users/Shared/local/rexx/builder/scripts/setenv-rexx'
+'setenv-rexxlocal'        : '/Users/Shared/local/rexx/builder/scripts/setenv-rexxlocal'
+'testOORexx.rex'          : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
 pwsh> 
 /*
 Back to the ooRexx interpreter, by entering "oorexx" alone.
