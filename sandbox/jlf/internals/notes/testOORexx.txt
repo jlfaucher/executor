@@ -464,3 +464,126 @@ base/bif: [SYNTAX 40.5] raised unexpectedly
 40.5 "Missing argument in invocation of XXX; argument 2 is required"
 is raised instead of
 40.3 "Not enough arguments in invocation of XXX; minimum expected is 2."
+
+
+================================================================================
+Extra dynamic libraries needed for tests
+
+Problem solved:
+run_testOORexx
+run_TestOORexx.bat
+
+These scripts defined in Builder will update [DY]LD_LIBRARY_PATH and PATH to let
+find the libraries needed for the native tests. They are located in the build
+directory, either in build/lib (macOS, Linux) or build/bin (Windows).
+
+
+From the listings below, we can see that these libraries are not put in a
+delivery (ok) but they are needed for the native tests:
+    ./lib/liborxexits.dylib
+    ./lib/liborxclassic1.dylib
+    ./lib/liborxinvocation.dylib
+    ./lib/liborxfunction.dylib
+    ./lib/liborxclassic.dylib
+    ./lib/liborxmethod.dylib
+
+/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/debug/build$ find . -name "*.dylib"
+./lib/libexternal_methods_routines.dylib
+./lib/librxregexp.3.dylib
+./lib/libhostemu.dylib
+./lib/librexxapi.3.dylib
+    ./lib/liborxexits.dylib
+./lib/librxunixsys.4.dylib
+    ./lib/liborxclassic1.dylib
+    ./lib/liborxinvocation.dylib
+./lib/librexx.4.dylib
+./lib/liborxncurses.3.dylib
+./lib/librxmath.dylib
+    ./lib/liborxfunction.dylib
+./lib/librexx.3.dylib
+./lib/librexx.dylib
+./lib/librexxapi.dylib
+./lib/liborxncurses.4.dylib
+./lib/libexternal_routines.dylib
+./lib/librxregexp.dylib
+./lib/librxunixsys.3.dylib
+./lib/librxregexp.4.dylib
+./lib/librxsock.dylib
+./lib/librexxapi.4.dylib
+./lib/librxunixsys.dylib
+./lib/libexternal_methods.dylib
+./lib/librxmath.4.dylib
+./lib/librexxapi2.dylib
+    ./lib/liborxclassic.dylib
+./lib/librxsock.4.dylib
+./lib/liborxncurses.dylib
+    ./lib/liborxmethod.dylib
+./lib/libhostemu.3.dylib
+./lib/librexxapi1.dylib
+./lib/libhostemu.4.dylib
+./lib/librexxapi3.dylib
+./lib/librxsock.3.dylib
+./lib/librxmath.3.dylib
+
+
+/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/debug/delivery$ find . -name "*.dylib"
+./lib/librxregexp.3.dylib
+./lib/libhostemu.dylib
+./lib/librexxapi.3.dylib
+./lib/librxunixsys.4.dylib
+./lib/librexx.4.dylib
+./lib/liborxncurses.3.dylib
+./lib/librxmath.dylib
+./lib/librexx.3.dylib
+./lib/librexx.dylib
+./lib/librexxapi.dylib
+./lib/liborxncurses.4.dylib
+./lib/librxregexp.dylib
+./lib/librxunixsys.3.dylib
+./lib/librxregexp.4.dylib
+./lib/librxsock.dylib
+./lib/librexxapi.4.dylib
+./lib/librxunixsys.dylib
+./lib/librxmath.4.dylib
+./lib/librxsock.4.dylib
+./lib/liborxncurses.dylib
+./lib/libhostemu.3.dylib
+./lib/libhostemu.4.dylib
+./lib/librxsock.3.dylib
+./lib/librxmath.3.dylib
+./share/ooRexx/samples/api/c++/external/libexternal_methods_routines.dylib
+./share/ooRexx/samples/api/c++/external/libexternal_routines.dylib
+./share/ooRexx/samples/api/c++/external/libexternal_methods.dylib
+./share/ooRexx/samples/api/classic/rexxapi1/librexxapi1.dylib
+./share/ooRexx/samples/api/classic/rexxapi2/librexxapi2.dylib
+./share/ooRexx/samples/api/classic/rexxapi3/librexxapi3.dylib
+
+
+================================================================================
+Paths on the build machine
+
+++ frameworkPath=/Users/jenkins/workspace/ooRexx-macOS26-M4-test:/Users/jenkins/workspace/ooRexx-macOS26-M4-test/framework:
+
+++ export PATH=/Users/jenkins/workspace/ooRexx-macOS26-M4-test:/Users/jenkins/workspace/ooRexx-macOS26-M4-test/framework:/usr/bin:/bin:/usr/sbin:/sbin
+++ PATH=
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test/framework
+/usr/bin:/bin:/usr/sbin:/sbin
+
++ export PATH=/Users/jenkins/workspace/ooRexx-macOS26-M4-test/../ooRexx-macOS26-M4-build/oorexxBuild/bin:/Users/jenkins/workspace/ooRexx-macOS26-M4-test:/Users/jenkins/workspace/ooRexx-macOS26-M4-test/framework:/usr/bin:/bin:/usr/sbin:/sbin
++ PATH=
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test/../ooRexx-macOS26-M4-build/oorexxBuild/bin
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test/framework
+/usr/bin
+/bin
+/usr/sbin
+/sbin
+
++ export LD_LIBRARY_PATH=/Users/jenkins/workspace/ooRexx-macOS26-M4-test/../ooRexx-macOS26-M4-build/oorexxBuild/lib
++ LD_LIBRARY_PATH=
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test/../ooRexx-macOS26-M4-build/oorexxBuild/lib
+
++ which rexx
+/Users/jenkins/workspace/ooRexx-macOS26-M4-test/../ooRexx-macOS26-M4-build/oorexxBuild/bin/rexx
+
