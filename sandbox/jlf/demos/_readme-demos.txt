@@ -39,3 +39,8 @@ make all
 make cast
 make html
 make text
+
+
+Display the demos locally:
+python3 -m http.server 8000 --directory /local/jlfaucher.github.io/executor.master/demos
+http://localhost:8000/index.html
