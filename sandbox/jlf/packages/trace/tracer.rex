@@ -6,7 +6,7 @@
 Usage:
     tracer [-csv] [-f | -filter] [<traceFile>]
     tracer [-h | -help]
-    Options for debug: [-n n] [-v | -verbose]
+    Options for debug: [-d | -dumpids] [-n n] [-v | -verbose]
 
 Description:
     MultiThreaded trace utility.
@@ -18,6 +18,7 @@ Description:
 
 Options:
     -csv     to generate a CSV output.
+    -dumpids to dump the mapping of threads and activations identifiers.
     -filter  to filter out the lines which are not a trace.
     -n n     to stop after n input lines
     -verbose to display internal informations
@@ -137,6 +138,7 @@ use arg args = ""
 
 .local~verbose = .false
 csv = .false
+dumpids = .false
 filter = .false
 tracefile = ""
 max_count = 999999999
@@ -148,20 +150,29 @@ do forever
         select
             when option == "-csv" then csv = .true
             when option == "--csv" then csv = .true
+
+            when option == "-d" then dumpids = .true
+            when option == "-dumpids" then dumpids = .true
+            when option == "--dumpids" then dumpids = .true
+
             when option == "-f" then filter = .true
             when option == "-filter" then filter = .true
             when option == "--filter" then filter = .true
+
             when option == "-h" then signal help
             when option == "-help" then signal help
             when option == "--help" then signal help
+
             when option == "-n" then do
                 parse var rest current rest
                 if \current~datatype("W") then signal count_is_not_a_number
                 max_count = current
             end
+
             when option == "-v" then .local~verbose = .true
             when option == "-verbose" then .local~verbose = .true
             when option == "--verbose" then .local~verbose = .true
+
             otherwise do
                 .error~say( "[error] Invalid option : "current )
                 signal usage
@@ -173,6 +184,20 @@ do forever
         leave
     end
     args = rest
+end
+
+if dumpids then do
+    if csv then do
+        .error~say( "The -dumpids option cannot be used with the -csv option" )
+        return 1
+    end
+    -- Try to load rgfutil now, to abort immediatly if not found
+    hasRgfUtil2 = loadPackage("rgf_util2/rgf_util2.rex") -- Try this one first (executor version), because I find also the other one (bsf4oorexx version)
+    if \hasRgfUtil2 then hasRgfUtil2 = loadPackage("rgf_util2.rex")
+    if \hasRgfUtil2 then do
+        .error~say( "Can't load rgf_util2.rex, needed when the -dumpids option is specified" )
+        return 1
+    end
 end
 
 streamIn = .stdin
@@ -201,6 +226,15 @@ do while streamIn~state == "READY"
     currentTrace~lineOut(streamOut, traceOutputBuffer, csv, filter)
     .traceOutput~destination -- restore previous destination
     count += 1
+end
+
+if dumpids then do
+    say
+    say ".Thread~directory"
+    call dump2 .Thread~directory
+    say
+    say ".Activation~directory"
+    call dump2 .Activation~directory
 end
 
 return count >= max_count -- 1 if STOP, 0 otherwise (normal exit)
@@ -241,6 +275,16 @@ cannot_open_traceFile:
         if label \== "", display == 2 then .error~say(sourceLine) -- display only this section
         if label == "", display == 1 then .error~say(sourceLine) -- display all the sections
     end
+
+
+::routine loadPackage
+    use strict arg filename
+    signal on syntax name loadPackageError
+    .context~package~loadPackage(filename)
+    return .true
+
+    loadPackageError:
+    return .false
 
 
 -------------------------------------------------------------------------------
@@ -1016,6 +1060,14 @@ cannot_open_traceFile:
     self~activationStack = .queue~new
 
 
+::method string
+    return "Thread id=" || self~id || ", hrId=" || self~hrId
+
+
+::method ppString
+    return self~string
+
+
 -------------------------------------------------------------------------------
 ::class Activation
 -------------------------------------------------------------------------------
@@ -1135,6 +1187,14 @@ cannot_open_traceFile:
     self~scope = ""
     self~executable = ""
     self~package = ""
+
+
+::method string
+    return "Activation id=" || self~id || ", hrId=" || self~hrId
+
+
+::method ppString
+    return self~string
 
 
 -------------------------------------------------------------------------------
