@@ -1,3 +1,77 @@
+https://sourceforge.net/p/oorexx/bugs/1365/
+
+A discussion about
+strict versus not strict.
+
+A discussion about
+.nil == something
+versus
+something == .nil
+
+Rick:
+    The implementation of the comparison is always done by the object on the
+    left hand side of the operator, which is why "object == .nil" and ".nil ==
+    object" can return different results. In the first situation, the
+    comparison is handled by the object's == method, the second is handled by
+    .nil's, which only returns true based on object identity. The only special
+    exception that exists for .nil is in the implementation of the String
+    comparison methods.
+
+    There's really no was to fix this really in the context of how Orderable
+    works other than to maybe choose to raise a condition from the compareTo
+    method if you thought it was important to handle this situation. Orderable
+    is intended to make it simple to add all of the comparison methods to a
+    class where the comparison are simple without requiring a ton of individual
+    methods being coded up. For situations outside of that scope, one should
+    just create an interface like Orderable that fully meets your requirements.
+
+Erich:
+    I believe I fully understand this, but with the above change to Orderable,
+    we have to decide how to fix the now broken File.
+
+    f = .File~new('\temp'); if f == .nil then .. raises an error.
+    In fact, even .File~new('name', .File~new('\temp')) doesn't work any more,
+    because init internally uses if dir == .nil ..
+
+    Same withDateTime (and TimeSpan and any other user-defined class inheriting
+    from Orderable)
+    d = .DateTime~new; if d == .nil .. raises an error
+
+    Except for reverting above change, I can only see two alternatives:
+    adding a .nil check to all Orderable comparison methods,
+    or extending the "special exception" for String to any Object.
+
+Rick:
+    The fix to these classes is simple, just reverse the order of the
+    comparison arguments. The choice is simple, either fix the code in
+    Orderable so that compareTo is called in all situations and fix the
+    situations where it fails or decide not to fix this problem at all. If
+    equality methods keep the check in place, then I'd argue that ALL of the
+    comparison methods should have the same check. That would reduce the
+    utility a little, but would be consistent.
+
+    You cannot extend the special exception to any Object. The behavior is
+    defined by the method implementation, so there is no way to have that
+    implemented automatically.
+
+Erich:
+    Committed fixes in revision [r11124]
+    Committed additional tests with revision [r11125]
+
+    This re-enables object .. .nil comparisons for =, ==, \=, \== and their
+    aliases.
+    object .. .nil comparisons with other comparison operators (e. g. <, >>=)
+    now issue an intentional error message. (All this applies to objects
+    inheriting from Orderable only!)
+
+    I notice, that with String we have a precendent how string < .nil etc.
+    works, but I didn't think this as appropriate and went ahead with an
+    intentional error message.
+
+    I'm open for discussion, of course.
+
+
+--------------------------------------------------------------------------------
 Review of operator implementation
 
 5//2
@@ -50,7 +124,7 @@ do 1000000; v=1~"+"(2);end  -- 0.7 sec
 say .test~new | 10                  -- overriding works as expected when overriding "|" on a user class
 say "toto" | 10                     -- when using the operator "|", overriding does not work when overriding by extension on String
 say "toto"~"|"(10)                  -- when sending the message "|", overriding works as expected when overriding by extension on String
-say .mystring~new("toto") | 10      -- overriding works as expected (here, no extension. just a subclass with overriden "|") 
+say .mystring~new("toto") | 10      -- overriding works as expected (here, no extension. just a subclass with overriden "|")
                                     -- the operators table of Object is used, which forwards the message "|"
 say .mystring~new("toto")~"|"(10)   -- overriding works as expected
 
@@ -206,7 +280,7 @@ ObjectClass.cpp
     corresponding to the operator.
     Note : when the target is a string then the Object's default implementation
     is not used. There is a direct use of String implementation by getOperatorMethod.
-    
+
     prefixOperatorMethod(operator_plus                , PLUS)
     prefixOperatorMethod(operator_minus               , SUBTRACT)
     operatorMethod(operator_multiply                  , MULTIPLY)
@@ -333,7 +407,7 @@ RexxBinaryOperator::evaluate
             stack->operatorResult(result);
             context->traceOperator(operatorName(), result);
             return result;
-            
+
         }
         catch(RexxNativeActivation *)
         {
@@ -347,7 +421,7 @@ RexxUnaryOperator::evaluate
             stack->prefixResult(result); /* replace the top element with the result */
             context->tracePrefix(operatorName(), result);
             return result;
-            
+
         }
         catch(RexxNativeActivation *)
         {
