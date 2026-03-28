@@ -4912,7 +4912,7 @@ special character (such as a parenthesis).
         <Component>Rexx</Component>
         <Severity>Warning</Severity>
         <SymbolicName>Error_Incorrect_method_noclass</SymbolicName>
-        <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be of the <Sub position="3" name="class"/> class.</Text>
+        <Text>Method argument <Sub position="1" name="argument"/> must be of the <Sub position="2" name="class"/> class.</Text>
       </SubMessage>
       <SubMessage>
         <Code>93</Code>

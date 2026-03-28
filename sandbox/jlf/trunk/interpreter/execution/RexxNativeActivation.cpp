@@ -198,7 +198,7 @@ void RexxNativeActivation::reportStemError(size_t position, RexxObject *object)
 {
     if (activationType == METHOD_ACTIVATION)
     {
-        reportException(Error_Incorrect_method_nostem, position + 1, object);
+        reportException(Error_Incorrect_method_nostem, OREF_POSITIONAL, position + 1, object);
     }
     else
     {
@@ -1880,7 +1880,7 @@ size_t RexxNativeActivation::unsignedIntegerValue(RexxObject *o, size_t position
     // convert using the whole value range
     if (!Numerics::objectToUnsignedInteger(o, temp, maxValue))
     {
-        reportException(Error_Invalid_argument_range, OREF_positional, new_array(new_integer(position + 1), IntegerZero, Numerics::stringsizeToObject(maxValue), o));
+        reportException(Error_Invalid_argument_range, new_array(OREF_positional, new_integer(position + 1), IntegerZero, Numerics::stringsizeToObject(maxValue), o));
     }
     return temp;
 }
@@ -1922,7 +1922,7 @@ uint64_t RexxNativeActivation::unsignedInt64Value(RexxObject *o, size_t position
     // convert using the whole value range
     if (!Numerics::objectToUnsignedInt64(o, temp))
     {
-        reportException(Error_Invalid_argument_range, OREF_positional, new_array(new_integer(position + 1), IntegerZero, Numerics::int64ToObject(INT64_MAX), o));
+        reportException(Error_Invalid_argument_range, new_array(OREF_positional, new_integer(position + 1), IntegerZero, Numerics::int64ToObject(INT64_MAX), o));
     }
     return temp;
 }

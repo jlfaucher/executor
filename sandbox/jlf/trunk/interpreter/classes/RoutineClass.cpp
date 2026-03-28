@@ -561,7 +561,7 @@ RoutineClass *RoutineClass::newRoutineObject(RexxString *pgmname, RexxArray *sou
     if (newSourceArray == (RexxArray *)TheNilObject)
     {
        /* raise an error                    */
-       reportException(Error_Incorrect_method_no_method, position);
+       reportException(Error_Incorrect_method_no_method, OREF_positional, position);
     }
     else                                 /* have an array, make sure all      */
     {

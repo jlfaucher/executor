@@ -3542,7 +3542,7 @@ special character (such as a parenthesis).
 <varlistentry>
 <term>948</term>
 <listitem>
-<para>Method <emphasis role="italic">kind</emphasis> argument <emphasis role="italic">argument</emphasis> must be of the <emphasis role="italic">class</emphasis> class.</para>
+<para>Method argument <emphasis role="italic">argument</emphasis> must be of the <emphasis role="italic">class</emphasis> class.</para>
 </listitem>
 </varlistentry>
 <varlistentry>

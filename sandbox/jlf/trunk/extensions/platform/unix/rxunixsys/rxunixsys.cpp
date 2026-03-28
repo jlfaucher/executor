@@ -1523,14 +1523,14 @@ RexxRoutine2(RexxObjectPtr,
 
     if (strlen(str) == 0)
     {
-        context->RaiseException2(Rexx_Error_Incorrect_call_null,
-          context->String("SYSCRYPT"), context->String("1"));
+        context->RaiseException3(Rexx_Error_Incorrect_call_null,
+          context->String("SYSCRYPT"), context->String("positional"), context->String("1"));
         return context->NullString();
     }
     if (strlen(salt) == 0)
     {
-        context->RaiseException2(Rexx_Error_Incorrect_call_null,
-          context->String("SYSCRYPT"), context->String("2"));
+        context->RaiseException3(Rexx_Error_Incorrect_call_null,
+          context->String("SYSCRYPT"), context->String("positional"), context->String("2"));
         return context->NullString();
     }
 

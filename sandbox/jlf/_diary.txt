@@ -3,6 +3,92 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Mar 27
+
+Review all the error messages with 'kind', because testing icu4oorexx showed a
+problem of arguments shift in an error message.
+
+40003   Error_Incorrect_call_minarg                 1
+40004   Error_Incorrect_call_maxarg                 1
+40005   Error_Incorrect_call_noarg                  2
+40011   Error_Incorrect_call_number                 2       not used
+40012   Error_Incorrect_call_whole                  2
+40013   Error_Incorrect_call_nonnegative            2
+40014   Error_Incorrect_call_positive               2
+40019   Error_Incorrect_call_format_invalid         2
+40021   Error_Incorrect_call_null                   2       missing for SysCrypt
+40022   Error_Incorrect_call_option                 2       not used
+40023   Error_Incorrect_call_pad                    2
+40024   Error_Incorrect_call_binary                 2       not used
+40025   Error_Incorrect_call_hex                    2       not used
+40026   Error_Incorrect_call_symbol                 2
+40028   Error_Incorrect_call_pad_or_name            2       not used
+40043   Error_Incorrect_call_parm_wrong_sep         2
+40044   Error_Incorrect_call_format_incomp_sep      2
+40902   Error_Incorrect_call_toobig                 2       not used
+40903   Error_Incorrect_call_range                  2
+40904   Error_Incorrect_call_list                   2       ok array ExternalFunctions.cpp
+40912   Error_Incorrect_call_array                  2       not used
+40913   Error_Incorrect_call_nostring               2       not used
+40919   Error_Incorrect_call_nostem                 1
+88901   Error_Invalid_argument_noarg                1
+88902   Error_Invalid_argument_number               1
+88903   Error_Invalid_argument_whole                1       not used
+88904   Error_Invalid_argument_nonnegative          1
+88905   Error_Invalid_argument_positive             1
+88906   Error_Invalid_argument_toobig               1       not used
+88907   Error_Invalid_argument_range                1       ok array rexxutil.cpp, RexxNativeActivation.cpp, ExternalFunctions.cpp, fix RexxNativeActivation::unsignedInt64Value
+88908   Error_Invalid_argument_null                 1
+88909   Error_Invalid_argument_string               1
+88910   Error_Invalid_argument_pad                  1       not used
+88911   Error_Invalid_argument_length               1       not used
+88912   Error_Invalid_argument_position             1       not used
+88913   Error_Invalid_argument_noarray              1
+88914   Error_Invalid_argument_noclass              1
+88915   Error_Invalid_argument_argType              1       not used
+88916   Error_Invalid_argument_list                 1       ok array APICommon.cpp
+88917   Error_Invalid_argument_general              1
+88918   Error_Invalid_argument_format               1       not used
+88919   Error_Invalid_argument_pointer              1
+88920   Error_Invalid_argument_nostem               1       not used
+88921   Error_Invalid_argument_double               1
+88922   Error_Invalid_argument_maxarg               1
+88925   Error_Invalid_argument_nonnegative_number   1       not used
+88926   Error_Invalid_argument_positive_number      1       not used
+88927   Error_Invalid_argument_logical              1       not used
+93901   Error_Incorrect_method_minarg               1
+93902   Error_Incorrect_method_maxarg               1
+93903   Error_Incorrect_method_noarg                1
+93904   Error_Incorrect_method_number               1
+93905   Error_Incorrect_method_whole                1
+93906   Error_Incorrect_method_nonnegative          1
+93907   Error_Incorrect_method_positive             1
+93908   Error_Incorrect_method_toobig               1       not used
+93909   Error_Incorrect_method_range                1       not used
+93911   Error_Incorrect_method_null                 1       not used
+93912   Error_Incorrect_method_hex                  1
+93913   Error_Incorrect_method_symbol               1       not used
+93914   Error_Incorrect_method_list                 1       ok array rxwinsys.cpp
+93916   Error_Incorrect_method_string               1       not used
+93938   Error_Incorrect_method_nostring             1
+93939   Error_Incorrect_method_noarray              1
+93944   Error_Incorrect_method_nomessage            1
+93945   Error_Incorrect_method_message_noarg        1       not used
+93948   Error_Incorrect_method_noclass
+        orxncurses.cpp                          many methods where the kind paramter is missing
+        rxwinsys.cpp    wrongClassException     ok kind paramter
+        --> Remove the kind paramter from message, update rxwinsys.cpp
+        old: <Text>Method <Sub position="1" name="kind"/> argument <Sub position="2" name="argument"/> must be of the <Sub position="3" name="class"/> class.</Text>
+        new: <Text>Method argument <Sub position="1" name="argument"/> must be of the <Sub position="2" name="class"/> class.</Text>
+93952   Error_Incorrect_method_nostring_inarray     1
+93953   Error_Incorrect_method_argType              1
+93961   Error_Incorrect_method_no_method            1       missing for RoutineClass.cpp RoutineClass::newRoutineObject
+93969   Error_Incorrect_method_nostem               1       missing for RexxNativeActivation.cpp RexxNativeActivation::reportStemError
+93971   Error_Incorrect_method_multi_dimension      1       not used
+93978   Error_Incorrect_method_request_type         1       not used
+
+
+===============================================================================
 2026 Mar 3
 
 [Encoded strings]

@@ -1125,7 +1125,7 @@ $ Error_Incorrect_method_section
 473 Method SECTION can be used only on single-dimensional arrays.
 
 $ Error_Incorrect_method_noclass
-474 Method &1 argument &2 must be of the &3 class.
+474 Method argument &1 must be of the &2 class.
 
 $ Error_Incorrect_method_nomatch
 475 The value and index objects must be the same for PUT to an index-only collection.

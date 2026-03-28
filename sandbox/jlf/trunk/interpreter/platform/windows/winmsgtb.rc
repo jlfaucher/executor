@@ -407,7 +407,7 @@ BEGIN
    93945    "Missing &1 argument in message array; argument &2 is required."
    93946    "A message array must be a single-dimensional array with 2 elements."
    93947    "Method SECTION can be used only on single-dimensional arrays."
-   93948    "Method &1 argument &2 must be of the &3 class."
+   93948    "Method argument &1 must be of the &2 class."
    93949    "The value and index objects must be the same for PUT to an index-only collection."
    97001    "Object ""&1"" does not understand message ""&2""."
    3905    "Encoded compiled program ""&1"" cannot be decoded."
