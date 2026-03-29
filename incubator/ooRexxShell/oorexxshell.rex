@@ -1092,6 +1092,8 @@ Helpers
         call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
     end
 
+    .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
+
     -- Second customization, after all preloaded packages
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
     call loadPackage .oorexxshell~portableCustomizationFile2, /*silentLoaded*/ \ .ooRexxShell~isInteractive, /*silentNotLoaded*/ .true
@@ -1391,6 +1393,7 @@ Helpers
 ::attribute gotoLabel class -- Used in demo mode: either "" or the label to reach
 ::attribute hasBsf class -- Will be .true if BSF.cls has been loaded
 ::attribute hasClauser class -- Will be .true if the Clauser class is available (either natively with Executor, or if oorexxshell_clauser.cls has been loaded
+::attribute hasICU4ooRexx class -- Will be true if the binding with ICU4C has been loaded
 ::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
@@ -1528,6 +1531,7 @@ Helpers
     -- optional components
     self~hasBsf = .false
     self~hasClauser = .false
+    self~hasICU4ooRexx = .false
     self~hasIndentedStream = .false
     self~hasQueries = .false
     self~hasRegex = .false
@@ -1741,6 +1745,7 @@ Helpers
     ",[custom] errorColor",
     ",[info]   hasBsf",
     ",[info]   hasClauser",
+    ",[info]   hasICU4ooRexx",
     ",[info]   hasIndentedStream",
     ",[info]   hasQueries",
     ",[info]   hasRegex",

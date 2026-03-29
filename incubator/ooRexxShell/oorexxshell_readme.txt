@@ -446,6 +446,15 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 Mar 26
+
+Preload the optional ICU4ooRexx library.
+
+New attribute
+.ooRexxShell~hasICU4ooRexx       true if the binding with ICU4C has been loaded
+
+
+-----------------------------------------------
 2026 jan 14
 
 Declare oorexxshell.rex executable.
