@@ -3,6 +3,42 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Mar 29
+
+I need the oorexshell queries with Executor5-bulk.
+Start working on oorexxshell_queries_no_ext.cls.
+
+First step:
+support the matcher functionality current implemented by stringChunkExtended.cls
+Implemented by stringChunkMatcher.cls, which is preloaded by ooRexxShell.
+Compatible with ooRexx 4.2 and ooRexx 5.
+The regular expressions can't be used with ooRexx 4.2 because their implementation
+depends on string~contains which is not available with ooRexx4.2.
+Examples:
+
+    -- caseless equality
+    matcher = matcher("object")
+    say matcher~match("ObjeCt") -- true
+    say matcher~match("my ObjeCt") -- false
+
+    -- caseless equality with generic character
+    matcher = matcher("*object")
+    say matcher~match("ObjeCt") -- true
+    say matcher~match("my ObjeCt") -- true
+
+    -- caseless inclusion
+    matcher = matcher("object", /*wholeString:*/.false)
+    say matcher~match("ObjeCt") -- true
+    say matcher~match("my ObjeCt") -- true
+
+    -- caseless inclusion, regular expression: "object" at the begining or at the end.
+    matcher = matcher("/^object|object$", /*wholeString:*/.false)
+    say matcher~match("ObjeCt") -- true
+    say matcher~match("my ObjeCt") -- true
+    say matcher~match("my ObjeCts") -- false
+
+
+===============================================================================
 2026 Mar 27
 
 Review all the error messages with 'kind', because testing icu4oorexx showed a

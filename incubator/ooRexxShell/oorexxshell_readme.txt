@@ -446,6 +446,15 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 Mar 29
+
+Preload the optional stringChunkMatcher.cls package.
+This is a prerequisite for the support of queries with ooRexx 4.2, ooRexx 5
+and Executor5-bulk.
+Note: ooRexx 4.2 doesnt support regular expressions.
+
+
+-----------------------------------------------
 2026 Mar 26
 
 Preload the optional ICU4ooRexx library.
