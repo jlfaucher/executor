@@ -1022,7 +1022,6 @@ Helpers
         .ooRexxShell~isExtended = .false
         call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
         call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
-        call loadPackage "extension/stringChunkMatcher.cls"
         .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
         .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end
@@ -1091,6 +1090,10 @@ Helpers
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
         call loadPackage "pipeline/pipe_extension.cls"
         call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
+    end
+    else do
+        call loadPackage "pipeline/pipe_std.cls"
+        call loadPackage "extension/stringChunkMatcher.cls"
     end
 
     .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded

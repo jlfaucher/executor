@@ -449,6 +449,8 @@ History of changes
 2026 Mar 29
 
 Preload the optional stringChunkMatcher.cls package.
+Preload the optional pipe_std.cls.cls package.
+
 This is a prerequisite for the support of queries with ooRexx 4.2, ooRexx 5
 and Executor5-bulk.
 Note: ooRexx 4.2 doesnt support regular expressions.

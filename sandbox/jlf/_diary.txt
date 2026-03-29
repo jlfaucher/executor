@@ -9,9 +9,9 @@ I need the oorexshell queries with Executor5-bulk.
 Start working on oorexxshell_queries_no_ext.cls.
 
 First step:
-support the matcher functionality current implemented by stringChunkExtended.cls
+Support the matcher functionality currently implemented by stringChunkExtended.cls.
 Implemented by stringChunkMatcher.cls, which is preloaded by ooRexxShell.
-Compatible with ooRexx 4.2 and ooRexx 5.
+Compatible with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
 The regular expressions can't be used with ooRexx 4.2 because their implementation
 depends on string~contains which is not available with ooRexx4.2.
 Examples:
@@ -36,6 +36,19 @@ Examples:
     say matcher~match("ObjeCt") -- true
     say matcher~match("my ObjeCt") -- true
     say matcher~match("my ObjeCts") -- false
+
+
+Second step:
+Support the inject pipe stage and its subclasses, currently implemented by
+pipe_extension.cls.
+Implemented by pipe_std.cls, which is preloaded by ooRexxShell.
+Only objects understanding the "call" message are supported as doers;
+Routines are such objects.
+Compatible with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
+Examples:
+
+    (.importedPackages "recursive" "once" "after" "mem.package" | .console)~go(.context~package)
+    (.subclasses "recursive" "once" "after" | .console)~go(.object)
 
 
 ===============================================================================
