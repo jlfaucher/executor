@@ -446,6 +446,19 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 Apr 01
+
+Preload the optional callable_std.cls package.
+
+
+-----------------------------------------------
+2026 Mar 31
+
+The results of the queries are now caseless sorted.
+Add the "Validate" class in the list of predefined classes.
+
+
+-----------------------------------------------
 2026 Mar 29
 
 Preload the optional stringChunkMatcher.cls package.

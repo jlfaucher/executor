@@ -92,6 +92,7 @@ loadPackage:
         'Table',
         'TimeSpan',
         'Unicode',              -- extension
+        'Validate',
         'VariableReference',    -- ooRexx5
         'WeakReference',
         'server'
@@ -255,7 +256,7 @@ attribute traceFilter
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
-    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
 
 
 ::method displayClassMethods class
@@ -292,7 +293,7 @@ attribute traceFilter
         methods = .relation~new
         call collectMethods
         lineCount = filteringStream~lineCount
-        displayer~sayCollection(methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
+        displayer~sayCollection(methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
             expose displaySource
             if displaySource then do
                 method = item~getUserData("method")
@@ -470,7 +471,7 @@ attribute traceFilter
               methods[methodDescription] = classDescription
             },
     )
-    displayer~sayCollection( methods, /*title*/.nil, .ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
+    displayer~sayCollection( methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
             method = item~getUserData("method")
@@ -531,7 +532,7 @@ attribute traceFilter
         s~next
     end
     -- Sort by routine name, ignoring the 10 first characters which are routine flags.
-    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.ColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
+    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/){
         expose displaySource
         if displaySource then do
             routine = item~getUserData("routine")

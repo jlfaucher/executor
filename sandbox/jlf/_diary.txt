@@ -3,10 +3,10 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
-2026 Mar 29
+2026 Mar 29, Apr 01
 
 I need the oorexshell queries with Executor5-bulk.
-Start working on oorexxshell_queries_no_ext.cls.
+Start working on oorexxshell_queries_std.cls.
 
 First step:
 Support the matcher functionality currently implemented by stringChunkExtended.cls.
@@ -49,6 +49,26 @@ Examples:
 
     (.importedPackages "recursive" "once" "after" "mem.package" | .console)~go(.context~package)
     (.subclasses "recursive" "once" "after" | .console)~go(.object)
+
+
+Third step:
+Support lambdas and closures with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
+Examples:
+
+    -- Lambda from ooRexxShell:
+    -- Display all the files in the home directory whose name contains "bash".
+    -- Here, .context must be passed to allow finding the "matcher" routine
+    -- that was loaded by ooRexxShell.
+    (.filetree | .select .lambda~new('use arg item; return matcher("*bash*")~match(item~name)', .context) | .console)~go("~")
+
+    -- Closure
+    v = 1
+    closure = .Closure~new('expose v; say v; v += 10', .context) -- capture the value of v: 1
+    v = 2
+    closure~call()                          -- display 1
+    closure~call()                          -- display 11
+    closure~call()                          -- display 21
+    say v                                   -- v not impacted by the closure: 2
 
 
 ===============================================================================
