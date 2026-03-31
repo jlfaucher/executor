@@ -1023,6 +1023,7 @@ Helpers
         call loadPackage "extension/std/extensions-std.cls" -- works with standard ooRexx, but integration is weak
         call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
         call loadPackage "extension/callable_std.cls" -- lambdas and closures with standard ooRexx.
+        call loadPackage "extension/extender_std.cls" -- extension by delegation with standard ooRexx.
         .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
         .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end

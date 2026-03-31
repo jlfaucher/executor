@@ -71,6 +71,20 @@ Examples:
     say v                                   -- v not impacted by the closure: 2
 
 
+Fourth step:
+Support extension by delegation with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
+First need: Add support for user data.
+Examples:
+
+    myString = .Extender~new("dog")
+    myString~setUserData("lang", "english")
+    myString~setUserData("french", "chien")
+    say myString "in" myString~getUserData("lang") "translates to" myString~getUserData("french") "in french."
+
+    Output:
+    dog in english translates to chien in french.
+
+
 ===============================================================================
 2026 Mar 27
 

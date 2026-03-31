@@ -449,6 +449,7 @@ History of changes
 2026 Apr 01
 
 Preload the optional callable_std.cls package.
+Preload the optional extender_std.cls package.
 
 
 -----------------------------------------------
