@@ -1024,6 +1024,7 @@ Helpers
         call loadPackage "procedural/dispatcher.cls" -- procedural version of a selection of Executor's extensions
         call loadPackage "extension/callable_std.cls" -- lambdas and closures with standard ooRexx.
         call loadPackage "extension/extender_std.cls" -- extension by delegation with standard ooRexx.
+        call loadPackage "extension/stringChunkMatcher.cls"
         .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
         .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end
@@ -1094,8 +1095,8 @@ Helpers
         call loadPackage "rgf_util2/rgf_util2_wrappers.rex"
     end
     else do
+        .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries_std.cls")
         call loadPackage "pipeline/pipe_std.cls"
-        call loadPackage "extension/stringChunkMatcher.cls"
     end
 
     .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
@@ -2228,10 +2229,6 @@ Helpers
 
 ::method checkQueryManagerPrerequisites class
     use strict arg verbose=.true
-    if \.ooRexxShell~isExtended then do
-        if verbose then .ooRexxShell~sayError("Needs extended ooRexx")
-        return .false
-    end
     if \.ooRexxShell~hasRgfUtil2Extended then do
         if verbose then .ooRexxShell~sayError("Needs extended rgf_util2")
         return .false

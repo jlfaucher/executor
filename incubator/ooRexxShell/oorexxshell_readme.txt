@@ -451,6 +451,11 @@ History of changes
 Preload the optional callable_std.cls package.
 Preload the optional extender_std.cls package.
 
+Preload the optional oorexxshell_queries_std.cls package.
+This package brings the support of queries by ooRexx 4.2, ooRexx 5 and
+Executor5-bulk.
+Note: ooRexx 4.2 doesnt support regular expressions.
+
 
 -----------------------------------------------
 2026 Mar 31

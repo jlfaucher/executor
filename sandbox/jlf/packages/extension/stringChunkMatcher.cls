@@ -1,6 +1,11 @@
 /*
+This is an adaptation of stringChunkExtended.cls to ensure compatibility
+with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
+Only objects understanding the "call" message are supported as doers;
+Routines are such objects.
+
 Keep it compatible with official ooRexx 4.2.
-Unfortunately, regex.cls is not supported.
+Unfortunately, regex.cls is not supported by ooRexx 4.2.
 It depends on string~contains which is not available with ooRexx 4.2.
 */
 

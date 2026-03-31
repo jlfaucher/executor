@@ -85,6 +85,11 @@ Examples:
     dog in english translates to chien in french.
 
 
+Finish the work on oorexxshell_queries_std.cls.
+This package brings the support of queries by ooRexx 4.2, ooRexx 5 and
+Executor5-bulk.
+
+
 ===============================================================================
 2026 Mar 27
 

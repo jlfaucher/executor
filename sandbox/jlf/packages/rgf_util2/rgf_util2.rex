@@ -1774,7 +1774,7 @@ syntax:              -- propagate condition
     -- add action, to let do something for each item
     numeric digits -- stop any propagated settings, to have the default value for digits()
     use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
-    doer = .nil
+    doer = action
     if .nil <> action then
     do
       if interpreter_extended() then doer = action~doer

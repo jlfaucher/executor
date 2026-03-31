@@ -2,7 +2,10 @@
 This is an adaptation of pipe_extensions.cls to ensure compatibility
 with ooRexx 4.2, ooRexx 5 and Executor5-bulk.
 Only objects understanding the "call" message are supported as doers;
-Routines are such objects.
+Routines, Lambdas and Closures are such objects.
+See oorexxshell_queries_std.cls for a concrete usage example.
+
+Keep it compatible with official ooRexx 4.2.
 */
 
 ::requires "pipeline/pipe.cls"
@@ -420,11 +423,16 @@ self~init:super
     forward class (super) arguments (args)
 
 
+::routine listIfNotSymbolicLink
+    use strict arg aFile
+    if SysIsFileLink(aFile~absolutePath) then return .nil -- risk of infinite path !
+    return aFile~list
+
 ::routine fileTree_producer
     -- Returns files having a path relative to item's path.
     use arg item -- index, dataflow : not needed
     if \item~isA(.File) then item = .File~new(item~string)
-    childNames = item~listIfNotSymbolicLink -- don't dereference symbolic links
+    childNames = listIfNotSymbolicLink(item) -- don't dereference symbolic links
     if .nil == childNames then return;
     childs = .array~new(childNames~items)
     do childName over childNames
