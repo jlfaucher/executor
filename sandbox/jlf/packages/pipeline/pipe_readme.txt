@@ -110,8 +110,9 @@ The common option "memorize[.tag]" is still needed to assign a tag.
     ["<command>"|<command-doer>]
 
 
-The followings pipeStages need an extended interpreter
-------------------------------------------------------
+The followings pipeStages no longer need an extended interpreter
+They are available with ooRexx 4.2, ooRexx 5.x and Executor5[-bulk]
+-------------------------------------------------------------------
 
 .append : I1 --- O1
     <producer-doerFactory>
@@ -187,6 +188,7 @@ The followings pipeStages need an extended interpreter
     <filter-doer>
 
 
+The followings pipeStages need an extended interpreter
 The followings pipeStages can be used only in a copipe
 ------------------------------------------------------
 
