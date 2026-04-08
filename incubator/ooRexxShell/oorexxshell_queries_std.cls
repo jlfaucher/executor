@@ -126,6 +126,7 @@ loadPackage:
 
 
 ::method collect class
+    -- Remember: this implementation works with ooRexx 4.2 where classes have no "package" method.
     use strict arg context, matchers=(.array~new)
     publicClasses = .relation~new
     ( -
@@ -144,6 +145,7 @@ loadPackage:
             , .context) -
     )~go(context~package)
     -- Previous queries do not return the predefined classes.
+    -- Remember (again): this implementation works with ooRexx 4.2 where classes have no "package" method.
     ( -
         .subclasses "recursive" "once" "after" -
       | .do .Closure~new( -
@@ -153,7 +155,22 @@ loadPackage:
               '    package = .nil;' -
               '    if item~hasMethod("package") then package = item~package;' -
               '    /*say "*** item~id =" item~id "package =" package*/;' -
-              '    publicClasses[item] = package;' -
+              '    if .nil == package then do;' -
+              '        /* No package, can''t guess if the class is public or private. */;'-
+              '        /* Assume it''s public. */;' -
+              '        publicClasses[item] = package;' -
+              '    end;' -
+              '    else do;' -
+              '        /* I have a problem with Executor: */;' -
+              '        /* The publicClasses directory of the Rexx package is empty. */;' -
+              '        /* In this case, assume that all the Rexx classes are public. */;' -
+              '        if package~publicClasses~items == 0 | package~publicClasses~hasEntry(item~id) then do /* yes! hasEntry, not hasIndex which needs uppercases */;' -
+              '            publicClasses[item] = package;' -
+              '        end;' -
+              '        else do;' -
+              '            privateClasses[item] = package;' -
+              '        end;' -
+              '    end;' -
               'end;' -
             , .context) -
     )~go(.object)
@@ -188,7 +205,6 @@ loadPackage:
 ::method init
     expose klass package visibility
     use strict arg klass, package, visibility
-    -- say klass "/" package "/" visibility
     if .nil == package, self~class~isPredefinedClass(klass~id) then package = self~class~REXXPackage
 
 
@@ -269,6 +285,7 @@ method sayStackFrames   (not used)
 method singularPlural
 method prettyString     (not used)
 attribute traceFilter
+attribute maxPackageNameWidth
 */
 
 
@@ -288,7 +305,8 @@ attribute traceFilter
     do while s~available
         classInfo = s~item
         classFlags = classInfos(classInfo~klass, classInfo~visibility)
-        classes[classFlags~left(10) quoted(classInfo~klass~id, "'")] = "("packageInfos(classInfo~package)")"
+        package = packageInfos(classInfo~package, displayer)
+        classes[classFlags~left(10) quoted(classInfo~klass~id, "'")] = package
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
@@ -322,13 +340,20 @@ attribute traceFilter
     count = 1
     do classInfo over classInfosSorted
         --say
-        --displayer~sayInfo("[Info]" "["count"]" "Class" quoted(classInfo~klass~id, "'") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        --displayer~sayInfo("[Info]" "["count"]" "Class" quoted(classInfo~klass~id, "'") classInfos(classInfo~klass, classInfo~visibility) packageInfos(classInfo~package, displayer))
         filteringStream~doBeforeNextLine = -
             .Closure~new( -
                 'expose displayer count classInfo;' -
                 'use arg /* none */ ;' -
                 'say;' -
-                'displayer~sayInfo("[Info]" "["count"]" "Class" quoted(classInfo~klass~id, "''") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")");' -
+                'info =' -
+                '    "[Info]"' -
+                '    "["count"]"' -
+                '    "Class"' -
+                '    quoted(classInfo~klass~id, "''")' -
+                '    classInfos(classInfo~klass, classInfo~visibility)' -
+                '    packageInfos(classInfo~package, displayer);' -
+                'displayer~sayInfo(info);' -
             , .context) -- This action will be executed before the first line of methods is displayed, if any (will depend on the filtering)
         methods = .relation~new
         call collectMethods
@@ -362,7 +387,7 @@ attribute traceFilter
           | .splitter[.inject .Lambda~new('use arg item; return item~instanceMethods(item)') "iterateAfter" "mem.classMethod", -
                       .inject .Lambda~new('use arg item; return item~methods(item)') "iterateAfter" "mem.instanceMethod"] -
           | .do .Closure~new( -
-                 'expose classInfos methods;' -
+                 'expose displayer classInfos methods;' -
                  'use arg item, index, dataflow, pipeContext;' -
                   'package = .nil;' -
                   'if .nil <> item then package = item~package /* if method not hidden */ ;' -
@@ -387,7 +412,7 @@ attribute traceFilter
                   'methodDescription = flags~left(10) quoted(index, "''");' -
                   '/* remember: the same key (methodDescription) can be used several times */' -
                   '/* so don''t store the method instance on the key ! Store it on the value (classDescription). */' -
-                  'classDescription = classId superclassId "("packageInfos(package)")";' -
+                  'classDescription = classId superclassId packageInfos(package, displayer);' -
                   'classDescription = .Extender~new(classDescription);' -
                   'classDescription~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
                   'methods[methodDescription] = classDescription;' -
@@ -446,7 +471,14 @@ attribute traceFilter
     count = 1
     do classInfo over classInfosSorted
         say
-        displayer~sayInfo("[Info]" "["count"]" "Class" quoted(classInfo~klass~id, "'") classInfos(classInfo~klass, classInfo~visibility) "("packageInfos(classInfo~package)")")
+        info = -
+            "[Info]" -
+            "["count"]" -
+            "Class" -
+            classInfo~klass~id~quoted("'") -
+            classInfos(classInfo~klass, classInfo~visibility) -
+            packageInfos(classInfo~package, displayer)
+        displayer~sayInfo(info)
         call displayClassHelp classInfo~klass
         count += 1
     end
@@ -504,7 +536,7 @@ attribute traceFilter
                   'return matched;' -
                 , .context) -
       | .do .Closure~new( -
-              'expose classInfos methods;' -
+              'expose displayer classInfos methods;' -
               'use arg item, index, dataflow, pipeContext;' -
               'package = .nil;' -
               'if .nil <> item then package = item~package /* if method not hidden */ ;' -
@@ -518,7 +550,7 @@ attribute traceFilter
               'methodDescription = flags~left(10) quoted(index, "''");' -
               '/* remember: the same key (methodDescription) can be used several times */' -
               '/* so don''t store the method instance on the key ! Store it on the value (classDescription). */' -
-              'classDescription = quoted(class~id, "''") "("packageInfos(package)")";' -
+              'classDescription = quoted(class~id, "''") packageInfos(package, displayer);' -
               'classDescription = .Extender~new(classDescription);' -
               'classDescription~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
               'methods[methodDescription] = classDescription;' -
@@ -586,7 +618,7 @@ attribute traceFilter
         routineDescription = routineFlags~left(10) quoted(routineInfo~name, "'")
         -- remember: the same key (routineDescription) can be used several times
         -- so don't store the routine instance on the key ! Store it on the value (packageDescription).
-        packageDescription = "("packageInfos(routineInfo~package)")"
+        packageDescription = packageInfos(routineInfo~package, displayer)
         packageDescription = .Extender~new(packageDescription)
         packageDescription~setUserData("routine", routineInfo~routine) -- to let retrieve the routine (yes!)
         routines[routineDescription] = packageDescription
@@ -741,22 +773,49 @@ attribute traceFilter
 ::routine methodPackageInfos public
     -- Not used because
     -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
-    use strict arg method
+    use strict arg method, displayer
     if .nil == method then return "UNDEFINED"
-    return packageInfos(method~package)
+    return packageInfos(method~package, displayer)
 
 
 ::routine packageInfos public
     -- With ooRexx < 5.0
-    -- The package of the predefined methods is .nil.
-    -- It's not possible to get directly the package of a class.
+    --     The package of the predefined methods is .nil.
+    --     It's not possible to get directly the package of a class.
     -- With ooRexx >= 5.0
-    -- The package of a class created dynamically is still .nil.
-    use strict arg package
-    if .nil == package then return ""
-    packageName = package~name
-    if packageName == "" then return "" -- .file~new does not support an empty string, and the error message is cryptic: Incorrect position argument specified; found "0"
-    return .file~new(packageName)~name  -- return the filename only, not the full path
+    --     The package of a class created dynamically is still .nil.
+    use strict arg package, displayer
+    if .nil == package then return "()"
+    packageName = package~name -- can be a full path
+    width = displayer~maxPackageNameWidth
+    if \ width~datatype("W") then width = 0
+    if width > 0 then do
+        -- return the full path, truncated
+        if width < 3 then width = 3
+        if packageName~length > width then do
+            packageName = "..." || packageName~right(width - 3)
+        end
+    end
+    else if width == 0 then do
+        -- return the filename only, not the full path. Not truncated.
+
+        -- With ooRexx4.2, .File~new does not support an empty string, and the
+        -- error message is cryptic:
+        -- Incorrect position argument specified; found "0"
+        if packageName \== "" then packageName = .File~new(packageName)~name
+    end
+    else do -- width < 0
+        -- return a path containing at most abs(width) path separators
+        pos = packageName~length + 1
+        separator = .File~separator
+        do abs(width) + 1 while pos > 1
+            pos = packageName~lastPos(separator, pos - 1)
+        end
+        if pos > 1 then do
+            packageName = "..." || packageName~substr(pos)
+        end
+    end
+    return "("packageName")" || d2c(0) package~name -- package full path used for filtering, will be removed from the output
 
 
 ::routine classInfos public
@@ -785,6 +844,23 @@ attribute traceFilter
 ::routine quoted private
     use strict arg string, quote='"'
     return quote || string~changestr(quote, quote~copies(2)) || quote
+
+
+::routine cleanup
+    -- Everything from \0 is deleted
+    use strict arg line
+    -- if line~pos("[cleanup]") == 1 then return line -- startsWith not supported by ooRexx 4.2
+    -- say "[cleanup]" line
+
+    marker = d2c(0)
+    pos = line~pos(marker)
+    if pos \== 0 then line = line~left(pos - 1)
+    else do
+        marker = "[00]"
+        pos = line~pos(marker)
+        if pos \== 0 then line = line~left(pos - 1)
+    end
+    return line
 
 
 -------------------------------------------------------------------------------
@@ -978,6 +1054,7 @@ attribute traceFilter
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~call()
         end
+        line = cleanup(line)
         forward to (self~interceptedDestination) array (line)
     end
     return 0
@@ -997,6 +1074,7 @@ attribute traceFilter
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~call()
         end
+        line = cleanup(line)
         forward to (self~interceptedDestination) array (line)
     end
     return 0
@@ -1009,6 +1087,7 @@ attribute traceFilter
     -- no filtering, to let always display the escape characters for colors
     if .true /*self~select(line)*/ then do
         -- self~lineCount += 1 -- incomplete line...
+        line = cleanup(line)
         self~interceptedDestination~charOut(line)
         forward to (self~interceptedDestination)
     end

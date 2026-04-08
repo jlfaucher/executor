@@ -1015,6 +1015,12 @@ Helpers
     -- The class IndentedStream is optional. Used internally by the "<" command.
     .ooRexxShell~hasIndentedStream = loadPackage("utilities/indentedStream.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true)
 
+    -- Test the existence of a .Clauser class now, before loading user's packages.
+    -- The package "Rexx.Parser.cls" defines a .Clauser class.
+    -- MY .Clauser class will be found before HIS .Clauser class, thanks to the search order of ooRexx.
+    if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
+                            else .ooRexxShell~hasClauser = loadPackage("oorexxshell_clauser.cls")
+
     -- Load the extensions now, because some packages may depend on extensions
     -- for compatibility with ooRexx5 (ex: json, regex)
     .ooRexxShell~isExtended = .true
@@ -1025,6 +1031,7 @@ Helpers
         call loadPackage "extension/callable_std.cls" -- lambdas and closures with standard ooRexx.
         call loadPackage "extension/extender_std.cls" -- extension by delegation with standard ooRexx.
         call loadPackage "extension/stringChunkMatcher.cls"
+        call loadPackage "Rexx.Parser.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "P" -- Namespace "P"
         .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
         .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end
@@ -1085,9 +1092,6 @@ Helpers
 
         if environment_string("UNO_INSTALLED") <> "" then call loadPackage "UNO.CLS"
 	end
-
-    if .Clauser~isA(.Class) then .ooRexxShell~hasClauser = .true
-                            else .ooRexxShell~hasClauser = loadPackage("oorexxshell_clauser.cls")
 
     if .ooRexxShell~isExtended then do
         .ooRexxShell~hasQueries = loadPackage("oorexxshell_queries.cls")
@@ -1424,6 +1428,7 @@ Helpers
 ::attribute lastCondition class -- Condition object of last error trapped by ooRexxShell
 ::attribute lastResult class -- result's value from the last interpreted line
 ::attribute maxItemsDisplayed class -- The maximum number of items to display when displaying a collection
+::attribute maxPackageNameWidth class -- Maximum width of package full path displayed by queries; assign 0 to display the filename only, not truncated
 ::attribute maybeCommand class -- Indicator used during the analysis of the command line
 ::attribute maybeCommandPrevious class
 ::attribute ooRexxHome class -- value of the environment variable OOREXX_HOME
@@ -1512,6 +1517,7 @@ Helpers
 
     -- displayer
     self~maxItemsDisplayed = 1000
+    self~maxPackageNameWidth = 0
     self~showColor = .true
     self~showColorCodes = .false
     self~showComment = .false
@@ -1768,6 +1774,7 @@ Helpers
     ",[info]   isInteractive",
     ",[info]   isPortable",
     ",[custom] maxItemsDisplayed",
+    ",[custom] maxPackageNameWidth",
     ",[info]   ooRexxHome",
     ",[info]   portableConfigHome",
     ",[info]   portableCustomizationFile1",

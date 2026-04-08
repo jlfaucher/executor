@@ -446,6 +446,67 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 Apr 08
+
+Fix the visibility of predefined classes (was always public).
+This fix is only for ooRexx5 and Executor5[-bulk].
+ooRexx 4.2 and Executor still report all predefined classes as public.
+
+
+Preload the optional Rexx.Parser.cls package by Josep Maria to make its classes
+visible to queries.
+https://github.com/JosepMariaBlasco/rexx-parser
+
+
+New attribute
+.ooRexxShell~maxPackageNameWidth = 0 by default.
+
+Modify the display of package names to provide more contextual information:
+- if .ooRexxShell~maxPackageNameWidth > 0, display the package’s full path,
+  truncated to maxPackageNameWidth characters from the end (minimum length: 3).
+- if .ooRexxShell~maxPackageNameWidth == 0, display the package’s filename
+  without truncation (previous behavior).
+- if .ooRexxShell~maxPackageNameWidth < 0, display the package’s full path,
+  truncated to abs(maxPackageNameWidth) directories from the end.
+
+Example with .ooRexxShell~maxPackageNameWidth = 40
+    ooRexx[sh]> ?c *parse*
+    P.         'DateParser'        : (...ang/debug/delivery/bin/dateparser.cls)
+    ..         'DateParserContext' : (...ang/debug/delivery/bin/dateparser.cls)
+    P.         'PARSE.INSTRUCTION' : (...arser/git/bin/KeywordInstructions.cls)
+    P.         'Parser'            : (...xx/official/incubator/regex/regex.cls)
+    ..         'RegexParser'       : (...xx/official/incubator/regex/regex.cls)
+    P.         'REXX.PARSER'       : (...x/rexx-parser/git/bin/Rexx.Parser.cls)
+
+Example with .ooRexxShell~maxPackageNameWidth = 0
+    ooRexx[sh]> ?c *parse*
+    P.         'DateParser'        : (dateparser.cls)
+    ..         'DateParserContext' : (dateparser.cls)
+    P.         'PARSE.INSTRUCTION' : (KeywordInstructions.cls)
+    P.         'Parser'            : (regex.cls)
+    ..         'RegexParser'       : (regex.cls)
+    P.         'REXX.PARSER'       : (Rexx.Parser.cls)
+
+Example with .ooRexxShell~maxPackageNameWidth = -3
+    ooRexx[sh]> ?c *parse*
+    P.         'DateParser'        : (.../debug/delivery/bin/dateparser.cls)
+    ..         'DateParserContext' : (.../debug/delivery/bin/dateparser.cls)
+    P.         'PARSE.INSTRUCTION' : (.../rexx-parser/git/bin/KeywordInstructions.cls)
+    P.         'Parser'            : (.../executor5-bulk/incubator/regex/regex.cls)
+    ..         'RegexParser'       : (.../executor5-bulk/incubator/regex/regex.cls)
+    P.         'REXX.PARSER'       : (.../rexx-parser/git/bin/Rexx.Parser.cls)
+
+
+When a package name is displayed in query results, pattern matching is applied
+to its absolute path, even if only the filename is shown.
+Example:
+    ooRexx[sh]> ?c *utf* = tutor
+    P.         'UTF16'             : (UTF-16.cls)
+    P.         'UTF32'             : (UTF-32.cls)
+    P.         'UTF8'              : (UTF-8.cls)
+
+
+-----------------------------------------------
 2026 Apr 01
 
 Preload the optional callable_std.cls package.
