@@ -14,6 +14,17 @@ The dump2 routine in rgf_util2.rex accepts a new unescapedCharacters argument,
 passed to ppString.
 
 
+StringChunk class.
+In addition to "..." and '...', StringChunk now supports a third type of quotes:
+backquotes `...`.
+New methods: containerStartChar and containerEndChar.
+    chunks = stringChunks("this is `a test`!", /*withInfos*/.true)   -- [(this),(is),(a test!)]
+    say chunks[3]~containerStartChar -- `
+    say chunks[3]~containerEndChar   -- !
+Initial requirement: when analyzing query filters, ooRexxShell checks whether a
+string is enclosed in backquotes to detect metadata filters.
+
+
 ===============================================================================
 2026 Mar 29, Apr 01
 

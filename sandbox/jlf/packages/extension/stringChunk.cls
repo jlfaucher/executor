@@ -54,6 +54,19 @@ Keep it compatible with official ooRexx
     say self~description(stringWidth, index, indexWidth, 2)
 
 
+::method containerStartChar
+    -- Initial requirement: test if a chunk starts with a backquote.
+    -- chunks = stringChunks("this is `a test`!", /*withInfos*/.true)   -- [(this),(is),(a test!)]
+    -- say chunks[3]~containerStartChar -- `
+    return self~container~subChar(self~containerStart)
+
+
+::method containerEndChar
+    -- chunks = stringChunks("this is 'a test'!", /*withInfos*/.true)   -- [(this),(is),(a test!)]
+    -- say chunks[3]~containerEndChar   -- !
+    return self~container~subChar(self~containerEnd)
+
+
 ::method left
     -- Extract a left substring while keeping the contextual informations
     copy = self~copy
@@ -107,7 +120,7 @@ Keep it compatible with official ooRexx
     It's associated to a string of booleans (quotedFlags) which indicate for each character if
     it was inside a quoted section or if it was escaped.
 
-    A quote is either " or '.
+    A quote is either " or ' or `.
 
     An unquoted section is splitted in StringChunks delimited by whitespaces (anything <= 32) and break tokens.
 
@@ -215,7 +228,7 @@ Keep it compatible with official ooRexx
 
             c = string~subchar(i)
             quote = ""
-            if c == '"' | c == "'" then quote = c
+            if c == '"' | c == "'" | c == "`" then quote = c
             if quote <> "" then do
                 if splitLevel == 2 then do
                     -- Adjacent quoted/unquoted sections are separated
@@ -275,17 +288,17 @@ Keep it compatible with official ooRexx
                 c = string~subchar(i)
                 if splitLevel >= 1 then do
                     breakTokenLength = breakTokenLength(i)
-                    if c <= " " | c == '"' | c == "'" | breakTokenLength <> 0 then leave unquoted_chunk
+                    if c <= " " | c == '"' | c == "'" | c == "`" | breakTokenLength <> 0 then leave unquoted_chunk
                 end
                 else do
-                    if c == '"' | c == "'" then leave unquoted_chunk
+                    if c == '"' | c == "'" | c == "`" then leave unquoted_chunk
                 end
                 quotedFlag = "0"
                 if escapeCharacters~pos(c) <> 0 then do
                     i += 1
                     if i > string~length then return args~~append(result()) -- the escape character is not followed by a character, ignore it
                     c = string~subchar(i)
-                    if c == '"' | c == "'" then leave unquoted_chunk -- must not "eat" the quote
+                    if c == '"' | c == "'" | c == "`" then leave unquoted_chunk -- must not "eat" the quote
                     quotedFlag = "1" -- escaped character
                 end
                 current~append(c)
