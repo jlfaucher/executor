@@ -1771,9 +1771,12 @@ syntax:              -- propagate condition
     -- JLF:
     -- I prefer a notation closer to the standard notation "a String" or "an Array"
     -- add surroundItemByQuotes, surroundIndexByQuotes
+    -- add unescapedCharacters: characters that must remain unchanged during escaping.
+    --                          Applies only to items, not indexes.
+    --                          Initial requirement: do not escape 0A and 0D.
     -- add action, to let do something for each item
     numeric digits -- stop any propagated settings, to have the default value for digits()
-    use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
+    use arg coll, title=(/*"type: The" coll~class~id "class"*/ coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, unescapedCharacters="", maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     doer = action
     if .nil <> action then
     do
@@ -1898,7 +1901,7 @@ displayCurrentItem:
              where the class names are indeed sorted in alphabetic order.
              */
              do subitem over s~item~sort
-                say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes)
+                say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(subitem, surroundItemByQuotes, unescapedCharacters)
                 if .nil <> doer then
                 do
                   if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", subitem, "index", s~index)
@@ -1910,7 +1913,7 @@ displayCurrentItem:
          do
              -- shorter output
              -- say "   " "#" right(count,len)":" "index="ppIndex2(s~index)~left(maxWidth) "-> item="pp2(s~item)
-             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes)
+             say ppIndex2(s~index, surroundIndexByQuotes)~left(maxWidth) ":" pp2(s~item, surroundItemByQuotes, unescapedCharacters)
              if .nil <> doer then
              do
                   if doer~hasMethod("doWithNamedArguments") then doer~doWithNamedArguments("item", s~item, "index", s~index)
@@ -2717,13 +2720,13 @@ createCodeSnippet: procedure
    If non-string object, then show its string value and hash-value.
 */
 ::routine pp2 public       -- rgf, 20091214
-  use strict arg a1, surroundByQuotes=.true
+  use strict arg a1, surroundByQuotes=.true, unescapedCharacters=""
 
   -- JLF to rework: surroundByQuotes is supported only by String~ppString
   -- Can't pass a named argument, to remain compatible with official ooRexx.
   -- Extended
-  if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes)
-  if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes)
+  if a1~hasMethod("ppString") then return a1~ppString(surroundByQuotes, unescapedCharacters)
+  if .ExtensionDispatcher~isA(.Class), .ExtensionDispatcher~hasMethod(a1, "ppString") then return .ExtensionDispatcher~ppString(a1, surroundByQuotes, unescapedCharacters)
 
   if .ExtensionDispatcher~isA(.Class) then
   do

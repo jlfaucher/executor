@@ -3,6 +3,18 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Apr 13
+
+The ppString method accepts a new unescapedCharacters argument: Characters that
+must remain unchanged during escaping
+Initial requirement: in verbose mode, ooRexxShell queries display metadata
+separated by .endOfLine, that must not be escaped.
+
+The dump2 routine in rgf_util2.rex accepts a new unescapedCharacters argument,
+passed to ppString.
+
+
+===============================================================================
 2026 Mar 29, Apr 01
 
 I need the oorexshell queries with Executor5-bulk.

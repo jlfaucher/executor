@@ -218,8 +218,8 @@ Similar to ~makeArray(separator), with these differences:
 ::class "StringPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    use arg surroundByQuotes=.true -- keep it for the moment, still needed from rgf_util2
-    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
+    use arg surroundByQuotes=.true, unescapedCharacters="" -- keep these for the moment, still needed from rgf_util2
+    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes), ppOptions.unescapedCharacters = (unescapedCharacters)
     -- strings are surrounded by quotes, except string numbers.
     if self~dataType("N") then do
         if self < 0 then return self -- the first character is the minus sign
@@ -228,7 +228,7 @@ Similar to ~makeArray(separator), with these differences:
     end
     pp = self
     if ppOptions.surroundByQuotes then pp = pp~quoted("'")
-    return escape3(pp) -- Use 0xXX notation for escaped characters
+    return escape3(pp, ppOptions.unescapedCharacters) -- Use 0xXX notation for escaped characters
 
 
 /******************************************************************************/
@@ -241,11 +241,11 @@ Similar to ~makeArray(separator), with these differences:
 ::class "MutableBufferPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    use arg surroundByQuotes=.true -- keep it for the moment, still needed from rgf_util2
+    use arg surroundByQuotes=.true, unescapedCharacters="" -- keep these for the moment, still needed from rgf_util2
     -- Mutable buffers are prefixed with "M"
     pp = "M'"self~string"'"
     -- Use 0xXX notation for escaped character
-    return escape3(pp)
+    return escape3(pp, unescapedCharacters)
 
 
 /******************************************************************************/
@@ -268,10 +268,19 @@ Similar to ~makeArray(separator), with these differences:
 -- Copied from rgf_util2
 -- Escape non-printable chars by printing them between square brackets [].
 ::routine escape3 public
-  parse arg a1
+  use strict arg a1, unescapedCharacters=""
 
   --non_printable=xrange("00"x,"1F"x)||"FF"x
   non_printable="00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F FF"x
+  if unescapedCharacters \== "" then do
+      -- Remove each character of unescapedCharacters from non_printable
+      buffer = .MutableBuffer~new(non_printable)
+      do i = 1 to unescapedCharacters~length
+          c = unescapedCharacters~subChar(i)
+          buffer~changeStr(c, "")
+      end
+      non_printable = buffer~string
+  end
   res=""
 
   do while a1\==""

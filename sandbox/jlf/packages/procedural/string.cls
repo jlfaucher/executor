@@ -25,18 +25,18 @@ Procedural version of the Executor's extended methods.
 ::class "MutableBufferPrettyPrinter" public
 
 ::method ppString_extension class
-    use strict arg mutableBuffer, surroundByQuotes=.true
+    use strict arg mutableBuffer, surroundByQuotes=.true, unescapedCharacters=""
     -- Mutable buffers are prefixed with "M"
     pp = "M'"mutableBuffer~string"'"
     -- Use 0xXX notation for escaped character
-    return escape3(pp)
+    return escape3(pp, unescapedCharacters)
 
 
 /******************************************************************************/
 ::class "StringPrettyPrinter" public
 
 ::method ppString_extension class
-    use strict arg string, surroundByQuotes=.true
+    use strict arg string, surroundByQuotes=.true, unescapedCharacters=""
     -- strings are surrounded by quotes, except string numbers.
     if string~dataType("N") then do
         if string < 0 then return string -- the first character is the minus sign
@@ -45,7 +45,7 @@ Procedural version of the Executor's extended methods.
     end
     pp = string
     if surroundByQuotes then pp = .ExtensionDispatcher~quoted(pp, "'")
-    return escape3(pp) -- Use 0xXX notation for escaped characters
+    return escape3(pp, unescapedCharacters) -- Use 0xXX notation for escaped characters
 
 
 /******************************************************************************/
@@ -59,10 +59,19 @@ rgf_util2 uses escape2 (better for novices), Executor uses escape3:
 */
 
 ::routine escape3 private -- private to avoid collision with string.cls where this routine is also declared
-  parse arg a1
+  use strict arg a1, unescapedCharacters=""
 
   --non_printable=xrange("00"x,"1F"x)||"FF"x
   non_printable="00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F FF"x
+  if unescapedCharacters \== "" then do
+      -- Remove each character of unescapedCharacters from non_printable
+      buffer = .MutableBuffer~new(non_printable)
+      do i = 1 to unescapedCharacters~length
+          c = unescapedCharacters~subChar(i)
+          buffer~changeStr(c, "")
+      end
+      non_printable = buffer~string
+  end
   res=""
 
   do while a1\==""
