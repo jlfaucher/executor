@@ -119,8 +119,6 @@ Solution 2
 Queries
 =======
 
-Most queries depend on extensions only available with Executor.
-
 ?: display help.
 ?bt: display the backtrace of the last error (same as ?tb).
 ?c[lasses] c1 c2... : display classes.
@@ -131,16 +129,25 @@ Most queries depend on extensions only available with Executor.
 ?h[elp] c1 c2 ... : local description of classes.
 ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).
 ?i[nterpreters]: interpreters that can be selected.
-?m[ethods] method1 method2 ... : display methods.
-?p[ackages]: display the loaded packages.
+?m[ethods] m1 m2 ... : display methods.
+?p[ackages] p1 p2 ... : display the loaded packages.
 ?path v1 v2 ... : display value of system variable, splitted by path separator.
-?r[outines] routine1 routine2... : display routines.
-?s[ettings]: display ooRexxShell's settings.
+?r[outines] r1 r2... : display routines.
+?s[ettings]: display ooRexxShell settings.
 ?sf: display the stack frames of the last error.
 ?tb: display the traceback of the last error (same as ?bt).
 ?v[ariables]: display the defined variables.
-To display the source of methods, packages or routines: add the option .s[ource].
+Option .s[ource] applicable to ?m, ?p and ?r queries:
+    Display the source of methods, packages or routines.
     Short: ?cms, ?cmis, ?ms, ?ps, ?rs.
+Option .v[erbose] applicable to ?c, ?m, ?p and ?r queries:
+    Display the metadata of classes, methods or routines.
+    Short: ?cv, ?cmv, ?cmiv, ?cmsv, ?cmisv, ?mv, ?msv, ?pv, ?psv, ?rv, ?rsv.
+Option package width applicable to ?c, ?m, ?p and ?r queries:
+    Example: ?cm -3 RexxContext RexxInfo
+    n > 0 display the package full path truncated to n characters from the end.
+    n = 0 display the package filename without truncation.
+    n < 0 display the package full path truncated to abs(n) directories from the end.
 
 Format of an output line:
 ?c[lasses]:  flags class package
@@ -160,6 +167,8 @@ Method flags
 Routine flags
     col 1: P=Public
 
+First level of filtering
+------------------------
 A first level of filtering is done when specifying class names or method names
 or routine names. This is a filtering at object level.
 Several names can be specified, the interpretation is: name1 or name2 or ...
@@ -187,6 +196,8 @@ Examples:
 ?m *left*                       display the methods whose name contains "left" (caseless)
 ?m /.*left.*                    display the methods whose name contains "left" (caseless) (regular expression)
 
+Second level of filtering
+-------------------------
 A second level of filtering is done at line level.
 The output of the help can be filtered line by line using these operators:
 \==     strict different: line selected if none of the patterns matches the line.
@@ -221,6 +232,97 @@ Examples:
 ?m =/^...----                   Display the hidden methods: all lines containing "----" from 4th character.
 ?m \== /^.....G == (REXX)       Display the methods not guarded whose package is REXX:
                                 all lines where 6th char <> "G" and which contains "(REXX)".
+
+Second level of filtering with metadata
+---------------------------------------
+The second level of filtering is applied to metadata when testing backquoted
+strings.
+
+Example:
+    ooRexx[bash]> ?c *encoding* = `CPD(optional)`
+    P.         'IBM1252_Encoding'     : (ibm-1252_encoding.cls)
+    P.         'IBM437_Encoding'      : (ibm-437_encoding.cls)
+    P.         'ISO88591_Encoding'    : (iso-8859-1_encoding.cls)
+    P.         'WINDOWS1252_Encoding' : (windows-1252_encoding.cls)
+
+`CPD(optional)` matches a directory name of the class package.
+
+This is purely text-based filtering; `CPD(...)` is not interpreted.
+In this example, filtering with `optional` alone would produce the same result.
+
+However, when listing methods, two package paths appear in the metadata. In that
+case, `CPD(...)` is required to restrict filtering to the class package only.
+
+
+Metadata is displayed in verbose mode:
+    ooRexx[bash]> ?cv *encoding* = `CPD(optional)`
+    P.         'IBM1252_Encoding'     : (ibm-1252_encoding.cls)
+        CPN(/Users/Shared/local/rexx/oorexx/executor/sandbox/jlf/packages/encoding/optional/ibm-1252_encoding.cls)
+        /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(encoding)/CPD(optional)/CPF(ibm-1252_encoding.cls)
+        CN(IBM1252_Encoding)
+    <cut>
+
+Metadata is on the same line as data, separated with .endOfLine.
+"data .endOfLine metadata .endOfLine metadata etc..."
+The FilteringStream displays only data.
+
+Metadata syntax
+    <T> indicates the type of metadata:
+        C = class
+        M = method
+        P = package
+        R = routine
+
+    The letter(s) after the type indicates the property:
+        <T>PD: package directory
+        <T>PF: package filename
+        <T>N:  name (PN is not provided because it would be redundant with PPN)
+        <T>PN: package name (can be a full path)
+
+    Examples of metadata:
+        CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+        CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+        CN      CN(Unicode)
+        CPN     CPN(.../packages/encoding/unicode.cls)
+        MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+        MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+        MN      MN(UTF8PROC_TRANSFORM)
+        MPN     MPN(.../packages/encoding/unicode.cls)
+        PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+        PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+        PPN     PPN(.../packages/encoding/unicode.cls)
+        RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+        RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+        RN      RN(ICU4C_U_CHARNAME)
+        RPN     RPN(.../packages/encoding/unicode.cls)
+
+
+Detailled analysis of a query with metadata:
+    ?cmi = `CPD(encoding)` <> `MPF(rexx)`
+Meaning:
+    "?cmi"
+        List all classes and, for each class, all its methods
+        (including inherited ones).
+
+    "= `CPD(encoding)`"
+        Keep only lines where the class belongs to a package under
+        the "encoding" directory, e.g.:
+            packages/encoding/encoding.cls
+            packages/encoding/stringIndexer.cls
+            packages/encoding/stringInterface.cls
+            packages/encoding/unicode.cls
+
+    "<> `MPF(rexx)`"
+        Exclude methods defined in the Rexx package (predefined methods).
+
+
+Another example:
+    ?cmi = `CPD(encoding)` <> `MPD(encoding)` <> `MPF(rexx)`
+This lists methods (declared or inherited) for classes in the "encoding"
+directory, excluding:
+    - methods defined in "encoding" packages
+    - predefined methods (from Rexx)
+Only externally inherited, non-predefined methods are shown.
 
 
 Interpreters
@@ -267,7 +369,7 @@ demo off|on|fast: deactivate|activate the demonstration mode.
 exit: exit ooRexxShell.
 goto <label>: used in a demo script to skip lines, until <label>: (note colon) is reached.
 indent+ | indent-: used by the command < to show the level of inclusion.
-infos off|on|next: deactivate|activate the display of informations after each execution.
+infos off|on|next: deactivate|activate the display of information after each execution.
 prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components.
 readline off: use the raw parse pull for the input.
 readline on: delegate to the system readline (history, tab completion).
@@ -446,6 +548,51 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 Apr 16
+
+Source lines are no longer filtered.
+A source line is now displayed only if the previous line was displayed.
+Example:
+    Display the String methods with their source code.
+    Keep the lines containing 'call' (it's a way to select the 'call' method).
+    Only the source code of the 'call' method is kept.
+
+    ooRexx[bash]> ?cms string = 'call'
+
+    [Info] [1] Class 'String' P. (REXX)
+    P. P.G.    'CALL'                 : 'String' (rgf_util2_wrappers.rex)
+     > 0001 use strict arg object, argsArray, objectPos=1
+     > 0002     objectArgsArray = argsArray~prepend(object)
+     > 0003     if objectPos <> 1 then objectArgsArray~swap(1, objectPos)
+     > 0004     .context~package~findRoutine(self)~callWith(objectArgsArray)
+     > 0005     if var('result') then return result
+     > 0006     return
+
+
+The package width can be set per query.
+    In queries that accept optional names as arguments:
+    - If the first name is an unquoted whole number, it is interpreted as the
+      package width:
+        ?cm 40 string
+    - If you have a class named 40 and do not want it to be interpreted as a
+      package width, use:
+        ?cm "40" string.
+
+
+Package filtering has been improved and generalized with metadata.
+This is purely text-based filtering.
+
+    In queries, metadata is represented by backquoted strings.
+
+    Metadata appears on the same line as the data, separated by .endOfLine:
+        "data .endOfLine metadata .endOfLine metadata ..."
+    By default, the FilteringStream displays only data.
+    Metadata is displayed in query results when verbose mode is enabled.
+
+See the Queries section above for more details.
+
+
+-----------------------------------------------
 2026 Apr 08
 
 Fix the visibility of predefined classes (was always public).
@@ -462,26 +609,28 @@ New attribute
 .ooRexxShell~maxPackageNameWidth = 0 by default.
 
 Modify the display of package names to provide more contextual information:
-- if .ooRexxShell~maxPackageNameWidth > 0, display the package’s full path,
+- if .ooRexxShell~maxPackageNameWidth > 0, display the package full path,
   truncated to maxPackageNameWidth characters from the end (minimum length: 3).
-- if .ooRexxShell~maxPackageNameWidth == 0, display the package’s filename
+- if .ooRexxShell~maxPackageNameWidth == 0, display the package filename
   without truncation (previous behavior).
-- if .ooRexxShell~maxPackageNameWidth < 0, display the package’s full path,
+- if .ooRexxShell~maxPackageNameWidth < 0, display the package full path,
   truncated to abs(maxPackageNameWidth) directories from the end.
 
 Example with .ooRexxShell~maxPackageNameWidth = 40
     ooRexx[sh]> ?c *parse*
-    P.         'DateParser'        : (...ang/debug/delivery/bin/dateparser.cls)
-    ..         'DateParserContext' : (...ang/debug/delivery/bin/dateparser.cls)
-    P.         'PARSE.INSTRUCTION' : (...arser/git/bin/KeywordInstructions.cls)
-    P.         'Parser'            : (...xx/official/incubator/regex/regex.cls)
-    ..         'RegexParser'       : (...xx/official/incubator/regex/regex.cls)
-    P.         'REXX.PARSER'       : (...x/rexx-parser/git/bin/Rexx.Parser.cls)
+    P.         'DateParser'        : (...g/release/delivery/bin/dateparser.cls)
+    ..         'DateParserContext' : (...g/release/delivery/bin/dateparser.cls)
+    P.         'JSONXMLPARSER'     : (...4/clang/release/delivery/bin/json.cls)
+    P.         'PARSE.INSTRUCTION' : (...xx-parser/bin/KeywordInstructions.cls)
+    P.         'Parser'            : (...tmp/delivery/packages/regex/regex.cls)
+    ..         'RegexParser'       : (...tmp/delivery/packages/regex/regex.cls)
+    P.         'REXX.PARSER'       : (...kages/rexx-parser/bin/Rexx.Parser.cls)
 
 Example with .ooRexxShell~maxPackageNameWidth = 0
     ooRexx[sh]> ?c *parse*
     P.         'DateParser'        : (dateparser.cls)
     ..         'DateParserContext' : (dateparser.cls)
+    P.         'JSONXMLPARSER'     : (json.cls)
     P.         'PARSE.INSTRUCTION' : (KeywordInstructions.cls)
     P.         'Parser'            : (regex.cls)
     ..         'RegexParser'       : (regex.cls)
@@ -489,21 +638,26 @@ Example with .ooRexxShell~maxPackageNameWidth = 0
 
 Example with .ooRexxShell~maxPackageNameWidth = -3
     ooRexx[sh]> ?c *parse*
-    P.         'DateParser'        : (.../debug/delivery/bin/dateparser.cls)
-    ..         'DateParserContext' : (.../debug/delivery/bin/dateparser.cls)
-    P.         'PARSE.INSTRUCTION' : (.../rexx-parser/git/bin/KeywordInstructions.cls)
-    P.         'Parser'            : (.../executor5-bulk/incubator/regex/regex.cls)
-    ..         'RegexParser'       : (.../executor5-bulk/incubator/regex/regex.cls)
-    P.         'REXX.PARSER'       : (.../rexx-parser/git/bin/Rexx.Parser.cls)
+    P.         'DateParser'        : (.../delivery/bin/dateparser.cls)
+    ..         'DateParserContext' : (.../delivery/bin/dateparser.cls)
+    P.         'JSONXMLPARSER'     : (.../delivery/bin/json.cls)
+    P.         'PARSE.INSTRUCTION' : (.../rexx-parser/bin/KeywordInstructions.cls)
+    P.         'Parser'            : (.../packages/regex/regex.cls)
+    ..         'RegexParser'       : (.../packages/regex/regex.cls)
+    P.         'REXX.PARSER'       : (.../rexx-parser/bin/Rexx.Parser.cls)
 
 
 When a package name is displayed in query results, pattern matching is applied
 to its absolute path, even if only the filename is shown.
 Example:
-    ooRexx[sh]> ?c *utf* = tutor
-    P.         'UTF16'             : (UTF-16.cls)
-    P.         'UTF32'             : (UTF-32.cls)
-    P.         'UTF8'              : (UTF-8.cls)
+    ooRexx[sh]> ?c *code* = rexx-parser
+    ..         'CODE.BODY'                      : (Rexx.Parser.cls)
+Internally, before filtering, each line includes the full path:
+    ..         'CODE.BODY'                      : (Rexx.Parser.cls) <marker> .../delivery/packages/rexx-parser/bin/Rexx.Parser.cls
+    P.         'Codepoints'                     : (Unicode.cls) <marker> .../delivery/packages/TUTOR/bin/Unicode.cls
+    P.         'UNICODE.CASE'                   : (case.cls) <marker> .../packages/TUTOR/bin/properties/case.cls
+    <cut>
+After filtering, everything from <marker> onward is removed from the display.
 
 
 -----------------------------------------------
@@ -907,7 +1061,7 @@ interactive mode.
 
 New option --showStackFrames
 By default, when ooRexxShell traps an error, only a short description of the
-error is displayed. The user can display more informations using one of these
+error is displayed. The user can display more information using one of these
 queries: ?bt ?tb ?sf.
 Using this option, a stack frame will be display for each trapped error.
 First need:

@@ -136,7 +136,7 @@ signal finalize
 
 ::routine SHELL
 -- We enter in the routine which manages the interpret instruction.
--- To avoid any accidental overwriting of ooRexxShell's variable by interpret,
+-- To avoid any accidental overwriting of ooRexxShell variable by interpret,
 -- all the variables in this routine and its internal routines are attributes of
 -- the ooRexxShell class. If you choose to modify an attribute of ooRexxShell
 -- from the command line, it's because you want it.
@@ -988,11 +988,11 @@ Helpers
     else if value~hasMethod("ppRepresentation"),                                                         value~isA(.array),                       value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
     else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation"), .ExtensionDispatcher~isA(value, .array), value~dimension == 1, dumpLevel == 1 then .ooRexxShell~sayPPrepresentation(value, .ooRexxShell~maxItemsDisplayed) -- condensed output, limited to maxItemsDisplayed
 
-    else if value~isA(.Collection)                                                        /*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
-    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~isA(value, .Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Collection)                                                        /*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*unescapedCharacters*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~isA(value, .Collection)/*, dumpLevel == 2*/  then .ooRexxShell~sayCollection(value, /*title*/, comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*unescapedCharacters*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
 
     -- if "==" (dumpLevel 2) then a supplier is displayed as a collection. A copy is made to not consume the datas.
-    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
+    else if value~isA(.Supplier), dumpLevel == 2 then .ooRexxShell~sayCollection(value~copy, /*title*/, .comparator, /*iterateOverItem*/, /*surroundItemByQuotes*/, /*surroundIndexByQuotes*/, /*unescapedCharacters*/, /*maxCount*/.ooRexxShell~maxItemsDisplayed) -- detailled output, limited to maxItemsDisplayed
 
     else .ooRexxShell~sayPrettyString(value)
 
@@ -1517,7 +1517,7 @@ Helpers
 
     -- displayer
     self~maxItemsDisplayed = 1000
-    self~maxPackageNameWidth = 0
+    self~maxPackageNameWidth = 0 -- by default, display the filename only
     self~showColor = .true
     self~showColorCodes = .false
     self~showComment = .false
@@ -1969,9 +1969,9 @@ Helpers
 
 ::method sayCollection class
     numeric digits -- stop any propagated settings, to have the default value for digits()
-    use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, maxCount=(9~copies(digits())) /*no limit*/, action=.nil
+    use strict arg coll, title=(coll~defaultName), comparator=.nil, iterateOverItem=.false, surroundItemByQuotes=.true, surroundIndexByQuotes=.true, unescapedCharacters="", maxCount=(9~copies(digits())) /*no limit*/, action=.nil
     -- The package rgfutil2 is optional, use it if loaded.
-    if .ooRexxShell~routine_dump2 <> .nil then .ooRexxShell~routine_dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, maxCount, action)
+    if .ooRexxShell~routine_dump2 <> .nil then .ooRexxShell~routine_dump2~call(coll, title, comparator, iterateOverItem, surroundItemByQuotes, surroundIndexByQuotes, unescapedCharacters, maxCount, action)
     else do
         say coll
         -- no sort, no alignment, nothing
@@ -2082,8 +2082,8 @@ Helpers
     else do
         queryArgs = queryManager~queryFilterArgs
     end
-    filteringStream = .filteringStream~new(.output~current, filterArgs)
-    if .ooRexxShell~traceFilter then filteringStream~traceFilter(self)
+    filteringStream = .filteringStream~new(.output~current, filterArgs, /*displayer:*/ self)
+    if .ooRexxShell~traceFilter then filteringStream~traceFilter
     .output~destination(filteringStream)
 
     .ooRexxShell~dispatchHelp(interpreterContext, queryFilter, queryArgs, filteringStream)
@@ -2129,26 +2129,34 @@ Helpers
         methods = .false
         inherited = .false
         source = .false
+        verbose = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "methods"~caselessAbbrev(first1,1) then methods = .true
             else if "inherited"~caselessAbbrev(first1,1) then inherited = .true
             else if "source"~caselessAbbrev(first1,1) then source = .true
+            else if "verbose"~caselessAbbrev(first1, 1) then verbose = .true
             else do
-                .ooRexxShell~sayError("Expected 'm[ethods]' or 'i[nherited]' or 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 'm[ethods]' or 'i[nherited]' or 's[ource]' or 'v[erbose]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
         if inherited | source then methods = .true
-        if methods then .ooRexxShell~helpClassMethods(rest, inherited, source, filteringStream)
-        else .ooRexxShell~helpClasses(rest)
+        if methods then .ooRexxShell~helpClassMethods(rest, inherited, source, verbose, filteringStream)
+        else .ooRexxShell~helpClasses(rest, verbose, filteringStream)
     end
 
     -- For convenience... cm is shorter than c.m, cms is shorter than c.m.s, cmi is shorter than c.m.i, cmis is shorter than c.m.i.s
-    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .false, filteringStream)
-    else if "cms"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .true, filteringStream)
-    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .false, filteringStream)
-    else if "cmis"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .true, filteringStream)
+    else if "cm"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .false, .false, filteringStream)
+    else if "cms"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .true, .false, filteringStream)
+    else if "cmi"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .false, .false, filteringStream)
+    else if "cmis"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .true, .false, filteringStream)
+    -- For convenience... verbose
+    else if "cv"~caselessEquals(word1) then .ooRexxShell~helpClasses(rest, .true, filteringStream)
+    else if "cmv"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .false, .true, filteringStream)
+    else if "cmsv"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .false, .true, .true, filteringStream)
+    else if "cmiv"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .false, .true, filteringStream)
+    else if "cmisv"~caselessEquals(word1) then .ooRexxShell~helpClassMethods(rest, .true, .true, .true, filteringStream)
 
     else if "documentation"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpDocumentation
 
@@ -2156,71 +2164,91 @@ Helpers
 
     else if "help"~caselessAbbrev(subword1,1) then do
         inherited = .false
+        verbose = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "inherited"~caselessAbbrev(first1,1) then inherited = .true
+            else if "verbose"~caselessAbbrev(first1, 1) then verbose = .true
             else do
-                .ooRexxShell~sayError("Expected 'i[nherited]' after" quoted(subword1".")". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 'i[nherited]' or 'v[erbose]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
-        .ooRexxShell~helpHelp(rest, inherited)
+        .ooRexxShell~helpHelp(rest, inherited, verbose, filteringStream)
     end
 
     -- For convenience... hi is shorter than h.i
-    else if "hi"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .true)
+    else if "hi"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .true, .false, filteringStream)
+    -- For convenience... verbose
+    else if "hv"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .false, .true, filteringStream)
+    else if "hiv"~caselessEquals(word1) then .ooRexxShell~helpHelp(rest, .true, .true, filteringStream)
 
     else if "interpreters"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpInterpreters
 
-    else if "methods"~caselessAbbrev(word1,1) then do
+    else if "methods"~caselessAbbrev(subword1,1) then do
         source = .false
+        verbose = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
+            else if "verbose"~caselessAbbrev(first1, 1) then verbose = .true
             else do
-                .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 's[ource]' or 'v[erbose]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
-        .ooRexxShell~helpMethods(rest, source)
+        .ooRexxShell~helpMethods(rest, source, verbose, filteringStream)
     end
 
     -- For convenience... ms is shorter than m.s
-    else if "ms"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .true)
+    else if "ms"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .true, .false, filteringStream)
+    -- For convenience... verbose
+    else if "mv"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .false, .true, filteringStream)
+    else if "msv"~caselessEquals(word1) then .ooRexxShell~helpMethods(rest, .true, .true, filteringStream)
 
-    else if "packages"~caselessAbbrev(word1,1) then do
+    else if "packages"~caselessAbbrev(subword1,1) then do
         source = .false
+        verbose = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
+            else if "verbose"~caselessAbbrev(first1, 1) then verbose = .true
             else do
-                .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
+                .ooRexxShell~sayError("Expected 's[ource]' or 'v[erbose]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
-        .ooRexxShell~helpPackages(rest, source)
+        .ooRexxShell~helpPackages(rest, source, verbose, filteringStream)
     end
 
     -- For convenience... ps is shorter than p.s
-    else if "ps"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true)
+    else if "ps"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true, .false, filteringStream)
+    -- For convenience... verbose
+    else if "pv"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .false, .true, filteringStream)
+    else if "psv"~caselessEquals(word1) then .ooRexxShell~helpPackages(rest, .true, .true, filteringStream)
 
     else if "path"~caselessEquals(word1) then .ooRexxShell~helpPath(rest)
 
-    else if "routines"~caselessAbbrev(word1,1) then do
+    else if "routines"~caselessAbbrev(subword1,1) then do
         source = .false
+        verbose = .false
         do while rest1 <> ""
             parse var rest1 first1 "." rest1
             if "source"~caselessAbbrev(first1,1) then source = .true
+            else if "verbose"~caselessAbbrev(first1, 1) then verbose = .true
             else do
                 .ooRexxShell~sayError("Expected 's[ource]' after" quoted(subword1".")". Got" quoted(first1))
                 return
             end
         end
-        .ooRexxShell~helpRoutines(rest, source)
+        .ooRexxShell~helpRoutines(rest, source, verbose, filteringStream)
     end
 
     -- For convenience... rs is shorter than r.s
-    else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true)
+    else if "rs"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true, .false, filteringStream)
+    -- For convenience... verbose
+    else if "rv"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .false, .true, filteringStream)
+    else if "rsv"~caselessEquals(word1) then .ooRexxShell~helpRoutines(rest, .true, .true, filteringStream)
 
     else if "settings"~caselessAbbrev(word1, 1) & rest~isEmpty then .ooRexxShell~sayCollection(.ooRexxShell~informations)
 
@@ -2267,16 +2295,25 @@ Helpers
     .ooRexxShell~sayQueryManagerCommand("    ?h[elp] c1 c2 ... : local description of classes.")
     .ooRexxShell~sayQueryManagerCommand("    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).")
     say                                 "    ?i[nterpreters]: interpreters that can be selected."
-    .ooRexxShell~sayQueryManagerCommand("    ?m[ethods] method1 method2 ... : display methods.")
-    .ooRexxShell~sayQueryManagerCommand("    ?p[ackages]: display the loaded packages.")
+    .ooRexxShell~sayQueryManagerCommand("    ?m[ethods] m1 m2 ... : display methods.")
+    .ooRexxShell~sayQueryManagerCommand("    ?p[ackages] p1 p2 ... : display the loaded packages.")
     .ooRexxShell~sayQueryManagerCommand("    ?path v1 v2 ... : display value of system variable, splitted by path separator.")
-    .ooRexxShell~sayQueryManagerCommand("    ?r[outines] routine1 routine2... : display routines.")
-    say                                 "    ?s[ettings]: display ooRexxShell's settings."
+    .ooRexxShell~sayQueryManagerCommand("    ?r[outines] r1 r2... : display routines.")
+    say                                 "    ?s[ettings]: display ooRexxShell settings."
     say                                 "    ?sf: display the stack frames of the last error."
     say                                 "    ?tb: display the traceback of the last error (same as ?bt)."
     say                                 "    ?v[ariables]: display the defined variables."
-    .ooRexxShell~sayQueryManagerCommand("    To display the source of methods, packages or routines: add the option .s[ource].")
+    .ooRexxShell~sayQueryManagerCommand("    Option .s[ource] applicable to ?m, ?p and ?r queries:")
+    .ooRexxShell~sayQueryManagerCommand("        Display the source of methods, packages or routines.")
     .ooRexxShell~sayQueryManagerCommand("        Short: ?cms, ?cmis, ?ms, ?ps, ?rs.")
+    .ooRexxShell~sayQueryManagerCommand("    Option .v[erbose] applicable to ?c, ?m, ?p and ?r queries:")
+    .ooRexxShell~sayQueryManagerCommand("        Display the metadata of classes, methods or routines.")
+    .ooRexxShell~sayQueryManagerCommand("        Short: ?cv, ?cmv, ?cmiv, ?cmsv, ?cmisv, ?mv, ?msv, ?pv, ?psv, ?rv, ?rsv.")
+    .ooRexxShell~sayQueryManagerCommand("    Option package width applicable to ?c, ?m, ?p and ?r queries:")
+    .ooRexxShell~sayQueryManagerCommand("        Example: ?cm -3 RexxContext RexxInfo")
+    .ooRexxShell~sayQueryManagerCommand("        n > 0 display the package full path truncated to n characters from the end.")
+    .ooRexxShell~sayQueryManagerCommand("        n = 0 display the package filename without truncation.")
+    .ooRexxShell~sayQueryManagerCommand("        n < 0 display the package full path truncated to abs(n) directories from the end.")
     -- .ooRexxShell~helpInterpreters
     say "Commands:"
     say "    /* alone: Used in a demo to start a multiline comment. Ended by */ alone."
@@ -2288,7 +2325,7 @@ Helpers
     say "    exit: exit ooRexxShell."
     say "    goto <label>: used in a demo script to skip lines, until <label:> (note colon) is reached."
     say "    indent+ | indent-: used by the command < to show the level of inclusion."
-    say "    infos off|on|next: deactivate|activate the display of informations after each execution."
+    say "    infos off|on|next: deactivate|activate the display of information after each execution."
     say "    prompt off|on [a[ddress]] [d[irectoy]] [i[nterpret]]: deactivate|activate the display of the prompt components."
     say "    readline off: use the raw parse pull for the input."
     say "    readline on: delegate to the system readline (history, tab completion)."
@@ -2305,14 +2342,24 @@ Helpers
 
 ::method helpClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
-    use strict arg classnames
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClasses(classnames, self, .context)
+    use strict arg classnames, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(classnames)
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClasses(classnames, verbose, maxPackageNameWidth, self, .context)
 
 
 ::method helpClassMethods class
     -- Display the methods of each specified class
-    use strict arg classnames, inherited, displaySource, filteringStream
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClassMethods(classnames, inherited, displaySource, self, .context, filteringStream)
+    use strict arg classnames, inherited, displaySource, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(classnames)
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClassMethods(classnames, inherited, displaySource, verbose, maxPackageNameWidth, self, .context, filteringStream)
 
 
 ::method helpDocumentation class
@@ -2351,8 +2398,13 @@ Helpers
 
 
 ::method helpHelp class
-    use strict arg classnames, inherited
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayHelp(classnames, inherited, self, .context)
+    use strict arg classnames, inherited, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(classnames)
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayHelp(classnames, inherited, verbose, maxPackageNameWidth, self, .context)
 
 
 ::method helpInterpreters class
@@ -2364,14 +2416,24 @@ Helpers
 
 ::method helpMethods class
     -- Display the defining classes of each specified method
-    use strict arg methodnames, displaySource
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayMethods(methodnames, displaySource, self, .context)
+    use strict arg methodnames, displaySource, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(methodnames)
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayMethods(methodnames, displaySource, verbose, maxPackageNameWidth, self, .context)
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    use strict arg packagenames, displaySource
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayPackages(packagenames, displaySource, self, .context)
+    use strict arg packagenames, displaySource, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(packagenames, 1000) -- 1000: display full path by default
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayPackages(packagenames, displaySource, verbose, maxPackageNameWidth, self, .context)
 
 
 ::method helpPath class
@@ -2384,8 +2446,13 @@ Helpers
 
 ::method helpRoutines class
     -- Display the defining package of each specified routine
-    use strict arg routinenames, displaySource
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayRoutines(routinenames, displaySource, self, .context)
+    use strict arg routinenames, displaySource, verbose, filteringStream
+
+    -- If the first name is an unquoted whole number, consider it to be a package width.
+    maxPackageNameWidth = maxPackageNameWidth(routinenames)
+
+    filteringStream~verbose = verbose
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayRoutines(routinenames, displaySource, verbose, maxPackageNameWidth, self, .context)
 
 
 ::method helpVariables class
@@ -2682,6 +2749,25 @@ Helpers
     end
     -- ignore withInfos, always return an array of strings
     return words
+
+
+::routine maxPackageNameWidth private
+    /*
+    In queries that accept optional names as arguments:
+    - If the first name is an unquoted whole number, it is interpreted as the
+      package width: ?cm 40 string
+    - If you have a class named 40 and do not want it to be interpreted as a
+      package width, use: ?cm "40" string.
+    */
+    use strict arg names, width = (.ooRexxShell~maxPackageNameWidth)
+    if names~items \== 0 then do
+        name1 = names[1]
+        if .nil \== name1, name1~quotedFlags~countStr("1") == 0, datatype(name1, "W") then do
+            names~delete(1)
+            width = name1
+        end
+    end
+    return width
 
 
 -------------------------------------------------------------------------------

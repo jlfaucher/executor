@@ -154,7 +154,6 @@ loadPackage:
               'if \publicClasses~hasIndex(item) & \privateClasses~hasIndex(item) then do;' -
               '    package = .nil;' -
               '    if item~hasMethod("package") then package = item~package;' -
-              '    /*say "*** item~id =" item~id "package =" package*/;' -
               '    if .nil == package then do;' -
               '        /* No package, can''t guess if the class is public or private. */;'-
               '        /* Assume it''s public. */;' -
@@ -285,14 +284,13 @@ method sayStackFrames   (not used)
 method singularPlural
 method prettyString     (not used)
 attribute traceFilter
-attribute maxPackageNameWidth
 */
 
 
 ::method displayClasses class
     -- All or specified classes (public & private) that are visible from current context, with their package
     -- classnames is an array of StringChunk
-    use strict arg classnames, displayer, context
+    use strict arg classnames, verbose, maxPackageNameWidth, displayer, context
     matchers = .array~new
     do classname over classnames
         matcher = matcher(classname, /*wholestring:*/ .true, /*caseless:*/ .true, /*trace:*/ displayer~traceFilter, /*displayer:*/ displayer, /*prefix:*/ "[object filter]")
@@ -305,18 +303,19 @@ attribute maxPackageNameWidth
     do while s~available
         classInfo = s~item
         classFlags = classInfos(classInfo~klass, classInfo~visibility)
-        package = packageInfos(classInfo~package, displayer)
-        classes[classFlags~left(10) quoted(classInfo~klass~id, "'")] = package
+        classMetadata = classMetadata(classInfo~klass~id, classInfo~package)
+        package = packageInfos(classInfo~package, maxPackageNameWidth)
+        classes[classFlags~left(10) quoted(classInfo~klass~id, "'")] = package || classMetadata
         s~next
     end
     -- Sort by class name, ignoring the 10 first characters which are class flags.
-    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false)
+    displayer~sayCollection(classes, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*unescapedCharacters*/.endOfLine)
 
 
 ::method displayClassMethods class
     -- Display the methods of each specified class
     -- classnames is an array of StringChunk
-    use strict arg classnames, inherited, displaySource, displayer, context, filteringStream
+    use strict arg classnames, inherited, displaySource, verbose, maxPackageNameWidth, displayer, context, filteringStream
     matchers = .array~new
     do classname over classnames
         matcher = matcher(classname, /*wholestring:*/ .true, /*caseless:*/ .true, /*trace:*/ displayer~traceFilter, /*displayer:*/ displayer, /*prefix:*/ "[object filter]")
@@ -339,11 +338,10 @@ attribute maxPackageNameWidth
     )~go(classInfos)
     count = 1
     do classInfo over classInfosSorted
-        --say
-        --displayer~sayInfo("[Info]" "["count"]" "Class" quoted(classInfo~klass~id, "'") classInfos(classInfo~klass, classInfo~visibility) packageInfos(classInfo~package, displayer))
+        classMetadata = classMetadata(classInfo~klass~id, classInfo~package)
         filteringStream~doBeforeNextLine = -
             .Closure~new( -
-                'expose displayer count classInfo;' -
+                'expose maxPackageNameWidth displayer count classInfo classMetadata;' -
                 'use arg /* none */ ;' -
                 'say;' -
                 'info =' -
@@ -352,13 +350,13 @@ attribute maxPackageNameWidth
                 '    "Class"' -
                 '    quoted(classInfo~klass~id, "''")' -
                 '    classInfos(classInfo~klass, classInfo~visibility)' -
-                '    packageInfos(classInfo~package, displayer);' -
-                'displayer~sayInfo(info);' -
+                '    packageInfos(classInfo~package, maxPackageNameWidth);' -
+                'displayer~sayInfo(info || classMetadata);' -
             , .context) -- This action will be executed before the first line of methods is displayed, if any (will depend on the filtering)
         methods = .relation~new
         call collectMethods
         lineCount = filteringStream~lineCount
-        displayer~sayCollection(methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/, -
+        displayer~sayCollection(methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*unescapedCharacters*/.endOfLine, /*maxCount*/, -
             .Closure~new( -
                 'expose displaySource;' -
                 'use arg item, index;' -
@@ -370,7 +368,13 @@ attribute maxPackageNameWidth
         )
         filteringStream~doBeforeNextLine = .nil
         if filteringStream~lineCount <> lineCount then do
-            displayer~sayInfo("[Info]" "["count"]" "Class" "'"classInfo~klass~id"' has" displayer~singularPlural(methods~items, "method", "methods"))
+            info = -
+                "[Info]" -
+                "["count"]" -
+                "Class" -
+                "'"classInfo~klass~id"' has" -
+                displayer~singularPlural(methods~items, "method", "methods")
+            displayer~sayInfo(info || classMetadata)
         end
         count += 1
     end
@@ -387,7 +391,7 @@ attribute maxPackageNameWidth
           | .splitter[.inject .Lambda~new('use arg item; return item~instanceMethods(item)') "iterateAfter" "mem.classMethod", -
                       .inject .Lambda~new('use arg item; return item~methods(item)') "iterateAfter" "mem.instanceMethod"] -
           | .do .Closure~new( -
-                 'expose displayer classInfos methods;' -
+                 'expose maxPackageNameWidth classInfos classMetadata methods;' -
                  'use arg item, index, dataflow, pipeContext;' -
                   'package = .nil;' -
                   'if .nil <> item then package = item~package /* if method not hidden */ ;' -
@@ -404,18 +408,24 @@ attribute maxPackageNameWidth
                   'classInfo = classInfos[class];' -
                   'if .nil == package then package = classInfo~package;' -
                   'instanceLevel = .nil <> dataflow["instanceMethod"];' -
-                  '/* Insert class flags at the begining to have the same format than displayClasses. */' -
-                  '/* That allows to reuse a filter applicable to classes. */' -
+                  '/* Insert class flags at the begining to have the same format than displayClasses. */;' -
+                  '/* That allows to reuse a filter applicable to classes. */;' -
                   'classFlags = classInfos(classInfo~klass, classInfo~visibility);' -
                   'methodFlags = methodInfos(item, instanceLevel);' -
                   'flags = classFlags methodFlags;' -
                   'methodDescription = flags~left(10) quoted(index, "''");' -
-                  '/* remember: the same key (methodDescription) can be used several times */' -
-                  '/* so don''t store the method instance on the key ! Store it on the value (classDescription). */' -
-                  'classDescription = classId superclassId packageInfos(package, displayer);' -
-                  'classDescription = .Extender~new(classDescription);' -
-                  'classDescription~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
-                  'methods[methodDescription] = classDescription;' -
+                  'classDescription = classId superclassId packageInfos(package, maxPackageNameWidth);' -
+                  '/* A method is associated with two packages: */;' -
+                  '/* - its own package (MP). */;' -
+                  '/* - the package of the current class (CCP), where the method is defined or inherited. */;' -
+                  '/* MP differs from CCP when the method is inherited. */;' -
+                  'methodMetadata = methodMetadata(index, package);' -
+                  'description = classDescription || classMetadata || methodMetadata;' -
+                  '/* remember: the same key (methodDescription) can be used several times */;' -
+                  '/* so don''t store the method instance on the key ! Store it on the value (description). */;' -
+                  'description = .Extender~new(description);' -
+                  'description~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
+                  'methods[methodDescription] = description;' -
                 , .context) -
         )~go(classInfo)
         return
@@ -427,7 +437,7 @@ attribute maxPackageNameWidth
 
 ::method displayHelp class
     -- classnames is an array of StringChunk
-    use strict arg classnames, inherited, displayer, context
+    use strict arg classnames, inherited, verbose, maxPackageNameWidth, displayer, context
     if classnames~isEmpty then do
         if inherited then do
             -- Classes having the "_description" class method (can be inherited)
@@ -475,10 +485,11 @@ attribute maxPackageNameWidth
             "[Info]" -
             "["count"]" -
             "Class" -
-            classInfo~klass~id~quoted("'") -
+            quoted(classInfo~klass~id, "'") -
             classInfos(classInfo~klass, classInfo~visibility) -
-            packageInfos(classInfo~package, displayer)
-        displayer~sayInfo(info)
+            packageInfos(classInfo~package, maxPackageNameWidth)
+        classMetadata = classMetadata(classInfo~klass~id, classInfo~package)
+        displayer~sayInfo(info|| classMetadata)
         call displayClassHelp classInfo~klass
         count += 1
     end
@@ -510,7 +521,7 @@ attribute maxPackageNameWidth
 ::method displayMethods class
     -- Display the defining classes of each specified method
     -- methodnames is an array of StringChunk
-    use strict arg methodnames, displaySource, displayer, context
+    use strict arg methodnames, displaySource, verbose, maxPackageNameWidth, displayer, context
     matchers = .array~new
     do methodname over methodnames
         matcher = matcher(methodname, /*wholestring:*/ .true, /*caseless:*/ .true, /*trace:*/ displayer~traceFilter, /*displayer:*/ displayer, /*prefix:*/ "[object filter]")
@@ -536,7 +547,7 @@ attribute maxPackageNameWidth
                   'return matched;' -
                 , .context) -
       | .do .Closure~new( -
-              'expose displayer classInfos methods;' -
+              'expose maxPackageNameWidth classInfos methods;' -
               'use arg item, index, dataflow, pipeContext;' -
               'package = .nil;' -
               'if .nil <> item then package = item~package /* if method not hidden */ ;' -
@@ -548,15 +559,18 @@ attribute maxPackageNameWidth
               'methodFlags = methodInfos(item, instanceLevel);' -
               'flags = classFlags methodFlags;' -
               'methodDescription = flags~left(10) quoted(index, "''");' -
-              '/* remember: the same key (methodDescription) can be used several times */' -
-              '/* so don''t store the method instance on the key ! Store it on the value (classDescription). */' -
-              'classDescription = quoted(class~id, "''") packageInfos(package, displayer);' -
-              'classDescription = .Extender~new(classDescription);' -
-              'classDescription~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
-              'methods[methodDescription] = classDescription;' -
+              'classDescription = quoted(class~id, "''") packageInfos(package, maxPackageNameWidth);' -
+              'classMetadata = classMetadata(class~id, classInfo~package);' -
+              'methodMetadata = methodMetadata(index, package);' -
+              'description = classDescription || classMetadata || methodMetadata;' -
+              '/* remember: the same key (methodDescription) can be used several times */;' -
+              '/* so don''t store the method instance on the key ! Store it on the value (classDescription). */;' -
+              'description = .Extender~new(description);' -
+              'description~setUserData("method", item) /* to let retrieve the method (yes!) */ ;' -
+              'methods[methodDescription] = description;' -
             , .context) -
     )~go(.object)
-    displayer~sayCollection( methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/, -
+    displayer~sayCollection( methods, /*title*/.nil, .CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*unescapedCharacters*/.endOfLine, /*maxCount*/, -
         .Closure~new( -
             'expose displaySource;' -
             'use arg item, index;' -
@@ -570,7 +584,7 @@ attribute maxPackageNameWidth
 
 ::method displayPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
-    use strict arg packagenames, displaySource, displayer, context
+    use strict arg packagenames, displaySource, verbose, maxPackageNameWidth, displayer, context
     matchers = .array~new
     do packagename over packagenames
         matcher = matcher(packagename, /*wholestring:*/ .true, /*caseless:*/ .true, /*trace:*/ displayer~traceFilter, /*displayer:*/ displayer, /*prefix:*/ "[object filter]")
@@ -586,14 +600,15 @@ attribute maxPackageNameWidth
                   '    matched = matcher~match(item~name);' -
                   'end;' -
                   'return matched;' -
-                , .context) -
-      | .sort .Lambda~new('use arg item; return item~name') -
-      | .console .Lambda~new('use arg item; return item~name') -
+                , .context) "mem.package" -
+      | .inject .Closure~new('expose maxPackageNameWidth; use arg item; return packageInfos(item, maxPackageNameWidth) || packageMetadata("P", item)', .context) -
+      | .sort .Lambda~new('use arg item; return item') -
+      | .console .Lambda~new('use arg item; return item') -
       | .do .Closure~new( -
               'expose displaySource;' -
               'use arg item, index, dataflow, pipeContext;' -
               'if displaySource then do;' -
-              '    call displaySource item;' -
+              '    call displaySource dataflow["package"]~item;' -
               'end;' -
             , .context) -
     )~go(context~package)
@@ -602,7 +617,7 @@ attribute maxPackageNameWidth
 ::method displayRoutines class
     -- All or specified routines (public & private) that are visible from current context, with their package
     -- routinenames is an array of StringChunk
-    use strict arg routinenames, displaySource, displayer, context
+    use strict arg routinenames, displaySource, verbose, maxPackageNameWidth, displayer, context
     matchers = .array~new
     do routinename over routinenames
         matcher = matcher(routinename, /*wholestring:*/ .true, /*caseless:*/ .true, /*trace:*/ displayer~traceFilter, /*displayer:*/ displayer, /*prefix:*/ "[object filter]")
@@ -616,16 +631,18 @@ attribute maxPackageNameWidth
         routineInfo = s~item
         routineFlags = routineInfos(routineInfo~routine, routineInfo~visibility)
         routineDescription = routineFlags~left(10) quoted(routineInfo~name, "'")
+        packageDescription = packageInfos(routineInfo~package, maxPackageNameWidth)
+        routineMetadata = routineMetadata(routineInfo~name, routineInfo~package)
+        description = packageDescription || routineMetadata
         -- remember: the same key (routineDescription) can be used several times
-        -- so don't store the routine instance on the key ! Store it on the value (packageDescription).
-        packageDescription = packageInfos(routineInfo~package, displayer)
-        packageDescription = .Extender~new(packageDescription)
-        packageDescription~setUserData("routine", routineInfo~routine) -- to let retrieve the routine (yes!)
-        routines[routineDescription] = packageDescription
+        -- so don't store the routine instance on the key ! Store it on the value (description).
+        description = .Extender~new(description)
+        description~setUserData("routine", routineInfo~routine) -- to let retrieve the routine (yes!)
+        routines[routineDescription] = description
         s~next
     end
     -- Sort by routine name, ignoring the 10 first characters which are routine flags.
-    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*maxCount*/, -
+    displayer~sayCollection(routines, /*title*/.nil, /*comparator*/.CaselessColumnComparator~new(11,999), /*iterateOverItem*/.true, /*surroundItemByQuotes*/.false, /*surroundIndexByQuotes*/.false, /*unescapedCharacters*/.endOfLine, /*maxCount*/, -
         .Closure~new( -
             'expose displaySource;' -
              'use arg item, index;' -
@@ -740,6 +757,9 @@ attribute maxPackageNameWidth
     displayer~sayInfo
     displayer~sayInfo("query =" self~query)
 
+    displayer~sayInfo("queryFilterArgs =")
+    displayer~sayCollection(self~queryFilterArgs)
+
     displayer~sayInfo("defaultEntityFilters =")
     displayer~sayCollection(self~defaultEntityFilters)
 
@@ -760,7 +780,7 @@ attribute maxPackageNameWidth
 -- Helpers for QueryManager
 -------------------------------------------------------------------------------
 
-::routine methodInfos public
+::routine methodInfos private
     use strict arg method, instanceLevel
     if .nil == method then return "----" -- Hidden method, see documentation of .class~methods
     if instanceLevel then level = "."; else level = "C" -- Remember: "I" not displayed because of "PIG"
@@ -770,25 +790,26 @@ attribute maxPackageNameWidth
     return visibility || level || guarded || protected
 
 
-::routine methodPackageInfos public
+::routine methodPackageInfos private
     -- Not used because
     -- Bug: With ooRexx < 5.0, the package of a method created with ::ATTRIBUTE is .nil.
-    use strict arg method, displayer
+    use strict arg method, maxPackageNameWidth
     if .nil == method then return "UNDEFINED"
-    return packageInfos(method~package, displayer)
+    return packageInfos(method~package, maxPackageNameWidth)
 
 
-::routine packageInfos public
+::routine packageInfos private
     -- With ooRexx < 5.0
     --     The package of the predefined methods is .nil.
     --     It's not possible to get directly the package of a class.
     -- With ooRexx >= 5.0
     --     The package of a class created dynamically is still .nil.
-    use strict arg package, displayer
+    use strict arg package, maxPackageNameWidth
     if .nil == package then return "()"
+
     packageName = package~name -- can be a full path
-    width = displayer~maxPackageNameWidth
-    if \ width~datatype("W") then width = 0
+    width = maxPackageNameWidth~string
+    if \ datatype(width, "W") then width = 0
     if width > 0 then do
         -- return the full path, truncated
         if width < 3 then width = 3
@@ -815,17 +836,19 @@ attribute maxPackageNameWidth
             packageName = "..." || packageName~substr(pos)
         end
     end
-    return "("packageName")" || d2c(0) package~name -- package full path used for filtering, will be removed from the output
+
+    packageInfo = "("packageName")"
+    return packageInfo
 
 
-::routine classInfos public
+::routine classInfos private
     use strict arg class, visibility
     if visibility == "private" then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if class~queryMixinClass then mixin = "M"; else mixin = "."
     return visibility || mixin
 
 
-::routine routineInfos public
+::routine routineInfos private
     use strict arg routine, visibility
     if visibility == "private" then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     return visibility
@@ -846,21 +869,151 @@ attribute maxPackageNameWidth
     return quote || string~changestr(quote, quote~copies(2)) || quote
 
 
-::routine cleanup
-    -- Everything from \0 is deleted
-    use strict arg line
-    -- if line~pos("[cleanup]") == 1 then return line -- startsWith not supported by ooRexx 4.2
-    -- say "[cleanup]" line
+-------------------------------------------------------------------------------
+-- Helpers for metadata
+-------------------------------------------------------------------------------
 
-    marker = d2c(0)
-    pos = line~pos(marker)
-    if pos \== 0 then line = line~left(pos - 1)
-    else do
-        marker = "[00]"
-        pos = line~pos(marker)
-        if pos \== 0 then line = line~left(pos - 1)
+/*
+<T> indicates the type of metadata:
+    C = class
+    M = method
+    P = package
+    R = routine
+
+The letter(s) after the type indicates the property:
+    <T>PD: package directory
+    <T>PF: package filename
+    <T>N:  name (PN is not provided because it would be redundant with PPN)
+    <T>PN: package name (can be a full path)
+
+Examples:
+    CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+    CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+    CN      CN(Unicode)
+    CPN     CPN(.../packages/encoding/unicode.cls)
+    MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+    MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+    MN      MN(UTF8PROC_TRANSFORM)
+    MPN     MPN(.../packages/encoding/unicode.cls)
+    PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+    PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+    PPN     PPN(.../packages/encoding/unicode.cls)
+    RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+    RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+    RN      RN(ICU4C_U_CHARNAME)
+    RPN     RPN(.../packages/encoding/unicode.cls)
+*/
+
+::routine pathMetadata private
+    /*
+    Each path component (directory or filename) is wrapped as:
+        <T><PT>D(name) or <T><PT>F(name)
+    where <PT> is the path type (<PT> = "P" for a package path).
+    This format allows simple pattern matching without regular expressions.
+
+    Example:
+        Given the package
+            .../packages/encoding/unicode.cls
+
+        Package path metadata (<PT> = "P"):
+            Class defined in this package (<T> = "C"):
+                .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+
+            Method defined in this package (<T> = "M"):
+                .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+
+            Method inherited from the Object class:
+                MPF(REXX)
+
+            Routine defined in this package (<T> = "R"):
+                .../RPD(packages)/RPD(encoding)/RPF(unicode.cls)
+    */
+    use strict arg type, pathType, path
+
+    separator = .File~separator
+    buffer = .MutableBuffer~new
+    pos = 0
+    if separator == "\", path~matchChar(2, ":") then do -- same test as .File implementation
+        -- Windows drive letter
+        buffer~append(path~left(2))
+        pos = 2 -- yes, not 3
     end
-    return line
+    letter = "D"
+    do forever
+        pos += 1
+        if pos > path~length then leave
+        nextpos = path~pos(separator, pos)
+        if nextpos == 0 then do
+            nextpos = path~length + 1
+            letter = "F"
+        end
+        -- Keep it compatible with ooRexx 4.2: only one argument per append
+        if nextpos == pos then do
+            buffer~append(path~substr(pos, 1))
+        end
+        else do
+            buffer~append(type)
+            buffer~append(pathType)
+            buffer~append(letter)
+            buffer~append("(")
+            buffer~append(path~substr(pos, nextpos - pos))
+            buffer~append(")")
+            if nextpos > path~length then leave
+            buffer~append("/") -- yes, always "/", not separator, to make queries behave consistently across platforms.
+            pos = nextpos
+        end
+    end
+    return buffer~string
+
+
+::routine packageMetadata private
+    use strict arg type, package
+    if .nil == package then return type"()"
+
+    marker = .endofline
+    indent = "    "
+
+    packageName = package~name -- can be a full path
+    -- Normalize path separators so queries behave consistently across platforms
+    packageName = package~name~changeStr("\", "/")
+    metadata   = ""
+    -- metadata ||= marker || indent || "PN("packageName")" -- redundant with PPN
+    metadata ||= marker || indent || type"PN("packageName")"
+    metadata ||= marker || indent || pathMetadata(type, "P", packageName)
+    return metadata
+
+
+::routine classMetadata private
+    use strict arg className, package
+
+    marker = .endofline
+    indent = "    "
+
+    metadata   = packageMetadata("C", package)
+    metadata ||= marker || indent || "CN("className")"
+    return metadata
+
+
+::routine methodMetadata private
+    use strict arg methodName, package
+
+    marker = .endofline
+    indent = "    "
+
+    metadata   = packageMetadata("M", package)
+    metadata ||= marker || indent || "MN("methodName")"
+    return metadata
+
+
+::routine routineMetadata private
+    use strict arg routineName, package
+
+    marker = .endofline
+    indent = "    "
+
+    metadata   = packageMetadata("R", package)
+    metadata ||= marker || indent || "RN("routineName")"
+    return metadata
 
 
 -------------------------------------------------------------------------------
@@ -918,10 +1071,17 @@ attribute maxPackageNameWidth
     return 0
 
 
+::attribute displayer get
+::attribute verbose
+::attribute previousLineWasDisplayed
 ::attribute strictInclude
 ::attribute strictExclude
 ::attribute caselessInclude
 ::attribute caselessExclude
+::attribute strictIncludeMetadata
+::attribute strictExcludeMetadata
+::attribute caselessIncludeMetadata
+::attribute caselessExcludeMetadata
 
 
 ::method init
@@ -933,12 +1093,24 @@ attribute maxPackageNameWidth
     -- "<> value1 value2 = value3 value4" -- (<> value1 AND <> value2) AND (= value3 OR = value4)
     -- A value can be a string surrounded by quotes
 
+    expose displayer verbose
+
+    -- this attribute is used to display a line only if the previous line was displayed.
+    self~previousLineWasDisplayed = .false
+
     -- filters is an array of StringChunk
-    use strict arg filters
+    use strict arg filters, displayer, verbose
+
     self~strictExclude = .array~new
     self~strictInclude = .array~new
     self~caselessExclude = .array~new
     self~caselessInclude = .array~new
+
+    self~strictExcludeMetadata = .array~new
+    self~strictIncludeMetadata = .array~new
+    self~caselessExcludeMetadata = .array~new
+    self~caselessIncludeMetadata = .array~new
+
     currentOperator = .Filter~CaselessEqual
     do filter over filters
         filter = .Filter~parse(filter)
@@ -949,16 +1121,25 @@ attribute maxPackageNameWidth
             matcherCaselessInclude = matcher(filter~argument, /*wholestring:*/ .false, /*caseless:*/ .true)
             matcherStrictInclude = matcher(filter~argument, /*wholestring:*/ .false, /*caseless:*/ .false)
 
-            if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
-            else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
-            else if currentOperator == .filter~CaselessDifferent then self~caselessExclude~append(matcherCaselessInclude) -- will negate the result
-            else if currentOperator == .filter~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
+            if filter~argument~containerStartChar == "`" then do
+                if currentOperator == .filter~StrictDifferent then self~strictExcludeMetadata~append(matcherStrictInclude) -- will negate the result
+                else if currentOperator == .filter~StrictEqual then self~strictIncludeMetadata~append(matcherStrictInclude)
+                else if currentOperator == .filter~CaselessDifferent then self~caselessExcludeMetadata~append(matcherCaselessInclude) -- will negate the result
+                else if currentOperator == .filter~CaselessEqual then self~caselessIncludeMetadata~append(matcherCaselessInclude)
+            end
+            else do
+                if currentOperator == .filter~StrictDifferent then self~strictExclude~append(matcherStrictInclude) -- will negate the result
+                else if currentOperator == .filter~StrictEqual then self~strictInclude~append(matcherStrictInclude)
+                else if currentOperator == .filter~CaselessDifferent then self~caselessExclude~append(matcherCaselessInclude) -- will negate the result
+                else if currentOperator == .filter~CaselessEqual then self~caselessInclude~append(matcherCaselessInclude)
+            end
         end
     end
 
 
 ::method traceFilter
-    use strict arg displayer
+    expose displayer
+    use strict arg -- none
 
     prefix = "[line filter]"
     first = .true
@@ -985,32 +1166,86 @@ attribute maxPackageNameWidth
         first = .false
     end
 
+    prefix = "[line metadata filter]"
+    first = .true
+    do matcher over self~strictIncludeMetadata
+        if \first then displayer~sayTrace(prefix "OR")
+        call traceMatcher matcher, displayer, prefix
+        first = .false
+    end
+    do matcher over self~caselessIncludeMetadata
+        if \first then displayer~sayTrace(prefix "OR")
+        call traceMatcher matcher, displayer, prefix
+        first = .false
+    end
+    do matcher over self~strictExcludeMetadata
+        if first then displayer~sayTrace(prefix "NOT")
+        else displayer~sayTrace(prefix "AND NOT")
+        call traceMatcher matcher, displayer, prefix
+        first = .false
+    end
+    do matcher over self~caselessExcludeMetadata
+        if first then displayer~sayTrace(prefix "NOT")
+        else displayer~sayTrace(prefix "AND NOT")
+        call traceMatcher matcher, displayer, prefix
+        first = .false
+    end
 
-::method select
-    use strict arg string
+
+::method selectLine
+    use strict arg data, metadata
 
     -- Empty lines are not filtered
-    if string == "" then return .true
+    if data == "" then return .true
 
     -- Info lines are not filtered
-    if string~abbrev("[Info]") then return .true
+    if data~abbrev("[Info]") then return .true
+
+    -- A source line is displayed only if the previous line was displayed
+    -- " > 0001"
+    if data~length >= 7 & data~left(3) == " > " & data~substr(4, 4, "x")~datatype("w") then return self~previousLineWasDisplayed
 
     do matcher over self~strictExclude
-        if matcher~match(string) then return .false
+        if matcher~match(data) then return .false
+    end
+    do matcher over self~strictExcludeMetadata
+        if matcher~match(metadata) then return .false
     end
     do matcher over self~caselessExclude
-        if matcher~match(string) then return .false
+        if matcher~match(data) then return .false
+    end
+    do matcher over self~caselessExcludeMetadata
+        if matcher~match(metadata) then return .false
     end
 
-    if self~strictInclude~size == 0 & self~caselessInclude~size == 0 then return .true
+    if    self~strictInclude~size == 0 -
+        & self~caselessInclude~size == 0 -
+        & self~strictIncludeMetadata~size == 0 -
+        & self~caselessIncludeMetadata~size == 0 -
+    then return .true
 
     do matcher over self~strictInclude
-        if matcher~match(string) then return .true
+        if matcher~match(data) then return .true
+    end
+    do matcher over self~strictIncludeMetadata
+        if matcher~match(metadata) then return .true
     end
     do matcher over self~caselessInclude
-        if matcher~match(string) then return .true
+        if matcher~match(data) then return .true
     end
+    do matcher over self~caselessIncludeMetadata
+        if matcher~match(metadata) then return .true
+    end
+
     return .false
+
+
+::method select
+    use strict arg data, metadata
+
+    selected = self~selectLine(data, metadata)
+    self~previousLineWasDisplayed = selected
+    return selected
 
 
 -------------------------------------------------------------------------------
@@ -1024,9 +1259,14 @@ attribute maxPackageNameWidth
 
 
 ::method init
+    expose marker ppMarker -- used to split the line in two parts: visible and additional
+
     -- filters is an array of StringChunk
-    use strict arg destination, filters
-    self~init:super(filters)
+    use strict arg destination, filters, displayer, verbose=.false
+
+    self~init:super(filters, displayer, verbose)
+    marker = .endofline
+    ppMarker = self~displayer~prettyString(marker, /*surroundByQuotes:*/ .false)
     self~interceptedDestination = destination
     self~lineCount = 0
     self~stringbuffer = .mutablebuffer~new
@@ -1047,15 +1287,18 @@ attribute maxPackageNameWidth
     stringbuffer~append(string)
     line = stringbuffer~string
     stringbuffer~delete(1)
-    if self~select(line) then do
+    dataMetadata = self~splitDataMetadata(line)
+    data = dataMetadata[1]
+    metadata = dataMetadata[2]
+    if self~select(data, metadata) then do
         self~lineCount += 1
         if .nil <> self~doBeforeNextLine then do
             action = self~doBeforeNextLine
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~call()
         end
-        line = cleanup(line)
-        forward to (self~interceptedDestination) array (line)
+        if self~verbose then forward to (self~interceptedDestination) array (line)
+                        else forward to (self~interceptedDestination) array (data)
     end
     return 0
 
@@ -1067,15 +1310,18 @@ attribute maxPackageNameWidth
     stringbuffer~append(string)
     line = stringbuffer~string
     stringbuffer~delete(1)
-    if self~select(line) then do
+    dataMetadata = self~splitDataMetadata(line)
+    data = dataMetadata[1]
+    metadata = dataMetadata[2]
+    if self~select(data, metadata) then do
         self~lineCount += 1
         if .nil <> self~doBeforeNextLine then do
             action = self~doBeforeNextLine
             self~doBeforeNextLine = .nil -- reset before call to avoid infinite recursion
             action~call()
         end
-        line = cleanup(line)
-        forward to (self~interceptedDestination) array (line)
+        if self~verbose then forward to (self~interceptedDestination) array (line)
+                        else forward to (self~interceptedDestination) array (data)
     end
     return 0
 
@@ -1084,11 +1330,30 @@ attribute maxPackageNameWidth
     expose stringbuffer
     line = stringbuffer~string
     stringbuffer~delete(1)
+    dataMetadata = self~splitDataMetadata(line)
+    data = dataMetadata[1]
+    metadata = dataMetadata[2]
     -- no filtering, to let always display the escape characters for colors
-    if .true /*self~select(line)*/ then do
+    if .true /*self~select(data, metadata)*/ then do
         -- self~lineCount += 1 -- incomplete line...
-        line = cleanup(line)
-        self~interceptedDestination~charOut(line)
+        if self~verbose then self~interceptedDestination~charOut(line)
+                        else self~interceptedDestination~charOut(data)
         forward to (self~interceptedDestination)
     end
     return 0
+
+
+::method splitDataMetadata
+    -- Everything before first marker is data
+    -- Everything from first marker is metadata
+    expose marker ppMarker
+    use strict arg line
+    -- if line~startsWith("[splitDataMetadata]") then return .array~of(line, "")
+    -- say "[splitDataMetadata]" line
+
+    pos = line~pos(marker)
+    if pos == 0 then pos = line~pos(ppMarker) -- control characters are pretty-printed [XX]
+    if pos == 0 then pos = line~length + 1
+    data = line~left(pos - 1)
+    metadata = line~substr(pos)
+    return .array~of(data, metadata)
