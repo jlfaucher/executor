@@ -1,0 +1,217 @@
+
+
+-- =============================================================================
+-- Default width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines quoted
+P          'QUOTED' : (oorexxshell.rex)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.verbose quoted
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source quoted
+P          'QUOTED' : (oorexxshell.rex)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source.verbose quoted
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- =============================================================================
+-- Negative width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines -3 quoted
+P          'QUOTED' : (.../executor/incubator/ooRexxShell/oorexxshell.rex)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.verbose -3 quoted
+P          'QUOTED' : (.../executor/incubator/ooRexxShell/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source -3 quoted
+P          'QUOTED' : (.../executor/incubator/ooRexxShell/oorexxshell.rex)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source.verbose -3 quoted
+P          'QUOTED' : (.../executor/incubator/ooRexxShell/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- =============================================================================
+-- Zero width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines 0 quoted
+P          'QUOTED' : (oorexxshell.rex)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.verbose 0 quoted
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source 0 quoted
+P          'QUOTED' : (oorexxshell.rex)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source.verbose 0 quoted
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- =============================================================================
+-- Positive width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines 30 quoted
+P          'QUOTED' : (...ooRexxShell/oorexxshell.rex)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.verbose 30 quoted
+P          'QUOTED' : (...ooRexxShell/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source 30 quoted
+P          'QUOTED' : (...ooRexxShell/oorexxshell.rex)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?routines.source.verbose 30 quoted
+P          'QUOTED' : (...ooRexxShell/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/executor/incubator/ooRexxShell/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(executor)/RPD(incubator)/RPD(ooRexxShell)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001 use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 3 lines displayed
+ooRexx> RC = 0

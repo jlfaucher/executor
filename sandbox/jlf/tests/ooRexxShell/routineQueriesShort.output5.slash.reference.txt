@@ -1,0 +1,627 @@
+
+
+-- =============================================================================
+-- Default width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?r quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+P          'QUOTED' : (oorexxshell.rex)
+P          'QUOTED' : (stringChunkMatcher.cls)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rv quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+P          'QUOTED' : (stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rs quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (oorexxshell.rex)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0004 
+P          'QUOTED' : (stringChunkMatcher.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+[Info] 48 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rsv quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- =============================================================================
+-- Negative width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?r -3 quoted
+.          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+P          'QUOTED' : (.../jlf-executor/packages/extension/stringChunkMatcher.cls)
+P          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell.rex)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rv -3 quoted
+.          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+P          'QUOTED' : (.../jlf-executor/packages/extension/stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+P          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rs -3 quoted
+.          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (.../jlf-executor/packages/extension/stringChunkMatcher.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell.rex)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rsv -3 quoted
+.          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (.../jlf-executor/packages/extension/stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (.../official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- =============================================================================
+-- Zero width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?r 0 quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+P          'QUOTED' : (oorexxshell.rex)
+P          'QUOTED' : (stringChunkMatcher.cls)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rv 0 quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+P          'QUOTED' : (stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rs 0 quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (oorexxshell.rex)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (stringChunkMatcher.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rsv 0 quoted
+.          'QUOTED' : (oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- =============================================================================
+-- Positive width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?r 30 quoted
+.          'QUOTED' : (...oorexxshell_queries_std.cls)
+P          'QUOTED' : (...ll-executor/oorexxshell.rex)
+P          'QUOTED' : (...sion/stringChunkMatcher.cls)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rv 30 quoted
+.          'QUOTED' : (...oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+P          'QUOTED' : (...ll-executor/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+P          'QUOTED' : (...sion/stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+[Info] 3 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rs 30 quoted
+.          'QUOTED' : (...oorexxshell_queries_std.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (...ll-executor/oorexxshell.rex)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (...sion/stringChunkMatcher.cls)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?rsv 30 quoted
+.          'QUOTED' : (...oorexxshell_queries_std.cls)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell_queries_std.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell_queries_std.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+ > 0003 
+ > 0004 
+ > 0005 -------------------------------------------------------------------------------
+ > 0006 -- Helpers for metadata
+ > 0007 -------------------------------------------------------------------------------
+ > 0008 
+ > 0009 /*
+ > 0010 <T> indicates the type of metadata:
+ > 0011     C = class
+ > 0012     M = method
+ > 0013     P = package
+ > 0014     R = routine
+ > 0015 
+ > 0016 The letter(s) after the type indicates the property:
+ > 0017     <T>PD: package directory
+ > 0018     <T>PF: package filename
+ > 0019     <T>N:  name (PN is not provided because it would be redundant with PPN)
+ > 0020     <T>PN: package name (can be a full path)
+ > 0021 
+ > 0022 Examples:
+ > 0023     CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0024     CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)
+ > 0025     CN      CN(Unicode)
+ > 0026     CPN     CPN(.../packages/encoding/unicode.cls)
+ > 0027     MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0028     MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)
+ > 0029     MN      MN(UTF8PROC_TRANSFORM)
+ > 0030     MPN     MPN(.../packages/encoding/unicode.cls)
+ > 0031     PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0032     PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
+ > 0033     PPN     PPN(.../packages/encoding/unicode.cls)
+ > 0034     RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
+ > 0035     RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+ > 0036     RN      RN(ICU4C_U_CHARNAME)
+ > 0037     RPN     RPN(.../packages/encoding/unicode.cls)
+ > 0038 */
+P          'QUOTED' : (...ll-executor/oorexxshell.rex)
+    RPN(/local/rexx/oorexx/official/incubator/ooRexxShell-executor/oorexxshell.rex)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(incubator)/RPD(ooRexxShell-executor)/RPF(oorexxshell.rex)
+    RN(QUOTED)
+ > 0001     -- Remember: keep it, because the method .String~quoted is NOT available with standard ooRexx.
+ > 0002     use strict arg string, quote='"'
+ > 0003     return quote || string~changestr(quote, quote~copies(2)) || quote
+P          'QUOTED' : (...sion/stringChunkMatcher.cls)
+    RPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/extension/stringChunkMatcher.cls)
+    /RPD(local)/RPD(rexx)/RPD(oorexx)/RPD(official)/RPD(sandbox)/RPD(jlf-executor)/RPD(packages)/RPD(extension)/RPF(stringChunkMatcher.cls)
+    RN(QUOTED)
+ > 0001     use strict arg string, quote='"'
+ > 0002     return quote || string~changestr(quote, quote~copies(2)) || quote
+[Info] 46 lines displayed
+ooRexx> RC = 0

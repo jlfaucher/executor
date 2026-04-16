@@ -1,0 +1,881 @@
+
+
+-- =============================================================================
+-- Default width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?p *indent*
+(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?pv *indent*
+(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ps *indent*
+(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?psv *indent*
+(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- =============================================================================
+-- Negative width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?p -3 *indent*
+(.../jlf-executor/packages/utilities/indentedStream.cls)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?pv -3 *indent*
+(.../jlf-executor/packages/utilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ps -3 *indent*
+(.../jlf-executor/packages/utilities/indentedStream.cls)
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?psv -3 *indent*
+(.../jlf-executor/packages/utilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- =============================================================================
+-- Zero width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?p 0 *indent*
+(indentedStream.cls)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?pv 0 *indent*
+(indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ps 0 *indent*
+(indentedStream.cls)
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?psv 0 *indent*
+(indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- =============================================================================
+-- Positive width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?p 30 *indent*
+(...tilities/indentedStream.cls)
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?pv 30 *indent*
+(...tilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+[Info] 1 line displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ps 30 *indent*
+(...tilities/indentedStream.cls)
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?psv 30 *indent*
+(...tilities/indentedStream.cls)
+    PPN(/local/rexx/oorexx/official/sandbox/jlf-executor/packages/utilities/indentedStream.cls)
+    /PPD(local)/PPD(rexx)/PPD(oorexx)/PPD(official)/PPD(sandbox)/PPD(jlf-executor)/PPD(packages)/PPD(utilities)/PPF(indentedStream.cls) 
+ > 0001 /*
+ > 0002 Stream helper to manage indentation.
+ > 0003 The methods "charout", "lineout", and "say" takes care of the indentation and
+ > 0004 then forwards to the stream. Other methods are directly forwarded to the stream.
+ > 0005 
+ > 0006 Example :
+ > 0007 s = .IndentedStream~new(.stdout)
+ > 0008 s~lineout("<book>")
+ > 0009 s~indent
+ > 0010 s~lineout("<chapter>")
+ > 0011 s~lineout("</chapter>")
+ > 0012 s~dedent
+ > 0013 s~lineout("</book>")
+ > 0014 
+ > 0015 Output :
+ > 0016 <book>
+ > 0017     <chapter>
+ > 0018     </chapter>
+ > 0019 </book>
+ > 0020 */
+ > 0021 
+ > 0022 ::class "IndentedStream" public
+ > 0023 ::constant indentSize 4
+ > 0024 ::attribute indentLevel get
+ > 0025 ::attribute stream get
+ > 0026 
+ > 0027 
+ > 0028 ::method init
+ > 0029     expose stream indentLevel mustIndent spaces
+ > 0030     use strict arg stream, indentSize = (self~indentSize)
+ > 0031     indentLevel = 0
+ > 0032     mustIndent = .true
+ > 0033     spaces = " "~copies(indentSize)
+ > 0034 
+ > 0035 
+ > 0036 ::method indent
+ > 0037     expose indentLevel
+ > 0038     use strict arg -- none
+ > 0039     indentLevel +=1
+ > 0040     return self
+ > 0041 
+ > 0042 
+ > 0043 ::method dedent
+ > 0044     expose indentLevel
+ > 0045     use strict arg -- none
+ > 0046     if indentLevel == 0 then return
+ > 0047     indentLevel -=1
+ > 0048     return self
+ > 0049 
+ > 0050 
+ > 0051 ::method indentIfNeeded private
+ > 0052     expose stream indentLevel mustIndent spaces
+ > 0053     use strict arg -- none
+ > 0054     if mustIndent then do
+ > 0055         loop indentLevel
+ > 0056             stream~charout(spaces)
+ > 0057         end
+ > 0058         mustIndent = .false
+ > 0059     end
+ > 0060 
+ > 0061 
+ > 0062 ::method charout
+ > 0063     expose stream
+ > 0064     self~indentIfNeeded
+ > 0065     forward to (stream)
+ > 0066 
+ > 0067 
+ > 0068 ::method lineout
+ > 0069     expose stream mustIndent
+ > 0070     self~indentIfNeeded
+ > 0071     mustIndent = .true
+ > 0072     forward to (stream)
+ > 0073 
+ > 0074 
+ > 0075 ::method say
+ > 0076     expose stream mustIndent
+ > 0077     self~indentIfNeeded
+ > 0078     mustIndent = .true
+ > 0079     forward to (stream)
+ > 0080 
+ > 0081 
+ > 0082 ::method unknown
+ > 0083     expose stream
+ > 0084     use strict arg msg, args
+ > 0085     forward to (stream) message (msg) arguments (args)
+ > 0086 
+[Info] 87 lines displayed
+ooRexx> RC = 0

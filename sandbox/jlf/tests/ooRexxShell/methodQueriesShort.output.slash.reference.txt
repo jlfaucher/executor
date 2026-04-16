@@ -1,0 +1,1169 @@
+
+
+-- =============================================================================
+-- Default width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?m makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?mv makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ms makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?msv makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- =============================================================================
+-- Negative width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?m -3 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?mv -3 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ms -3 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?msv -3 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- =============================================================================
+-- Zero width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?m 0 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?mv 0 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ms 0 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?msv 0 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- =============================================================================
+-- Positive width
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Normal
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?m 30 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- Verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?mv 30 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+[Info] 10 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?ms 30 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+
+
+-- -----------------------------------------------------------------------------
+-- With source, verbose
+-- -----------------------------------------------------------------------------
+
+-- -----------------------------------------------------------------------------
+ooRexx> ?msv 30 makeString
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
+P. P.G.    'MAKESTRING' : 'Array' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(Array)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
+    CN(COMPLEX)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
+    MN(MAKESTRING)
+ > 0001 expose real imaginary                       /* get the state info             */
+ > 0002     if imaginary < 0 then return real||imaginary'i'
+ > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
+P. P.G.    'MAKESTRING' : 'File' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(File)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(StackFrame)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'String' (REXX)
+    CPN(REXX)
+    CPF(REXX)
+    CN(String)
+    MPN(REXX)
+    MPF(REXX)
+    MN(MAKESTRING)
+P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
+    CN(dataflow)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
+    MN(MAKESTRING)
+ > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
+ > 0002 /*****************************************
+ > 0003 * Pass 1: count the occurences of values *
+ > 0004 *****************************************/
+ > 0005 -- Collect the index, item and additional values (if any) of the current dataflow.
+ > 0006 -- Here we just count the number of occurences of each value.
+ > 0007 -- The first occurence of a value having more than 1 occurence will be tagged
+ > 0008 -- vN= or aN= or eN= (value, array, enclosed array).
+ > 0009 -- But to know that, you need first to know if the value has more than 1 occurence...
+ > 0010 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0011     if mask~pos(index) == 0 then iterate
+ > 0012     call dataflow_value self[index], showPool, pool
+ > 0013 end
+ > 0014 /********************************
+ > 0015 * Pass 2: string representation *
+ > 0016 ********************************/
+ > 0017 previous = self~previous
+ > 0018 string = ""
+ > 0019 if mask~pos(1) <> 0, previous~isA(.Dataflow) then string = previous~makeString(mask, showPool, pool)" | "
+ > 0020 if mask~pos(2) <> 0 then do
+ > 0021     string ||= self~tag
+ > 0022     annotation = self~annotation~string
+ > 0023     if mask~pos(3) <> 0, self~annotation <> "" then string ||= "["self~annotation"]"
+ > 0024     string ||= ":"
+ > 0025 end
+ > 0026 -- Now we print the index, item and additional values (if any) of the current dataflow
+ > 0027 separator = ""
+ > 0028 do index = self~firstIndexPoolManaged to self~dimension(1)
+ > 0029     if mask~pos(index) == 0 then iterate
+ > 0030     string ||= separator || dataflow_representation(self[index], showPool, pool)
+ > 0031     separator = ","
+ > 0032 end
+ > 0033 return string
+P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
+    CN(indeterminate)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
+    CN(infinity)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+ > 0001 return self~objectName
+[Info] 56 lines displayed
+ooRexx> RC = 0
