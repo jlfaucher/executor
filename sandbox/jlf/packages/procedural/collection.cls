@@ -33,7 +33,7 @@ All the collections will benefit from this display.
 
 
 ::method ppString_extension class
-    use strict arg collection, surroundByQuotes=.true, expandCollection = (.CollectionPrettyPrinter~expandCollection)
+    use strict arg collection, surroundByQuotes=.true, unescapedCharacters="", expandCollection = (.CollectionPrettyPrinter~expandCollection)
 
     -- This option is not applicable to arrays, hence this location of the test.
     -- For the moment, I don't activate by default the display of items for the
@@ -45,10 +45,10 @@ All the collections will benefit from this display.
     -- todo ? add a parameter maxItems to ~allItems
     -- same logic in Array_ppString
     if collection~isA(.OrderedCollection) then do
-        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems, surroundByQuotes, expandCollection)
+        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems, surroundByQuotes, unescapedCharacters, expandCollection)
     end
     else do
-        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems~sortWith(.StringNumericComparator~new), surroundByQuotes, expandCollection)
+        return collection~class~id || .ExtensionDispatcher~ppString(collection~allItems~sortWith(.StringNumericComparator~new), surroundByQuotes, unescapedCharacters, expandCollection)
     end
 
 

@@ -3,6 +3,130 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Apr 16
+
+The way how ppOptions is passed as stem is broken:
+    ::method ppString
+        use arg surroundByQuotes=.true, unescapedCharacters=""
+        use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes), ppOptions.unescapedCharacters = (unescapedCharacters)
+
+Using the same name for a positional argument and for a stem tail part is a bad
+idea!
+
+Illustration:
+    {trace i; use arg option1=1; use named arg myOptions.option1=(option1), myOptions.option2 = 2; return myOptions.}~()=
+Output:
+         1 *-* use arg option1=1;
+           >L>   "1"
+           >>>   "1"
+           >=>   OPTION1 <= "1"
+         1 *-* use named arg myOptions.option1=(option1), myOptions.option2 = 2;
+           >V>   OPTION1 => "1"
+           >>>   "1"
+           >C>   MYOPTIONS.OPTION1 => "MYOPTIONS.1"                 <-- OOPS!
+           >=>   MYOPTIONS.OPTION1 <= "1"
+           >L>   "2"
+           >>>   "2"
+           >C>   MYOPTIONS.OPTION2 => "MYOPTIONS.OPTION2"
+           >=>   MYOPTIONS.OPTION2 <= "2"
+         1 *-* return myOptions.
+           >V>   MYOPTIONS. => "MYOPTIONS."
+           >>>   "MYOPTIONS."
+    a Stem (2 items)
+     1        :  1                                                  <-- OOPS!
+    'OPTION2' :  2
+
+Possible fix by avoiding same name:
+    {trace i; use arg _option1=1; use named arg myOptions.option1=(option1), myOptions.option2 = 2; return myOptions.}~()=
+Output:
+         1 *-* use arg _option1=1;
+           >L>   "1"
+           >>>   "1"
+           >=>   _OPTION1 <= "1"
+         1 *-* use named arg myOptions.option1=(option1), myOptions.option2 = 2;
+           >V>   OPTION1 => "OPTION1"
+           >>>   "OPTION1"
+           >C>   MYOPTIONS.OPTION1 => "MYOPTIONS.OPTION1"           <-- Good!
+           >=>   MYOPTIONS.OPTION1 <= "OPTION1"
+           >L>   "2"
+           >>>   "2"
+           >C>   MYOPTIONS.OPTION2 => "MYOPTIONS.OPTION2"
+           >=>   MYOPTIONS.OPTION2 <= "2"
+         1 *-* return myOptions.
+           >V>   MYOPTIONS. => "MYOPTIONS."
+           >>>   "MYOPTIONS."
+    a Stem (2 items)
+    'OPTION1' : 'OPTION1'                                           <-- Good!
+    'OPTION2' :  2
+
+Possible fix on stem side by using the bracket notation:
+    {trace i; use arg option1=1; use named arg myOptions.option2 = 2; myOptions.["OPTION1"] = option1; return myOptions.}~()=
+Output:
+         1 *-* use arg option1=1;
+           >L>   "1"
+           >>>   "1"
+           >=>   OPTION1 <= "1"
+         1 *-* use named arg myOptions.option2 = 2;
+           >L>   "2"
+           >>>   "2"
+           >C>   MYOPTIONS.OPTION2 => "MYOPTIONS.OPTION2"
+           >=>   MYOPTIONS.OPTION2 <= "2"
+         1 *-* myOptions.["OPTION1"] = option1;
+           >V>   MYOPTIONS. => "MYOPTIONS."
+           >V>   OPTION1 => "1"
+           >A>   "1"
+           >L>   "OPTION1"
+           >A>   "OPTION1"
+         1 *-* return myOptions.
+           >V>   MYOPTIONS. => "MYOPTIONS."
+           >>>   "MYOPTIONS."
+    a Stem (2 items)
+    'OPTION1' :  1                                                  <-- Good!
+    'OPTION2' :  2
+
+
+Anyway, using a stem to pass pretty-print options is not a good solution.
+To rework!
+Temporary fix: pass JUST ONE named arg ppOtions.
+
+Validation:
+
+-- Must use 'say', don't use the final '=' because ooRexxShell escapes all characters
+
+-- with Executor
+say ("Pere".EndOfLine"Noel")~ppstring(/*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .mutableBuffer~new("Pere".EndOfLine"Noel")~ppstring(.false, .EndOfLine)
+say .array~of("Pere".EndOfLine"Noel")~ppString -- no positional arg for surroundByQuotes or unescapedCharacters
+ppOptions.unescapedCharacters = .EndOfLine
+say .array~of("Pere".EndOfLine"Noel")~ppString(:ppOptions.)
+say .array~of(.mutableBuffer~new("Pere".EndOfLine"Noel"))~ppString(:ppOptions.)
+
+-- with Executor
+say ("Père".EndOfLine"Noël")~ppstring(/*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .mutableBuffer~new("Père".EndOfLine"Noël")~ppstring(.false, .EndOfLine)
+say .array~of("Père".EndOfLine"Noël")~ppString -- no positional/named arg for surroundByQuotes or unescapedCharacters
+ppOptions.unescapedCharacters = .EndOfLine
+say .array~of("Père".EndOfLine"Noël")~ppString(:ppOptions.)
+say .array~of(.mutableBuffer~new("Père".EndOfLine"Noël"))~ppString(:ppOptions.)
+
+-- with official oorexx (no stem)
+say .ExtensionDispatcher~ppString("Pere".EndOfLine"Noel", /*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .ExtensionDispatcher~ppString(.mutableBuffer~new("Pere".EndOfLine"Noel"), /*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .ExtensionDispatcher~ppString(.array~of("Pere".EndOfLine"Noel"))
+say .ExtensionDispatcher~ppString(.array~of("Pere".EndOfLine"Noel"), .false)
+say .ExtensionDispatcher~ppString(.array~of("Pere".EndOfLine"Noel"), .false, .EndOfLine)
+say .ExtensionDispatcher~ppString(.array~of(.mutableBuffer~new("Pere".EndOfLine"Noel")), .false, .EndOfLine)
+
+-- with official oorexx (no stem)
+say .ExtensionDispatcher~ppString("Père".EndOfLine"Noël", /*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .ExtensionDispatcher~ppString(.mutableBuffer~new("Père".EndOfLine"Noël"), /*surroundByQuotes*/ .false, /*unescapedCharacters*/ .EndOfLine)
+say .ExtensionDispatcher~ppString(.array~of("Père".EndOfLine"Noël"))
+say .ExtensionDispatcher~ppString(.array~of("Père".EndOfLine"Noël"), .false)
+say .ExtensionDispatcher~ppString(.array~of("Père".EndOfLine"Noël"), .false, .EndOfLine)
+say .ExtensionDispatcher~ppString(.array~of(.mutableBuffer~new("Père".EndOfLine"Noël")), .false, .EndOfLine)
+
+
+===============================================================================
 2026 Apr 13
 
 The ppString method accepts a new unescapedCharacters argument: Characters that

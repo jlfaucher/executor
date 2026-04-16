@@ -740,8 +740,8 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
 ::class "ArrayPrettyPrinter" mixinclass Object public
 
 ::method ppString
-    use named arg ppOptions. = (.Stem~new)
-    return self~ppRepresentation(ppOptions.: ppOptions.)
+    -- never called, can't find why... see collection.cls
+    forward message "ppRepresentation"
 
 
 ::method ppRepresentation
@@ -793,7 +793,9 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
         source:4,a1=['string1',v1='string2',[*v1,*a1],*a1] | inject:4,*a1
     */
     use strict arg maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(self), referencesTable=.nil, counter=0
-    use named arg trace=.false, ppOptions. = (.Stem~new), ppOptions.expandCollection=(.CollectionPrettyPrinter~expandCollection)
+    use named arg trace=.false, ppOptions.
+    if ppOptions.~hasIndex("EXPANDCOLLECTION") then expandCollection = ppOptions.["EXPANDCOLLECTION"]
+    else expandCollection = .CollectionPrettyPrinter~expandCollection
     if trace then .traceOutput~say("       >I> Method .ArrayPrettyPrinter~ppRepresentation")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.cls, routine dataflow_representation.
@@ -809,7 +811,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
             reference~id = counter -- id assigned at first display, to have a natural progression
             valstr = "e" || reference~id || "="
         end
-        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, counter, trace: trace)">"
+        return valstr || "<"val~ppRepresentation(maxItems, sparse, ellipsis, separator, val~disclose, referencesTable, counter, : trace, : ppOptions.)">"
     end
     else if val~isA(.array), val~dimension == 1 then do
         reference = referencesTable[val]
@@ -839,7 +841,7 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace: trace)
+            valstr ||= sep || val~ppRepresentation(maxItems, sparse, ellipsis, separator, item, referencesTable, counter, : trace, : ppOptions.)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -862,9 +864,9 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     /*
     -- same logic in CollectionPrettyPrinter~ppstring, but here pass more parameters
     else if val~isA(.OrderedCollection) then do
-        if ppOptions.expandCollection > 0, val~items <= ppOptions.expandCollection then do
+        if expandCollection > 0, val~items <= expandCollection then do
             valAsArray = val~allItems
-            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, : trace, : ppOptions.)
         end
         else do
             return val~string
@@ -872,16 +874,16 @@ b=                              -- e1=<<a2=[ 1, 2,*a2,<*a2>,e3=<<<*e3>>>,*e1]>>
     end
     -- same logic in CollectionPrettyPrinter~ppstring, but here pass more parameters
     else if val~isA(.Collection) then do
-        if ppOptions.expandCollection > 0, val~items <= ppOptions.expandCollection then do
+        if expandCollection > 0, val~items <= expandCollection then do
             valAsArray = val~allItems~sortWith(.StringNumericComparator~new)
-            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, trace: trace, ppOptions. : ppOptions.)
+            return val~class~id || valAsArray~ppRepresentation(maxItems, sparse, ellipsis, separator, valAsArray, referencesTable, counter, : trace, : ppOptions.)
         end
         else do
             return val~string
         end
     end
     */
-    else return val~ppString(ppOptions. : ppOptions.)
+    else return val~ppString(: ppOptions.)
 
 
 ::method collectReferences private

@@ -219,7 +219,10 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method ppString
     use arg surroundByQuotes=.true, unescapedCharacters="" -- keep these for the moment, still needed from rgf_util2
-    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes), ppOptions.unescapedCharacters = (unescapedCharacters)
+    use named arg ppOptions.
+    if ppOptions.~hasIndex("SURROUNDBYQUOTES") then surroundByQuotes = ppOptions.["SURROUNDBYQUOTES"]
+    if ppOptions.~hasIndex("UNESCAPEDCHARACTERS") then unescapedCharacters = ppOptions.["UNESCAPEDCHARACTERS"]
+
     -- strings are surrounded by quotes, except string numbers.
     if self~dataType("N") then do
         if self < 0 then return self -- the first character is the minus sign
@@ -227,8 +230,8 @@ Similar to ~makeArray(separator), with these differences:
         return " "self               -- the first character is a space (could also display a plus sign)
     end
     pp = self
-    if ppOptions.surroundByQuotes then pp = pp~quoted("'")
-    return escape3(pp, ppOptions.unescapedCharacters) -- Use 0xXX notation for escaped characters
+    if surroundByQuotes then pp = pp~quoted("'")
+    return escape3(pp, unescapedCharacters) -- Use 0xXX notation for escaped characters
 
 
 /******************************************************************************/
@@ -242,6 +245,10 @@ Similar to ~makeArray(separator), with these differences:
 
 ::method ppString
     use arg surroundByQuotes=.true, unescapedCharacters="" -- keep these for the moment, still needed from rgf_util2
+    use named arg ppOptions.
+    if ppOptions.~hasIndex("SURROUNDBYQUOTES") then surroundByQuotes = ppOptions.["SURROUNDBYQUOTES"]
+    if ppOptions.~hasIndex("UNESCAPEDCHARACTERS") then unescapedCharacters = ppOptions.["UNESCAPEDCHARACTERS"]
+
     -- Mutable buffers are prefixed with "M"
     pp = "M'"self~string"'"
     -- Use 0xXX notation for escaped character

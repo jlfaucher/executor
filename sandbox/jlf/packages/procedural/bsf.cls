@@ -94,16 +94,16 @@ Procedural version of the Executor's extended methods.
 ::class "BSFPrettyPrinter" public
 
 ::method ppString_extension class
-    use strict arg object, surroundByQuotes=.true
+    use strict arg object, surroundByQuotes=.true, unescapedCharacters=""
 
     -- Don't use makeArray: A multi-dimensional Array is converted into a non-sparse single-dimensional Array.
     -- ppRepresentation is better.
-    if .ExtensionDispatcher~isA(object, .Array) then return .ExtensionDispatcher~ppRepresentation(object, surroundByQuotes)
+    if .ExtensionDispatcher~isA(object, .Array) then return .ExtensionDispatcher~ppRepresentation(object, surroundByQuotes, unescapedCharacters)
 
     -- Collection not supported bevause BSF doesn't support ~allItems.
 
     -- strings are surrounded by quotes, except string numbers.
-    if .ExtensionDispatcher~isA(object, .String) then return .ExtensionDispatcher~ppString(object~toString, surroundByQuotes)
+    if .ExtensionDispatcher~isA(object, .String) then return .ExtensionDispatcher~ppString(object~toString, surroundByQuotes, unescapedCharacters)
 
     -- To make a distinction between a real string and other objects, surround by (...)
     return "("object~toString")"

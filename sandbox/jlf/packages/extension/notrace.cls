@@ -8,16 +8,18 @@
 
 -- TODO: Should honor .Encoding~defaultOutputEncoding
 ::method ppString
-    use arg surroundByQuotes=.true -- keep it for the moment, still needed from rgf_util2
-    use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes)
+    use arg surroundByQuotes=.true, unescapedCharacters="" -- keep it for the moment, still needed from rgf_util2
+    use named arg ppOptions.
+    if ppOptions.~hasIndex("SURROUNDBYQUOTES") then surroundByQuotes = ppOptions.["SURROUNDBYQUOTES"]
+    if ppOptions.~hasIndex("UNESCAPEDCHARACTERS") then unescapedCharacters = ppOptions.["UNESCAPEDCHARACTERS"]
 
     pp = self~string
-    if ppOptions.surroundByQuotes then pp = pp~quoted("'")
+    if surroundByQuotes then pp = pp~quoted("'")
 
     -- Texts are prefixed with "T"
     pp = "T"pp
     -- Use 0xXX notation for escaped character
-    return escape3(pp)
+    return escape3(pp, unescapedCharacters)
 
 
 -- To see the string value instead of "a RexxText" in trace

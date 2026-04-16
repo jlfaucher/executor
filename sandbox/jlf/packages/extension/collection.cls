@@ -35,7 +35,9 @@ See output of concurrency/generator-test.rex
 ::constant expandCollection 10 -- expand collections (other than array) having ~items <= this constant
 
 ::method ppString
-    use named arg ppOptions. = (.Stem~new), ppOptions.expandCollection = (.CollectionPrettyPrinter~expandCollection)
+    use named arg ppOptions.
+    if ppOptions.~hasIndex("EXPANDCOLLECTION") then expandCollection = ppOptions.["EXPANDCOLLECTION"]
+    else expandCollection = .CollectionPrettyPrinter~expandCollection
 
     /*
        Workaround, the method ~ppString defined in array.cls is not called
@@ -65,8 +67,8 @@ See output of concurrency/generator-test.rex
     -- For the moment, I don't activate by default the display of items for the
     -- other collections because that gives long lists when displaying .environment
     -- from ooRexxShell.
-    if ppOptions.expandCollection == 0 then return self~objectName
-    if self~items > ppOptions.expandCollection then return self~objectName
+    if expandCollection == 0 then return self~objectName
+    if self~items > expandCollection then return self~objectName
 
     -- todo ? add a parameter maxItems to ~allItems
     -- same logic in array~ppRepresentation

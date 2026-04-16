@@ -101,8 +101,8 @@ v()               | []                            | 1         | [0]             
 
 -- Keep it. Same signature as other ppString.
 ::method ppString_extension class
-    use strict arg array, surroundByQuotes=.true, expandCollection = (.CollectionPrettyPrinter~expandCollection)
-    return .ExtensionDispatcher~ppRepresentation(array, surroundByQuotes, expandCollection)
+    use strict arg array, surroundByQuotes=.true, unescapedCharacters="", expandCollection = (.CollectionPrettyPrinter~expandCollection)
+    return .ExtensionDispatcher~ppRepresentation(array, surroundByQuotes, unescapedCharacters, expandCollection)
 
 
 ::method ppRepresentation_extension class
@@ -139,9 +139,8 @@ v()               | []                            | 1         | [0]             
         a1=['string1','string2',['string2',*a1],*a1]
 
     */
-    use strict arg array, surroundByQuotes=.true, expandCollection = (.CollectionPrettyPrinter~expandCollection),,
+    use strict arg array, surroundByQuotes=.true, unescapedCharacters="", expandCollection = (.CollectionPrettyPrinter~expandCollection),,
                    maxItems=(-1), sparse="..", ellipsis="...", separator=",", val=(array), referencesTable=.nil, counter=0, trace=.false
-    expandCollection = .CollectionPrettyPrinter~expandCollection
     if trace then .traceOutput~say("       >I> Method ppRepresentation_extension")
     if trace then trace i
     -- Remember : this code has been duplicated in pipe.cls, routine dataflow_representation.
@@ -174,7 +173,7 @@ v()               | []                            | 1         | [0]             
                 valstr ||= sep || sparse
                 sep = separator
             end
-            valstr ||= sep || .ExtensionDispatcher~ppRepresentation(val, surroundByQuotes, expandCollection, maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace)
+            valstr ||= sep || .ExtensionDispatcher~ppRepresentation(val, surroundByQuotes, unescapedCharacters, expandCollection, maxItems, sparse, ellipsis, separator, item, referencesTable, counter, trace)
             sep = separator
             items += 1
             i = index + 1 -- next index
@@ -194,7 +193,7 @@ v()               | []                            | 1         | [0]             
         valstr = val~string
         return "("valstr .ExtensionDispatcher~shapeToPrettyString(val, ", ") || val~items "items)"
     end
-    else return .ExtensionDispatcher~ppString(val)
+    else return .ExtensionDispatcher~ppString(val, surroundByQuotes, unescapedCharacters)
 
 
 ::method collectReferences_extension class -- private (must be public)
