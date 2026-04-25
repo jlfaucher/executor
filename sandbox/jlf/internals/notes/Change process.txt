@@ -10,6 +10,13 @@ RFC
 Apache
 
 
+https://news.ycombinator.com/item?id=7409611
+The Tyranny of Structurelessness (1970)
+
+https://news.ycombinator.com/item?id=11651406
+The Tyranny of Structurelessness (1972)
+
+
 ================================================================================
 Github
 ================================================================================

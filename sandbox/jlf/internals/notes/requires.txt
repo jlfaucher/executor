@@ -1,4 +1,54 @@
 ===============================================================================
+[oorexx:bugs] Re: #2058 ::REQUIRES regression
+===============================================================================
+
+Rick 2026, Apr 21
+
+Each loaded package needs to resolve its operating environment before it
+can begin its loading process. This means obtaining all of the public
+routines and classes defined in the packages referenced via ::REQUIRES.
+Once that is done, then the process of actually creating the classes
+defined in the packager can proceed and all of the code that needs to run
+when the package is loaded can run because the references have been
+obtained in a clean state.
+
+So for a simple case of file A requiring file B and B (non circular) the
+following takes place;
+
+1) Each ::REQUIRES is processed. If the package has not already been
+loaded, the file is loaded and fully initialized. After each file is
+processed, the public routine and class information from the required file.
+
+2) now that the package operating environment has been established, the
+defined classes can be instantiated, which may involve running class INIT
+methods and ACTIVATE methods. The classes might be subclasses of classes
+defined in the requires files.
+
+3) Once all of the classes have been created, the package prolog can be
+run. Once that completes, the package is considered fully loaded and other
+references to the same package name will reuse the already loaded
+information.
+
+So the important things here is the package needs to have all of its
+::REQUIRES fully resolved and initialized before it can move one to step 2
+of the process.
+
+Now through in a circular reference. A causes B to load. The processing of
+B requires information from A, but at this point, much of the information
+in A does not exist yet (e.g. andy classes defined in A) because A first
+needs to obtain information contained in B in order to complete that
+process. And B can't provide the information that A requires because B is
+unable to get the information from A.
+
+There's also another problem, what if A requires more than one package? The
+information contained in the other packages is part of the information that
+it provides to other packages, but if B is the first package that A loads,
+they when B tries to make the circular reference, none of the rest of the
+requires files have been processed yet, so that information is not
+available. It is only once a package has gone through the entire
+initialization process can that package be used by another package.
+
+===============================================================================
 Code review to understand how ::requires works
 ===============================================================================
 
