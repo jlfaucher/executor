@@ -612,6 +612,41 @@ attribute traceFilter
     say "    col 1: P=Public"
 
 
+::method displayMetadataSyntax class
+    say "Metadata is displayed in verbose mode."
+    say "Metadata is on the same line as data, separated with .endOfLine."
+    say ""
+    say "Metadata syntax"
+    say "    <T> indicates the type of metadata:"
+    say "        C = class"
+    say "        M = method"
+    say "        P = package"
+    say "        R = routine"
+    say ""
+    say "    The letter(s) after the type indicates the property:"
+    say "        <T>PD: package directory"
+    say "        <T>PF: package filename"
+    say "        <T>N:  name (PN is not provided because it would be redundant with PPN)"
+    say "        <T>PN: package name (can be a full path)"
+    say ""
+    say "    Examples of metadata:"
+    say "        CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
+    say "        CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
+    say "        CN      CN(Unicode)"
+    say "        CPN     CPN(.../packages/encoding/unicode.cls)"
+    say "        MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
+    say "        MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
+    say "        MN      MN(UTF8PROC_TRANSFORM)"
+    say "        MPN     MPN(.../packages/encoding/unicode.cls)"
+    say "        PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
+    say "        PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
+    say "        PPN     PPN(.../packages/encoding/unicode.cls)"
+    say "        RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)"
+    say "        RPF     .../RPD(packages)/RPD(encoding)/RPF(unicode.cls)"
+    say "        RN      RN(ICU4C_U_CHARNAME)"
+    say "        RPN     RPN(.../packages/encoding/unicode.cls)"
+
+
 ::method displayPath class
     use strict arg variablenames
     if variablenames~items == 0 then variablenames = .array~of("PATH")

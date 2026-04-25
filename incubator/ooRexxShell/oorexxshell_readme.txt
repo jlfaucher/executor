@@ -129,6 +129,7 @@ Queries
 ?h[elp] c1 c2 ... : local description of classes.
 ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).
 ?i[nterpreters]: interpreters that can be selected.
+?meta[data]: describe the metadata displayed in verbose mode.
 ?m[ethods] m1 m2 ... : display methods.
 ?p[ackages] p1 p2 ... : display the loaded packages.
 ?path v1 v2 ... : display value of system variable, splitted by path separator.
@@ -292,7 +293,7 @@ Metadata syntax
         PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)
         PPN     PPN(.../packages/encoding/unicode.cls)
         RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)
-        RPF     .../RPD(packages)/RPD(encoding)/RpF(unicode.cls)
+        RPF     .../RPD(packages)/RPD(encoding)/RPF(unicode.cls)
         RN      RN(ICU4C_U_CHARNAME)
         RPN     RPN(.../packages/encoding/unicode.cls)
 

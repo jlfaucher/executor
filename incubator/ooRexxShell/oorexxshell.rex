@@ -2185,6 +2185,8 @@ Helpers
 
     else if "interpreters"~caselessAbbrev(word1,1) & rest~isEmpty then .ooRexxShell~helpInterpreters
 
+    else if "metadata"~caselessAbbrev(subword1,4) then .ooRexxShell~helpMetadata
+
     else if "methods"~caselessAbbrev(subword1,1) then do
         source = .false
         verbose = .false
@@ -2295,6 +2297,7 @@ Helpers
     .ooRexxShell~sayQueryManagerCommand("    ?h[elp] c1 c2 ... : local description of classes.")
     .ooRexxShell~sayQueryManagerCommand("    ?h[elp].i[nherited] c1 c2 ... : local & inherited description of classes (hi).")
     say                                 "    ?i[nterpreters]: interpreters that can be selected."
+    .ooRexxShell~sayQueryManagerCommand("    ?meta[data]: describe the metadata displayed in verbose mode.")
     .ooRexxShell~sayQueryManagerCommand("    ?m[ethods] m1 m2 ... : display methods.")
     .ooRexxShell~sayQueryManagerCommand("    ?p[ackages] p1 p2 ... : display the loaded packages.")
     .ooRexxShell~sayQueryManagerCommand("    ?path v1 v2 ... : display value of system variable, splitted by path separator.")
@@ -2412,6 +2415,10 @@ Helpers
     do interpreter over .ooRexxShell~interpreters~allIndexes~sort
         say "    "interpreter~lower": to activate the ".ooRexxShell~interpreters[interpreter]" interpreter."
     end
+
+
+::method helpMetadata class
+    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayMetadataSyntax
 
 
 ::method helpMethods class
