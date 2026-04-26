@@ -246,7 +246,7 @@ Example:
     P.         'ISO88591_Encoding'    : (iso-8859-1_encoding.cls)
     P.         'WINDOWS1252_Encoding' : (windows-1252_encoding.cls)
 
-`CPD(optional)` matches a directory name of the class package.
+`CPD(optional)` matches a directory named "optional" in the class package.
 
 This is purely text-based filtering; `CPD(...)` is not interpreted.
 In this example, filtering with `optional` alone would produce the same result.
@@ -255,6 +255,10 @@ However, when listing methods, two package paths appear in the metadata. In that
 case, `CPD(...)` is required to restrict filtering to the class package only.
 
 
+Metadata is in the same string as data, separated with .endOfLine:
+"data .endOfLine metadata .endOfLine metadata etc...".
+
+By default, the FilteringStream displays only data.
 Metadata is displayed in verbose mode:
     ooRexx[bash]> ?cv *encoding* = `CPD(optional)`
     P.         'IBM1252_Encoding'     : (ibm-1252_encoding.cls)
@@ -263,9 +267,6 @@ Metadata is displayed in verbose mode:
         CN(IBM1252_Encoding)
     <cut>
 
-Metadata is on the same line as data, separated with .endOfLine.
-"data .endOfLine metadata .endOfLine metadata etc..."
-The FilteringStream displays only data.
 
 Metadata syntax
     <T> indicates the type of metadata:

@@ -669,8 +669,16 @@ attribute traceFilter
 
 
 ::method displayMetadataSyntax class
+    say "The second level of filtering is applied to metadata when testing backquoted strings."
+    say ""
+    say "Example:"
+    say "    ooRexx[bash]> ?c *encoding* = `CPD(optional)`"
+    say ""
+    say "`CPD(optional)` matches a directory named ""optional"" in the class package."
+    say "This is purely text-based filtering; `CPD(...)` is not interpreted."
+    say ""
+    say "Metadata is in the same string as data, separated with .endOfLine."
     say "Metadata is displayed in verbose mode."
-    say "Metadata is on the same line as data, separated with .endOfLine."
     say ""
     say "Metadata syntax"
     say "    <T> indicates the type of metadata:"
@@ -685,22 +693,22 @@ attribute traceFilter
     say "        <T>N:  name (PN is not provided because it would be redundant with PPN)"
     say "        <T>PN: package name (can be a full path)"
     say ""
-    say "    Examples of metadata:"
-    say "        CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
-    say "        CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
-    say "        CN      CN(Unicode)"
-    say "        CPN     CPN(.../packages/encoding/unicode.cls)"
-    say "        MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
-    say "        MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
-    say "        MN      MN(UTF8PROC_TRANSFORM)"
-    say "        MPN     MPN(.../packages/encoding/unicode.cls)"
-    say "        PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
-    say "        PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
-    say "        PPN     PPN(.../packages/encoding/unicode.cls)"
-    say "        RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)"
-    say "        RPF     .../RPD(packages)/RPD(encoding)/RPF(unicode.cls)"
-    say "        RN      RN(ICU4C_U_CHARNAME)"
-    say "        RPN     RPN(.../packages/encoding/unicode.cls)"
+    say "Examples of metadata:"
+    say "    CPD     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
+    say "    CPF     .../CPD(packages)/CPD(encoding)/CPF(unicode.cls)"
+    say "    CN      CN(Unicode)"
+    say "    CPN     CPN(.../packages/encoding/unicode.cls)"
+    say "    MPD     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
+    say "    MPF     .../MPD(packages)/MPD(encoding)/MPF(unicode.cls)"
+    say "    MN      MN(UTF8PROC_TRANSFORM)"
+    say "    MPN     MPN(.../packages/encoding/unicode.cls)"
+    say "    PPD     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
+    say "    PPF     .../PPD(packages)/PPD(encoding)/PPF(unicode.cls)"
+    say "    PPN     PPN(.../packages/encoding/unicode.cls)"
+    say "    RPD     .../RPD(packages)/RpD(encoding)/RPF(unicode.cls)"
+    say "    RPF     .../RPD(packages)/RPD(encoding)/RPF(unicode.cls)"
+    say "    RN      RN(ICU4C_U_CHARNAME)"
+    say "    RPN     RPN(.../packages/encoding/unicode.cls)"
 
 
 ::method displayPath class
@@ -1003,10 +1011,11 @@ Examples:
 
 ::routine packageMetadata private
     use strict arg type, package
-    if .nil == package then return type"()"
 
     marker = .endofline
     indent = "    "
+
+    if .nil == package then return marker || indent || type"()"
 
     packageName = package~name -- can be a full path
     -- Normalize path separators so queries behave consistently across platforms
