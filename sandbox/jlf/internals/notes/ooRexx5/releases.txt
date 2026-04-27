@@ -1,0 +1,217 @@
+================================================================================
+5.3.0 beta 2026-04-25
+================================================================================
+
+----------
+Installers
+----------
+
+oorexx-5.3.0-13163.ubuntu1604debug.x86_64.deb	2026-04-25	14.3 MB	0
+oorexx-5.3.0-13163.fedora43.x86_64.rpm	2026-04-25	9.0 MB	0
+oorexx-5.3.0-13163.linuxmint22.x86_64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.ubuntu1604.x86_64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.opensuse15.x86_64.rpm	2026-04-25	8.9 MB	0
+oorexx-5.3.0-13163.raspberrypios32.armv7l.deb	2026-04-25	9.9 MB	0
+oorexx-5.3.0-13163.ubuntu2404.x86_64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.macos.arm64.x86_64.dmg	2026-04-25	12.0 MB	0
+oorexx-5.3.0-13163.windows.x86_32.exe	2026-04-25	23.2 MB	0
+oorexx-5.3.0-13163.tar.gz	2026-04-25	6.7 MB	0
+oorexx-5.3.0-13163.freebsd14.amd64.pkg	2026-04-25	8.7 MB	0
+oorexx-5.3.0-13163.ubuntu2204.x86_64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.ubuntu2204.aarch64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.debian12.x86_64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.windows.x86_64.exe	2026-04-25	23.7 MB	0
+oorexx-5.3.0-13163.raspberrypios64.aarch64.deb	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.centos10.x86_64.rpm	2026-04-25	9.0 MB	0
+
+oorexx-5.3.0-13161.tar.gz	2026-04-20	6.7 MB	1
+oorexx-5.3.0-13161.fedora43.x86_64.rpm	2026-04-20	9.0 MB	0
+oorexx-5.3.0-13161.linuxmint22.x86_64.deb	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.ubuntu1604.x86_64.deb	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.ubuntu1604debug.x86_64.deb	2026-04-20	14.3 MB	0
+oorexx-5.3.0-13161.opensuse15.x86_64.rpm	2026-04-20	8.9 MB	0
+oorexx-5.3.0-13161.raspberrypios32.armv7l.deb	2026-04-20	9.9 MB	0
+oorexx-5.3.0-13161.ubuntu2404.x86_64.deb	2026-04-20	10.1 MB	1
+oorexx-5.3.0-13161.macos.arm64.x86_64.dmg	2026-04-20	12.2 MB	0
+oorexx-5.3.0-13161.windows.x86_32.exe	2026-04-20	23.2 MB	2
+oorexx-5.3.0-13161.debian12.x86_64.deb	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.freebsd14.amd64.pkg	2026-04-20	8.7 MB	0
+oorexx-5.3.0-13161.ubuntu2204.aarch64.deb	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.ubuntu2204.x86_64.deb	2026-04-20	10.1 MB	1
+oorexx-5.3.0-13161.windows.x86_64.exe	2026-04-20	23.7 MB	1
+oorexx-5.3.0-13161.raspberrypios64.aarch64.deb	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.centos10.x86_64.rpm	2026-04-20	9.0 MB	0
+
+oorexx-5.3.0-13160.fedora43.x86_64.rpm	2026-04-19	9.0 MB	0
+oorexx-5.3.0-13160.linuxmint22.x86_64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.ubuntu1604.x86_64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.opensuse15.x86_64.rpm	2026-04-19	8.9 MB	0
+oorexx-5.3.0-13160.ubuntu1604debug.x86_64.deb	2026-04-19	14.3 MB	0
+oorexx-5.3.0-13160.raspberrypios32.armv7l.deb	2026-04-19	9.9 MB	0
+oorexx-5.3.0-13160.ubuntu2404.x86_64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.macos.arm64.x86_64.dmg	2026-04-19	12.8 MB	0
+oorexx-5.3.0-13160.windows.x86_32.exe	2026-04-19	23.2 MB	0
+oorexx-5.3.0-13160.tar.gz	2026-04-19	6.7 MB	0
+oorexx-5.3.0-13160.freebsd14.amd64.pkg	2026-04-19	8.7 MB	0
+oorexx-5.3.0-13160.debian12.x86_64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.ubuntu2204.aarch64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.ubuntu2204.x86_64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.windows.x86_64.exe	2026-04-19	23.7 MB	0
+oorexx-5.3.0-13160.raspberrypios64.aarch64.deb	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.centos10.x86_64.rpm	2026-04-19	9.0 MB	0
+
+oorexx-5.3.0-13158.linuxmint22.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.fedora43.x86_64.rpm	2026-04-18	9.0 MB	0
+oorexx-5.3.0-13158.opensuse15.x86_64.rpm	2026-04-18	8.9 MB	0
+oorexx-5.3.0-13158.ubuntu1604.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.ubuntu1604debug.x86_64.deb	2026-04-18	14.3 MB	0
+oorexx-5.3.0-13158.raspberrypios32.armv7l.deb	2026-04-18	9.9 MB	0
+oorexx-5.3.0-13158.ubuntu2404.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.macos.arm64.x86_64.dmg	2026-04-18	12.0 MB	0
+oorexx-5.3.0-13158.windows.x86_32.exe	2026-04-18	23.2 MB	0
+oorexx-5.3.0-13158.tar.gz	2026-04-18	6.7 MB	0
+oorexx-5.3.0-13158.freebsd14.amd64.pkg	2026-04-18	8.7 MB	0
+oorexx-5.3.0-13158.debian12.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.ubuntu2204.aarch64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.ubuntu2204.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.windows.x86_64.exe	2026-04-18	23.7 MB	0
+oorexx-5.3.0-13158.raspberrypios64.aarch64.deb	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.centos10.x86_64.rpm	2026-04-18	9.0 MB	0
+
+--------
+Portable
+--------
+
+oorexx-5.3.0-13163.fedora43.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.linuxmint22.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.raspberrypios32.armv7l-portable-release.zip	2026-04-25	10.1 MB	0
+oorexx-5.3.0-13163.opensuse15.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.manjaro.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.ubuntu2404.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.macos.arm64.x86_64-portable-release.zip	2026-04-25	10.8 MB	0
+oorexx-5.3.0-13163.windows.x86_32-portable-release.zip	2026-04-25	23.6 MB	0
+oorexx-5.3.0-13163.solaris11.i386-portable-release.zip	2026-04-25	10.4 MB	0
+oorexx-5.3.0-13163.netbsd10.x86_64-portable-release.zip	2026-04-25	10.2 MB	0
+oorexx-5.3.0-13163.archlinux.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.freebsd14.amd64-portable-release.zip	2026-04-25	10.2 MB	0
+oorexx-5.3.0-13163.debian12.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.ubuntu2204.aarch64-portable-release.zip	2026-04-25	10.2 MB	0
+oorexx-5.3.0-13163.openindiana.amd64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.ubuntu2204.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+oorexx-5.3.0-13163.windows.x86_64-portable-release.zip	2026-04-25	24.1 MB	0
+oorexx-5.3.0-13163.raspberrypios64.aarch64-portable-release.zip	2026-04-25	10.2 MB	0
+oorexx-5.3.0-13163.centos10.x86_64-portable-release.zip	2026-04-25	10.3 MB	0
+
+oorexx-5.3.0-13161.fedora43.x86_64-portable-release.zip	2026-04-20	10.3 MB	1
+oorexx-5.3.0-13161.linuxmint22.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.opensuse15.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.raspberrypios32.armv7l-portable-release.zip	2026-04-20	10.1 MB	0
+oorexx-5.3.0-13161.manjaro.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.ubuntu2404.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.macos.arm64.x86_64-portable-release.zip	2026-04-20	10.8 MB	0
+oorexx-5.3.0-13161.windows.x86_32-portable-release.zip	2026-04-20	23.6 MB	0
+oorexx-5.3.0-13161.solaris11.i386-portable-release.zip	2026-04-20	10.4 MB	0
+oorexx-5.3.0-13161.netbsd10.x86_64-portable-release.zip	2026-04-20	10.2 MB	0
+oorexx-5.3.0-13161.archlinux.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.freebsd14.amd64-portable-release.zip	2026-04-20	10.2 MB	0
+oorexx-5.3.0-13161.debian12.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.ubuntu2204.aarch64-portable-release.zip	2026-04-20	10.2 MB	0
+oorexx-5.3.0-13161.openindiana.amd64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.ubuntu2204.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+oorexx-5.3.0-13161.raspberrypios64.aarch64-portable-release.zip	2026-04-20	10.2 MB	0
+oorexx-5.3.0-13161.windows.x86_64-portable-release.zip	2026-04-20	24.1 MB	0
+oorexx-5.3.0-13161.centos10.x86_64-portable-release.zip	2026-04-20	10.3 MB	0
+
+oorexx-5.3.0-13160.fedora43.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.linuxmint22.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.opensuse15.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.raspberrypios32.armv7l-portable-release.zip	2026-04-19	10.1 MB	0
+oorexx-5.3.0-13160.manjaro.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.ubuntu2404.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.macos.arm64.x86_64-portable-release.zip	2026-04-19	10.8 MB	0
+oorexx-5.3.0-13160.windows.x86_32-portable-release.zip	2026-04-19	23.6 MB	0
+oorexx-5.3.0-13160.solaris11.i386-portable-release.zip	2026-04-19	10.4 MB	0
+oorexx-5.3.0-13160.netbsd10.x86_64-portable-release.zip	2026-04-19	10.2 MB	0
+oorexx-5.3.0-13160.archlinux.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.freebsd14.amd64-portable-release.zip	2026-04-19	10.2 MB	0
+oorexx-5.3.0-13160.debian12.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.ubuntu2204.aarch64-portable-release.zip	2026-04-19	10.2 MB	0
+oorexx-5.3.0-13160.ubuntu2204.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.openindiana.amd64-portable-release.zip	2026-04-19	10.3 MB	0
+oorexx-5.3.0-13160.windows.x86_64-portable-release.zip	2026-04-19	24.1 MB	0
+oorexx-5.3.0-13160.raspberrypios64.aarch64-portable-release.zip	2026-04-19	10.2 MB	0
+oorexx-5.3.0-13160.centos10.x86_64-portable-release.zip	2026-04-19	10.3 MB	0
+
+oorexx-5.3.0-13158.fedora43.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.linuxmint22.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.opensuse15.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.raspberrypios32.armv7l-portable-release.zip	2026-04-18	10.1 MB	0
+oorexx-5.3.0-13158.manjaro.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.ubuntu2404.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.macos.arm64.x86_64-portable-release.zip	2026-04-18	10.8 MB	0
+oorexx-5.3.0-13158.windows.x86_32-portable-release.zip	2026-04-18	23.6 MB	0
+oorexx-5.3.0-13158.solaris11.i386-portable-release.zip	2026-04-18	10.4 MB	0
+oorexx-5.3.0-13158.netbsd10.x86_64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.3.0-13158.archlinux.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.freebsd14.amd64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.3.0-13158.debian12.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.ubuntu2204.aarch64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.3.0-13158.openindiana.amd64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.ubuntu2204.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+oorexx-5.3.0-13158.windows.x86_64-portable-release.zip	2026-04-18	24.1 MB	0
+oorexx-5.3.0-13158.raspberrypios64.aarch64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.3.0-13158.centos10.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+
+
+================================================================================
+5.2.0
+================================================================================
+
+The indented distributions have an installer and a portable version.
+The not-indented distributions have either an installer or a portable version, but not both.
+
+----------
+Installers
+----------
+
+    oorexx-5.2.0-13156.raspberrypios32.armv7l.deb	2026-04-18	9.9 MB	0
+    oorexx-5.2.0-13156.fedora43.x86_64.rpm	2026-04-18	9.0 MB	0
+    oorexx-5.2.0-13156.linuxmint22.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.2.0-13156.ubuntu1604.x86_64.deb	2026-04-18	10.1 MB	0
+oorexx-5.2.0-13156.ubuntu1604debug.x86_64.deb	2026-04-18	14.3 MB	0
+    oorexx-5.2.0-13156.opensuse15.x86_64.rpm	2026-04-18	8.9 MB	0
+    oorexx-5.2.0-13156.ubuntu2404.x86_64.deb	2026-04-18	10.1 MB	0
+    oorexx-5.2.0-13156.macos.arm64.x86_64.dmg	2026-04-18	12.8 MB	0
+    oorexx-5.2.0-13156.windows.x86_32.exe	2026-04-18	23.2 MB	0
+oorexx-5.2.0-13156.tar.gz	2026-04-18	6.7 MB	0
+    oorexx-5.2.0-13156.freebsd14.amd64.pkg	2026-04-18	8.7 MB	0
+    oorexx-5.2.0-13156.debian12.x86_64.deb	2026-04-18	10.1 MB	0
+    oorexx-5.2.0-13156.ubuntu2204.aarch64.deb	2026-04-18	10.1 MB	0
+    oorexx-5.2.0-13156.windows.x86_64.exe	2026-04-18	23.7 MB	0
+    oorexx-5.2.0-13156.ubuntu2204.x86_64.deb	2026-04-18	10.1 MB	0
+    oorexx-5.2.0-13156.raspberrypios64.aarch64.deb	2026-04-18	10.1 MB	0
+    oorexx-5.2.0-13156.centos10.x86_64.rpm	2026-04-18	9.0 MB	0
+
+--------
+Portable
+--------
+
+    oorexx-5.2.0-13156.fedora43.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.linuxmint22.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.opensuse15.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.raspberrypios32.armv7l-portable-release.zip	2026-04-18	10.1 MB	0
+oorexx-5.2.0-13156.manjaro.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.ubuntu2404.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.macos.arm64.x86_64-portable-release.zip	2026-04-18	10.8 MB	0
+    oorexx-5.2.0-13156.windows.x86_32-portable-release.zip	2026-04-18	23.6 MB	0
+oorexx-5.2.0-13156.solaris11.i386-portable-release.zip	2026-04-18	10.4 MB	0
+oorexx-5.2.0-13156.netbsd10.x86_64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.2.0-13156.archlinux.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.freebsd14.amd64-portable-release.zip	2026-04-18	10.2 MB	0
+    oorexx-5.2.0-13156.ubuntu2204.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.debian12.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.ubuntu2204.aarch64-portable-release.zip	2026-04-18	10.2 MB	0
+oorexx-5.2.0-13156.openindiana.amd64-portable-release.zip	2026-04-18	10.3 MB	0
+    oorexx-5.2.0-13156.windows.x86_64-portable-release.zip	2026-04-18	24.1 MB	0
+    oorexx-5.2.0-13156.raspberrypios64.aarch64-portable-release.zip	2026-04-18	10.2 MB	0
+    oorexx-5.2.0-13156.centos10.x86_64-portable-release.zip	2026-04-18	10.3 MB	0
