@@ -1988,7 +1988,7 @@ Helpers
     numeric digits -- stop any propagated settings, to have the default value for digits()
     use strict arg value /*enclosedArray or array*/, maxItems=(9~copies(digits())) /*no limit*/
     if value~hasMethod("ppRepresentation") then say value~ppRepresentation(maxItems) -- condensed output, limited to maxItems
-    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation") then say .ExtensionDispatcher~ppRepresentation(value, maxItems) -- condensed output, limited to maxItems
+    else if .ExtensionDispatcher~isA(.class), .ExtensionDispatcher~hasMethod(value, "ppRepresentation") then say .ExtensionDispatcher~ppRepresentation(value, /*surroundByQuotes*/, /*unescapedCharacters*/, /*expandCollection*/, maxItems) -- condensed output, limited to maxItems
     else say value
 
 
