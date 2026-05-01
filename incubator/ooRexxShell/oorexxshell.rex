@@ -43,7 +43,7 @@ This shell supports several interpreters:
 - ooRexx itself
 - the system address (cmd under Windows, sh under Linux & MacOs)
 - bash, zsh
-- PowerShell core (pwsh)
+- Powershell, PowerShell core (pwsh)
 - any other external environment (you need to modify this script, search for hostemu for an example).
 The prompt indicates which interpreter is active.
 By default the shell is in ooRexx mode.
@@ -203,6 +203,9 @@ end
 .ooRexxShell~interpreters~setEntry("cmd", .ooRexxShell~systemAddress) -- an alias for .ooRexxShell~systemAddress)
 .ooRexxShell~interpreters~setEntry("command", .ooRexxShell~systemAddress) -- an alias for .ooRexxShell~systemAddress)
 if .platform~is("windows") then do
+    "where /q powershell"
+    if RC == 0 then .ooRexxShell~interpreters~setEntry("powershell", "powershell")
+    "where /q pwsh"
     .ooRexxShell~interpreters~setEntry("pwsh", "pwsh")
 end
 if \.platform~is("windows") then do
@@ -212,6 +215,7 @@ if \.platform~is("windows") then do
         lastSlashPos = shell~lastpos("/")
         if lastSlashPos == 0 then iterate
         shell = shell~substr(lastSlashPos + 1)
+        if shell == "screen" then iterate -- not a shell
         if shell <> "" then .ooRexxShell~interpreters~setEntry(shell, shell)
     end
 end
@@ -2977,6 +2981,10 @@ Helpers
         -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
         -- sh needs that the command be surrounded by '"' to not interpret ';' inside the command.
         return .array~of(.ooRexxShell~systemAddress, "zsh -c '"command"'")
+    end
+    else if address~caselessEquals("powershell") then do
+        -- cmd doesn't support that the command be surrounded by '"'.
+        return .array~of(.ooRexxShell~systemAddress, "pwsh -command "command)
     end
     else if address~caselessEquals("pwsh") then do
         -- cmd doesn't support that the command be surrounded by '"'.
