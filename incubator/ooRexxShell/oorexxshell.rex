@@ -2347,22 +2347,26 @@ Helpers
     -- All or specified classes (public & private) that are visible from current context, with their package
     use strict arg classnames, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(classnames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(classnames)
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClasses(classnames, verbose, maxPackageNameWidth, self, .context)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayClasses(classnames, verbose, maxPackageNameWidth, self, .context)
+    end
 
 
 ::method helpClassMethods class
     -- Display the methods of each specified class
     use strict arg classnames, inherited, displaySource, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(classnames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(classnames)
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayClassMethods(classnames, inherited, displaySource, verbose, maxPackageNameWidth, self, .context, filteringStream)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayClassMethods(classnames, inherited, displaySource, verbose, maxPackageNameWidth, self, .context, filteringStream)
+    end
 
 
 ::method helpDocumentation class
@@ -2403,11 +2407,13 @@ Helpers
 ::method helpHelp class
     use strict arg classnames, inherited, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(classnames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(classnames)
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayHelp(classnames, inherited, verbose, maxPackageNameWidth, self, .context)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayHelp(classnames, inherited, verbose, maxPackageNameWidth, self, .context)
+    end
 
 
 ::method helpInterpreters class
@@ -2425,22 +2431,26 @@ Helpers
     -- Display the defining classes of each specified method
     use strict arg methodnames, displaySource, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(methodnames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(methodnames)
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayMethods(methodnames, displaySource, verbose, maxPackageNameWidth, self, .context)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayMethods(methodnames, displaySource, verbose, maxPackageNameWidth, self, .context)
+    end
 
 
 ::method helpPackages class
     -- All packages that are visible from current context, including the current package (source of the pipeline).
     use strict arg packagenames, displaySource, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(packagenames, 1000) -- 1000: display full path by default
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(packagenames, 1000) -- 1000: display full path by default
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayPackages(packagenames, displaySource, verbose, maxPackageNameWidth, self, .context)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayPackages(packagenames, displaySource, verbose, maxPackageNameWidth, self, .context)
+    end
 
 
 ::method helpPath class
@@ -2455,11 +2465,13 @@ Helpers
     -- Display the defining package of each specified routine
     use strict arg routinenames, displaySource, verbose, filteringStream
 
-    -- If the first name is an unquoted whole number, consider it to be a package width.
-    maxPackageNameWidth = maxPackageNameWidth(routinenames)
+    if .ooRexxShell~checkQueryManagerPrerequisites then do
+        -- If the first name is an unquoted whole number, consider it to be a package width.
+        maxPackageNameWidth = maxPackageNameWidth(routinenames)
 
-    filteringStream~verbose = verbose
-    if .ooRexxShell~checkQueryManagerPrerequisites then .QueryManager~displayRoutines(routinenames, displaySource, verbose, maxPackageNameWidth, self, .context)
+        if .nil \== filteringStream then filteringStream~verbose = verbose
+        .QueryManager~displayRoutines(routinenames, displaySource, verbose, maxPackageNameWidth, self, .context)
+    end
 
 
 ::method helpVariables class
@@ -2769,7 +2781,7 @@ Helpers
     use strict arg names, width = (.ooRexxShell~maxPackageNameWidth)
     if names~items \== 0 then do
         name1 = names[1]
-        if .nil \== name1, name1~quotedFlags~countStr("1") == 0, datatype(name1, "W") then do
+        if .nil \== name1, name1~hasMethod("quotedFlags"), name1~quotedFlags~countStr("1") == 0, datatype(name1, "W") then do
             names~delete(1)
             width = name1
         end

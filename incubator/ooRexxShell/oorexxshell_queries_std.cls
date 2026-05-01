@@ -1085,7 +1085,7 @@ Examples:
         use strict arg operatorString, operatorCode
         left = arg~left(operatorString~length)
         if left~string <> operatorString then return .false
-        if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+        if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
         argument = arg~substr(operatorString~length + 1)
         filter = self~new(operatorCode, argument)
         return .true
