@@ -1070,6 +1070,7 @@ Helpers
     call loadPackage "smtp.cls"
     call loadPackage "socket.cls"
     call loadPackage "streamsocket.cls"
+    call loadPackage "yaml.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true -- ooRexx5 only
     call loadPackage "pipeline/pipe.cls"
     --call loadPackage "ooSQLite.cls"
 

@@ -550,6 +550,12 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 May 02
+
+Preload yaml.cls
+
+
+-----------------------------------------------
 2026 Apr 16
 
 Source lines are no longer filtered.
