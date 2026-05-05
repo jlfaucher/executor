@@ -206,7 +206,7 @@ if .platform~is("windows") then do
     "where /q powershell"
     if RC == 0 then .ooRexxShell~interpreters~setEntry("powershell", "powershell")
     "where /q pwsh"
-    .ooRexxShell~interpreters~setEntry("pwsh", "pwsh")
+    if RC == 0 then .ooRexxShell~interpreters~setEntry("pwsh", "pwsh")
 end
 if \.platform~is("windows") then do
     do shell over .stream~new("/etc/shells")~arrayin
