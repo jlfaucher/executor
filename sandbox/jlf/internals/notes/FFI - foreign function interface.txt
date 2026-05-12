@@ -1,5 +1,11 @@
 FFI = Foreign Function Interface
 
+https://google.github.io/autocxx/
+autocxx — automatic safe interop between Rust and C++
+---
+referenced from https://fishshell.com/blog/rustport/
+
+
 https://ashvardanian.com/posts/porting-cpp-library-to-ten-languages/
 Binding a C++ Library to 10 Programming Languages
 Same author as for StringZilla

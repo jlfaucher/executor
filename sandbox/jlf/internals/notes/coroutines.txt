@@ -1,5 +1,20 @@
 This file is not limited to co-routines. Also covers iterators, generators.
 
+https://develop.corosio.cpp.al/corosio/index.html
+https://github.com/cppalliance/corosio
+
+
+https://vittorioromeo.com/index/blog/sfex_coroutine.html
+stackless coroutines for gamedev in ~200 lines of C++
+Our goal is to implement coroutines that meet these criteria:
+1. Allocation-free: The entire coroutine state is one int plus whatever members4 you put on the struct.
+2. Trivially serializable: Save the integer state and the struct’s data, and that’s it. Mid-cutscene saving and loading just works™.
+3. Deterministic: No hidden compiler lowering; the generated control flow could be written by hand.
+4. Composable: Coroutines can await other coroutines, all in straight-line code.
+5. Tiny: The whole runtime is a small header you can read in one sitting.
+https://github.com/vittorioromeo/VRSFML/blob/master/examples/include/ExampleUtils/SfexCoroutine.hpp
+
+
 https://elric.pl/blog/cooperative-multitasking/
 Cooperative multitasking in Rust
 jlf: todo read
