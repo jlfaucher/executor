@@ -3,9 +3,16 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 May 12
+
+Remove dependency on uni-algo.
+I have never used it, and it is no longer maintained (no updates after 3 years).
+
+
+===============================================================================
 2026 Apr 16
 
-The way how ppOptions is passed as stem is broken:
+The way ppOptions is passed as stem is broken:
     ::method ppString
         use arg surroundByQuotes=.true, unescapedCharacters=""
         use named arg ppOptions. = (.Stem~new), ppOptions.surroundByQuotes = (surroundByQuotes), ppOptions.unescapedCharacters = (unescapedCharacters)

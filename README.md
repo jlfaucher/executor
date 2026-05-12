@@ -50,7 +50,6 @@ Main ideas explored with this prototype:
 Prototype based on:
 
 - [utf8proc][utf8proc]
-- [uni-algo][uni_algo]
 
 Notes about Unicode:
 
@@ -509,7 +508,6 @@ I gave up my extensions.
 [sourceforge_incubator_DocMusings_transformxml]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree/incubator/DocMusings/transformxml/ "SourceForge incubator/DocMusings/transformxml"
 [sourceforge_sandbox_jlf]: https://sourceforge.net/p/oorexx/code-0/HEAD/tree/sandbox/jlf "SourceForge sandbox/jlf"
 [thoughts_on_ooRexx_and_unicode]: https://docs.google.com/viewer?url=https://jlfaucher.github.io/executor.master/unicode/Thoughts%20on%20ooRexx%20and%20Unicode.pdf
-[uni_algo]: https://github.com/uni-algo/uni-algo
 [utf8proc]: https://juliastrings.github.io/utf8proc/
 [wikipedia_breadth_first_search]: https://en.wikipedia.org/wiki/Breadth-first_search
 [wikipedia_fixed_point_combinator]: https://en.wikipedia.org/wiki/Fixed-point_combinator#Y_combinator "Wikipedia fixed point combinator"

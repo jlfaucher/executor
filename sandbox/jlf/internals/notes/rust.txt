@@ -1,0 +1,11 @@
+https://fishshell.com/blog/rustport/
+Fish 4.0: The Fish Of Theseus
+Dec 28, 2024
+---
+https://github.com/fish-shell/fish-shell/pull/9512
+Rewrite it in Rust
+---
+fish is a smart and user-friendly command line shell for macOS, Linux, and the
+rest of the family. fish includes features like syntax highlighting,
+autosuggest-as-you-type, and fancy tab completions that just work, with no
+configuration required.

@@ -2072,7 +2072,6 @@ The support of the encoded strings is implemented in [trunk/interpreter/classes/
     
 Libraries:
 
-- [trunk/interpreter/classes/support/m17n/uni-algo](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/uni-algo)
 - [trunk/interpreter/classes/support/m17n/utf8proc](https://github.com/jlfaucher/executor/tree/master/sandbox/jlf/trunk/interpreter/classes/support/m17n/utf8proc)
 
 

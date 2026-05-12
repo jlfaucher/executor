@@ -730,18 +730,6 @@ install(TARGETS rexxapi RUNTIME DESTINATION ${INSTALL_LIB_DIR} COMPONENT Core
 set_target_properties(rexxapi PROPERTIES SOVERSION ${ORX_API_LEVEL})
 create_install_symlink(rexxapi)
 
-##################### unicode ###########################
-
-# Needed for uni-algo
-if (WIN32)
-    set_source_files_properties(${build_classes_support_dir}/m17n/uni-algo/src/data.cpp PROPERTIES COMPILE_OPTIONS "/std:c++17")
-    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "/std:c++17")
-else ()
-    set_source_files_properties(${build_classes_support_dir}/m17n/uni-algo/src/data.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
-    set_source_files_properties(${build_classes_dir}/TextClass.cpp PROPERTIES COMPILE_OPTIONS "-std=c++17")
-endif ()
-
-
 ##################### utf8proc ###########################
 
 if (WIN32)
@@ -779,7 +767,6 @@ set (classes_support_sources
             ${build_classes_support_dir}/RexxListTable.cpp
             ${build_classes_support_dir}/StringUtil.cpp
             ${build_classes_support_dir}/m17n/utf8proc/utf8proc.c
-            ${build_classes_support_dir}/m17n/uni-algo/src/data.cpp
             )
 endif()
 

@@ -1199,8 +1199,6 @@ CPPM(Unicode::utf8proc_codepointIsLower),
 CPPM(Unicode::utf8proc_codepointIsUpper),
 CPPM(Unicode::utf8proc_transform),
 
-CPPM(Unicode::unialgo_version),
-
 // ooRexx5
 CPPM(VariableReference::newRexx),
 CPPM(VariableReference::getName),
