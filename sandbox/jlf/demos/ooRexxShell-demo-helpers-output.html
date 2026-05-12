@@ -30,9 +30,10 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for icu4oorexx.cls
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
-</span><span style="font-weight:bold;color:green;">Input queue name: Sa552Q6000019d4f70
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 12 May 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: S16d93Q600001980a90
 </span>
 <span style="font-weight:bold;color:blue;">--------------
 </span><span style="font-weight:bold;color:blue;">-- ooRexxShell
@@ -45,8 +46,8 @@
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?path</span>
 PATH '~/software/oorexx'
-PATH '/Users/Shared/local/Unicode/ICU/icu-release-69-1/delivery/sbin'
-PATH '/Users/Shared/local/Unicode/ICU/icu-release-69-1/delivery/bin'
+PATH '/opt/homebrew/opt/icu4c/sbin'
+PATH '/opt/homebrew/opt/icu4c/bin'
 PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx'
 PATH '/Users/Shared/local/java/jdk/bellsoft/jdk-23.0.2-full.jdk/bin'
 PATH '/local/rexx/oorexx/executor/sandbox/jlf/samples'
@@ -55,14 +56,14 @@ PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
 PATH '/local/rexx/oorexx/executor/incubator'
-PATH '/local/rexx/oorexx/official/test/trunk/framework'
-PATH '/local/rexx/oorexx/official/test/trunk'
+PATH '/local/rexx/oorexx/executor/test/trunk/framework'
+PATH '/local/rexx/oorexx/executor/test/trunk'
 PATH '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin'
 PATH '/local/rexx/oorexx/scripts'
 PATH '/Users/Shared/local/rexx/builder/scripts'
+PATH '/Users/jlfaucher/bin'
 PATH '/opt/local/bin'
 PATH '/opt/local/sbin'
-PATH '/Users/jlfaucher/bin'
 PATH '/Users/jlfaucher/Library/Racket/8.16/bin'
 PATH '/Applications/Racket v8.16/bin'
 PATH '/Users/jlfaucher/go/bin'
@@ -91,7 +92,7 @@ PATH '/Users/jlfaucher/.local/bin'
 PATH '/Applications/Visual Studio Code.app/Contents/Resources/app/bin'
 PATH '/Users/jlfaucher/.local/bin'
 PATH '/Users/jlfaucher/.local/bin'
-PATH length: 1709
+PATH length: 1641
 <span style="font-weight:bold;color:green;">[Info] 48 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
@@ -107,8 +108,8 @@ PATH '/local/rexx/oorexx/executor/sandbox/jlf'
 PATH '/local/rexx/oorexx/executor/incubator/ooRexxShell'
 PATH '/local/rexx/oorexx/executor/incubator/docmusings'
 PATH '/local/rexx/oorexx/executor/incubator'
-PATH '/local/rexx/oorexx/official/test/trunk/framework'
-PATH '/local/rexx/oorexx/official/test/trunk'
+PATH '/local/rexx/oorexx/executor/test/trunk/framework'
+PATH '/local/rexx/oorexx/executor/test/trunk'
 PATH '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin'
 PATH '/local/rexx/oorexx/scripts'
 PATH '/Users/Shared/local/rexx/builder/scripts'
@@ -119,11 +120,9 @@ PATH '/Users/Shared/local/rexx/builder/scripts'
 </span><span style="font-weight:bold;color:blue;">?path LIBRARY_PATH
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?path LIBRARY_PATH</span>
-LIBRARY_PATH '/Users/Shared/local/cpp/boost/delivery/lib'
-LIBRARY_PATH '/Users/Shared/local/Unicode/ICU/icu-release-69-1/delivery/lib'
 LIBRARY_PATH '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/lib'
-LIBRARY_PATH length: 216
-<span style="font-weight:bold;color:green;">[Info] 4 lines displayed
+LIBRARY_PATH length: 111
+<span style="font-weight:bold;color:green;">[Info] 2 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Display the DYLD_LIBRARY_PATH (MacOs)
@@ -131,14 +130,13 @@ LIBRARY_PATH length: 216
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">?path DYLD_LIBRARY_PATH</span>
 DYLD_LIBRARY_PATH '/Users/Shared/local/rexx/rexx-gci/build/macos-arm64/clang/release'
-DYLD_LIBRARY_PATH '/Users/Shared/local/cpp/boost/delivery/lib'
-DYLD_LIBRARY_PATH '/Users/Shared/local/Unicode/ICU/icu-release-69-1/delivery/lib'
+DYLD_LIBRARY_PATH '/opt/homebrew/opt/icu4c/lib'
 DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx/lib'
 DYLD_LIBRARY_PATH '/local/rexx/bsf4oorexx/BSF4ooRexx_install_v641-20221002-refresh/bsf4oorexx/lib/macos-arm64'
 DYLD_LIBRARY_PATH ''
 DYLD_LIBRARY_PATH '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/lib'
-DYLD_LIBRARY_PATH length: 453
-<span style="font-weight:bold;color:green;">[Info] 8 lines displayed
+DYLD_LIBRARY_PATH length: 376
+<span style="font-weight:bold;color:green;">[Info] 7 lines displayed
 </span>
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Display the CLASSPATH

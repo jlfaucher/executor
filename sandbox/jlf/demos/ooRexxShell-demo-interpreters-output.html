@@ -30,9 +30,10 @@
 </span><span style="font-weight:bold;color:green;">loadPackage OK for oorexxshell_queries.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for pipeline/pipe_extension.cls
 </span><span style="font-weight:bold;color:green;">loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+</span><span style="font-weight:bold;color:green;">loadPackage OK for icu4oorexx.cls
 </span><span style="font-weight:bold;color:green;">
-</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
-</span><span style="font-weight:bold;color:green;">Input queue name: SbafaQ6000019d5c70
+</span><span style="font-weight:bold;color:green;">REXX-ooRexx_4.3.0(MT)_64-bit 6.04 12 May 2026
+</span><span style="font-weight:bold;color:green;">Input queue name: S16da4Q600001980b60
 </span>
 <span style="font-weight:bold;color:blue;">--------------
 </span><span style="font-weight:bold;color:blue;">-- ooRexxShell
@@ -137,17 +138,17 @@ ooRexx[bash]&gt;
 </span><span style="font-weight:bold;color:blue;">A shell command can be used in ooRexx mode, surrounded with quotes.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>ooRexx[bash]&gt; <span style="font-weight:bold;color:purple;">'ls -lap *demo*.txt'</span>
--rw-r--r--@ 1 jlfaucher  wheel    1263 Mar  3 18:15 _readme-demos.txt
--rw-r--r--@ 1 jlfaucher  wheel    8855 Jun 22  2024 executor-demo-array-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel    1414 Mar 11 09:55 _readme-demos.txt
+-rw-r--r--@ 1 jlfaucher  wheel    8854 Mar  4 06:52 executor-demo-array-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel  305774 May 31  2023 executor-demo-classic_rexx-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   57250 Jun 22  2024 executor-demo-extensions-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   54867 Mar  4 06:41 executor-demo-extensions-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel   43331 Mar  4 01:25 executor-demo-text-compatibility-auto-conv-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel   43474 Mar  4 01:25 executor-demo-text-compatibility-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel   23941 Mar  4 01:25 executor-demo-text-internal_checks-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel   22371 Mar  4 01:25 executor-demo-text-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel   54577 Mar  4 01:25 executor-demo-text-unicode-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel    5514 Mar  3 23:28 ooRexxShell-demo-helpers-output.txt
--rw-r--r--@ 1 jlfaucher  wheel   16023 Jun 22  2024 ooRexxShell-demo-interpreters-output.txt
+-rw-r--r--@ 1 jlfaucher  wheel   14587 Mar  4 06:32 ooRexxShell-demo-interpreters-output.txt
 -rw-r--r--@ 1 jlfaucher  wheel  538730 Mar  4 06:28 ooRexxShell-demo-queries-output.txt
 ooRexx[bash]&gt; 
 <span style="font-weight:bold;color:blue;">/*
@@ -167,12 +168,11 @@ Interpreters:
     ksh: to activate the ksh interpreter.
     oorexx: to activate the ooRexx interpreter.
     pwsh: to activate the pwsh interpreter.
-    screen: to activate the screen interpreter.
     sh: to activate the sh interpreter.
     system: to activate the sh interpreter.
     tcsh: to activate the tcsh interpreter.
     zsh: to activate the zsh interpreter.
-<span style="font-weight:bold;color:green;">[Info] 14 lines displayed
+<span style="font-weight:bold;color:green;">[Info] 13 lines displayed
 </span>ooRexx[bash]&gt; 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">'cmd' 'command' and &quot;system&quot; are aliases to select the system interpreter.
@@ -184,16 +184,16 @@ sh&gt;
 </span><span style="font-weight:bold;color:blue;">No need to surround the commands with quotes.
 </span><span style="font-weight:bold;color:blue;">*/
 </span>sh&gt; <span style="font-weight:bold;color:purple;">ls -lap *demo*.cast</span>
--rw-r--r--@ 1 jlfaucher  wheel   44582 Jun 22  2024 executor-demo-array.cast
--rw-r--r--@ 1 jlfaucher  wheel  374800 May 31  2023 executor-demo-classic_rexx.cast
--rw-r--r--@ 1 jlfaucher  wheel  125281 Jun 22  2024 executor-demo-extensions.cast
--rw-r--r--@ 1 jlfaucher  wheel  268857 Mar  4 01:25 executor-demo-text-compatibility-auto-conv.cast
--rw-r--r--@ 1 jlfaucher  wheel  281947 Mar  4 00:54 executor-demo-text-compatibility.cast
--rw-r--r--@ 1 jlfaucher  wheel  123472 Mar  4 00:10 executor-demo-text-internal_checks.cast
--rw-r--r--@ 1 jlfaucher  wheel  171525 Mar  4 00:22 executor-demo-text-unicode.cast
--rw-r--r--@ 1 jlfaucher  wheel   93762 Mar  4 00:01 executor-demo-text.cast
--rw-r--r--@ 1 jlfaucher  wheel   11092 Mar  3 23:28 ooRexxShell-demo-helpers.cast
--rw-r--r--@ 1 jlfaucher  wheel   19808 Mar  4 06:30 ooRexxShell-demo-interpreters.cast
+-rw-r--r--@ 1 jlfaucher  wheel   38696 May 12 19:03 executor-demo-array.cast
+-rw-r--r--@ 1 jlfaucher  wheel  392879 May 12 19:06 executor-demo-classic_rexx.cast
+-rw-r--r--@ 1 jlfaucher  wheel  112369 May 12 19:14 executor-demo-extensions.cast
+-rw-r--r--@ 1 jlfaucher  wheel  273592 May 12 20:50 executor-demo-text-compatibility-auto-conv.cast
+-rw-r--r--@ 1 jlfaucher  wheel  287277 May 12 20:19 executor-demo-text-compatibility.cast
+-rw-r--r--@ 1 jlfaucher  wheel  123872 May 12 19:35 executor-demo-text-internal_checks.cast
+-rw-r--r--@ 1 jlfaucher  wheel  172826 May 12 19:47 executor-demo-text-unicode.cast
+-rw-r--r--@ 1 jlfaucher  wheel   93924 May 12 19:26 executor-demo-text.cast
+-rw-r--r--@ 1 jlfaucher  wheel   11166 May 12 20:51 ooRexxShell-demo-helpers.cast
+-rw-r--r--@ 1 jlfaucher  wheel   20123 May 12 20:53 ooRexxShell-demo-interpreters.cast
 -rw-r--r--@ 1 jlfaucher  wheel  667133 Mar  4 06:28 ooRexxShell-demo-queries.cast
 sh&gt; 
 <span style="font-weight:bold;color:blue;">/*
@@ -266,10 +266,10 @@ rexx.img                /Users/Shared/local/rexx/oorexx/build/executor.master/sa
 rexxc                   /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
 rexxscriptlib.rex       /Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex
 rexxtry.rex             /Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delive…
+run_testOORexx          /Users/Shared/local/rexx/builder/scripts/run_testOORexx
 setenv-oorexx           /Users/Shared/local/rexx/builder/scripts/setenv-oorexx
 setenv-rexx             /Users/Shared/local/rexx/builder/scripts/setenv-rexx
 setenv-rexxlocal        /Users/Shared/local/rexx/builder/scripts/setenv-rexxlocal
-testOORexx.rex          /local/rexx/oorexx/official/test/trunk/testOORexx.rex
 
 pwsh&gt; 
 <span style="font-weight:bold;color:blue;">/*
@@ -293,10 +293,10 @@ a Directory (14 items)
 'rexxc'                   : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
 'rexxscriptlib.rex'       : '/Users/Shared/local/rexx/builder/scripts/rexxscriptlib.rex'
 'rexxtry.rex'             : '/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/deliver…'
+'run_testOORexx'          : '/Users/Shared/local/rexx/builder/scripts/run_testOORexx'
 'setenv-oorexx'           : '/Users/Shared/local/rexx/builder/scripts/setenv-oorexx'
 'setenv-rexx'             : '/Users/Shared/local/rexx/builder/scripts/setenv-rexx'
 'setenv-rexxlocal'        : '/Users/Shared/local/rexx/builder/scripts/setenv-rexxlocal'
-'testOORexx.rex'          : '/local/rexx/oorexx/official/test/trunk/testOORexx.rex'
 pwsh&gt; 
 <span style="font-weight:bold;color:blue;">/*
 </span><span style="font-weight:bold;color:blue;">Back to the ooRexx interpreter, by entering &quot;oorexx&quot; alone.

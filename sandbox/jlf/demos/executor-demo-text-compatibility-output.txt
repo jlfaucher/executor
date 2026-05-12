@@ -20,9 +20,10 @@ loadPackage OK for BSF.CLS
 loadPackage OK for oorexxshell_queries.cls
 loadPackage OK for pipeline/pipe_extension.cls
 loadPackage OK for rgf_util2/rgf_util2_wrappers.rex
+loadPackage OK for icu4oorexx.cls
 
-REXX-ooRexx_4.3.0(MT)_64-bit 6.04 1 Mar 2026
-Input queue name: Sb2aeQ6000019d5ad0
+REXX-ooRexx_4.3.0(MT)_64-bit 6.04 12 May 2026
+Input queue name: S16c57Q6000019808f0
 
 ooRexx[bash]> call loadUnicodeCharacterNames
 Load the Unicode character names 17.0.0 
