@@ -30,11 +30,11 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose makeString
 .. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
@@ -174,11 +174,11 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose makeString
 .. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
  > 0001 expose value
  > 0002   return value
@@ -302,7 +302,7 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\release\delivery\json.cls)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...\jlf\packages\extension\text.cls)
 P. P.G.    'MAKESTRING' : 'Array' (REXX)
 P. P.G.    'MAKESTRING' : 'COMPLEX' (...\jlf\packages\extension\complex.cls)
@@ -321,12 +321,12 @@ P. P.G.    'MAKESTRING' : 'infinity' (...\jlf\packages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\release\delivery\json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...\jlf\packages\extension\text.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
@@ -400,7 +400,7 @@ P. P.G.    'MAKESTRING' : 'infinity' (...\jlf\packages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\release\delivery\json.cls)
  > 0001 expose value
  > 0002   return value
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...\jlf\packages\extension\text.cls)
@@ -465,12 +465,12 @@ P. P.G.    'MAKESTRING' : 'infinity' (...\jlf\packages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\release\delivery\json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
  > 0001 expose value
  > 0002   return value
@@ -614,11 +614,11 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose 0 makeString
 .. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
@@ -758,11 +758,11 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose 0 makeString
 .. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
  > 0001 expose value
  > 0002   return value
@@ -886,7 +886,7 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...l\release\delivery\json.cls)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages\extension\text.cls)
 P. P.G.    'MAKESTRING' : 'Array' (REXX)
 P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages\extension\complex.cls)
@@ -905,12 +905,12 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...l\release\delivery\json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages\extension\text.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
@@ -984,7 +984,7 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...l\release\delivery\json.cls)
  > 0001 expose value
  > 0002   return value
 .M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages\extension\text.cls)
@@ -1049,12 +1049,12 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages\extension\infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...\cl\debug\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+.. P.G.    'MAKESTRING' : 'JsonBoolean' (...l\release\delivery\json.cls)
+    CPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:CPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     CN(JsonBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/debug/delivery/json.cls)
+    MPN(E:/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
+    E:MPF(/local/rexxlocal/oorexx/build/executor.master/sandbox/jlf/trunk/windows-arm64/cl/release/delivery/json.cls)
     MN(MAKESTRING)
  > 0001 expose value
  > 0002   return value

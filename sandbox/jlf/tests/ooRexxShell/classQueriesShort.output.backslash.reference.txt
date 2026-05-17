@@ -668,7 +668,7 @@ ooRexx> ?cms filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -763,7 +763,7 @@ ooRexx> ?cmis filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -951,7 +951,7 @@ ooRexx> ?cmsv filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -1268,7 +1268,7 @@ ooRexx> ?cmisv filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -2157,7 +2157,7 @@ ooRexx> ?cms -3 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -2252,7 +2252,7 @@ ooRexx> ?cmis -3 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -2440,7 +2440,7 @@ ooRexx> ?cmsv -3 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -2757,7 +2757,7 @@ ooRexx> ?cmisv -3 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -3646,7 +3646,7 @@ ooRexx> ?cms 0 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -3741,7 +3741,7 @@ ooRexx> ?cmis 0 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -3929,7 +3929,7 @@ ooRexx> ?cmsv 0 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -4246,7 +4246,7 @@ ooRexx> ?cmisv 0 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -5135,7 +5135,7 @@ ooRexx> ?cms 30 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -5230,7 +5230,7 @@ ooRexx> ?cmis 30 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -5418,7 +5418,7 @@ ooRexx> ?cmsv 30 filter
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
@@ -5735,7 +5735,7 @@ ooRexx> ?cmisv 30 filter <> `MPF(REXX)`
  > 0009         use strict arg operatorString, operatorCode
  > 0010         left = arg~left(operatorString~length)
  > 0011         if left~string <> operatorString then return .false
- > 0012         if left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
+ > 0012         if left~hasMethod("quotedFlags"), left~quotedFlags~countStr("1") <> 0 then return .false -- at least one char is quoted
  > 0013         argument = arg~substr(operatorString~length + 1)
  > 0014         filter = self~new(operatorCode, argument)
  > 0015         return .true
