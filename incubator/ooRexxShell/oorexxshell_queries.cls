@@ -303,7 +303,7 @@ attribute traceFilter
                  end
                  matched
                 },
-      | .sort {item~klass~id} {item~visibility} {item~package},
+      | .sort caseless {item~klass~id} {item~visibility} {item~package},
       | .do {expose classInfosSorted; classInfosSorted~append(item)},
     )
     count = 1
@@ -413,7 +413,7 @@ attribute traceFilter
         .object~pipe(,
             .subClasses "recursive" "once",
           | selectClass,
-          | .sort,
+          | .sort caseless,
           | .console "    " {item~id},
         )
         return
@@ -435,7 +435,7 @@ attribute traceFilter
                   end
                   matched
                 },
-      | .sort {item~klass~id} {item~visibility} {item~package},
+      | .sort caseless {item~klass~id} {item~visibility} {item~package},
       | .do {expose classInfosSorted; classInfosSorted~append(item)},
     )
     count = 1
@@ -552,7 +552,7 @@ attribute traceFilter
                   matched
                 } "mem.package",
       | .inject {expose maxPackageNameWidth; packageInfos(item, maxPackageNameWidth) || packageMetadata("P", item)},
-      | .sort {item},
+      | .sort caseless {item},
       | .console {item},
       | .do { expose displaySource
               if displaySource then do

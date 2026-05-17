@@ -333,7 +333,7 @@ attribute traceFilter
                  'end;' -
                  'return matched;' -
                 , .context) -
-      | .sort .Lambda~new('use arg item; return item~klass~id') .Lambda~new('use arg item; return item~visibility') .Lambda~new('use arg item; return item~package') -
+      | .sort caseless .Lambda~new('use arg item; return item~klass~id') .Lambda~new('use arg item; return item~visibility') .Lambda~new('use arg item; return item~package') -
       | .do .Closure~new('expose classInfosSorted; use arg item; classInfosSorted~append(item)', .context) -
     )~go(classInfos)
     count = 1
@@ -451,7 +451,7 @@ attribute traceFilter
         ( -
             .subClasses "recursive" "once" -
           | selectClass -
-          | .sort -
+          | .sort caseless -
           | .console "    " .Lambda~new('use arg item; return item~id') -
         )~go(.object)
         return
@@ -475,7 +475,7 @@ attribute traceFilter
                   'end;' -
                   'return matched;' -
                 , .context) -
-      | .sort .Lambda~new('use arg item; return item~klass~id') .Lambda~new('use arg item; return item~visibility') .Lambda~new('use arg item; return item~package') -
+      | .sort caseless .Lambda~new('use arg item; return item~klass~id') .Lambda~new('use arg item; return item~visibility') .Lambda~new('use arg item; return item~package') -
       | .do .Closure~new('expose classInfosSorted; use arg item; classInfosSorted~append(item)', .context) -
     )~go(classInfos)
     count = 1
@@ -602,7 +602,7 @@ attribute traceFilter
                   'return matched;' -
                 , .context) "mem.package" -
       | .inject .Closure~new('expose maxPackageNameWidth; use arg item; return packageInfos(item, maxPackageNameWidth) || packageMetadata("P", item)', .context) -
-      | .sort .Lambda~new('use arg item; return item') -
+      | .sort caseless .Lambda~new('use arg item; return item') -
       | .console .Lambda~new('use arg item; return item') -
       | .do .Closure~new( -
               'expose displaySource;' -
