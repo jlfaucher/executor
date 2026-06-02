@@ -6,6 +6,10 @@
 Experimental ooRexx
 ===================
 
+<div align="center">
+<img src="sandbox/jlf/images/Executor1SP.png" alt="The repositories" width="80%">
+</div>
+
 Miscellaneous notes:
 
 - [Overview of changes][overview_changes]
