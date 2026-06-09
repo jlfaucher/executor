@@ -1035,9 +1035,6 @@ Helpers
         call loadPackage "extension/callable_std.cls" -- lambdas and closures with standard ooRexx.
         call loadPackage "extension/extender_std.cls" -- extension by delegation with standard ooRexx.
         call loadPackage "extension/stringChunkMatcher.cls"
-        call loadPackage "Rexx.Parser.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "P" -- Namespace "P"
-        .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
-        .ooRexxShell~useTutor = .ooRexxShell~hasTutor
     end
 
     if .platform~is("windows") then do
@@ -1108,6 +1105,11 @@ Helpers
         call loadPackage "pipeline/pipe_std.cls"
     end
 
+    call loadPackage "Rexx.Parser.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "P" -- Namespace "P"
+    .ooRexxShell~hasTutor = loadPackage("Unicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true, , "U") -- Namespace "U"
+    .ooRexxShell~useTutor = .ooRexxShell~hasTutor
+
+    .ooRexxShell~hasRexxUnicode = loadPackage("rxunicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
     .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
 
     -- Second customization, after all preloaded packages
@@ -1413,6 +1415,7 @@ Helpers
 ::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
+::attribute hasRexxUnicode class -- Will be .true if rxunicode.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
 ::attribute hasTutor class -- Will be true if JMB's TUTOR has been loaded
@@ -1553,6 +1556,7 @@ Helpers
     self~hasIndentedStream = .false
     self~hasQueries = .false
     self~hasRegex = .false
+    self~hasRexxUnicode = .false
     self~hasRgfUtil2 = .false
     self~hasRgfUtil2Extended = .false
     self~hasTutor = .false
@@ -1767,6 +1771,7 @@ Helpers
     ",[info]   hasIndentedStream",
     ",[info]   hasQueries",
     ",[info]   hasRegex",
+    ",[info]   hasRexxUnicode",
     ",[info]   hasRgfUtil2",
     ",[info]   hasRgfUtil2Extended",
     ",[info]   hasTutor",
