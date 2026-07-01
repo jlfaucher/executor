@@ -608,6 +608,7 @@ attribute traceFilter
     say "    col 5: C=Class"
     say "    col 6: G=Guarded"
     say "    col 7: P=Protected"
+    say "    col 8: A=Abstract"
     say "Routine flags"
     say "    col 1: P=Public"
 
@@ -774,7 +775,8 @@ attribute traceFilter
     if method~isGuarded then guarded = "G"; else guarded = "."
     if method~isPrivate then visibility = "."; else visibility = "P" -- Remember: "p" vs "P" not readable
     if method~isProtected then protected = "P"; else protected = "."
-    return visibility || level || guarded || protected
+    if method~isAbstract then abstract = "A"; else abstract = "."
+    return visibility || level || guarded || protected || abstract
 
 
 ::routine methodPackageInfos private

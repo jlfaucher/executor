@@ -165,6 +165,7 @@ Method flags
     col 5: C=Class
     col 6: G=Guarded
     col 7: P=Protected
+    col 8: A=Abstract
 Routine flags
     col 1: P=Public
 
@@ -548,6 +549,42 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2026 July 01
+
+Queries:
+Add the 'A' flag to the method flags to indicate whether the method is abstract.
+Not supported in ooRexx 4.2, which always displays "." in the abstract flag column,
+even if the method is abstract.
+
+ooRexx[sh]> ?f
+Class flags
+    col 1: P=Public
+    col 2: M=Mixin
+Method flags
+    col 3: space separator
+    col 4: P=Public
+    col 5: C=Class
+    col 6: G=Guarded
+    col 7: P=Protected
+    col 8: A=Abstract         <-- new
+Routine flags
+    col 1: P=Public
+
+List abstract methods: the 8th character is 'A'.
+ooRexx[sh]> ?m = /^.......A
+PM P.G.A   'ALLINDEXES'                              : 'Collection' (REXX)
+PM P.G.A   'ALLITEMS'                                : 'Collection' (REXX)
+PM P.G.A   'APPEND'                                  : 'OrderedCollection' (REXX)
+PM P.G.A   'AT'                                      : 'Collection' (REXX)
+PM P.G.A   'CHARIN'                                  : 'InputStream' (REXX)
+PM P.G.A   'CHAROUT'                                 : 'OutputStream' (REXX)
+PM P.G.A   'CHARS'                                   : 'InputStream' (REXX)
+PM P.G.A   'COMPARE'                                 : 'StringComparator' (rgf_util2.rex)
+P. P.G.A   'COUNT'                                   : 'partitionedCounter' (pipe.cls)
+...
+
 
 -----------------------------------------------
 2026 June 09
