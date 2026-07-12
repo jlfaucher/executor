@@ -13,6 +13,87 @@ where md/ is the root directory of the .md files to convert
 and html/ is the destination directory of the generated .html files.
 
 
+TOC features:
+✔ Automatic generation from headings
+✔ Hierarchical (nested) TOC
+✔ Caret-only expand/collapse
+✔ Sticky sidebar
+✔ Independent TOC scrolling
+✔ Active section highlighting
+✔ Highlight of collapsed parents
+✔ Automatic TOC scrolling to keep the active entry visible
+✔ Resizable splitter between content and TOC
+✔ Ellipsis for long headings
+✔ Scroll chaining disabled (overscroll-behavior)
+
+
+--------------------------------------------------------------------------------
+2026, July 12
+
+Problem with TOC:
+The TOC "jumps" back when I reach the bottom of the TOC with the mouse wheel:
+- The TOC cannot scroll any farther.
+- The browser scrolls the page (scroll chaining).
+- window emits a scroll event.
+- updateActiveToc() runs.
+- ensureTocItemVisible() recenters the TOC on the active heading.
+
+CSS solution
+------------
+(Applied)
+
+Modern browsers provide a property specifically for this:
+
+    #toc {
+        overscroll-behavior: contain;
+    }
+
+or, if you also want to disable pull-to-refresh on touch devices:
+
+    #toc {
+        overscroll-behavior: none;
+    }
+
+
+JavaScript solution for older browsers not supporting the CSS solution
+----------------------------------------------------------------------
+(Not applied)
+
+I would distinguish two situations:
+- the user is scrolling the page → synchronize the TOC (current behavior)
+- the user is scrolling inside the TOC → do not synchronize the TOC
+
+Introduce a small flag that temporarily disables automatic TOC scrolling
+while the user is interacting with the TOC:
+
+    let userScrollingToc = false;
+    let tocScrollTimer;
+
+    const toc = document.getElementById("toc");
+
+    toc.addEventListener("wheel", function () {
+
+        userScrollingToc = true;
+
+        clearTimeout(tocScrollTimer);
+
+        tocScrollTimer = setTimeout(function () {
+            userScrollingToc = false;
+        }, 250);
+
+    }, { passive: true });
+
+Then simply change
+
+    ensureTocItemVisible(link);
+
+into
+
+    if (!userScrollingToc) {
+        ensureTocItemVisible(link);
+    }
+
+
 --------------------------------------------------------------------------------
 2026, Jan 02
 
