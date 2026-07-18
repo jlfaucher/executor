@@ -1,4 +1,13 @@
 ================================================================================
+Optimization
+================================================================================
+
+https://onlinelibrary.wiley.com/doi/10.1002/spe.70079
+Converting an Integer to a Decimal String in Under Two Nanoseconds
+(Lemire)
+
+
+================================================================================
 [bugs:#2013] Some computations omit one digit
 ================================================================================
 https://sourceforge.net/p/oorexx/bugs/2013/
