@@ -231,6 +231,22 @@ jlf: some sub-entries are not listed on the main page.
 - names list charts     https://www.unicode.org/charts/nameslist/index.html
 
 
+https://www.unicode.org/reports/tr58/
+Unicode Link Detection and Formatting: URLs and Email Addresses
+---
+jlf: I find this subject surprising!
+Why Unicode should cover that?
+
+
+================================================================================
+Unicode charts
+================================================================================
+
+https://www.unicode.org/charts/nameslist/n_13000.html
+Egyptian Hieroglyphs
+Some hieroglyphs have plural...
+
+
 ================================================================================
 Unicode general informations
 ================================================================================
@@ -496,6 +512,37 @@ https://www.fileformat.info/info/unicode/index.htm
 https://graphemica.com/
 
 
+https://charcuterie.elastiq.ch/#1D54B
+https://news.ycombinator.com/item?id=47709158
+Charcuterie
+A visual explorer for Unicode.
+---
+jlf: apparently, the first name was charcutrie...
+https://www.reddit.com/r/InternetIsBeautiful/comments/1sewt2a/charcutrie_navigate_unicode_by_visual_similarity/
+
+
+https://r12a.github.io/
+https://news.ycombinator.com/item?id=47565350
+An Introduction to Writing Systems and Unicode
+
+
+https://www.reddit.com/r/Unicode/comments/1svodhq/why_does_double_question_mark_has_its_own_unicode/
+why does Double Question mark "??" has its own unicode point(U+8263)?instead of just using two "?" characters?
+---
+jlf: maybe to read
+---
+This is from chapter 16 of the Unicode standard:
+    Doubled Punctuation. Several doubled punctuation characters that have
+    compatibility decompositions into a sequence of two punctuation marks are
+    also encoded as single characters: U+203C DOUBLE EXCLAMATION MARK,
+    U+2048 QUESTION EXCLAMATION MARK, and U+2049 EXCLAMATION QUESTION MARK.
+    These doubled punctuation marks are included as an implementation
+    convenience for East Asian and Mongolian text, when rendered vertically.
+This doesn't explicitly mention double question marks, but the double question mark also sits under the header for "double punctuation for vertical text" in the code charts.
+---
+Chess annotation.
+
+
 ================================================================================
 U+ notation, Unicode escape sequence
 ================================================================================
@@ -607,6 +654,13 @@ https://www.unicode.org/reports/tr55/tr55-2.html#Confusable-Detection.
 
 https://semanticdiff.com/blog/pull-request-unicode-tricks/
 Unicode tricks in pull requests: Do review tools warn us?
+
+
+https://steganography.patrickvuscan.com/
+https://news.ycombinator.com/item?id=47674606
+Unicode Steganography
+How invisible characters and visual lookalikes can carry secret messages through
+ordinary text, and what that means for LLM safety.
 
 
 ================================================================================
@@ -792,6 +846,13 @@ results specified by UAX29-C1-1, UAX29-C2-1, or UAX29-C3-1.
 https://github.com/unicode-org/lstm_word_segmentation
 Python code for training an LSTM model for word segmentation in Thai, Burmese,
 and similar languages.
+
+
+https://www.reddit.com/r/Rag/comments/1t17bcf/chunkletpy_v230_smarter_sentence_splitting_faster/
+all-in-one text splitting library for RAG pipelines.
+https://github.com/speedyk-005/chunklet-py
+One library to split them all: Sentence, Code, Docs. Chunk smarter, not harder
+built for LLMs, RAG pipelines, and beyond.
 
 
 ================================================================================
@@ -1004,6 +1065,10 @@ Character set
 
 https://www.gnu.org/software/libc/manual/html_mono/libc.html#Character-Set-Handling
 
+
+http://www.i18nguy.com/unicode/codepages.html
+Character Sets And Code Pages At The Push Of A Button
+jlf: many broken links
 
 ================================================================================
 Transliteration title
@@ -1226,6 +1291,17 @@ jlf:
 The postgresql thread above is interesting, illustration of the collation in SQL.
 
 
+https://www.pgedge.com/blog/what-is-a-collation-and-why-is-my-data-corrupt
+What is a Collation, and Why is My Data Corrupt?
+
+
+https://www.theobeers.com/collation-for-dummies/
+How Unicode Collation Works
+Theodore Beers
+August 2025 (updated April 2026)
+https://news.ycombinator.com/item?id=47963473
+
+
 ================================================================================
 Locale title
 ================================================================================
@@ -1338,6 +1414,31 @@ extensive standard repository of locale data available.
 
 Information Hub for Linguists
 https://cldr.unicode.org/translation
+---
+JLF: MUST read! inparticular the CLDR training.
+    Before getting started to contribute data in CLDR, and jumping in to using
+    the Survey Tool, it is important that you understand the CLDR process & take
+    the CLDR training. It takes about 2-3 hours to complete the training.
+
+
+https://cldr.unicode.org/index/survey-tool
+CLDR Survey Tool
+localization, l10n, i18n
+---
+I found a reference to this tool in
+https://groups.google.com/a/unicode.org/g/icu-support/c/yF5dv7rFJXw/m/b8PuvA5jAAAJ
+---
+Selection of a locale on the left:
+https://st.unicode.org/cldr-apps/v#/fr_FR//
+    This locale, French (France) is the default content locale for French
+https://st.unicode.org/cldr-apps/v#/ko_KR//
+    This locale, Korean (South Korea) is the default content locale for Korean
+---
+Once a locale is selected,
+    Please hover over the sidebar to choose a section to begin entering data.
+    If you have not already done so, please read the Instructions, particularly
+    the Guide and the Walkthrough. You can also use the Dashboard to see all the
+    errors, warnings, and missing items in one place.
 
 
 19/06/2021
@@ -1355,6 +1456,56 @@ https://unicode-org.atlassian.net/jira/software/c/projects/CLDR/issues/?filter=a
 CLDR tickets
 
 
+================================================================================
+Localization title, l10n
+================================================================================
+
+https://github.com/unicode-org/message-format-wg
+MessageFormat Working Group
+a subgroup of the Unicode CLDR-TC https://cldr.unicode.org/
+
+
+https://news.ycombinator.com/item?id=47033328
+MessageFormat: Unicode standard for localizable message strings
+
+
+https://hacks.mozilla.org/2019/04/fluent-1-0-a-localization-system-for-natural-sounding-translations/
+Fluent 1.0: a localization system for natural-sounding translations
+---
+It is currently used in Firefox.
+
+
+https://projectfluent.org/
+Fluent - A localization system for natural-sounding translations.
+
+
+https://github.com/projectfluent/fluent
+Fluent — planning, spec and documentation
+
+
+https://github.com/projectfluent/fluent/wiki/Fluent-vs-gettext
+Fluent vs gettext
+---
+Unicode support
+Gettext can be encoded as UTF-8, but that's basically how far its support for
+Unicode standard goes.
+It uses custom plural rules dataset, does not handle any date, time or number
+formatting, and does not help with bidirectional messages.
+Fluent leverages CLDR, ICU and ECMA402 extensively benefiting from well designed
+and standardized databases and algorithms for a lot of internationalization
+features nicely blending localization and internationalization together.
+
+
+================================================================================
+Internationalization title, i18n title
+================================================================================
+
+https://www.w3.org/International/i18n-activity/i18n-wg/
+Internationalization Working Group Home Page
+
+https://github.com/w3c/i18n-discuss/blob/gh-pages/explainers/message-resources.md
+https://github.com/w3c/i18n-discuss/blob/gh-pages/explainers/message-resource.abnf
+https://github.com/w3c/i18n-discuss/blob/gh-pages/explainers/message-resource.d.ts
 
 
 ================================================================================
@@ -1689,6 +1840,20 @@ https://github.com/fribidi/fribidi
 
 https://news.ycombinator.com/item?id=37990523
 Ask HN: Bidirectional Text Navigation
+
+
+https://www.reddit.com/r/ClaudeCode/comments/1sz91xh/claude_codes_hebrewarabic_support_is_broken_in/
+Konsole has a setting nobody talks about - BidiLineLTR=false - that makes it
+auto-detect direction per line. Hebrew lines flip RTL, English lines stay LTR,
+mixed lines render correctly. It's the only terminal I've found that handles this.
+The BidiLineLTR=false trick isn't documented anywhere obvious.
+Setting it to true (the default when BiDi is on) reorders the letters but keeps
+lines left-aligned - looks 80% right, still wrong. Took me a while to find the
+combination that works.
+---
+https://github.com/noambrand/kivun-terminal-wsl
+jlf: search for "BiDi Wrapper", it's a list of BiDi problems with a solution.
+jlf: scroll-down, there is a doc in hebrew, maybe ueful for BiDi tests.
 
 
 ================================================================================
@@ -2040,11 +2205,74 @@ available for 19 languages.
 
 
 ================================================================================
-Arabic language
+Arabic language, Arabic title
 ================================================================================
 
 https://en.wikipedia.org/wiki/Arabic_script_in_Unicode
 Arabic script in Unicode
+
+
+================================================================================
+Chinese language, Chinese title
+================================================================================
+
+https://www.unicode.org/faq/han_cjk
+
+
+https://www.reddit.com/r/ChineseLanguage/comments/1si0n5y/i_found_this_image_on_google_why_does_it_a_full/
+I found this image on Google. why does it a full list of unused glyphs hidden in Unicode?
+---
+These characters while rarely used, exist somewhere in literature.
+The goal of unicode is to transcribe written characters into the digital world
+no matter how obscure they may be, hence you see these odd looking characters.
+---
+jlf: People in the list seem happy with this article.
+
+
+https://www.reddit.com/r/neography/comments/1stjoet/chinese_has_lost_one_of_its_most_important/
+Chinese has lost one of it's most important characteristics
+---
+jlf: That's all Greek to me.
+---
+X也 has been added to unicode as U+323BF: 𲎿.
+It's part of unicode 17 and CJK Extension J, which was released September 2025,
+so fonts don't widely support it yet
+---
+A major place in the US that works on this stuff is the Script Encoding
+Initiative (SEI) at UC Berkeley. https://sei.berkeley.edu/
+They've put a bunch really important scripts into unicode. Like Adlam for West
+Africa and Linear B for Mycenaean Greek. And they're currently working on Maya
+Hieroglyphs!
+
+
+https://gitlab.chise.org/CHISE/ids
+This directory holds the CHISE-IDS package which contains data and utilities
+about structures of Han Ideographs (漢字).
+---
+jlf: this site was referenced by someone who wrote
+I think a real change might be coming, specifically because of Mayan hieroglyphs.
+You can't just do the shotgun approach like with han characters because Mayan
+simply does not work that way.
+I think it will eventually stop using single code-points and start supporting
+some "programming", like with LaTeX and CHISE. That would be really cool, and
+one can dream.
+https://www.reddit.com/r/neography/comments/1stjoet/comment/oi1lu0q/
+
+
+================================================================================
+Egyptian language, Egyptian title
+================================================================================
+
+https://github.com/microsoft/font-tools/blob/main/EgyptianOpenType%2Feot.md
+Egyptian Text font
+Egyptian OpenType
+This project parses an existing Egyptian Hieroglyphic font and generates a new
+font containing VOLT OpenType source code that can then be compiled using
+Microsoft's Visual OpenType Layout Tool (VOLT). Once compiled, the new font
+contains all of the OpenType logic needed to render Egyptian Hieroglyphic text
+with the Unicode 15 format controls. Correct rendering of the OpenType tables
+for blocks of Egyptian Hieroglyphs depends on font rendering via the Universal
+Shaping Engine and its Hieroglyph cluster model:
 
 
 ================================================================================
@@ -2346,8 +2574,59 @@ jlf: according to ugrapheme
     caused issues with other libraries, such as Devanagari conjuncts.
 
 
+Sirmauri, Takri and Dogra
+Sirmauri (specifically the Sirmauri-Jaunsari variant) and Dogra (Dogra Akkhar)
+are distinct regional varieties of the Takri script, a Brahmic abugida used
+historically in northwest India.  While Takri emerged from the Sharada script in
+the 16th century and served as the official script for various Pahari languages
+until the mid-20th century, the specific forms of Sirmauri and Dogra diverged
+significantly due to regional isolation.
+Key Distinctions and Relationships
+- Takri Script:
+  The parent script family, with Chambeali considered the standard form.
+  It was used to write languages like Dogri, Kangri, Chambeali, and Mandeali.
+  It was encoded in Unicode in 2012.
+- Dogra (Dogra Akkhar):
+  The version of Takri used in the Jammu region.
+  It was officially adopted in the 1860s, replacing an older ambiguous form
+  called "Ganmat" with the standardized "Namay Dogra Akkhar" under Maharaja
+  Ranbir Singh. It was replaced by Devanagari in 1944 and has since undergone
+  revival efforts, including a proposal for separate Unicode encoding.
+- Sirmauri:
+  The variant used in the Sirmour district of Himachal Pradesh and the adjacent
+  Jaunsar-Bawar region of Uttarakhand. It is considered distinct enough from
+  other Takri forms that it has been proposed for separate encoding in Unicode,
+  separate from the main Takri block.
+
+
+https://www.reddit.com/r/IndicKnowledgeSystems/comments/1t63s15/tscii_tamil_script_code_for_information/
+TSCII: Tamil    Script   Code for Information Interchange
+ASCII: American Standard Code for Information Interchange
+---
+Tamil is one of the world's oldest continuously spoken languages, with a
+literary tradition stretching back more than two thousand years. In the age of
+computers and the internet, the survival and flourishing of Tamil culture
+required that the language be representable in digital form — that Tamil text
+could be typed, stored, transmitted, and displayed on computers as easily as
+English.
+---
+The story of TSCII cannot be told without discussing its relationship to
+Unicode, the universal character encoding standard that was developing in
+parallel during the same period. Unicode's Tamil block was included in Unicode
+1.0, published in 1991, and it allocated code points for Tamil characters using
+a decomposed approach based on the ISCII (Indian Script Code for Information
+Interchange) standard that had been developed by the Government of India.
+---
+As Unicode support improved through the 2000s, and as major operating systems
+including Windows, macOS, and Linux developed reliable OpenType shaping engines
+for Tamil, the practical advantages of TSCII over Unicode began to diminish. Web
+standards increasingly moved toward Unicode, specifically UTF-8, as the
+universal encoding for web content. Tamil-language websites and applications
+began migrating from TSCII to Unicode Tamil.
+
+
 ================================================================================
-CJK
+CJK title
 ================================================================================
 
 https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf
@@ -2365,7 +2644,7 @@ jlf: nothing about Unicode... but maybe some things to learn.
 
 
 ================================================================================
-Korean
+Korean language, Korean title
 ================================================================================
 
 22/05/2021
@@ -2373,8 +2652,16 @@ http://gernot-katzers-spice-pages.com/var/korean_hangul_unicode.html
 The Korean Writing System
 
 
+https://www.reddit.com/r/Korean/comments/1sg7kip/transliterating_hebrew/
+Transliterating Hebrew
+
+
+https://www.reddit.com/r/Korean/comments/ayfr5e/how_manny_different_syllable_blocks_are_used_in/
+How manny different syllable blocks are used in korean?
+
+
 ================================================================================
-Japanese
+Japanese language, Japanese title
 ================================================================================
 
 https://heistak.github.io/your-code-displays-japanese-wrong/
@@ -2385,7 +2672,7 @@ https://news.ycombinator.com/item?id=32987710
 
 
 ================================================================================
-Polish
+Polish language, Polish title
 ================================================================================
 
 https://www.twardoch.com/download/polishhowto/index.html
@@ -2436,6 +2723,20 @@ Uniscribe if you are writing Windows software
 
 
 CoreText on macOS
+
+
+https://github.com/LightSideKittens/UniText
+Text Rendering
+Industrial-grade Unicode text engine for Unity.
+jlf: Unity is a game engine.
+
+
+https://learn.microsoft.com/en-us/typography/about
+https://learn.microsoft.com/en-us/typography/opentype/spec/otvarcommonformats
+https://learn.microsoft.com/en-us/typography/opentype/spec/gsub
+GSUB — Glyph Substitution Table
+---
+jlf: Unrelated to Unicode, but interesting to read.
 
 
 ================================================================================
@@ -2740,7 +3041,8 @@ UTF-8 decoder capability and stress test
 Mojibake
 ================================================================================
 
-https://github.com/LuminosoInsight/python-ftfy
+new https://github.com/rspeer/python-ftfy
+old https://github.com/LuminosoInsight/python-ftfy
 ftfy can fix mojibake (encoding mix-ups), by detecting patterns of characters
 that were clearly meant to be UTF-8 but were decoded as something else
 
@@ -3207,6 +3509,14 @@ ICU documentation
 
 https://unicode-org.github.io/icu-docs/apidoc/released/icu4c/
 Entry point of API Reference
+
+
+https://github.com/unicode-org/icu/tree/main/icu4c
+jlf: git repository (cloned locally)
+
+
+https://github.com/unicode-org/icu/tree/main/icu4c/source/test
+jlf: a lot of tests, to review because covers many subjects.
 
 
 https://icu-project.org/docs/
@@ -3834,6 +4144,188 @@ Markus Scherer
     https://cldr.unicode.org/index/cldr-spec/collation-guidelines#determining-level-differences
 
 
+https://groups.google.com/a/unicode.org/g/icu-support/c/yF5dv7rFJXw/m/b8PuvA5jAAAJ
+Korean AM/PM symbols not localized in ICU 78 (ICU-23332)
+---
+jlf: code snippet
+    void PrintDateInKorean(icu::DateFormat::EStyle style, const char* label) {
+        UErrorCode status = U_ZERO_ERROR;
+        icu::DateFormat* df = icu::DateFormat::createDateTimeInstance(
+            icu::DateFormat::kNone, style, icu::Locale("ko", "KR"));
+        UDate now = icu::Calendar::getNow();
+        icu::UnicodeString myString;
+        df->format(now, myString);
+        std::string s8;
+        myString.toUTF8String(s8);
+        std::cout << label << ": " << s8 << std::endl;
+        delete df;
+    }
+
+    int main() {
+        PrintDateInKorean(icu::DateFormat::kFull,   "FULL  ");
+        PrintDateInKorean(icu::DateFormat::kLong,   "LONG  ");
+        PrintDateInKorean(icu::DateFormat::kMedium, "MEDIUM");
+        PrintDateInKorean(icu::DateFormat::kShort,  "SHORT ");
+        return 0;
+    }
+
+    Observed Output (ICU 78.2)
+        FULL  : PM 2시 15분 14초 일본 표준시
+        LONG  : PM 2시 15분 14초 GMT+9
+        MEDIUM: PM 2:15:14
+        SHORT : PM 2:15
+    (Expected "오후" instead of "PM")
+---
+CLDR survey
+    https://st.unicode.org/cldr-apps/v#/ko/Gregorian/471a794c61b793f4
+    Korean Date & Time Gregorian
+
+
+https://learn.microsoft.com/en-us/windows/win32/intl/international-components-for-unicode--icu-
+In Windows 10 Creators Update, ICU was integrated into Windows, making the C
+APIs and data publicly accessible.
+The version of ICU in Windows only exposes the C APIs. It does not expose any of
+the C++ APIs. Unfortunately, it is impossible to ever expose the C++ APIs due to
+the lack of a stable ABI in C++.
+---
+#include <icu.h>
+link with icu.lib
+
+
+https://groups.google.com/a/unicode.org/g/icu-design/c/VZhKaQ3gEww/m/ibHQFXoYCAAJ
+potential security
+    On Mon, May 4, 2026 at 9:30 PM ossdev <devtester527@gmail.com> wrote:
+
+    Would the maintainers be interested in adopting safe buffers,
+
+    In general, yes, that's certainly a goal we'd like to work towards.
+    See for example some previous work in that direction done here:
+
+    https://unicode-org.atlassian.net/browse/ICU-22901
+    https://unicode-org.atlassian.net/browse/ICU-22696
+    https://unicode-org.atlassian.net/browse/ICU-22520
+    https://unicode-org.atlassian.net/browse/ICU-21289
+    https://unicode-org.atlassian.net/browse/ICU-21035
+    https://unicode-org.atlassian.net/browse/ICU-20803
+    https://unicode-org.atlassian.net/browse/ICU-20445
+    https://unicode-org.atlassian.net/browse/ICU-20158
+    https://unicode-org.atlassian.net/browse/ICU-13417
+
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-22901%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-22696%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-22520%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-21289%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-21035%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-20803%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-20445%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-20158%22&type=commits
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-13417%22&type=commits
+
+    But ICU is a very old library that has made many promises in the past
+    that makes this work considerably more difficult than it would have
+    been with a more modern codebase.
+
+    First and foremost, there's a promise that the library should be fully
+    usable also when built without C++ exception handling together and a
+    promise that the library should always handle memory allocation
+    failures gracefully (reporting U_MEMORY_ALLOCATION_ERROR back to the
+    caller, not ignoring failures or terminating the process or throwing
+    exceptions), which unfortunately is fundamentally incompatible with
+    STL containers (which by design require exceptions to report memory
+    allocation failures). So it isn't possible to just replace existing
+    buffers with STL data structures like it would be possible to do in
+    most codebases.
+
+    So it seems unlikely to me that it'd be possible to make any large and
+    sweeping changes here, but if you were to pick some specific set of
+    buffers in ICU and devise a plan for how to replace them with
+    something safer (without breaking backward compatibility for callers)
+    then we'd sure be interested.
+
+    --
+    Fredrik Roubert
+    roubert@google.com
+
+
+https://docs.google.com/document/d/17C02RNdwD41e-sKTHcwyM8uPJhYNvo0oNI7LBs8un58/edit?pli=1&tab=t.gx1l0ic6rzwq#heading=h.hj65w2a97gxt
+Google doc about C++ design
+referenced by
+https://groups.google.com/a/unicode.org/g/icu-design/c/M8UT3-75A4k/m/_0IAYb3hAgAJ?utm_medium=email&utm_source=footer
+API proposal: C++ API for Segmenter
+
+
+https://www.unicode.org/reports/tr58/
+Unicode Link Detection and Formatting: URLs and Email Addresses
+---
+jlf: I find this subject surprising!
+Why Unicode should cover that?
+---
+Ticket: https://unicode-org.atlassian.net/browse/ICU-23431
+
+
+https://groups.google.com/a/unicode.org/g/icu-support/c/DCS2NewGWSc/m/3426HoNRAQAJ?utm_medium=email&utm_source=footer
+[icu-support] Question on Character Conversion Behavior (ICU 3.2 vs 7.8)
+Question:
+     I have a question regarding character conversion behavior when using ICU versions 3.2 and 7.8 for converting from EBCDIC to code page 943.
+     Input encoding: ibm-16684_P110-2003
+     Original source data (GRAPHIC(10)):
+     Hex '5440 4040 4040 4040 4040 4040 4040 4040' (Length: 20)
+     (Note: Hex '5440' represents a garbled/invalid EBCDIC character.)
+
+     Converted data:
+     ICU 3.2:
+     Hex 'FCFC 4080 4080 4080 4080 4080 4080 4080' (Length: 20)
+
+     ICU 7.8:
+     Hex 'FCFC 4080 4080 4080 4080 4080 4080 4080 FCFC' (Length: 22)
+
+     In ICU 7.8, the invalid EBCDIC character ('5440') is replaced with the DBCS substitution character ('FCFC'), and an additional 'FCFC' appears at the end, resulting in a longer output.
+
+    Could you please confirm the following:
+    1. Has the specification or behavior of ICU changed between versions 3.2 and 7.8 regarding this type of conversion?
+    2. Is the behavior observed in ICU 7.8 expected?
+Answer from Markus Scherer:
+    ibm-16684_P110-2003 is a "DBCS" charset, that is, every character is encoded with 2 bytes
+    For details, you could look over the download pages, or at the history of the implementation code:
+    https://github.com/unicode-org/icu/commits/main/icu4c/source/common/ucnvmbcs.cpp
+
+    You could also look at ICU Jira tickets with component=conversion, status=Done, resolution=Fixed.
+
+    There have not been a lot of changes in the conversion code (other than cleanups) in the last 15 years, partly because the industry has nearly fully switched to Unicode.
+    I believe that the original code read two bytes at a time, and if the combination was ill-formed or unassigned, it did error handling for the two bytes.
+    This kind of behavior has raised security concerns, because one bad byte could lead to "swallowing" part of a well-formed following character.
+    In particular, in ASCII-based charsets, ASCII syntax characters could be consumed in the error handling.
+    This was especially bad when inconsistent: Some implementations may consume fewer bytes, and then the following character could be syntactically relevant.
+
+    The industry, and ICU, have generally moved to not include a byte in the error handling if it could not continue a well-formed sequence.
+    The converter should stop before such a byte.
+
+    In this case, it looks like modern ICU treats only the first single byte 0x54 as an ill-formed sequence, then it's off by one byte
+    but still sees "40 40" pairs, then there is only one single 0x40 byte left, which is another ill-formed sequence.
+Answer from Markus Scherer:
+    I agree that the output (and its length) should follow the usual expectations as long as the input is well-formed.
+    When the input is broken, then these expectations compete with security considerations.
+    The problem is that we cannot know why the input is ill-formed.
+    - Was a byte omitted and we are out of sync?
+    - Are all the bytes there but one had a bit flip?
+    - Does the selected encoding not match the input?
+    ICU has followed evolving industry practice in this case, which is to avoid consuming more than a prefix of a well-formed subsequence (but always at least one byte).
+    To give another example, this change has affected decoding of UTF-8 as well (and I remember this more distinctly, since the older behavior seemed "obvious" looking at the UTF-8 spec).
+
+    Consider the bytes E0 80 80 -- a lead byte indicating a 3-byte sequence, and two trail bytes -- but it is a "non-shortest form" (for code point U+0000).
+    Old versions of ICU would report the 3-byte sequence as one error.
+    With the newer logic, only the initial byte E0 is reported for the first error, the decoding restarts after that, and ends up reporting two more errors.
+    If your error handling emitted a U+FFFD each time and you re-encoded the result into UTF-8,
+    then an old ICU version would have output 3 bytes for one U+FFFD,
+    while a newer version would give you 9 bytes for 3 U+FFFDs.
+
+
+https://groups.google.com/a/unicode.org/g/icu-design/c/5U4v7Lioc8E/m/sKWPIkgKAAAJ?utm_medium=email&utm_source=footer
+ICU API notice: new property values for Unicode 18
+https://www.unicode.org/versions/Unicode18.0.0/
+https://www.unicode.org/versions/beta-18.0.0.html
+
+
 ================================================================================
 ICU design
 ================================================================================
@@ -3897,6 +4389,18 @@ Interactive demo application
 
 https://icu4c-demos.unicode.org/icu-bin/translit
 ICU Transform Demonstration
+
+
+================================================================================
+ICU tools
+================================================================================
+
+https://intlpull.com/tools/icu-message-editor
+ICU Message Editor
+localization, l10n, i18n
+---
+I found a reference to this tool in
+https://news.ycombinator.com/item?id=47033328
 
 
 ================================================================================
@@ -5009,6 +5513,14 @@ jlf:
     "\uc8e0\u11a7"~unescape=    -- T'죠ᆧ'
     "u+c8e0 u+11a7"~u2c=        -- T'??[0000]?[110000]'
     "u+c8e0 u+11a7"~u2c~utf8=   -- T'죠ᆧ'
+
+
+https://github.com/JuliaStrings/utf8proc/issues/341
+in-place normalized string comparison
+---
+See the discussion in #101 https://github.com/JuliaStrings/utf8proc/issues/101
+and the Julia implementation in https://github.com/JuliaLang/julia/blob/9d6344a6673387a4ac0ae04f197ab60055d7a05d/stdlib/Unicode/src/Unicode.jl#L268-L344
+one implementation was suggested in #298.
 
 
 ================================================================================
@@ -6248,6 +6760,8 @@ https://www.unicode.org/mail-arch/unicode-ml/y2019-m01/0121.html
 Encoding italic (was: A last missing link)
 
 
+https://fontgen.cool
+Font Generator
 https://fontgen.cool/number-font-generator
 Number Font Generator
 
@@ -6256,6 +6770,12 @@ https://www.cursivefontgenerator.info/
 https://news.ycombinator.com/item?id=46454232
 jlf: comment of bromuro
 These won’t work either. They cannot be read by screen readers.
+
+
+https://ultratextgen.com/
+Stylish Font Generator
+Turn plain text into bold, cursive, gothic, and decorative Unicode fonts you can
+copy and paste instantly.
 
 
 ================================================================================
@@ -6339,6 +6859,11 @@ to learn, the articles are very very short...
 https://blog.kdheepak.com/my-unicode-cheat-sheet
 Language comparison
 Vim, Python, Julia and Rust.
+
+
+https://www.reddit.com/r/ProgrammingLanguages/comments/1sj50w0/why_unicode_strings_are_difficult_to_work_with/
+Why Unicode strings are difficult to work with and API design
+jlf: not very interesting
 
 
 ================================================================================
@@ -7022,6 +7547,13 @@ While this works for most functions, it doesn't work for e.g. the program
 arguments (argv and env parameters of main).
 
 
+https://www.reddit.com/r/codereview/comments/1su9q3q/first_release_of_my_c23_unicode_text_library/
+https://github.com/cristi1990an/unicode_ranges
+unicode_ranges
+unicode_ranges is a C++23 library for representing, validating, iterating,
+transforming, and formatting UTF-8, UTF-16, and UTF-32 text.
+
+
 ================================================================================
 cobol lang
 ================================================================================
@@ -7086,6 +7618,49 @@ Why don't they accept to return that:
     say c2x(substr('René', 4, 1))   -- C3A9
 It's the only way to keep the invariant x2c(c2x(string) == string
     say x2c('52 65 6E C3A9')        -- René
+
+
+https://github.com/adesutherland/CREXX/issues/466
+Hex literals can be invalid UTF8
+The committed baseline now has:
+    - strict .string as valid UTF-8 text
+    - first-class .binary as arbitrary bytes
+    - explicit .string/.binary conversions via stobin/bintos
+    - RXAS/VM binary literal/load/buffer support
+    - UTF cache/private VM flags
+    - RXVML, CREXXSAA, RXPA, file, socket, and byte-to-text boundary validation
+    - regressions for the key boundary cases, including native/RXPA recursive validation
+Roadmap thoughts for users/developers:
+    - Use .binary or native payload APIs for arbitrary bytes. Invalid UTF-8 should not travel as .string.
+    - CREXX_RXPA_DISABLE_UTF8_CHECKS=1 exists as a temporary plugin migration/debug escape hatch, not as normal behavior.
+    - Level G should carry normalization, grapheme clusters, case folding, and richer Unicode services, maybe via utf8proc/library work or via a level b port.
+    - Level C/classic compatibility remains a separate design question
+
+
+https://github.com/adesutherland/CREXX/issues/583
+Define and verify Level B Unicode string semantics
+
+    https://github.com/adesutherland/CREXX/discussions/155
+    TRANSLATE
+
+    https://github.com/adesutherland/CREXX/discussions/162
+    upper/lower
+
+    https://github.com/adesutherland/CREXX/discussions/194
+    Translate bif added
+
+    https://github.com/adesutherland/CREXX/discussions/231
+    string_cmp_value missing UTF8 code
+
+    https://github.com/adesutherland/CREXX/discussions/470
+    SUBSTR and STRIP Performance Gains
+
+
+https://github.com/adesutherland/CREXX/pull/605/changes/f36e2e76ed4210c6470362e2da136a69d45284dd
+https://github.com/adesutherland/CREXX/pull/605
+Implement Level B UTF and binary baseline
+jlf: lot of notes about utf8
+It's a pull, not sure it will remain accessible.
 
 
 ================================================================================
@@ -8268,6 +8843,11 @@ Julia lang
 ================================================================================
 
 Remember: search in issues with "utf8proc in:title,body"
+
+
+Source code:
+https://github.com/JuliaLang/julia/blob/master/base/strings/unicode.jl
+https://github.com/JuliaLang/julia/blob/master/stdlib/Unicode/src/Unicode.jl
 
 
 https://bkamins.github.io/julialang/2020/08/13/strings.html
@@ -9949,11 +10529,16 @@ Unicode in Raku
 https://docs.raku.org/language/unicode
 Raku applies normalization by default to all input and output except for file names,
 which are read and written as UTF8-C8
-UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one. However,
-upon encountering a byte sequence that will either not decode as valid UTF-8, or
-that would not round-trip due to normalization, it will use NFG synthetics to
-keep track of the original bytes involved. This means that encoding back to UTF-8 Clean-8
-will be able to recreate the bytes as they originally existed.
+
+
+https://docs.raku.org/language/unicode#UTF8-C8
+UTF8-C8, UTF-C8
+UTF-8 Clean-8 is an encoder/decoder that primarily works as the UTF-8 one.
+However, upon encountering a byte sequence that will either not decode as valid
+UTF-8, or that would not round-trip due to normalization, it will use NFG
+synthetics to keep track of the original bytes involved.
+This means that encoding back to UTF-8 Clean-8 will be able to recreate the
+bytes as they originally existed.
 
 
 https://github.com/MoarVM/MoarVM/blob/master/docs/strings.asciidoc
@@ -10164,6 +10749,106 @@ Raku provides a collate method that implements the Unicode Collation Algorithm.
 https://github.com/rakudo/rakudo/issues/1770
 Incorrect Unicode character names
 jlf: maybe interesting to validate ooRexx/executor/tutor.
+
+
+Commit 1810d6f2 (open)
+by Faye, 12/03/2025 01:18 PM
+Fix grapheme boundary searching for Unicode 17.
+
+    This introduces a long-needed change to how MoarVM searches for grapheme
+    clusters, and it now properly handles all graphemes as per the default
+    rules outlined in UAX#29, revision 47. This required a completely new
+    function, because the old one was designed for a much different set of
+    rules, and has led to appropriate changes elsewhere.
+
+    The new grapheme boundary function finds the end of a grapheme cluster
+    from a given starting position, which allows for a much more natural
+    implementation of the rules, and should be easier to augment if and when
+    new kinds of graphemes are added to the default rules in the future. The
+    old approach, where each invocation of the search function could only
+    look one codepoint ahead and behind, would've required a less
+    approachable state machine to work with the more modern rules.
+
+    When it comes to the case of joining two NFG strings and checking to see
+    if they need renormalization around the join, we fortunately only have
+    to examine the graphemes immediately adjacent to the join point, as
+    before, though it did have to be changed to work with the new search
+    function. The join-checking function can be used for any two graphemes,
+    but for now a minimal change was made, and it's only used to check
+    non-synthetic codepoints (as was the case beforehand).
+
+
+Commit 1746b4e6 (open)
+by Faye, 12/03/2025 09:46 AM
+ucd2c.pl: Improve NFG_QC, generate InCB defines.
+
+    This updates the NFG_QC property to match how Unicode 17.0.0 grapheme
+    rules work, and bearing in mind how it's used by MoarVM. I've also
+    written a lot of words about how exactly the property is defined, so
+    nobody else has to figure out how exactly it's derived.
+
+    ucd2c.pl
+    # We make up an NFG_QC property that's analogous to the standard NFx_QC
+    # properties, and gives you *some* information about how a codepoint behaves in
+    # NFG normalization. Much like how NFC_QC is a less complete view of a
+    # codepoint's behavior than NFD_QC (it doesn't say anything about the
+    # codepoint's ability to compose with subsequent codepoints), NFG_QC is less
+    # complete a look than NFC_QC. In addition to the extra tests needed for
+    # determining NFC text, you need to test for the presence of GCB=Prepend
+    # codepoints immediately before the codepoint.
+    #
+    # As NFG builds on top of NFC, the NFG_QC property starts of initially set to
+    # the same value as NFC_QC for all codepoints (handled earlier). This function
+    # makes the necessary changes for NFG quickchecking. Specifically:
+    #
+    #  * Never give NFG_QC a "better" value than its corresponding NFC_QC. If it
+    #    can't survive the NFC process, then by definition it won't survive the NFG
+    #    process. This means this tweak function never sets NFG_QC=Y, and it only
+    #    sets NFG_QC=M if NFC_QC!=N.
+    #
+    #  * This function never sets NFG_QC=N, because any codepoint is capable of
+    #    being its own grapheme (the trivial case being the only codepoint in the
+    #    string, though other survivable conditions exist for all codepoints).
+    #    Recall that NFC_QC=N only happens for codepoints which decompose and can't
+    #    be recompose. NFG doesn't make any codepoints unconditionally disappear
+    #    after the NFC step, so NFG_QC doesn't get any additional =N assignments
+    #    after the initial "copy NFC_QC" step.
+    #
+    #  * This function sets NFG_QC=M (or leaves it at =N) for any codepoint which
+    #    may form a grapheme with a preceding character, EXCEPT for the
+    #    "unconditional prefix" rules. This means a codepoint which could be on the
+    #    RHS of a joining (× operator) rule, as well as codepoints that can be the
+    #    non-initial codepoints of the LHS of a joining rule.
+    #
+    #     * For example: CR-type characters are NOT marked "maybe", because they
+    #       only ever appear as the initial character of the LHS side of a joining
+    #       rule, i.e. rule GB3.
+    #
+    #     * Rules such as GB9c and GB12 put multiple codepoints on the left-hand
+    #       side of a joining rule, which is where the extra bit about non-initial
+    #       LHS codepoints comes from. For example, rule GB9c makes it so that
+    #       InCB=Extend and InCB=Linker codes are NFG_QC=M, even though they never
+    #       appear on the RHS of any joining rule.
+    #
+    #     * As of Unicode 17.0.0, the only "unconditional prefix" rule is GB9b,
+    #       which states that GCB=Prepend can attach to just about every possible
+    #       following codepoint. If we factored these rules into the NFG_QC
+    #       property, the property would be worthless. Your normalizer code needs to
+    #       account for the presence of codepoints in any "uncondtional prefix" rule
+    #       immediately preceding the codepoint being tested.
+    #
+    #        * Note that "unconditional prefix", is a slight misnomer, since they
+    #          can't attach to Control, CR, or LF codepoints. However, the set of
+    #          excepted codepoints is so small relative to all of Unicode that it
+    #          still causes the problems outlined above.
+    #
+    #     * Much like how NFC_QC=Y codepoints can still combine with following
+    #       codepoints, NFG_QC=Y codepoints may still combine with following
+    #       codepoints into a larger grapheme cluster.
+    #
+    # This function was last updated for Unicode 17.0.0, consulting
+    # <https://www.unicode.org/reports/tr29/tr29-47.html#Grapheme_Cluster_Boundary_Rules>.
+    # Note that not every Unicode update requires an update to this property.
 
 
 ================================================================================
@@ -11360,6 +12045,9 @@ Migration to utf8mb4 has many advantages including:
 Swift lang
 ================================================================================
 
+https://forums.swift.org/tag/unicode
+
+
 https://github.com/apple/swift-evolution/blob/main/proposals/0363-unicode-for-string-processing.md
 Proposal: Unicode for String Processing
 This proposal describes Regex's rich Unicode support during regex matching,
@@ -12077,6 +12765,17 @@ I don't grasp everything, but this comment is a good overview:
 https://forums.swift.org/t/pitch-unicode-normalization/73240/29
 
 
+https://forums.swift.org/t/pitch-unicode-normalization/73240
+[Pitch] Unicode Normalization
+This is a summary and some sections have been omitted for brevity.
+Full proposal:
+https://github.com/swiftlang/swift-evolution/pull/2512
+jlf: todo read
+Referenced from Julia
+https://github.com/JuliaStrings/utf8proc/pull/339#issuecomment-4179472099
+Add link to Swift wrapper
+
+
 ================================================================================
 Typst lang
 ================================================================================
@@ -12209,6 +12908,48 @@ https://github.com/nektro/zig-unicode-ucd
 Zig bindings for the Unicode Character Database
 jlf: maybe to review to see how they pack the Unicode properties.
 unicode_data.zig contains the Unicode character names.
+
+
+================================================================================
+zymbol lang
+================================================================================
+
+https://github.com/zymbol-lang/interpreter
+jlf: I reference this language after this
+https://www.reddit.com/user/spracso/comments/1sifwy6/zymbollang_v003_unicode_numeral_systems/
+Full Unicode numeral support — both as input (the lexer reads them as numbers)
+and as output (a one-line mode switch changes how every number is printed).
+    //#09# DEFAULT
+    x = 42
+    >> "ASCII: " x ¶
+    #०९#
+    >> "Devanagari: " x ¶
+    #๐๙#
+    >> "Thai: " x ¶
+    #၀၉#
+    >> "Myanmar: " x ¶
+    #٠٩#
+    >> "Arabic-Indic: " x ¶
+    #09# // reset to ASCII
+    >> "ASCII again: " x ¶
+
+    //Output:
+    ASCII:        42
+    Devanagari:   ४२
+    Thai:         ๔๒
+    Myanmar:      ၄၂
+    Arabic-Indic: ٤٢
+    ASCII again:  42
+The lexer accepts any of the 69 supported digit blocks as numeric literals
+directly in source. You can mix scripts in the same file:
+    a = ८       // Devanagari 8
+    b = ๔       // Thai 4
+    >> (a + b)  // 12  (ASCII output by default)
+
+    #०९#
+    >> (a * b)  // ३२
+There is no conversion step.
+The lexer maps each digit to its numeric value at tokenization time.
 
 
 ================================================================================
