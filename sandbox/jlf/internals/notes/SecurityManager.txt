@@ -648,3 +648,139 @@ RexxActivation.cpp
                 SecurityManager *manager = getEffectiveSecurityManager();
                 stream = manager->checkStreamAccess(qualifiedName);
         ...
+
+
+================================================================================
+2026 Jul 16
+================================================================================
+
+Rony: Shouldn't there be a security checkpoint for creating stream objects in addition to using the stream BIFs?
+
+
+I would say yes.
+
+Maybe it can follow the same logic than BIF.
+
+Review of the BIF and security
+
+All the BIFS listed below call resolveStream which calls the security manager
+
+BuiltinFunctions.cpp
+RexxActivation::resolveStream
+...
+        // see if we have this in the table already.  If not opened yet, we need
+        // to try to open it.
+        RexxObject *stream = (RexxObject *)streamTable->get(qualifiedName);
+        if (stream == OREF_NULL)
+        {
+            // do the security manager check first.
+            SecurityManager *manager = getEffectiveSecurityManager();
+            stream = manager->checkStreamAccess(qualifiedName);
+...
+RexxObject *stream = context->resolveStream(name, true, fullname, &added);
+LINEIN
+CHARIN
+LINEOUT
+CHAROUT
+LINES
+CHARS
+STREAM
+	STREAM_STATUS
+	STREAM_DESCRIPTION
+	STREAM_COMMAND
+
+
+Review of the native stream and the possibility to call a security manager
+
+resolveStreamName seems the equivalent of resolveStream for the BIFS.
+There is currently no call to a security manager.
+Maybe it could be done, a qualified name is calculated, it could be sent to a security manager.
+
+StreamNative.cpp
+/**
+ * Convert a specified stream name into it's fully qualified
+ * name.
+ */
+void StreamInfo::resolveStreamName()
+{
+    if (qualified_name.length() == 0)
+    {
+        SysFileSystem::qualifyStreamName(stream_name, qualified_name);
+    }
+}
+called by
+StreamInfo::implicitOpen
+StreamInfo::streamOpen
+StreamInfo::getQualifiedName
+StreamInfo::streamExists
+StreamInfo::getStreamSize
+StreamInfo::getTimeStamp
+
+
+
+Bonus
+
+I made a list of protected methods, and compared it with rexxref.
+Only 4 methods are documented as "protected" in rexxref (see the idented methods).
+Not sure we need to update rexxref for each method.
+It would be more easy to list all the protected methods in the chapter "The Security Manager".
+
+It's not clear to me why METACLASS, SUBCLASSES, and SUPERCLASS are protected.
+That was already like that in ooRexx 4.2.
+
+rexxref says these method are protected, but they are not:
+- class~inherit   .class~method("inherit")~isprotected=   -- 0
+- object~run      .object~method("run")~isprotected=  -- 0
+
+
+ooRexx 5.3
+ooRexx[sh]> ?m == /^......P
+P. PCGP.   'BASECLASS'                               : 'Class' (REXX)
+P. P.GP.   'BASECLASS'                               : 'Class' (REXX)
+P. PCGP.   'DEFAULTOPTIONS'                          : 'Package' (REXX)
+    P. P.GP.   'DEFINE'                                  : 'Class' (REXX)
+P. PCGP.   'DEFINE'                                  : 'Class' (REXX)
+P. P.GP.   'DEFINEMETHODS'                           : 'Class' (REXX)
+P. PCGP.   'DEFINEMETHODS'                           : 'Class' (REXX)
+P. PCGP.   'DELETE'                                  : 'Class' (REXX)
+    P. P.GP.   'DELETE'                                  : 'Class' (REXX)
+P. PCGP.   'METACLASS'                               : 'Class' (REXX)
+P. P.GP.   'METACLASS'                               : 'Class' (REXX)
+P. P.GP.   'OPTIONS'                                 : 'Package' (REXX)
+P. P.GP.   'PROCESS'                                 : 'system' (pipe.cls)
+P. P.GP.   'SETMETHOD'                               : 'Directory' (REXX)
+P. P.GP.   'SETPROTECTED'                            : 'Method' (REXX)
+P. P.GP.   'SETSECURITYMANAGER'                      : 'Method' (REXX)
+P. P.GP.   'SETSECURITYMANAGER'                      : 'Package' (REXX)
+P. P.GP.   'SETSECURITYMANAGER'                      : 'Routine' (REXX)
+P. P.GP.   'SUBCLASSES'                              : 'Class' (REXX)
+P. PCGP.   'SUBCLASSES'                              : 'Class' (REXX)
+P. PCGP.   'SUPERCLASS'                              : 'Class' (REXX)
+P. P.GP.   'SUPERCLASS'                              : 'Class' (REXX)
+P. PCGP.   'SUPERCLASSES'                            : 'Class' (REXX)
+P. P.GP.   'SUPERCLASSES'                            : 'Class' (REXX)
+P. PCGP.   'UNINHERIT'                               : 'Class' (REXX)
+P. P.GP.   'UNINHERIT'                               : 'Class' (REXX)
+P. P.GP.   'UNSETMETHOD'                             : 'Directory' (REXX)
+
+
+rexxref documents object~setMethod and object~unsetMethod as protected.
+But they are not ('P' in col 7 is missing):
+
+ooRexx[sh]> ?m setMethod
+P. P.GP.   'SETMETHOD' : 'Directory' (REXX)
+P. ..G..   'SETMETHOD' : 'Object' (REXX)
+P. .CG..   'SETMETHOD' : 'Object' (REXX)
+
+ooRexx[sh]> ?m unsetMethod
+P. ..G..   'UNSETMETHOD' : 'Object' (REXX)
+P. P.GP.   'UNSETMETHOD' : 'Directory' (REXX)
+P. .CG..   'UNSETMETHOD' : 'Object' (REXX)
+
+Confirmation in Setup.cpp
+
+        AddPrivateMethod("SetMethod", RexxObject::setMethod, 3);
+        AddPrivateMethod("UnsetMethod", RexxObject::unsetMethod, 1);
+
+        AddProtectedMethod("SetMethod", DirectoryClass::setMethodRexx, 2);
+        AddProtectedMethod("UnsetMethod", DirectoryClass::unsetMethodRexx, 1);
