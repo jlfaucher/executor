@@ -472,7 +472,7 @@ He gave me a punch
 I gave up my extensions.
 
 
-[apl_glimpse_heaven]: https://archive.vector.org.uk/art10011550 "APL - a Glimpse of Heaven"
+[apl_glimpse_heaven]: https://code.jsoftware.com/wiki/Articles/APL_--_a_Glimpse_of_Heaven "APL - a Glimpse of Heaven"
 [build_executor]: https://github.com/jlfaucher/builder/blob/master/build-executor.txt
 [demo_unicode_checks]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-internal_checks-output.html
 [demo_unicode_intro]: https://jlfaucher.github.io/executor.master/demos/executor-demo-text-output.html
