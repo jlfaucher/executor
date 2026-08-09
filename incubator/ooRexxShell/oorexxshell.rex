@@ -1110,7 +1110,8 @@ Helpers
     .ooRexxShell~useTutor = .ooRexxShell~hasTutor
 
     .ooRexxShell~hasRexxUnicode = loadPackage("rxunicode.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
-    .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
+    .ooRexxShell~hasRexxText = loadPackage("rxtext.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .true) -- don't complain if not loaded
+    .ooRexxShell~hasICU4ooRexx = loadPackage("icu4oorexx.cls", /*silentLoaded*/ .false, /*silentNotLoaded*/ .false) -- don't complain if not loaded
 
     -- Second customization, after all preloaded packages
     -- Be silentLoaded when not interactive, to not display a full path which is incompatible with regression tests
@@ -1415,6 +1416,7 @@ Helpers
 ::attribute hasIndentedStream class -- Will be true if indentedStream.cls has been loaded
 ::attribute hasQueries class -- Will be true if oorexxshell_queries.cls has been loaded
 ::attribute hasRegex class -- Will be .true is regex.cls has been loaded
+::attribute hasRexxText class -- Will be .true if rxtext.cls has been loaded
 ::attribute hasRexxUnicode class -- Will be .true if rxunicode.cls has been loaded
 ::attribute hasRgfUtil2 class -- Will be .true if rgf_util2.rex has been loaded
 ::attribute hasRgfUtil2Extended class -- Will be .true if rgf_util2.rex has been loaded and is the extended version
@@ -1556,6 +1558,7 @@ Helpers
     self~hasIndentedStream = .false
     self~hasQueries = .false
     self~hasRegex = .false
+    self~hasRexxText = .false
     self~hasRexxUnicode = .false
     self~hasRgfUtil2 = .false
     self~hasRgfUtil2Extended = .false
@@ -1771,6 +1774,7 @@ Helpers
     ",[info]   hasIndentedStream",
     ",[info]   hasQueries",
     ",[info]   hasRegex",
+    ",[info]   hasRexxText",
     ",[info]   hasRexxUnicode",
     ",[info]   hasRgfUtil2",
     ",[info]   hasRgfUtil2Extended",
