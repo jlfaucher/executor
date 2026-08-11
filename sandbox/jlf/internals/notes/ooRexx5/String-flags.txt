@@ -1,0 +1,256 @@
+class RexxString : public RexxObject
+{
+ public:
+     typedef enum
+     {
+        STRING_HASLOWER,
+        STRING_NOLOWER,
+        STRING_HASUPPER,
+        STRING_NOUPPER,
+        STRING_NONNUMERIC,
+     } StringFlag;
+
+
+    bool        checkLower();
+    bool        checkUpper();
+
+
+    inline bool  upperOnly() const {return attributes[STRING_NOLOWER];}
+    inline bool  hasLower() const {return attributes[STRING_HASLOWER]; }
+    inline void  setUpperOnly() { attributes.set(STRING_NOLOWER);}
+    inline void  setHasLower() { attributes.set(STRING_HASLOWER);}
+    inline bool  lowerOnly() const {return attributes[STRING_NOUPPER];}
+    inline bool  hasUpper() const {return attributes[STRING_HASUPPER]; }
+    inline void  setLowerOnly() { attributes.set(STRING_NOUPPER);}
+    inline void  setHasUpper() { attributes.set(STRING_HASUPPER);}
+    inline bool  nonNumeric() const {return attributes[STRING_NONNUMERIC];}
+    inline void  setNonNumeric() { attributes.set(STRING_NONNUMERIC);}
+
+  protected:
+
+    HashCode hashValue;                      // stored has value
+    size_t length;                           // string length
+    NumberString *numberStringValue;         // lookaside information
+    FlagSet<StringFlag, 32> attributes;      // string attributes
+    char stringData[4];                      // Start of the string data part
+};
+
+
+
+setUpperOnly
+called by
+    RexxString::checkLower
+        RexxString::upper
+    RexxString::upper
+    RexxString::newUpperString
+
+setHasLower
+called by
+    RexxString::checkLower
+        RexxString::upper
+
+setLowerOnly
+called by
+    RexxString::checkUpper
+        RexxString::lower
+    RexxString::lower
+
+setHasUpper
+called by
+    RexxString::checkUpper
+        RexxString::lower
+
+
+1533
+/**
+ * Tests for existence of lowercase characters
+ *
+ * @return true if this string contains lowercase characters, false otherwise.
+ */
+bool RexxString::checkLower()
+{
+    const char *data = getStringData();
+    const char *endData = data + getLength();
+
+    // loop until we find a lower case character
+    while (data < endData)
+    {
+        // if we have a lower case character, mark as having lower
+        // case characters and return
+        if (Utilities::isLower(*data))
+        {
+            setHasLower();
+            return true;
+        }
+        data++;
+    }
+    // we can mark this as having no lower case characters
+    setUpperOnly();
+    return false;
+}
+
+
+1561
+/**
+ * Tests for existence of uppercase characters
+ *
+ * @return true if this string contains uppercase characters,
+ *         false otherwise.
+ */
+bool RexxString::checkUpper()
+{
+    const char *data = getStringData();
+    const char *endData = data + getLength();
+
+    // loop until we find a lower case character
+    while (data < endData)
+    {
+        // if we have a upper case character, mark as having lower
+        // case characters and return
+        if (Utilities::isUpper(*data))
+        {
+            setHasUpper();
+            return true;
+        }
+        data++;
+    }
+    // we can mark this as having no upper case characters
+    setLowerOnly();
+    return false;
+}
+
+
+1590
+/**
+ * Translate a string to uppercase...will only create a new
+ * string if characters actually have to be translated.
+ *
+ * @return The string in uppercase.
+ */
+RexxString *RexxString::upper()
+{
+    // it is always worth avoiding creating a new object, so if necessary, we'll
+    // scan to see if the string contains lowercase characters.
+    if (!upperOnly() && (hasLower() || checkLower()))
+    {
+        RexxString *newstring = raw_string(getLength());
+        const char *data = getStringData();
+
+        char *outdata = newstring->getWritableData();
+        const char *endData = data + getLength();
+
+        // copy the data over, uppercasing as we go.
+        while (data < endData)
+        {
+// avoid warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+// (or similar) in gcc 12 and above, due to our RexxString char stringData[4]
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            *outdata++ = Utilities::toUpper(*data++);
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic pop
+#endif
+        }
+        // we know this string does not contain lowercase characters
+        newstring->setUpperOnly();
+        return newstring;
+    }
+
+    // known to be uppercase, so we can just return the original string.
+    return this;
+}
+
+
+1682
+/**
+ * Translate a string to lower case
+ *
+ * @return The translated string.
+ */
+RexxString *RexxString::lower()
+{
+    // it is always worth avoiding creating a new object, so if necessary, we'll
+    // scan to see if the string contains uppercase characters.
+    if (!lowerOnly() && (hasUpper() || checkUpper()))
+    {
+
+        RexxString *newstring = raw_string(getLength());
+        const char *data = getStringData();
+        const char *endData = data + getLength();
+        char *outdata = newstring->getWritableData();
+
+        // copy the data over, lowercasing as we go.
+        while (data < endData)
+        {
+// avoid warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+// (or similar) in gcc 12 and above, due to our RexxString char stringData[4]
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+            *outdata++ = Utilities::toLower(*data++);
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic pop
+#endif
+        }
+        // we know this string does not contain uppercase characters
+        newstring->setLowerOnly();
+        return newstring;
+    }
+    // nothing to translate, just return the original string
+    return this;
+}
+
+
+2248
+/**
+ * Allocate an initialize a string object that will also
+ * contain only uppercase characters.  This allows a creation
+ * and uppercase operation to be done in one shot, without
+ * requiring two string objects to be created.
+ *
+ * @param string The source string data.
+ * @param length The length of the string data.
+ *
+ * @return A newly constructed string object.
+ */
+RexxString *RexxString::newUpperString(const char * string, size_t length)
+{
+    // these are variable size objects.  We make sure we give some additional space
+    // for a terminating null character.
+    size_t size2 = sizeof(RexxString) - (sizeof(char) * 3) + length;
+    RexxString *newObj = (RexxString *)new_object(size2, T_String);
+
+    // initialize the string fields
+    newObj->setLength(length);
+    newObj->hashValue = 0;               // make sure the hash value is zeroed
+
+    char *outdata = newObj->getWritableData();
+    // set the input markers
+    const char *indata = string;
+    const char *endData = indata + length;
+
+    while (indata < endData)
+    {
+// avoid warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+// (or similar) in gcc 12 and above, due to our RexxString char stringData[4]
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+        *outdata++ = Utilities::toUpper(*indata++);
+#ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+#pragma GCC diagnostic pop
+#endif
+    }
+    // flag as containing only uppercase characters
+    newObj->setUpperOnly();
+
+    // add the terminating null
+    newObj->putChar(length, '\0');
+    // by  default, we don't need live marking.
+    newObj->setHasNoReferences();
+    return newObj;
+}
