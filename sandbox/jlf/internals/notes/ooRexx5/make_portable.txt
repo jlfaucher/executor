@@ -1,0 +1,215 @@
+$ cdbuild
+$ make portable
+Creating portable Rexx Home ENVironment zip archive ...
++---> zipDir...........: [_portable_] zipName: [oorexx-5.2.0-13049.macos.arm64-portable-release]
++---> op_sys...........: [D]
++---> scriptLocation...: [/local/rexx/oorexx/official/main/trunk/support/portable/] script: [createPortable.rex]
++---> working directory: [/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/build]
++---> cmd..............: [make DESTDIR=_portable_ install]
+[  7%] Built target rexxapi
+[ 71%] Built target rexx
+[ 71%] Built target rexx_exe
+[ 72%] Built target rexximage
+[ 77%] Built target rxapi
+[ 79%] Built target rexx_img
+[ 80%] Built target rexxc
+[ 80%] Built target rxqueue
+[ 81%] Built target rxsubcom
+[ 82%] Built target rxmath
+[ 82%] Built target rxsock
+[ 84%] Built target rxregexp
+[ 85%] Built target hostemu
+[ 86%] Built target rxunixsys
+[ 87%] Built target orxncurses
+[ 88%] Built target ncurses_cls
+[ 92%] Built target class_files
+[ 92%] Generating rexx.1.gz
+[ 92%] Built target rexx_man
+[ 92%] Generating rexxc.1.gz
+[ 92%] Built target rexxc_man
+[ 92%] Generating rxqueue.1.gz
+[ 92%] Built target rxqueue_man
+[ 92%] Generating rxsubcom.1.gz
+[ 92%] Built target rxsubcom_man
+[ 93%] Built target stackOverflow
+[ 94%] Built target runRexxProgram
+[ 94%] Built target external_routines
+[ 94%] Built target external_methods
+[ 95%] Built target external_methods_routines
+[ 95%] Built target callrexx1
+[ 96%] Built target callrexx2
+[ 96%] Built target rexxapi1
+[ 97%] Built target rexxapi2
+[ 97%] Built target rexxapi3
+[ 97%] Built target orxfunction
+[ 97%] Built target orxmethod
+[ 97%] Built target orxclassic
+[ 98%] Built target orxclassic1
+[ 99%] Built target orxexits
+[100%] Built target orxinvocation
+[100%] Built target rexxinstance
+Install the project...
+-- Install configuration: "Release"
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexxapi.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexxapi.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexxapi.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexx.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexx.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librexx.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rexx
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/rexx.img
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rxapi
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rexxc
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rxqueue
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rxsubcom
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxmath.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxmath.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxmath.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxsock.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxsock.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxsock.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxregexp.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxregexp.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxregexp.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/libhostemu.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/libhostemu.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/libhostemu.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxunixsys.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxunixsys.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/librxunixsys.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/liborxncurses.4.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/liborxncurses.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/ncurses.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/liborxncurses.3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rxregexp.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rxftp.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/csvStream.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/json.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/dateparser.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/socket.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/streamsocket.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/mime.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/smtp.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/rexxtry.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/rexx.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/rexxapidefs.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/rexxapitypes.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/rexxplatformapis.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/rexxplatformdefs.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/oorexxapi.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/oorexxerrors.h
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/arithmeticEvaluation.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/arrayCallback.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/ccreply.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/concurrency.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/constrained.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/delegation.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/dynamicMethod.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/factor.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/getOoRexxDocs.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/greply.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/guess.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/interface.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/ktguard.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/makestring.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/month.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/philfork.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/properties.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/qdate.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/qtime.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/scclient.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/scserver.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/sfclient.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/sfserver.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/singleLinkedList.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/sortComposite.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/stack.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/synchronousConcurrency.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/timezone.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/treeTraversal.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/usecomp.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/usepipe.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/usesingleton.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/usetree.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/complex.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/pipe.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/semcls.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/treeDirectory.cls
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/jabberwocky.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/rexxcps.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/man/man1/rexx.1.gz
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/man/man1/rexxc.1.gz
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/man/man1/rxqueue.1.gz
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/man/man1/rxsubcom.1.gz
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/stackOverflow
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/stackOverflow.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/runRexxProgram
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/runRexxProgram.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/HelloWorld.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/backward.fnc
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/tooRecursiveTrapped.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/tooRecursiveUnhandled.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/Makefile.windows
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/callsample/Makefile.unix
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/Makefile.unix
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/Makefile.windows
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/libexternal_routines.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/external_routines.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/useExternalRoutines.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/useExternalRoutines2.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/libexternal_methods.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/external_methods.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/useExternalMethods.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/libexternal_methods_routines.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/external_methods_routines.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/external/useExternalMethodsRoutines.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/c++/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/callrexx1
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/callrexx1.cpp
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/Makefile.unix
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/callrexx2
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/callrexx2.c
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/del_macro.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/example.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/load_macro.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/macros.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/startrx1.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/startrx2.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx/startrx3.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/librexxapi1.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/rexxapi1.c
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/Makefile.apple
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/Makefile.linux
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi1/apitest1.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/librexxapi2.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/rexxapi2.c
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/Makefile.linux
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/Makefile.apple
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi2/apitest2.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/librexxapi3.dylib
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/rexxapi3.c
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/readme.txt
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/Makefile.linux
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/Makefile.apple
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi3/apitest3.rex
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/rexxapi.README
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/classic/callrexx.README
+-- Installing: _portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/share/ooRexx/samples/api/readme.txt
++---> RC...............: [0] (by make DESTDIR=_portable_ install) generated: 2025-12-10T07:56:36.465352
++---> targetRootDir....: [_portable_/oorexx-5.2.0-13049.macos.arm64-portable-release] zipDir: [_portable_] zipName: [oorexx-5.2.0-13049.macos.arm64-portable-release]
++---> cmd..............: [cp -RpPf "/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/build/_portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/bin/"* _portable_/oorexx-5.2.0-13049.macos.arm64-portable-release/bin]
++---> cmd..............: [cp -RpPf "/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/build/_portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/lib/"* _portable_/oorexx-5.2.0-13049.macos.arm64-portable-release/lib]
++---> cmd..............: [cp -RpPf "/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/build/_portable_/Users/Shared/local/rexx/oorexx/build/official/main/trunk/macos-arm64/clang/release/delivery/include/"*.h _portable_/oorexx-5.2.0-13049.macos.arm64-portable-release/include]
+   261 *-*     raise syntax 40.900 array ('cannot find "rexxref.pdf" in any subdirectory of "'zipDir'"')
+   109 *-*     call setupUnixZipStructure zipDir, zipName, op_sys, strDT   -- will create targetRootDir
+Error 40 running /local/rexx/oorexx/official/main/trunk/support/portable/createPortable.rex line 261:  Incorrect call to routine.
+Error 40.900:  cannot find "rexxref.pdf" in any subdirectory of "_portable_".
+make[3]: *** [CMakeFiles/portable] Error 216
+make[2]: *** [CMakeFiles/portable.dir/all] Error 2
+make[1]: *** [CMakeFiles/portable.dir/rule] Error 2
+make: *** [portable] Error 2

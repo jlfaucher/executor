@@ -1,0 +1,196 @@
+--------------------------------------------------------------------------------
+2026, Sept 08
+
+This is a problem encountered when creating native methods for RexxUnicodeServices
+
+
+# A native method of class C cannot call a private method of class C
+
+-- The native utf8StringUnescape method cannot call a private method when the native method is called outside an ooRexx method context.
+-- Workaround:
+--     - Call the native utf8StringUnescape method from an ooRexx method of RexxUnicode.
+--     - Make the native utf8StringUnescape method private.
+
+## Minimal test case
+::class C subclass native_C
+::method m1 class private
+::method m2 class
+    self~m1
+
+say .C~m2
+-- no error
+
+The ooRexx `m2` method is ported to C++ under the name `native_m2`.
+
+class native_C : public RexxObject {...}
+void native_C::native_m2
+{
+    ProtectedObject result;
+    self->messageSend(GlobalNames::M1, OREF_NULL, 0, result);
+}
+CPPM(native_C::native_m2),
+StartClassDefinition(native_C)
+        AddClassUnguardedMethod("native_m2", native_C::native_m2, 0);
+    CompleteClassMethodDefinitions();
+    CompleteMethodDefinitions();
+    CompleteClassDefinition(native_C);
+EndClassDefinition(native_C);
+
+say .C~native_m2
+-- Object "The C class" cannot accept private message "M1" from this context
+
+RexxObject::checkPrivate
+This error occurs because activation->getReceiver() == OREF_NULL
+The activation is the one of `say .C~native_m2`, we are not in the context of an ooRexx method of C.
+
+
+The `receiver` is set when running some ooRexx code.
+/**
+ * Run some Rexx code...this is it!  This is the heart of the
+ * interpreter that makes the whole thing run!
+ *
+ * @param _receiver The target receiver object (if a method call)
+ * @param name      The message, routine, or program name.
+ * @param _arglist  The argument list.
+ * @param _argcount The count of arguments.
+ * @param start     The starting instruction.
+ * @param resultObj A protected object for returning a result.
+ *
+ * @return The execution result (also returned via the protected object.)
+ */
+RexxObject* RexxActivation::run(RexxObject *_receiver, RexxString *name, RexxObject **_arglist,
+                                size_t _argcount, RexxInstruction *start, ProtectedObject &resultObj)
+{
+    // add the frame to the execution stack
+    RexxActivationFrame frame(activity, this);
+
+    receiver = _receiver;
+    ...
+
+
+The `receiver`is set when running a native method
+/**
+ * Run a native method or function under the context of this activation.
+ *
+ * @param _receiver The receiver object (NULL if not a method invocation).
+ * @param _msgname  The message name.
+ * @param _argcount The argument count
+ * @param _arglist  The list of arguments.
+ * @param resultObj The returned result object.
+ */
+void NativeActivation::run(MethodClass *_method, NativeMethod *_code, RexxObject  *_receiver,
+                           RexxString  *_msgname, RexxObject **_arglist, size_t _argcount, ProtectedObject &resultObj)
+{
+    // add the frame to the execution stack
+    NativeActivationFrame frame(activity, this);
+    // anchor the relevant context information
+    executable = _method;
+    receiver = _receiver;
+    ...
+
+
+## Real test case - ooRexx implementation
+
+```rexx
+::class RexxUnicode subclass RexxUnicodeServices
+
+::method codepointFromName class private
+    ...
+
+::method stringUnescape class
+    ...
+    codepoint = self~codepointFromName(name)
+    ...
+```
+
+rexx -e "say .RexxUnicode~stringUnescape( '\\N{FATHER CHRISTMAS}' ); ::requires 'rxunicode.cls'; ::requires 'icu4oorexx.cls'"
+No error
+
+
+## Real test case - C++ implementation
+
+The native method utf8StringUnescape is implemented on RexxUnicodeServices.
+The C++ implementation is a port of the ooRexx implementation of stringUnescape.
+The RexxUnicode class inherits this native method.
+
+```C++
+class RexxUnicodeServicesClass : public RexxObject
+{
+    RexxObject *utf8StringUnescape(RexxString *string, MutableBuffer *destination);
+}
+
+utf8proc_int32_t codepointFromName(RexxObject *self, RexxString *name)
+{
+    RexxObject *args[1];
+    args[0] = name;
+    ProtectedObject result;
+    self->messageSend(GlobalNames::CODEPOINTFROMNAME, args, 1, result);
+    return ((RexxObject *)result)->integerValue(9)->getValue();
+}
+
+RexxObject *RexxUnicodeServicesClass::utf8StringUnescape(RexxString *string, MutableBuffer *destination)
+{
+    ...
+    codepoint = codepointFromName(this, name);
+    ...
+}
+```
+
+rexx -e "say .RexxUnicode~utf8StringUnescape( '\\N{FATHER CHRISTMAS}' ); ::requires 'rxunicode.cls'; ::requires 'icu4oorexx.cls'"
+Object "The RexxUnicode class" cannot accept private message "CODEPOINTFROMNAME" from this context.
+
+
+#0	RexxObject::checkPrivate at trunk/interpreter/classes/ObjectClass.cpp:617
+        RexxObject *sender = activation->getReceiver();
+        // Here, sender == OREF_NULL, because we are still in the context of "say"
+        // Returns OREF_NULL with error == Error_No_method_private
+#1	RexxObject::messageSend at trunk/interpreter/classes/ObjectClass.cpp:882
+        method_save = checkPrivate(method_save, error);
+#2	codepointFromName at trunk/interpreter/classes/support/Unicode/UnicodeServices.cpp:283
+        self->messageSend(GlobalNames::CODEPOINTFROMNAME, args, 1, result);
+        // here, .RexxUnicode~utf8StringUnescape calls the private method .RexxUnicode~codepointFromName
+        // This is authorized when utf8StringUnescape is an ooRexx method.
+        // This is forbidden when utf8StringUnescape is a native method.
+#3	RexxUnicodeServicesClass::utf8StringUnescape at trunk/interpreter/classes/support/Unicode/UnicodeServices.cpp:1432
+        codepoint = codepointFromName(this, name);
+#4	CPPCode::run at trunk/interpreter/execution/CPPCode.cpp:178
+        result = (receiver->*((PCPPM2)methodEntry))(argPtr[0], argPtr[1]);
+#5	MethodClass::run at trunk/interpreter/classes/MethodClass.cpp:171
+        code->run(activity, this, receiver, msgname, argPtr, count, result);
+#6	RexxObject::messageSend at trunk/interpreter/classes/ObjectClass.cpp:899
+        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+#7	ExpressionStack::send at trunk/interpreter/expression/ExpressionStack.hpp:80
+        ((RexxObject *)(*(top - count)))->messageSend(message, arguments(count), count, result);
+#8	RexxExpressionMessage::evaluate at trunk/interpreter/expression/ExpressionMessage.cpp:189
+        stack->send(messageName, argumentCount, result);
+        // this->messageName == "utf8StringUnescape"
+#9	RexxInstructionExpression::evaluateStringExpression at trunk/interpreter/instructions/RexxInstruction.cpp:255
+        RexxObject *result = expression->evaluate(context, stack);
+#10	RexxInstructionSay::execute at trunk/interpreter/instructions/SayInstruction.cpp:74
+        context->sayOutput(evaluateStringExpression(context, stack));
+        // here, context->receiver is NULL
+#11	RexxActivation::run at trunk/interpreter/execution/RexxActivation.cpp:642
+        nextInst->execute(this, &stack);
+
+
+## If the private method was accessiblr from the native method
+
+#0	RexxActivation::run at trunk/interpreter/execution/RexxActivation.cpp:472
+        // Execution of the private method
+#1	RexxCode::run at trunk/interpreter/execution/RexxCode.cpp:210
+        // create a new activation object and push it on the top of the stack.
+        RexxActivation *newacta = ActivityManager::newActivation(activity, activity->getCurrentRexxFrame(), method, this);
+        activity->pushStackFrame(newacta);
+        // run the method.  The result is returned via the ProtectedObject reference.
+        newacta->run(receiver, msgname, argPtr, argcount, OREF_NULL, result);
+        // jlf: newacta->receiver is still OREF_NULL
+#2	MethodClass::run at trunk/interpreter/classes/MethodClass.cpp:171
+        code->run(activity, this, receiver, msgname, argPtr, count, result);
+#3	RexxObject::messageSend at trunk/interpreter/classes/ObjectClass.cpp:901
+        method_save->run(ActivityManager::currentActivity, this, msgname, arguments, count, result);
+#4	codepointFromName at trunk/interpreter/classes/support/Unicode/UnicodeServices.cpp:283
+        self->messageSend(GlobalNames::CODEPOINTFROMNAME, args, 1, result);
+#5	RexxUnicodeServicesClass::utf8StringUnescape at trunk/interpreter/classes/support/Unicode/UnicodeServices.cpp:1432
+        codepoint = codepointFromName(this, name);
+
+

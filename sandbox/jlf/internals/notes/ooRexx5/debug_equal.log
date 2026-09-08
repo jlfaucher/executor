@@ -1,0 +1,514 @@
+why the "=" overriding works here
+    x = .c~new("aa")
+    y = .c~new("bb")
+
+    Say (x = y)
+
+    ::Class C SubClass String
+    ::Method "="
+      Return 42
+
+but doesn't work when the class is in rexx.img
+    p = .codepoints~new('a'); q = .codepoints~new('b')
+    say (q = p)~class
+        displays "The String class"
+    say (q~"="( p ))~class
+        displays "The CODEPOINTS class"
+
+Answer:
+    The value of a String's subclass is a String with a behaviour corresponding to the subclass.
+    Internally, the variables p and q are RexxString instances with a behaviour "CODEPOINTS".
+    See the debug log, the key points are:
+    - the String class defines a NEW method which returns a RexxString instance.
+    - the string class has an optimized implementation of the operators, without sending messages like "="
+
+    Class C SubClass String is working
+    because the operator table associated to the behavior is the Object's table, which sends messages.
+    I could not find where the decision is taken to associate this table instead of the String's table.
+
+
+================================================================================
+debug
+rexx -e "p = .codepoints~new('a'); q = .codepoints~new('b'); say (q = p)~class"
+
+breakpoint on say instruction
+
+
+Breakpoint triggered at the end of codepoint~init (I added a say instruction before exit)
+
+RexxInstructionSay::execute at trunk/interpreter/instructions/SayInstruction.cpp:74
+RexxActivation::run at trunk/interpreter/execution/RexxActivation.cpp:627
+RexxCode::run at trunk/interpreter/execution/RexxCode.cpp:210
+MethodClass::run at trunk/interpreter/classes/MethodClass.cpp:171
+RexxObject::messageSend at trunk/interpreter/classes/ObjectClass.cpp:899
+RexxObject::sendMessage at trunk/interpreter/classes/ObjectClass.hpp:510                            "INIT"
+RexxClass::completeNewObject at trunk/interpreter/classes/ClassClass.cpp:1899
+RexxString::newRexx at trunk/interpreter/classes/StringClass.cpp:2372                               <-- The value of a String's subclass is a String  with the behaviour of the subclass
+CPPCode::run at trunk/interpreter/execution/CPPCode.cpp:147
+MethodClass::run at trunk/interpreter/classes/MethodClass.cpp:171
+RexxObject::messageSend at trunk/interpreter/classes/ObjectClass.cpp:899
+ExpressionStack::send at trunk/interpreter/expression/ExpressionStack.hpp:80
+RexxExpressionMessage::evaluate at trunk/interpreter/expression/ExpressionMessage.cpp:189           "NEW"
+RexxInstructionAssignment::execute at trunk/interpreter/instructions/AssignmentInstruction.cpp:129
+
+
+/**
+ * Perform common initialization steps on an object created
+ * by a new method from Rexx.  This handles subclass
+ * behaviour issues, uninit processing, etc.
+ *
+ * @param obj      The newly created object.  NOTE:  this assumes the
+ *                 caller has protected this object from garbage collection.
+ * @param initArgs A pointer to arguments intended for the INIT method.
+ * @param argCount The count of arguments.
+ */
+void RexxClass::completeNewObject(RexxObject *obj, RexxObject **initArgs, size_t argCount)
+
+obj is a RexxString "a"
+(lldb) p obj
+(RexxString *) 0x000000012be1a6f0
+(lldb) p ((RexxString*)obj)->stringData
+(char[4]) "a"
+(lldb) p (char*)((RexxString*)obj)->behaviour->owningClass->id->stringData
+(char *) 0x00000001304822c4 "CODEPOINTS"
+
+{
+    // this is a good common place to perform the abstract checks
+    checkAbstract();
+
+    // set the behaviour (this might be a subclass, so don't assume the
+    // one from the base class is correct).
+    obj->setBehaviour(getInstanceBehaviour());
+    // a subclass might define an uninit method, so we need to
+    // check that also.
+    if (hasUninitDefined())
+    {
+        obj->requiresUninit();
+    }
+
+    ProtectedObject result;
+    // now send an INIT message to complete initialization.
+    obj->sendMessage(GlobalNames::INIT, initArgs, argCount, result);
+}
+
+
+/**
+ * Create a new string value (used primarily for subclasses)
+ *
+ * @param init_args The standard new args.
+ * @param argCount  The argument count.
+ *
+ * @return A new string object of the current class.
+ */
+RexxString *RexxString::newRexx(RexxObject **init_args, size_t argCount)
+{
+    // this class is defined on the object class, but this is actually attached
+    // to a class object instance.  Therefore, any use of the this pointer
+    // will be touching the wrong data.  Use the classThis pointer for calling
+    // any methods on this object from this method.
+    RexxClass *classThis = (RexxClass *)this;
+
+    // break up the arguments
+    RexxObject *stringObj;
+    RexxClass::processNewArgs(init_args, argCount, init_args, argCount, 1, stringObj, NULL);
+    // force argument to string value
+    RexxString *string = stringArgument(stringObj, ARG_ONE);
+    // we can't use this value directly because we will adjust the
+    // class to the target class.  So we create a new string from the data
+    // that we can alter.
+    string = new_string(string->getStringData(), string->getLength());
+    ProtectedObject p(string);
+
+    // handle Rexx class completion
+    classThis->completeNewObject(string, init_args, argCount);                  <-- sends "INIT"
+    return string;
+}
+
+
+/**
+ * Execute a REXX assignment instruction
+ * NOTE:  This instruction is implemented using two seperate paths
+ * for traced vs. non-traced execution.  This reduces the checks
+ * for non-traced execution to a single check in this very
+ * heavily executed instruction.
+ *
+ * @param context The current execution context.
+ * @param stack   The current evaluation stack.
+ */
+void RexxInstructionAssignment::execute(RexxActivation *context, ExpressionStack *stack)
+{
+    // if tracing?  handle this via the slower path
+    if (context->tracingInstructions())
+    {
+        context->traceInstruction(this);
+        // get the expression value
+        RexxObject *result = expression->evaluate(context, stack);
+        // trace the result
+        context->traceResult(result);
+        // assign the variable
+        variable->assign(context, result);
+        // do debug pause
+        context->pauseInstruction();
+    }
+    // fast path for non-traced execution
+    else
+    {
+        variable->assign(context, expression->evaluate(context, stack));        <-- assign a RexxString with behaviour "CODEPOINT"
+    }
+}
+
+================================================================================
+breakpoint triggered at say (q = p)~class
+before the evaluation  of the expression
+
+Methods listed in the opposite order of call stack
+
+~class
+RexxObject *RexxExpressionMessage::evaluate(RexxActivation *context, ExpressionStack *stack)
+
+
+(q = p)
+RexxObject *RexxBinaryOperator::evaluate(RexxActivation *context, ExpressionStack *stack )
+{
+    // evaluate both expression terms
+    RexxObject *left = left_term->evaluate(context, stack);                     RexxString "b" with behaviour "CODEPOINT"
+    RexxObject *right = right_term->evaluate(context, stack);                   RexxString "a" with behaviour "CODEPOINT"
+    // and finally evaluate the operation itself.  The left term is
+    // the target of the message and determines how this is invoked.
+    RexxObject *result = left->callOperatorMethod(oper, right);                 oper	TokenSubclass	OPERATOR_EQUAL
+    // replace top two stack elements with our result
+    stack->operatorResult(result);
+    // trace the result if necessary
+    context->traceOperator(operatorName(), result);
+    return result;
+}
+
+
+Here this is a	RexxString *	0x12be1bcd0	0x000000012be1bcd0
+
+/**
+ * Call a method in the indexed object operator table.
+ *
+ * @param methodOffset
+ *                 The index of the target operator.
+ * @param argument The argument to the operator
+ *
+ * @return The operator method result.
+ */
+RexxObject *RexxObject::callOperatorMethod(size_t methodOffset, RexxObject *argument)
+{
+    // The behavior manages the operator tables.
+    PCPPM cppEntry = behaviour->getOperatorMethod(methodOffset);
+    // Go issue the method directly.
+    return (this->*((PCPPM1)cppEntry))(argument);
+}
+
+
+    inline PCPPM getOperatorMethod(size_t index) { return operatorMethods[index]; }
+
+cppEntry	PCPPM	(librexx.4.dylib`RexxString::equal(RexxObject*) at StringClass.cpp:1257)	0x000000000000000000000001007634b8
+
+Because this is a RexxString, cppEntry is the RexxString implementation of "="
+
+
+RexxObject *RexxString::equal(RexxObject *other)
+{
+    CompareOperator(comp(other) == 0);
+}
+
+
+/**
+ * Do a value comparison of two strings for the non-strict
+ * comparisons.  This returns for the compares:
+ *
+ *    a value < 0 when this is smaller than other
+ *    a value   0 when this is equal to other
+ *    a value > 0 when this is larger than other
+ *
+ * @param other  The object we compare against.
+ *
+ * @return the relative compare value (<0, 0, or >0)
+ */
+wholenumber_t RexxString::comp(RexxObject *other)
+{
+    // We need to see if the objects can be Converted to NumberString Objs
+    // 1st, this way we know if the COMP method of number String will
+    // succeed.  Will only fail if an object cannot be represented as a
+    // number.  This is important since NumberString calls String to do
+    // the compare if it can't, since this is the method NumberString
+    // will call, we must make sure a call to NumberString succeeds or
+    // we will get into a loop.
+    requiredArgument(other, ARG_ONE);
+    // try and convert both numbers first.
+    NumberString *firstNum = numberString();
+    NumberString *secondNum = other->numberString();
+
+    // if both are valid numbers, this is a numeric comparison.
+    if (firstNum != OREF_NULL && secondNum != OREF_NULL)
+    {
+        return firstNum->comp(secondNum, number_fuzz());
+    }
+
+    // we're doing a string comparison, so get the string version of the other.
+    return stringComp(other->requestString());
+}
+
+
+
+StringClass.cpp
+// operator table used for fast evaluation.
+PCPPM RexxString::operatorMethods[] =
+{
+   NULL,                               // first entry not used
+   (PCPPM)&RexxString::plus,
+   (PCPPM)&RexxString::minus,
+   (PCPPM)&RexxString::multiply,
+   (PCPPM)&RexxString::divide,
+   (PCPPM)&RexxString::integerDivide,
+   (PCPPM)&RexxString::remainder,
+   (PCPPM)&RexxString::power,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatRexx,
+   (PCPPM)&RexxString::concatBlank,
+   (PCPPM)&RexxString::equal,                                                   <-- specialized for RexxString
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::isGreaterThan,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::isLessThan,
+   (PCPPM)&RexxString::isGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::isGreaterOrEqual,
+   (PCPPM)&RexxString::isLessOrEqual,
+   (PCPPM)&RexxString::strictEqual,
+   (PCPPM)&RexxString::strictNotEqual,
+   (PCPPM)&RexxString::strictGreaterThan,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::strictLessThan,
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+                              /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::strictGreaterOrEqual,
+   (PCPPM)&RexxString::strictLessOrEqual,
+   (PCPPM)&RexxString::notEqual,
+   (PCPPM)&RexxString::notEqual, /* Duplicate entry neccessary        */
+   (PCPPM)&RexxString::andOp,
+   (PCPPM)&RexxString::orOp,
+   (PCPPM)&RexxString::xorOp,
+   (PCPPM)&RexxString::operatorNot,
+};
+
+
+ObjectClass.cpp
+/**
+ * This is the default table of methods that implement
+ * the operators.  The order of this table must match
+ * the order of the OPERATOR_* definitions in the TokenSubclass
+ * enum defined by the RexxToken class.
+ */
+PCPPM RexxObject::operatorMethods[] =
+{
+   NULL,
+   (PCPPM)&RexxObject::operator_plus,
+   (PCPPM)&RexxObject::operator_minus,
+   (PCPPM)&RexxObject::operator_multiply,
+   (PCPPM)&RexxObject::operator_divide,
+   (PCPPM)&RexxObject::operator_integerDivide,
+   (PCPPM)&RexxObject::operator_remainder,
+   (PCPPM)&RexxObject::operator_power,
+   (PCPPM)&RexxObject::operator_abuttal,
+   (PCPPM)&RexxObject::operator_concat,
+   (PCPPM)&RexxObject::operator_concatBlank,
+   (PCPPM)&RexxObject::operator_equal,                                          <-- sends the "=" message, see below
+   (PCPPM)&RexxObject::operator_notEqual,
+   (PCPPM)&RexxObject::operator_isGreaterThan,
+   (PCPPM)&RexxObject::operator_isBackslashGreaterThan,
+   (PCPPM)&RexxObject::operator_isLessThan,
+   (PCPPM)&RexxObject::operator_isBackslashLessThan,
+   (PCPPM)&RexxObject::operator_isGreaterOrEqual,
+   (PCPPM)&RexxObject::operator_isLessOrEqual,
+   (PCPPM)&RexxObject::operator_strictEqual,
+   (PCPPM)&RexxObject::operator_strictNotEqual,
+   (PCPPM)&RexxObject::operator_strictGreaterThan,
+   (PCPPM)&RexxObject::operator_strictBackslashGreaterThan,
+   (PCPPM)&RexxObject::operator_strictLessThan,
+   (PCPPM)&RexxObject::operator_strictBackslashLessThan,
+   (PCPPM)&RexxObject::operator_strictGreaterOrEqual,
+   (PCPPM)&RexxObject::operator_strictLessOrEqual,
+   (PCPPM)&RexxObject::operator_lessThanGreaterThan,
+   (PCPPM)&RexxObject::operator_greaterThanLessThan,
+   (PCPPM)&RexxObject::operator_and,
+   (PCPPM)&RexxObject::operator_or,
+   (PCPPM)&RexxObject::operator_xor,
+   (PCPPM)&RexxObject::operator_not,
+};
+
+
+prefixOperatorMethod(operator_plus                , PLUS)
+prefixOperatorMethod(operator_minus               , SUBTRACT)
+operatorMethod(operator_multiply                  , MULTIPLY)
+operatorMethod(operator_divide                    , DIVIDE)
+operatorMethod(operator_integerDivide             , INTDIV)
+operatorMethod(operator_remainder                 , REMAINDER)
+operatorMethod(operator_power                     , POWER)
+operatorMethod(operator_abuttal                   , NULLSTRING)
+operatorMethod(operator_concat                    , CONCATENATE)
+operatorMethod(operator_concatBlank               , BLANK)
+operatorMethod(operator_equal                     , EQUAL)                      <-- "EQUAL" global name.  GlobalNames::EQUAL is "=", see below
+operatorMethod(operator_notEqual                  , BACKSLASH_EQUAL)
+operatorMethod(operator_isGreaterThan             , GREATERTHAN)
+operatorMethod(operator_isBackslashGreaterThan    , BACKSLASH_GREATERTHAN)
+operatorMethod(operator_isLessThan                , LESSTHAN)
+operatorMethod(operator_isBackslashLessThan       , BACKSLASH_LESSTHAN)
+operatorMethod(operator_isGreaterOrEqual          , GREATERTHAN_EQUAL)
+operatorMethod(operator_isLessOrEqual             , LESSTHAN_EQUAL)
+operatorMethod(operator_strictEqual               , STRICT_EQUAL)
+operatorMethod(operator_strictNotEqual            , STRICT_BACKSLASH_EQUAL)
+operatorMethod(operator_strictGreaterThan         , STRICT_GREATERTHAN)
+operatorMethod(operator_strictBackslashGreaterThan, STRICT_BACKSLASH_GREATERTHAN)
+operatorMethod(operator_strictLessThan            , STRICT_LESSTHAN)
+operatorMethod(operator_strictBackslashLessThan   , STRICT_BACKSLASH_LESSTHAN)
+operatorMethod(operator_strictGreaterOrEqual      , STRICT_GREATERTHAN_EQUAL)
+operatorMethod(operator_strictLessOrEqual         , STRICT_LESSTHAN_EQUAL)
+operatorMethod(operator_lessThanGreaterThan       , LESSTHAN_GREATERTHAN)
+operatorMethod(operator_greaterThanLessThan       , GREATERTHAN_LESSTHAN)
+operatorMethod(operator_and                       , AND)
+operatorMethod(operator_or                        , OR)
+operatorMethod(operator_xor                       , XOR)
+prefixOperatorMethod(operator_not                 , BACKSLASH)
+
+
+GlobalNames.h
+GLOBAL_NAME(EQUAL, "=")
+
+
+================================================================================
+Code review
+================================================================================
+
+INTERNAL_CLASS
+isNonPrimitive()
+
+/**
+ * Do fix ups for non-primitive behaviours, ensuring they
+ * get all of the appropriate information from their parent
+ * primitive behaviour types.
+ */
+void RexxBehaviour::resolveNonPrimitiveBehaviour()
+{
+    if (isNotResolved())
+    {
+        setResolved();
+        operatorMethods = getOperatorMethods(getClassType());
+    }
+}
+
+
+PrimitiveClasses.xml
+--------------------
+
+operators - Some classes have special optimizations for the operator methods (String, Integer, etc.).
+If the class has its own operator table, specify operators with a value of true.
+
+
+PrimitiveBehaviours.cpp
+-----------------------
+
+associate an operator table to a RexxBehaviour
+
+
+    inline bool  isPrimitive()    {  return !behaviourFlags[NON_PRIMITIVE_BEHAVIOUR]; };
+    inline bool  isNonPrimitive() {  return behaviourFlags[NON_PRIMITIVE_BEHAVIOUR]; };
+    inline void  setNonPrimitive() {  behaviourFlags.set(NON_PRIMITIVE_BEHAVIOUR); };
+
+
+ClassClass.hpp
+--------------
+
+    inline bool         isRexxDefined() { return classFlags[REXX_DEFINED]; }
+    inline bool         isPrimitiveClass() { return classFlags[PRIMITIVE_CLASS]; }
+    inline void         setNonPrimitive() { classFlags.reset(PRIMITIVE_CLASS); }
+
+    typedef enum
+    {
+        REXX_DEFINED,                     // this class is a native rexx class
+        MIXIN,                            // this is a mixin class
+        HAS_UNINIT,                       // this class has an uninit method
+        META_CLASS,                       // this class is a meta class
+        PRIMITIVE_CLASS,                  // this is a primitive class
+        PARENT_HAS_UNINIT,                // the class parent has an uninit method
+        ABSTRACT,                         // the class is abstract
+    } ClassFlag;
+
+
+RexxMemory.cpp
+--------------
+
+RexxInternalObject *MemoryObject::newObject(size_t requestLength, size_t type)
+{
+...
+    // initialize the object to the required type.  This also fills in the
+    // object header so things work correctly on a garbage collection.
+    // NOTE that this is a method on the RexxObject class because it uses access to
+    // Object variables field.  Not terribly optimal to need to cast this way, but
+    // it is pragmatic...
+    ((RexxObject *)newObj)->initializeNewObject(markWord, virtualFunctionTable[type], RexxBehaviour::getPrimitiveBehaviour(type));
+
+
+ObjectClass.hpp
+---------------
+
+    // The following two methods probably should be on RexxInternalObject, but they
+    // need to reference the objectVariables field.  That field could be moved to
+    // RexxInternalObject, but it would increase the size of all internal objects
+    // by 4 bytes.  Since the minimum object size is large enough to always have
+    // that field, it's safe to clear this here.
+    inline void initializeNewObject(size_t size, size_t mark, void *vft, RexxBehaviour *b)
+    {
+        // we need to make this a function object of some type in case
+        // a GC cycle gets triggered before this is complete.  By default,
+        // we make this a generic object
+        setVirtualFunctions(vft);
+        setBehaviour(b);
+        // this has a clean set of flags, except for the live mark
+        header.initHeader(size, mark);
+        // make sure the object is cleared in case this gets marked out of any of
+        // the constructors.
+        clearObject();
+    }
+
+    inline void initializeNewObject(size_t mark, void *vft, RexxBehaviour *b)
+    {
+        // we need to make this a function object of some type in case
+        // a GC cycle gets triggered before this is complete.  By default,
+        // we make this a generic object
+        setVirtualFunctions(vft);
+        setBehaviour(b);
+        // this has a clean set of flags, except for the live mark
+        header.initHeader(mark);
+        // make sure the object is cleared in case this gets marked out of any of
+        // the constructors.
+        clearObject();
+    }
+
+
+ClassClass.cpp
+--------------
+
+void RexxClass::completeNewObject(RexxObject *obj, RexxObject **initArgs, size_t argCount)
+{
+    // this is a good common place to perform the abstract checks
+    checkAbstract();
+
+    // set the behaviour (this might be a subclass, so don't assume the
+    // one from the base class is correct).
+    obj->setBehaviour(getInstanceBehaviour());
+    // a subclass might define an uninit method, so we need to
+    // check that also.
+    if (hasUninitDefined())
+    {
+        obj->requiresUninit();
+    }
+
+    ProtectedObject result;
+    // now send an INIT message to complete initialization.
+    obj->sendMessage(GlobalNames::INIT, initArgs, argCount, result);
+}

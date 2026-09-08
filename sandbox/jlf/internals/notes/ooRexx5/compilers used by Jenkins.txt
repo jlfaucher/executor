@@ -1,0 +1,277 @@
+Compiler        Minimum    Year   C++17 option    Comment
+                version
+
+Clang (Linux)    5.0       2017   -std=c++17      C++17 language support completed in Clang 5.
+
+Apple Clang     10.0       2018   -std=c++17      Xcode 10 added important missing C++17 library headers.
+
+GCC              7.1       2017   -std=c++17      C++17 language support is complete in GCC 7.1;
+GCC             12.0       2022                   however, the C++17 library was not fully complete until GCC 12.0.
+
+MSVC (cl)       19.14      2018   /std:c++17      MSVC toolset shipped with Visual Studio 2017 15.7.
+
+
+
+Platform                Oldest practical                Year
+                        C++17 baseline
+Ubuntu LTS              18.04                           2018
+Debian                  10                              2019
+Fedora                  26                              2017
+RHEL                     8                              2019
+openSUSE Leap           15.0                            2018
+Windows / MSVC          VS 2017 15.7 / MSVC 19.14       2018
+macOS / Apple Clang     Xcode 10 / Apple Clang 10       2018
+
+
+
+
+Ubuntu LTS              18.04                           2018
+Debian                  10                              2019
+Fedora                  26                              2017
+RHEL                     8                              2019
+openSUSE Leap           15.0                            2018
+
+
+
+
+ooRexx-ArchLinux-build
+-- The C compiler identification is GNU 15.2.1
+-- The CXX compiler identification is GNU 15.2.1
+
+ooRexx-CentOS10-build
+-- The C compiler identification is GNU 14.3.1
+-- The CXX compiler identification is GNU 14.3.1
+
+ooRexx-Controller-Ubuntu-build
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+
+ooRexx-Debian12-build
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+
+ooRexx-Fedora43-build
+-- The C compiler identification is GNU 15.2.1
+-- The CXX compiler identification is GNU 15.2.1
+
+ooRexx-FreeBSD14-build
+-- The C compiler identification is Clang 19.1.7
+-- The CXX compiler identification is Clang 19.1.7
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-linux-aarch64-build
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+
+ooRexx-LinuxMint22-build
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+
+ooRexx-macOS10-X86_64-build
+-- The C compiler identification is AppleClang 10.0.0.10001145
+-- The CXX compiler identification is AppleClang 10.0.0.10001145
+
+ooRexx-macOS15-X86_64-build
+-- The C compiler identification is AppleClang 17.0.0.17000604
+-- The CXX compiler identification is AppleClang 17.0.0.17000604
+
+ooRexx-macOS26-M4-build
+-- The C compiler identification is AppleClang 17.0.0.17000319
+-- The CXX compiler identification is AppleClang 17.0.0.17000319
+
+ooRexx-Manjaro-build
+-- The C compiler identification is GNU 15.2.1
+-- The CXX compiler identification is GNU 15.2.1
+
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-NetBSD10-build
+-- The C compiler identification is GNU 10.5.0
+-- The CXX compiler identification is GNU 10.5.0
+
+ooRexx-OpenBSD7-build
+-- The C compiler identification is Clang 19.1.7
+-- The CXX compiler identification is Clang 19.1.7
+
+ooRexx-OpenIndiana-build
+-- The C compiler identification is GNU 14.3.0
+-- The CXX compiler identification is GNU 14.3.0
+
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-OpenSuse15-build
+-- The C compiler identification is GNU 7.5.0
+-- The CXX compiler identification is GNU 7.5.0
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-RaspberryPiOS32-build
+-- The C compiler identification is GNU 10.2.1
+-- The CXX compiler identification is GNU 10.2.1
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-RaspberryPiOS64-build
+-- The C compiler identification is GNU 10.2.1
+-- The CXX compiler identification is GNU 10.2.1
+
+ooRexx-Solaris11-build
+-- The C compiler identification is GNU 14.2.0
+-- The CXX compiler identification is GNU 14.2.0
+
+
+*** C++ 17 not supported
+oorexx-ubuntu16-build
+no info in log
+
+*** ok for C++17 language support , at risk for C++17 library
+ooRexx-Ubuntu22-build
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+
+ooRexx-Ubuntu24-build
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+
+ooRexx-windows10_32-build
+** Visual Studio 2022 Developer Command Prompt v17.0.5
+
+ooRexx-windows10_64-build
+** Visual Studio 2022 Developer Command Prompt v17.0.5
+
+ooRexx-windows11_32-build
+** Visual Studio 2022 Developer Command Prompt v17.14.36
+
+ooRexx-windows11_64-build
+** Visual Studio 2022 Developer Command Prompt v17.14.36
+
+ooRexx-windows32-build
+** Visual Studio 2022 Developer Command Prompt v17.14.25
+
+ooRexx-windows64-build
+** Visual Studio 2022 Developer Command Prompt v17.14.25
+
+ooRexx-windows7_32-build
+** Visual Studio 2019 Developer Command Prompt v16.11.19
+
+ooRexx-windows7_64-build
+** Visual Studio 2019 Developer Command Prompt v16.11.19
+
+ooRexx-windows8_32-build
+** Visual Studio 2019 Developer Command Prompt v16.11.51
+
+ooRexx-windows8_64-build
+** Visual Studio 2019 Developer Command Prompt v16.11.51
+
+================================================================================
+
+
+ooRexx-macOS10-X86_64-build	5 warnings
+ooRexx-macOS15-X86_64-build	10 warnings
+ooRexx-macOS26-M4-build		5 warnings
+ooRexx-FreeBSD14-build		10 warnings
+ooRexx-NetBSD10-build		2 warnings
+ooRexx-OpenBSD7-build		7 warnings
+ooRexx-OpenIndiana-build	2 warnings
+ooRexx-OpenSuse15-build		2 warnings
+ooRexx-RaspberryPiOS32-build	2 warnings
+ooRexx-RaspberryPiOS64-build	2 warnings
+ooRexx-Solaris11-build		2 warnungs
+oorexx-ubuntu16-build		2 warnings
+ooRexx-windows10_32-build	2 warnings
+ooRexx-windows10_64-build	1 warning
+ooRexx-windows11_32-build	2 warnings
+ooRexx-windows11_64-build	1 warning
+ooRexx-windows32-build		2 warnings
+ooRexx-windows64-build		1 warning
+ooRexx-windows7_32-build	2 warnings
+ooRexx-windows7_64-build	1 warning
+ooRexx-windows8_32-build	2 warnings
+ooRexx-windows8_64-build	1 warning
+
+
+New warning after concurrency rework:
+warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+ooRexx-ArchLinux-build		around 60 warnings, segmentation fault
+ooRexx-CentOS10-build		around 160 warnings
+ooRexx-Controller-Ubuntu-build	around 80 warnings
+ooRexx-Debian12-build		around 80 warnings
+ooRexx-Fedora43-build		around 60 warnings
+ooRexx-linux-aarch64-build	around 35 warnings
+ooRexx-LinuxMint22-build	around 80 warnings
+ooRexx-Manjaro-build		around 60 warnings, segmentation fault
+ooRexx-Ubuntu22-build		around 70 warnings
+ooRexx-Ubuntu24-build		around 80 warnings
+
+
+This warning was already addressed: search "writing 1 byte into a region", 24 comments
+// avoid warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+// (or similar) in gcc 12 and above, due to our RexxString char stringData[4]
+
+The macro HAVE_PRAGMA_GCC_STRINGOPOVERFLOW is not a standard GCC or C/C++ pre-defined macro.
+It is a custom identifier typically defined by CMake or specific build systems to detect compiler support for the -Wstringop-overflow warning pragma.
+
+CMakeLists.txt
+  message(STATUS "-- determine available pragmas --")
+  check_c_source_compiles("void main() {
+    #pragma GCC diagnostic ignored \"-Wstringop-overflow\"
+    }" HAVE_PRAGMA_GCC_STRINGOPOVERFLOW FAIL_REGEX "warning")
+
+Example of warning workaround in NumberStringClass.hpp:
+    #ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+    #endif
+               *current++ = c;
+    #ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+    #pragma GCC diagnostic pop
+    #endif
+
+
+Strange... The new warning occur on lines already "protected" against this warning
+
+    /home/osboxes/workspace/ooRexx-ArchLinux-build/oorexxSVN/interpreter/classes/StringClass.cpp:1816:15: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+     1816 |         *data = Utilities::toLower(*data);
+          |               ^
+    /home/osboxes/workspace/ooRexx-ArchLinux-build/oorexxSVN/interpreter/classes/StringClass.hpp:817:10: note: at offset 20 into destination object 'stringData' of size 4
+      817 |     char stringData[4];                      // Start of the string data part
+          |          ^
+
+
+    StringClass.cpp:
+    1810    // avoid warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]
+    1811    // (or similar) in gcc 12 and above, due to our RexxString char stringData[4]
+    1812    #ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+    1813    #pragma GCC diagnostic push
+    1814    #pragma GCC diagnostic ignored "-Wstringop-overflow"
+    1815    #endif
+    1816            *data = Utilities::toLower(*data);
+    1817    #ifdef HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+    1818    #pragma GCC diagnostic pop
+    1819    #endif
+
+The log of ooRexx-ArchLinux-build shows the detection is ok:
+-- -- determine available pragmas --
+-- Performing Test HAVE_PRAGMA_GCC_STRINGOPOVERFLOW
+-- Performing Test HAVE_PRAGMA_GCC_STRINGOPOVERFLOW - Success
+
+
+
+
+
+Regarding the two segmentation faults, they could be due to the GCC upgrade from 15.2.1 to 16.1.1.
+Maybe GCC 16 is to avoid for the moment (1st stable release April 30, 2026)
+
+ooRexx-ArchLinux-build
+Last Success 2 mo 22 days
+-- The C compiler identification is GNU 15.2.1
+-- The CXX compiler identification is GNU 15.2.1
+Last Failure 12 days (segmentation fault)
+-- The C compiler identification is GNU 16.1.1
+-- The CXX compiler identification is GNU 16.1.1
+
+ooRexx-Manjaro-build
+Last Success 2 mo 22 days
+-- The C compiler identification is GNU 15.2.1
+-- The CXX compiler identification is GNU 15.2.1
+Last Failure 12 days (segmentation fault)
+-- The C compiler identification is GNU 16.1.1
+-- The CXX compiler identification is GNU 16.1.1
