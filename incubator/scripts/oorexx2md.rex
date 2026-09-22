@@ -17,33 +17,33 @@ signal on notready
 
 do forever
     line = .input~linein
-    call titleize line
+    call addHeading line
     .output~lineout(line)
 end
 
 notready:
 say "```"
 
-::routine titleize
+::routine addHeading
     use strict arg line
 
-    title = ""
+    heading = ""
     if line~startsWith("::") then do
         parse var line "::" directive name .
 
-        titleLevel = .nil
-        if directive~caselessEquals("CLASS") then titleLevel = 3
-        else if directive~caselessEquals("METHOD") then titleLevel = 4
-        else if directive~caselessEquals("ATTRIBUTE") then titleLevel = 4
-        else if directive~caselessEquals("CONSTANT") then titleLevel = 4
-        else if directive~caselessEquals("ROUTINE") then titleLevel = 3
+        headingLevel = .nil
+        if directive~caselessEquals("CLASS") then headingLevel = 3
+        else if directive~caselessEquals("METHOD") then headingLevel = 4
+        else if directive~caselessEquals("ATTRIBUTE") then headingLevel = 4
+        else if directive~caselessEquals("CONSTANT") then headingLevel = 4
+        else if directive~caselessEquals("ROUTINE") then headingLevel = 3
 
-        if .nil \== titleLevel then title = "#"~copies(titleLevel) directive name
+        if .nil \== headingLevel then heading = "#"~copies(headingLevel) directive name
     end
 
-    if title \== "" then do
+    if heading \== "" then do
         .output~lineout("```")
-        .output~lineout(title)
+        .output~lineout(heading)
         .output~lineout("```rexx")
 
         if directive~caselessEquals("CLASS") then .local~classDirective = "::"directive name
