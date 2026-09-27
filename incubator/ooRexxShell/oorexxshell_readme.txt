@@ -511,23 +511,6 @@ Known problems under all platforms
   RexxTry is much more robust in this regard.
 
 - In mode raw command, the quotes and the escape characters are sometimes not well supported.
-  Example under macOS:
-  when readline is off (use input as-is)
-      sh> echo 'he says "hello"'
-          display           he
-          should display    he says "hello"
-          executed command: sh -i -c 'echo 'he says "hello"''
-      sh> echo "he says 'hello'"
-          display           he says hello
-          should display    he says 'hello'
-          executed command: sh -i -c 'echo "he says 'hello'"'
-  when readline is on (some input characters are escaped by readline)
-      sh> echo 'he says "hello"'
-          display           /bin/sh: -c: line 0: unexpected EOF while looking for matching `''
-          executed command: sh -i -c 'echo '\'he says "hello"'\''
-      sh> echo "he says 'hello'"
-          display           /bin/sh: -c: line 0: unexpected EOF while looking for matching `"'
-          executed command: sh -i -c 'echo "he says '\'hello'\'"'
 
 - When the first word of the command is an interpreter name, then it is assumed you want to
   temporarily select this interpreter. The first word is removed from the command passed to
@@ -549,6 +532,195 @@ Not sure it's very useful to run HostEmu from THE, but... you see the idea :-)
 
 History of changes
 ==================
+
+-----------------------------------------------
+2026 September 26
+
+Improve quote handling in mode raw command for:
+- bash
+- sh
+- zsh
+
+Improve quote handling in mode raw command (untested) for:
+- bsh
+- csh
+- ksh
+- tcsh
+
+Improve quote handling in mode raw command for cmd, but it remains cases not
+supported. The solution would be to generate a temporary file and call it.
+
+Improve quote handling in mode raw command for:
+- powershell
+- pwsh
+Now extremely robust, using a base64-encoded command line.
+Caveat: the command line MUST be UTF-8 encoded!
+
+
+Example under macOS:
+
+    -------------------
+    -- sh test cases ok
+    -------------------
+
+    sh> echo 'he says "hello"'                                                          # he says "hello"
+    sh> echo "he says 'hello'"                                                          # he says 'hello'
+    sh> echo 'he says "hello"' && echo "he says 'hello'"                                # he says "hello"
+                                                                                        # he says 'hello'
+    sh> (echo 'he says "hello"' && false) && echo "he says 'hello'"                     # he says "hello"
+    sh> (echo 'he says "hello"' && false) || echo "he says 'hello'"                     # he says "hello"
+                                                                                        # he says 'hello'
+    sh> osascript -e 'display notification "Test Message" with title "Test Title"'      # display the notification
+    sh> echo "C:\Program Files\Test"                                                    # C:\Program Files\Test
+    sh> echo 'it'\''s a test'                                                           # it's a test
+    sh> echo "he said \"hello\""                                                        # he said "hello"
+    sh> echo "backslash: \\"                                                            # backslash: \
+    sh> echo "single quote: '"                                                          # single quote: '
+    sh> echo 'double quote: "'                                                          # double quote: "
+    sh> echo "one 'two' \"three\""                                                      # one 'two' "three"
+    sh> echo 'one "two" '\''three'\'''                                                  # one "two" 'three'
+    sh> echo "a; b"                                                                     # a; b
+    sh> echo 'a; b'                                                                     # a; b
+    sh> echo "a && b"                                                                   # a && b
+    sh> echo 'a || b'                                                                   # a || b
+    sh> echo "a | b"                                                                    # a | b
+    sh> echo 'a > b'                                                                    # a > b
+    sh> printf '%s\n' 'hello world'                                                     # hello world
+    sh> printf "%s\n" "hello world"                                                     # hello world
+    sh> printf '%s\n' "hello 'world'"                                                   # hello 'world'
+    sh> printf "%s\n" 'hello "world"'                                                   # hello "world"
+    sh> echo "$(printf '%s' 'hello world')"                                             # hello world
+    sh> echo '$(printf "%s" "hello world")'                                             # $(printf "%s" "hello world")
+    sh> echo "$(echo 'hello "world"')"                                                  # hello "world"
+    sh> echo "before $(echo 'inside') after"                                            # before inside after
+    sh> echo 'before $(echo "inside") after'                                            # before $(echo "inside") after
+    sh> (echo "a 'b'"; echo 'c "d"')                                                    # a 'b'
+                                                                                        # c "d"
+    sh> (echo "a"; false) || echo 'fallback "message"'                                  # a
+                                                                                        # fallback "message"
+    sh> echo "a" && echo 'b' && echo "c 'd'"                                            # a
+                                                                                        # b
+                                                                                        # c 'd'
+    sh> echo "$(echo 'hello world')"                                                    # hello world
+    sh> echo '$(echo "hello world")'                                                    # $(echo "hello world")
+    sh> echo foo"bar"baz                                                                # foobarbaz
+    sh> echo foo'bar'baz                                                                # foobarbaz
+    sh> echo "foo"'bar'"baz"                                                            # foobarbaz
+    sh> echo 'foo'"bar"'baz'                                                            # foobarbaz
+    sh> printf '<%s>\n' ''                                                              # <>
+    sh> printf '<%s>\n' ""                                                              # <>
+    sh> printf '<%s>\n' "a" "" "b"                                                      # <a>
+                                                                                        # <>
+                                                                                        # <b>
+
+    -------------------------
+    -- sh test cases in error
+    -------------------------
+
+    # set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '\''/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-72140.ini'\'' ; } ; trap trap_exit EXIT ; echo '\''backslash: \\'\'''
+    sh> echo 'backslash: \\'                                                            # KO        backslash: \
+                                                                                        # should be backslash: \\
+
+    ---------------------
+    -- pwsh test cases ok
+    ---------------------
+
+    pwsh> echo 'he says "hello"'                                                        # he says "hello"
+    pwsh> echo "he says 'hello'"                                                        # he says 'hello'
+    pwsh> echo 'he says "hello"' && echo "he says 'hello'"                              # he says "hello"
+                                                                                        # he says 'hello'
+    pwsh> (echo 'he says "hello"' && false) && echo "he says 'hello'"                   # he says "hello"
+    pwsh> (echo 'he says "hello"' && false) || echo "he says 'hello'"                   # he says "hello"
+                                                                                        # he says 'hello'
+    pwsh> echo "he said 'hello'; and returned | at $HOME"		                        # he said 'hello'; and returned | at /Users/jlfaucher
+    pwsh> echo 'he said "hello"; and returned | at $HOME'		                        # he said "hello"; and returned | at $HOME
+    pwsh> echo "C:\Program Files\Test"                                                  # C:\Program Files\Test
+
+
+Examples under Windows:
+
+    --------------------
+    -- cmd test cases ok
+    --------------------
+
+    cmd> echo he says "hello"                                                           :: he says "hello"
+    cmd> echo he says 'hello'                                                           :: he says 'hello'
+    cmd> echo he says "hello" & echo he says 'hello'                                    :: he says "hello"
+                                                                                        :: he says 'hello'
+    cmd> echo he says "this guy said "I say stop!""                                     :: he says "this guy said "I say stop!""
+    cmd> echo he says 'this guy said "I say stop!"'                                     :: he says 'this guy said "I say stop!"'
+    cmd> echo he says 'this guy said 'I say stop!''                                     :: he says 'this guy said 'I say stop!''
+    cmd> echo hello & echo goodbye                                                      :: hello
+                                                                                        :: goodbye
+    cmd> echo hello && echo goodbye                                                     :: hello
+                                                                                        :: goodbye
+    cmd> echo hello || goodbye                                                          :: hello
+    cmd> echo hello | findstr hello                                                     :: hello
+    cmd> echo hello > nul                                                               ::
+    cmd> echo hello >> nul                                                              ::
+    cmd> echo hello ^& goodbye                                                          :: hello & goodbye
+    cmd> echo hello ^| goodbye                                                          :: hello | goodbye
+    cmd> echo hello ^^ goodbye                                                          :: hello ^ goodbye
+    cmd> echo 100%                                                                      :: 100%
+    cmd> echo %windir%                                                                  :: C:\WINDOWS
+    cmd> echo %NOT_DEFINED%                                                             :: %NOT_DEFINED%
+    cmd> echo "100%"                                                                    :: "100%"
+    cmd> echo "hello!world"                                                             :: "hello!world"
+    cmd> echo "100% of the time"                                                        :: "100% of the time"
+    cmd> echo "C:\Program Files\Test"                                                   :: "C:\Program Files\Test"
+
+    cmd> echo (hello)                                                                   :: (hello)
+    cmd> echo (hello & echo goodbye)                                                    :: (hello
+                                                                                        :: goodbye)
+    cmd> echo "hello (goodbye)"                                                         :: "hello (goodbye)"
+
+    --------------------------
+    -- cmd test cases in error
+    --------------------------
+
+    :: cmd /v /c "echo <hello> & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-1084.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo <hello>                                                                   :: KO        & was unexpected at this time.
+                                                                                        :: should be: The syntax of the command is incorrect
+
+    :: cmd /v /c "echo ^"hello & goodbye^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "hello & goodbye"                                                         :: KO        "hello
+                                                                                        ::           'goodbye"' is not recognized as an internal or external command, operable program or batch file.
+                                                                                        :: should be "hello & goodbye"
+
+    :: cmd /v /c "echo ^"hello | goodbye^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "hello | goodbye"                                                         :: KO        'goodbye"' is not recognized as an internal or external command, operable program or batch file.
+                                                                                        :: should be "hello | goodbye"
+
+    :: cmd /v /c "echo ^"hello > nul^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-1084.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "hello > nul"                                                             :: KO        (empty)
+                                                                                        :: should be "hello > nul"
+
+    :: cmd /v /c "echo ^"hello < nul^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "hello < nul"                                                             :: KO        "hello
+                                                                                        :: should be "hello < nul"
+
+    :: cmd /v /c "echo ^"hello ^ goodbye^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "hello ^ goodbye"                                                         :: KO        "hello  goodbye"
+                                                                                        :: should be "hello ^ goodbye"
+
+    :: cmd /v /c "echo ^"a & b^" & echo ^"c | d^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "a & b" & echo "c | d"                                                    :: KO        "a
+                                                                                        ::           'b"' is not recognized as an internal or external command, operable program or batch file.
+                                                                                        ::           'd"' is not recognized as an internal or external command, operable program or batch file.
+                                                                                        :: should be "a & b"
+                                                                                        ::           "c | d"
+
+    :: cmd /v /c "echo ^"a > b^" && echo ^"c < d^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "a > b" && echo "c < d"                                                   :: KO        The system cannot find the file specified
+                                                                                        :: should be "a > b"
+                                                                                        ::           "c < d"
+
+    :: cmd /v /c "echo ^"a (b & c)^" & echo ^"d^" & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL! & echo OOREXXSHELL_DIRECTORY=!CD! > ^"C:\Users\jlfaucher\AppData\Local\Temp\oorexxshell\oorexxshell-10068.ini^" & exit /b !OOREXXSHELL_ERRORLEVEL!"
+    cmd> echo "a (b & c)" & echo "d"                                                    :: KO        "a (b
+                                                                                        ::           'c)"' is not recognized as an internal or external command, operable program or batch file.
+                                                                                        ::           "d"
+                                                                                        :: should be "a (b & c)"
+                                                                                        ::           "d"
 
 -----------------------------------------------
 2026 August 09

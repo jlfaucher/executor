@@ -848,16 +848,8 @@ Helpers
                     -- Remove these quotes.
                     inputrx1 = unquoted(inputrx1, "'")
 
-                    -- Select the most appropriate line, depending on the target interpreter
-                    interpreter = .ooRexxShell~interpreter -- default
-                    maybeCommand = inputrx~left(1, ".") <> " "
-                    if maybeCommand & .ooRexxShell~interpreters~hasEntry(inputrx1~word(1)) then interpreter = .ooRexxShell~interpreters~entry(inputrx1~word(1)) -- temporary interpreter
-                    if interpreter~caselessEquals("bash") then inputrx = inputrx1
-                    else if interpreter~caselessEquals("sh") then inputrx = inputrx1
-                    else if interpreter~caselessEquals("zsh") then inputrx = inputrx1
-                    else inputrx = inputrx2
-                    -- if no transformation foreseen (because the security manager is not enabled)
-                    if \ .ooRexxShell~securityManager~isEnabledByUser then inputrx = inputrx2
+                    -- Use the unquoted input
+                    inputrx = inputrx2
                 end
                 else do
                     -- Since the line read from the queue does not start with "inputrx",
@@ -2943,8 +2935,8 @@ Helpers
         --return 'cmd /c "'command'"'
         return .array~of(address,,
                'cmd /v /c ' ||,
-               quoted(,
-                   paren(command) ||,
+               quoteForCmd(,
+                   /*paren*/(command) ||,
                    ' & set OOREXXSHELL_ERRORLEVEL=!ERRORLEVEL!' ||,
                    ' & echo OOREXXSHELL_DIRECTORY=!CD! > ' || quoted(temporarySettingsFile) ||,
                    '' ||, -- ' & doskey' ||, -- seems to help keeping the history when a command fails, don't ask me why
@@ -2968,7 +2960,20 @@ Helpers
         -- (no longer need -O expand_aliases, because run in mode interactive: -i)
         -- The trap command is used to save the current directory of the child process
         -- The 'set -m' command is used to get rid of the message "bash: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
-        return .array~of(address, "set -m; bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
+
+        -- return .array~of(address, "set -m; bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to bash -c
+        -- return .array~of(address, "set -m; sh   -i -c '         trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
+        return .array~of(address, -
+            "set -m;" -
+            "bash -i -c" -
+                quoteForPosixShell( -
+                    "function trap_exit {" -
+                        "echo OOREXXSHELL_DIRECTORY=$PWD > "quoteForPosixShell(temporarySettingsFile)" ;" -
+                    "} ;" -
+                    "trap trap_exit EXIT ;" -
+                    command -
+                ) - -- The command must be quoted because it is passed as an argument to bash -c
+            )
     end
     else if address~caselessEquals("sh") then do
         -- If directly managed by the systemCommandHandler then don't add bash in front of the command
@@ -2985,12 +2990,23 @@ Helpers
         -- This file is executed when sh is interactive (yes! the opposite of bash...).
         -- The trap command is used to save the current directory of the child process
         -- The 'set -m' command is used to get rid of the message "sh: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
-        return .array~of(address, "set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- the special characters have been already escaped by readline()
+
+        -- return .array~of(address, "set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
+        return .array~of(address, -
+            "set -m;" -
+            "sh -i -c" -
+                quoteForPosixShell( -
+                    "trap_exit () {" -
+                        "echo OOREXXSHELL_DIRECTORY=$PWD > "quoteForPosixShell(temporarySettingsFile)" ;" -
+                    "} ;" -
+                    "trap trap_exit EXIT ;" -
+                    command -
+                ) - -- The command must be quoted because it is passed as an argument to bash -c
+            )
     end
     else if address~caselessEquals("zsh") then do
         -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
-        -- sh needs that the command be surrounded by '"' to not interpret ';' inside the command.
-        return .array~of(.ooRexxShell~systemAddress, "zsh -c '"command"'")
+        return self~adjustAddressCommand(.ooRexxShell~systemAddress, "zsh -c" quoteForPosixShell(command), temporarySettingsFile)
     end
     else if address~caselessEquals("powershell") then do
         -- cmd doesn't support that the command be surrounded by '"'.
@@ -2999,8 +3015,24 @@ Helpers
     else if address~caselessEquals("pwsh") then do
         -- cmd doesn't support that the command be surrounded by '"'.
         -- sh needs that the command be surrounded by '"' to not interpret ';' inside the command.
-        if .platform~is("windows") then return .array~of(.ooRexxShell~systemAddress, "pwsh -command "command)
-        else return .array~of(.ooRexxShell~systemAddress, "pwsh -command '"command"'")
+        if .platform~is("windows") then return .array~of(.ooRexxShell~systemAddress, "pwsh -EncodedCommand" quoted(encodePowerShellCommand(command)))
+        else return .array~of(.ooRexxShell~systemAddress, "pwsh -EncodedCommand" quoted(encodePowerShellCommand(command)))
+    end
+    else if address~caselessEquals("bsh") then do
+        -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
+        return self~adjustAddressCommand(.ooRexxShell~systemAddress, "bsh -c" quoteForPosixShell(command), temporarySettingsFile)
+    end
+    else if address~caselessEquals("csh") then do
+        -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
+        return self~adjustAddressCommand(.ooRexxShell~systemAddress, "csh -c" quoteForPosixShell(command), temporarySettingsFile)
+    end
+    else if address~caselessEquals("ksh") then do
+        -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
+        return self~adjustAddressCommand(.ooRexxShell~systemAddress, "ksh -c" quoteForPosixShell(command), temporarySettingsFile)
+    end
+    else if address~caselessEquals("tcsh") then do
+        -- Not supported by executor (yet) nor by ooRexx4. Supported natively by ooRexx5 but this workaround will work as well.
+        return self~adjustAddressCommand(.ooRexxShell~systemAddress, "tcsh -c" quoteForPosixShell(command), temporarySettingsFile)
     end
     return .array~of(address, command)
 
@@ -3266,6 +3298,203 @@ https://en.wikipedia.org/wiki/ANSI_escape_code
     if char1 == '"' | char1 == "'" then parse var string (char1) word1 (char1) rest
     else parse var string word1 rest
     return .array~of(word1, rest~strip)
+
+
+-- The -EncodedCommand option of powershell and pwsh wants a Base64 representation
+-- of a UTF-16LE string.
+::routine utf8ToUtf16LE
+    use strict arg string
+
+    result = ""
+    i = 1
+    length = string~length
+
+    do while i <= length
+        b1 = string~substr(i, 1)~c2d
+        i = i + 1
+
+        select
+            /* ASCII */
+            when b1 <= 127 then
+                codepoint = b1
+
+            /* 2-byte sequence: C2..DF 80..BF */
+            when b1 >= 194 & b1 <= 223 then do
+                if i > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                if b2 < 128 | b2 > 191 then return .nil
+                i = i + 1
+
+                codepoint = (b1 - 192) * 64 + (b2 - 128)
+            end
+
+            /* 3-byte sequence */
+            when b1 = 224 then do
+                if i + 1 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+
+                /* E0 A0..BF 80..BF: reject overlong encodings */
+                if b2 < 160 | b2 > 191 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+
+                i = i + 2
+                codepoint = (b1 - 224) * 4096 + (b2 - 128) * 64 + (b3 - 128)
+            end
+
+            when b1 >= 225 & b1 <= 236 then do
+                if i + 1 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+
+                if b2 < 128 | b2 > 191 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+
+                i = i + 2
+                codepoint = (b1 - 224) * 4096 + (b2 - 128) * 64 + (b3 - 128)
+            end
+
+            /* ED 80..9F 80..BF: reject UTF-8 encodings of surrogates */
+            when b1 = 237 then do
+                if i + 1 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+
+                if b2 < 128 | b2 > 159 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+
+                i = i + 2
+                codepoint = (b1 - 224) * 4096 + (b2 - 128) * 64 + (b3 - 128)
+            end
+
+            when b1 >= 238 & b1 <= 239 then do
+                if i + 1 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+
+                if b2 < 128 | b2 > 191 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+
+                i = i + 2
+                codepoint = (b1 - 224) * 4096 + (b2 - 128) * 64 + (b3 - 128)
+            end
+
+            /* 4-byte sequence */
+            when b1 = 240 then do
+                if i + 2 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+                b4 = string~substr(i + 2, 1)~c2d
+
+                /* F0 90..BF 80..BF 80..BF */
+                if b2 < 144 | b2 > 191 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+                if b4 < 128 | b4 > 191 then return .nil
+
+                i = i + 3
+                codepoint = (b1 - 240) * 262144 + (b2 - 128) * 4096 + -
+                            (b3 - 128) * 64 + (b4 - 128)
+            end
+
+            when b1 >= 241 & b1 <= 243 then do
+                if i + 2 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+                b4 = string~substr(i + 2, 1)~c2d
+
+                if b2 < 128 | b2 > 191 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+                if b4 < 128 | b4 > 191 then return .nil
+
+                i = i + 3
+                codepoint = (b1 - 240) * 262144 + (b2 - 128) * 4096 + -
+                            (b3 - 128) * 64 + (b4 - 128)
+            end
+
+            when b1 = 244 then do
+                if i + 2 > length then return .nil
+
+                b2 = string~substr(i, 1)~c2d
+                b3 = string~substr(i + 1, 1)~c2d
+                b4 = string~substr(i + 2, 1)~c2d
+
+                /* F4 80..8F 80..BF 80..BF: <= U+10FFFF */
+                if b2 < 128 | b2 > 143 then return .nil
+                if b3 < 128 | b3 > 191 then return .nil
+                if b4 < 128 | b4 > 191 then return .nil
+
+                i = i + 3
+                codepoint = (b1 - 240) * 262144 + (b2 - 128) * 4096 + -
+                            (b3 - 128) * 64 + (b4 - 128)
+            end
+
+            otherwise
+                return .nil
+        end
+
+        /* Encode the codepoint as UTF-16LE. */
+        if codepoint <= 65535 then do
+            result = result || d2c(codepoint // 256, 1) || -
+                              d2c(codepoint % 256, 1)
+        end
+        else do
+            supplementary = codepoint - 65536
+            high = 55296 + (supplementary % 1024)
+            low  = 56320 + (supplementary // 1024)
+
+            result = result || d2c(high // 256, 1) || -
+                              d2c(high % 256, 1) || -
+                              d2c(low // 256, 1) || -
+                              d2c(low % 256, 1)
+        end
+    end
+
+    return result
+
+
+-- Precondition: command is a UTF-8 string
+::routine encodePowerShellCommand
+    use strict arg command
+    utf16le = utf8ToUtf16LE(command)
+    if .nil == utf16le then return "Invalid UTF-8" -- Yes, return a UTF-8 string. Powershell will reject it.
+    return utf16le~encodeBase64
+
+
+/*
+    From Posix shell
+
+    Character / construct   Outer '...'     Outer "..."
+    |                       literal         literal
+    \                       literal         sometimes special
+    "                       literal         must escape
+    '                       must escape     literal
+    $VAR                    literal         expanded
+    $(...)                  literal         executed
+    `...`                   literal         executed
+    ;, `                    , &, <, >`      literal
+    *, ?, [...]             literal         literal
+
+    Last two rows:
+    Both types of quotes suppress those shell operators. The important
+    difference is that double quotes leave some expansion mechanisms active.
+*/
+
+::routine quoteForPosixShell public
+    use strict arg string
+    quoted = "'" || string~changestr("'", "'\''") || "'"
+    return quoted
+
+
+::routine quoteForCmd public
+    use strict arg string
+    return '"' || string~changestr('"', '^"') || '"'
 
 
 ::routine quoted public
