@@ -1,3 +1,43 @@
+================================================================================
+P.O. summary of compilers for Windows VM
+================================================================================
+https://mail-archive.com/oorexx-devel@lists.sourceforge.net/msg15206.html
+
+Here is a summary of what we have right now for Windows
+
+Platform        Visual Studio   CMake           IPO Support
+W7_32           VS 2019         3.20.3          IPO
+W7_64           VS 2019         3.20.3          IPO
+W8_32           VS 2019         3.20.3          IPO
+W8_64           VS 2019         3.20.3          IPO
+W10_32          VS 2022         3.22.2          IPO
+W10_64          VS 2022         3.22.2          IPO
+W11_32          VS 2022         3.25.0-rc2      IPO
+W11_64          VS 2022         3.25.0-rc2      IPO
+
+
+Summary of tests failures and errors, ignoring timing problems (virtualbox
+issues)
+
+Platform        Failing Tests           Error tests
+W7_32           3X SysUnicode (UTF-8)   3X Clipboard (UTF-8)    Message:  UTF8
+is known to fail prior to Windows 10 2018
+W7_64           3X SysUnicode (UTF-8)   3X Clipboard (UTF-8)    Message:  UTF8
+is known to fail prior to Windows 10 2018
+W8_32           3X SysUnicode (UTF-8)   3X Clipboard (UTF-8)    Message:  UTF8
+is known to fail prior to Windows 10 2018
+W8_64           3X SysUnicode (UTF-8)   3X Clipboard (UTF-8)    Message:  UTF8
+is known to fail prior to Windows 10 2018
+W10_32          None                    None
+W10_64          None                    None
+W11_32          None                    None
+W11_64          None                    None
+
+
+================================================================================
+jlf review Aug 2026 - support C++ 17
+================================================================================
+
 Compiler        Minimum    Year   C++17 option    Comment
                 version
 

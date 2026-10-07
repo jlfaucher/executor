@@ -1,0 +1,66 @@
+SysVersion()=           -- 'Emscripten 6.0.9'
+parse source s; s=      -- 'EMSCRIPTEN SUBROUTINE /home/rexx/test'
+parse version v; v=     -- 'REXX-ooRexx_5.3.0(MT)_32-bit 6.06 5 Oct 2026'
+
+
+https://emscripten.org/docs/porting/guidelines/portability_guidelines.html
+
+
+https://peps.python.org/pep-0776/
+Emscripten is a POSIX-based platform. It uses the WebAssembly binary format, and the WebAssembly dynamic linking section.
+
+
+--------------------------------------------------------------------------------
+
+NODERAWFS
+MEMFS
+trace(
+
+--------------------------------------------------------------------------------
+Pfff... MUST remove the unversionned files created by previous patch
+otherwise
+        Skipped 'cmake/wasm-emscripten-6.0.9-cache.cmake' -- obstructed by unversioned node
+        Skipped 'rexxapi/common/platform/unix/SysLoopbackConnection.cpp' -- obstructed by unversioned node
+        Skipped 'rexxapi/common/platform/unix/SysLoopbackConnection.hpp' -- obstructed by unversioned node
+        Skipped 'wasm/README.md' -- obstructed by unversioned node
+        Skipped 'wasm/build-wasm.sh' -- obstructed by unversioned node
+        Skipped 'wasm/emscripten-dns-proxy.js' -- obstructed by unversioned node
+        Skipped 'wasm/node-ws-compat/index.js' -- obstructed by unversioned node
+        Skipped 'wasm/tests/browser-index.html' -- obstructed by unversioned node
+        Skipped 'wasm/tests/http_isolated.py' -- obstructed by unversioned node
+        Skipped 'wasm/tests/qualify-node.sh' -- obstructed by unversioned node
+        Skipped 'wasm/tests/ws_echo.py' -- obstructed by unversioned node
+        Skipped 'wasm/README.md' -- obstructed by unversioned node
+        Skipped 'wasm/build-node.sh' -- obstructed by unversioned node
+        Skipped 'wasm/build-wasm.sh' -- obstructed by unversioned node
+        Skipped 'wasm/node-pre.js' -- obstructed by unversioned node
+        Skipped 'wasm/rexxc-main.cpp' -- obstructed by unversioned node
+        Skipped 'wasm/tests/qualify-node-cli.sh' -- obstructed by unversioned node
+        Skipped 'rexxapi/common/platform/unix/SysNodeConnection.cpp' -- obstructed by unversioned node
+        Skipped 'rexxapi/common/platform/unix/SysNodeConnection.hpp' -- obstructed by unversioned node
+        Skipped 'wasm/README.md' -- obstructed by unversioned node
+        Skipped 'wasm/build-node.sh' -- obstructed by unversioned node
+        Skipped 'wasm/rxqueue-main.cpp' -- obstructed by unversioned node
+        Skipped 'wasm/rxsubcom-main.cpp' -- obstructed by unversioned node
+        Skipped 'wasm/tests/qualify-node-cli.sh' -- obstructed by unversioned node
+        Skipped 'wasm/README.md' -- obstructed by unversioned node
+        Skipped 'wasm/build-node.sh' -- obstructed by unversioned node
+        Skipped 'wasm/emscripten-dns-proxy.js' -- obstructed by unversioned node
+        Skipped 'wasm/node-sockets-pre.js' -- obstructed by unversioned node
+        Skipped 'wasm/tests/qualify-node-cli.sh' -- obstructed by unversioned node
+        Skipped 'wasm/README.md' -- obstructed by unversioned node
+        Skipped 'wasm/build-web.sh' -- obstructed by unversioned node
+        Skipped 'wasm/tests/web-api.html' -- obstructed by unversioned node
+        Skipped 'wasm/tests/web-api.py' -- obstructed by unversioned node
+        Skipped 'wasm/web-pre.js' -- obstructed by unversioned node
+        Skipped 'wasm/web-stdin.cpp' -- obstructed by unversioned node
+        Skipped 'wasm/web/ooRexx-worker.js' -- obstructed by unversioned node
+        Skipped 'wasm/web/ooRexx.js' -- obstructed by unversioned node
+
+
+rm -fr cmake
+rm -f rexxapi/common/platform/unix/SysLoopbackConnection.cpp
+rm -f rexxapi/common/platform/unix/SysLoopbackConnection.hpp
+rm -f rexxapi/common/platform/unix/SysNodeConnection.cpp
+rm -f rexxapi/common/platform/unix/SysNodeConnection.hpp
+rm -fr wasm
