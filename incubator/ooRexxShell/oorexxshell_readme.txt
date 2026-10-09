@@ -536,6 +536,34 @@ History of changes
 -----------------------------------------------
 2026 October 09
 
+Fix the raw commands addressed to `PowerShell`. They were executed using `pwsh`
+instead of `PowerShell`.
+
+    powershell> echo 'he says "hello"'                                                  # he says "hello"
+    powershell> echo "he says 'hello'"                                                  # he says 'hello'
+    # powershell.exe (5.1) doesn't have a --version flag, but $PSVersionTable is always available.
+    powershell> $PSVersionTable.PSVersion
+        Major  Minor  Build  Revision
+        -----  -----  -----  --------
+        5      1      26100  9457
+
+    # pwsh> echo 'he says "hello"' && echo "he says 'hello'"                            # he says "hello"
+    #                                                                                   # he says 'hello'
+    # The operators && and || are not supported by powershell 5.1
+    # Installing PowerShell 7 does not upgrade powershell.exe — it stays at 5.1 forever.
+    # Any tool, script, or scheduled task that calls powershell.exe -EncodedCommand ...
+    # will parse the command with the 5.1 engine, which rejects &&.
+                                                                                        # he says 'hello'
+    powershell> echo 'he says "hello"'; if ($?) {echo "he says 'hello'"}                # he says "hello"
+                                                                                        # he says 'hello'
+    powershell> echo "he said 'hello'; and returned | at $HOME"		                    # he said 'hello'; and returned | at C:\Users\jlfaucher
+    powershell> echo 'he said "hello"; and returned | at $HOME'		                    # he said "hello"; and returned | at $HOME
+    powershell> echo "C:\Program Files\Test"                                            # C:\Program Files\Test
+
+
+-----------------------------------------------
+2026 October 09
+
 Avoid duplication by moving code into the `directlyExecutable` method.
 
 An attempt was made to use `address "path"` for the raw commands, but it was

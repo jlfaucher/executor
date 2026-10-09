@@ -3013,7 +3013,7 @@ Helpers
     end
     else if address~caselessEquals("powershell") then do
         -- cmd doesn't support that the command be surrounded by '"'.
-        return .array~of(.ooRexxShell~systemAddress, "pwsh -command "command)
+        return .array~of(.ooRexxShell~systemAddress, "powershell -EncodedCommand" quoted(encodePowerShellCommand(command)))
     end
     else if address~caselessEquals("pwsh") then do
         -- cmd doesn't support that the command be surrounded by '"'.
