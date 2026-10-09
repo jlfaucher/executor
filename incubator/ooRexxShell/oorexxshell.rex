@@ -2907,6 +2907,32 @@ Helpers
     return 1
 
 
+::method directlyExecutable
+    use strict arg address, command
+
+    -- If directly managed by the systemCommandHandler then don't modify the command
+    if address~caselessEquals("cmd") then do
+        -- Windows
+        if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
+        if command~caselessPos("set ") == 1, command~substr(5)~strip~pos("=") > 1 then return .array~of(address, command) -- variable assignment: "set <nospace>="
+        --if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return .array~of(address, command) -- change drive
+        if isDriveLetter(command) then return .array~of(address, command) -- change drive
+        args = .ooRexxShell~stringChunks(command)
+        if .nil == args[1] then return .array~of(address, command)
+        if args[1]~caselessEquals(address) then return .array~of(address, command) -- already prefixed by "cmd"
+        if args[1]~caselessEquals("start") then return .array~of(address, command) -- already prefixed by "start"
+    end
+    else do
+        -- if command~caselessEquals("cd") == 1 then return .array~of(address, command) -- home directory
+        -- if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
+        if command~caselessPos("set ") == 1 then return .array~of(address, command) -- variable assignment
+        if command~caselessPos("unset ") == 1 then return .array~of(address, command) -- variable unassignment
+        if command~caselessPos("export ") == 1 then return .array~of(address, command) -- variable assignment
+        if command~word(1)~caselessEquals(address) then return .array~of(address, command) -- already prefixed by "bash" or "sh" or ...
+    end
+    return .nil
+
+
 ::method adjustAddressCommand
     if .ooRexxShell~debug then trace i ; else trace off
     use strict arg address, command, temporarySettingsFile
@@ -2915,24 +2941,18 @@ Helpers
         -- Could raise syntax errors because not adapted for concatenation.
     end
 
+    directlyExecutable = self~directlyExecutable(address, command)
+    if .nil \== directlyExecutable then return directlyExecutable
+
     if address~caselessEquals("cmd") then do
         -- [WIN32] Bypass a problem with doskey history:
         -- When a command is directly executable (i.e. passed without "cmd /c" to CreateProcess
         -- in SystemCommands.cpp) then the history is cleared...
         -- So add "cmd /c" in front of the command...
         -- But I don't want it for the commands directly managed by the systemCommandHandler.
-        if command~caselessPos("set ") == 1, command~substr(5)~strip~pos("=") > 1 then return .array~of(address, command) -- variable assignment: "set <nospace>="
-        if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
-        --if .RegularExpression~new("[:ALPHA:]:")~~match(command)~position == 2 & command~length == 2 then return .array~of(address, command) -- change drive
-        if isDriveLetter(command) then return .array~of(address, command) -- change drive
-        args = .ooRexxShell~stringChunks(command)
-        if .nil == args[1] then return .array~of(address, command)
-        if args[1]~caselessEquals("cmd") then return .array~of(address, command) -- already prefixed by "cmd ..."
-        if args[1]~caselessEquals("start") then return .array~of(address, command) -- already prefixed by "start ..."
         exepath = .platform~which(args[1])
         exefullpath = qualify(exepath)
         if .platform~subsystem(exefullpath) == 2 then return .array~of(address, 'start "" 'command) -- Don't wait when GUI application
-        --return 'cmd /c "'command'"'
         return .array~of(address,,
                'cmd /v /c ' ||,
                quoteForCmd(,
@@ -2944,13 +2964,6 @@ Helpers
                ))
     end
     else if address~caselessEquals("bash") then do
-        -- If directly managed by the systemCommandHandler then don't add bash in front of the command
-        -- if command~caselessEquals("cd") == 1 then return .array~of(address, command) -- home directory
-        -- if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
-        if command~caselessPos("set ") == 1 then return .array~of(address, command) -- variable assignment
-        if command~caselessPos("unset ") == 1 then return .array~of(address, command) -- variable unassignment
-        if command~caselessPos("export ") == 1 then return .array~of(address, command) -- variable assignment
-        if command~word(1)~caselessEquals("bash") then return .array~of(address, command) -- already prefixed by "bash ..."
         -- Expands the aliases, assuming you have defined them...
         -- One way to define them is to do:
         -- export BASH_ENV=~/.bash_env
@@ -2961,8 +2974,6 @@ Helpers
         -- The trap command is used to save the current directory of the child process
         -- The 'set -m' command is used to get rid of the message "bash: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
 
-        -- return .array~of(address, "set -m; bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to bash -c
-        -- return .array~of(address, "set -m; sh   -i -c '         trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
         return .array~of(address, -
             "set -m;" -
             "exec bash -i -c" -
@@ -2976,13 +2987,6 @@ Helpers
             )
     end
     else if address~caselessEquals("sh") then do
-        -- If directly managed by the systemCommandHandler then don't add bash in front of the command
-        -- if command~caselessEquals("cd") == 1 then return .array~of(address, command) -- home directory
-        -- if command~caselessPos("cd ") == 1 then return .array~of(address, command) -- change directory
-        if command~caselessPos("set ") == 1 then return .array~of(address, command) -- variable assignment
-        if command~caselessPos("unset ") == 1 then return .array~of(address, command) -- variable unassignment
-        if command~caselessPos("export ") == 1 then return .array~of(address, command) -- variable assignment
-        if command~word(1)~caselessEquals("sh") then return .array~of(address, command) -- already prefixed by "sh ..."
         -- Expands the aliases, assuming you have defined them...
         -- One way to define them is to do:
         -- export ENV=~/.bash_env
@@ -2991,7 +2995,6 @@ Helpers
         -- The trap command is used to save the current directory of the child process
         -- The 'set -m' command is used to get rid of the message "sh: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
 
-        -- return .array~of(address, "set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
         return .array~of(address, -
             "set -m;" -
             "exec sh -i -c" -

@@ -536,6 +536,16 @@ History of changes
 -----------------------------------------------
 2026 October 09
 
+Avoid duplication by moving code into the `directlyExecutable` method.
+
+An attempt was made to use `address "path"` for the raw commands, but it was
+quickly abandoned. That would have created two different implementations to
+maintain, since ooRexx 4.2 and Executor don't support the "path" environment.
+
+
+-----------------------------------------------
+2026 October 09
+
 Reduce the number of processes needed to execute a raw command on Linux and
 macOS, using exec.
 
