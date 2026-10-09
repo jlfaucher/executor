@@ -2965,7 +2965,7 @@ Helpers
         -- return .array~of(address, "set -m; sh   -i -c '         trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
         return .array~of(address, -
             "set -m;" -
-            "bash -i -c" -
+            "exec bash -i -c" -
                 quoteForPosixShell( -
                     "function trap_exit {" -
                         "echo OOREXXSHELL_DIRECTORY=$PWD > "quoteForPosixShell(temporarySettingsFile)" ;" -
@@ -2994,7 +2994,7 @@ Helpers
         -- return .array~of(address, "set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > "temporarySettingsFile" ; } ; trap trap_exit EXIT ; "command"'") -- The command must be quoted because it is passed as an argument to sh -c
         return .array~of(address, -
             "set -m;" -
-            "sh -i -c" -
+            "exec sh -i -c" -
                 quoteForPosixShell( -
                     "trap_exit () {" -
                         "echo OOREXXSHELL_DIRECTORY=$PWD > "quoteForPosixShell(temporarySettingsFile)" ;" -

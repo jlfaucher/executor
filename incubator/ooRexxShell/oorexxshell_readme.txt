@@ -534,6 +534,52 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 October 09
+
+Reduce the number of processes needed to execute a raw command on Linux and
+macOS, using exec.
+
+Before: 2 processes for bash and sh, 3 processes for zsh and other shells.
+
+    ooRexx[sh]> bash ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    22012 ttys004    0:00.01 /bin/bash -c set -m; bash -i -c 'function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > '\''/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini'\'' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi'
+    22013 ttys004    0:00.01 bash -i -c function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi
+    22015 ttys004    0:00.00 grep rxapi
+
+    ooRexx[sh]> sh ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    22081 ttys004    0:00.01 /bin/sh -c set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '\''/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini'\'' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi'
+    22082 ttys004    0:00.01 sh -i -c trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi
+    22084 ttys004    0:00.00 grep rxapi
+
+    ooRexx[sh]> zsh ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    22183 ttys004    0:00.01 /bin/sh -c set -m; sh -i -c 'trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '\''/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini'\'' ; } ; trap trap_exit EXIT ; zsh -c '\''ps -ax | grep rxapi'\'''
+    22184 ttys004    0:00.01 sh -i -c trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21995.ini' ; } ; trap trap_exit EXIT ; zsh -c 'ps -ax | grep rxapi'
+    22186 ttys004    0:00.00 zsh -c ps -ax | grep rxapi
+    22188 ttys004    0:00.00 grep rxapi
+
+Now: 1 process for bash and sh, 2 processes for zsh and other shells
+
+    ooRexx[sh]> bash ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    21709 ttys004    0:00.02 bash -i -c function trap_exit { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21691.ini' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi
+    21711 ttys004    0:00.00 grep rxapi
+
+    ooRexx[sh]> sh ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    21793 ttys004    0:00.02 sh -i -c trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21691.ini' ; } ; trap trap_exit EXIT ; ps -ax | grep rxapi
+    21795 ttys004    0:00.00 grep rxapi
+
+    ooRexx[sh]> zsh ps -ax | grep rxapi
+    21692 ??         0:00.01 rxapi
+    21885 ttys004    0:00.02 sh -i -c trap_exit () { echo OOREXXSHELL_DIRECTORY=$PWD > '/var/folders/f6/ls9l793n1bg444403jmfh1_m0000gp/T/oorexxshell/oorexxshell-21691.ini' ; } ; trap trap_exit EXIT ; zsh -c 'ps -ax | grep rxapi'
+    21886 ttys004    0:00.01 zsh -c ps -ax | grep rxapi
+    21888 ttys004    0:00.00 grep rxapi
+
+
+-----------------------------------------------
 2026 September 26
 
 Improve quote handling in mode raw command for:
