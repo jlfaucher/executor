@@ -1,3 +1,6 @@
+https://rexx.epbcn.com/oorexx-wasm/
+https://github.com/JosepMariaBlasco/oorexxwasm
+
 SysVersion()=           -- 'Emscripten 6.0.9'
 parse source s; s=      -- 'EMSCRIPTEN SUBROUTINE /home/rexx/test'
 parse version v; v=     -- 'REXX-ooRexx_5.3.0(MT)_32-bit 6.06 5 Oct 2026'
@@ -64,3 +67,14 @@ rm -f rexxapi/common/platform/unix/SysLoopbackConnection.hpp
 rm -f rexxapi/common/platform/unix/SysNodeConnection.cpp
 rm -f rexxapi/common/platform/unix/SysNodeConnection.hpp
 rm -fr wasm
+
+for p in /path/to/patches/*.patch; do svn patch "$p"; done
+
+--------------------------------------------------------------------------------
+
+Download from
+https://github.com/nvm-windows/nvm/releases
+
+E:\> nvm install LTS
+Now using Node.js v24.21.0 by default.
+Installed 1 version: 24.21.0
