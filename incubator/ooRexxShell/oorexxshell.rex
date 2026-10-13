@@ -2991,18 +2991,25 @@ Helpers
         -- One way to define them is to do:
         -- export ENV=~/.bash_env
         -- and declare the aliases in this file.
-        -- This file is executed when sh is interactive (yes! the opposite of bash...).
         -- The trap command is used to save the current directory of the child process
-        -- The 'set -m' command is used to get rid of the message "sh: no job control in this shell" when doing 'cat commands.txt | ooRexxShell', where a command is a system command
+        --
+        -- Notes from AI:
+        --   - The newline before command. Aliases are expanded when a line is parsed,
+        --     so an alias defined by . "$ENV" isn’t visible to commands on the same line.
+        --     Putting the command on its own line fixes that.
+        --   - Alias expansion in non-interactive sh. macOS /bin/sh is bash in POSIX mode,
+        --     which expands aliases even when non-interactive.
+        --     On other systems (dash, for example), sh -c won’t expand aliases,
+        --     so you’d need shopt -s expand_aliases in bash or to keep -i there.
 
         return .array~of(address, -
-            "set -m;" -
-            "exec sh -i -c" -
+            "exec sh -c" -
                 quoteForPosixShell( -
                     "trap_exit () {" -
                         "echo OOREXXSHELL_DIRECTORY=$PWD > "quoteForPosixShell(temporarySettingsFile)" ;" -
                     "} ;" -
                     "trap trap_exit EXIT ;" -
+                    '[ -n "$ENV" ] && . "$ENV"' || '0a'x -
                     command -
                 ) - -- The command must be quoted because it is passed as an argument to bash -c
             )

@@ -577,6 +577,15 @@ maintain, since ooRexx 4.2 and Executor don't support the "path" environment.
 Reduce the number of processes needed to execute a raw command on Linux and
 macOS, using exec.
 
+[later]
+Pfff... that dreaded "sh: no job control in this shell" message is back.
+Apparently, the `set -m` workaround is no longer enough.
+This affects regression tests that run system commands.
+Workaround: no longer use the interactive mode.
+For the moment, this workaround is applied to `sh` only.
+`bash` is still interactive.
+
+
 Before: 2 processes for bash and sh, 3 processes for zsh and other shells.
 
     ooRexx[sh]> bash ps -ax | grep rxapi
