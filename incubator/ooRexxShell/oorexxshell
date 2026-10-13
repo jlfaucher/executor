@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Path to this script
+script="${BASH_SOURCE[0]}"
+script_dir="$( cd -P "$(dirname "$script")" && pwd )"
+
 # macOS: The variable DYLD_LIBRARY_PATH is unset because of System Integrity Protection.
 [ $EXECUTOR_DYLD_LIBRARY_PATH ] && export DYLD_LIBRARY_PATH=$EXECUTOR_DYLD_LIBRARY_PATH
 
@@ -15,21 +19,37 @@ prepend_path DYLD_LIBRARY_PATH $PREPEND_LIBRARY_PATH    # macOS
 
 rxapi >/dev/null & # Workaround to avoid crash at first execution
 
+function is_interactive_shell() {
+	# https://www.gnu.org/software/bash/manual/html_node/Is-this-Shell-Interactive_003f.html
+	[[ "$-" =~ "i" ]]
+}
+
 # If the variable OOREXXSHELL_RLWRAP is defined
 # then ooRexxShell will use a basic parse pull because rlwrap will manage the readline
 # otherwise it will use the bash readline.
 # rlwrap completion is not working with names like gci-try. --break-chars fixes this problem.
 # The space character in filenames is not supported (not escaped "\ ").
 # A negative histsize means "don't modify the history file". ooRexxShell takes care of the history file.
-[ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --no-warnings --break-chars='' --complete-filenames --command-name=oorexxshell --histsize=-300"
+# --no-children lets avoid interferences with bash's readline, when using 'readline on' from ooRexxShell.
+# --always-readline=Password: keeps rlwrap in readline mode regardless of the command's terminal settings.
+#                  =Password: prevents echoing/saving passwords.
+
+#[ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --no-warnings --break-chars='' --complete-filenames --command-name=oorexxshell --histsize=-300 --no-children --always-readline=Password: --multi-line=';;' --multi-line-ext .rex --filter $script_dir/collapse_bidirectional_rlwrapfilter_api_v1.py"
+ [ -x "`which rlwrap`" ] && export OOREXXSHELL_RLWRAP="rlwrap --no-warnings --break-chars='' --complete-filenames --command-name=oorexxshell --histsize=-300 --no-children --always-readline=Password:"
 
 # Don't use rlwrap if ooRexxShell is not interactive.
 # I don't want the output be polluted by the cleaning of the bracketed paste mode.
 # ooRexxShell is interactive if stdin, stdout and stderr are associated with a terminal.
 [ -t 0 -a -t 1 -a -t 2 ] || export OOREXXSHELL_RLWRAP=
 
+#export OOREXXSHELL_RLWRAP="rlwrap --always-readline --no-children"
+#export OOREXXSHELL_RLWRAP=
+
 while true
 do
+    # bind is a builtin command
+    # It's not here that this bind command must be used, it's in the readline method.
+    # if is_interactive_shell; then bind 'set enable-bracketed-paste off'; fi
     $OOREXXSHELL_RLWRAP rexx oorexxshell.rex "$*"
     status=$?
     # echo "status=" $status
