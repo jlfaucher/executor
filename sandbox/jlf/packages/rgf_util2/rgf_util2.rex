@@ -1807,8 +1807,8 @@ syntax:              -- propagate condition
      if rgf_util_extended() then
      do
         availability = ""
-        if \s~available then availability = "(nothing available)"
-        if .nil <> title then say title availability
+        if \s~available then availability = " (nothing available)"
+        if .nil <> title then say title || availability -- NO space at the end if availability is empty!
      end
      else
      do
