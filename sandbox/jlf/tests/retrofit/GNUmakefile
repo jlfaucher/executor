@@ -14,13 +14,14 @@ mainFiles = main_array_literal
 
 help:
 	@echo "make all"
-	@for f in $(scriptsFiles); do (echo "make" $$f); done
-	@for f in $(mainFiles); do (echo "make" $$f); done
+	@for f in $(scriptsFiles); do echo "make" $$f; done
+	@for f in $(mainFiles); do echo "make" $$f; done
 	@echo "make clean"
 
 all:
-	@for f in $(scriptsFiles); do (make $$f); done
-	@for f in $(mainFiles); do (make $$f); done
+	@set -e; \
+	for f in $(scriptsFiles); do make $$f; done; \
+	for f in $(mainFiles); do make $$f; done
 
 $(scriptsFiles) :
 	bash -i -c 'rexx $@.rex > $@.output.txt 2>&1'
@@ -31,8 +32,8 @@ $(mainFiles) :
 	diff -q $@.output.reference.txt $@.output.txt
 
 clean:
-	@for f in $(scriptsFiles); do (rm -f $$f.output.txt); done
-	@for f in $(mainFiles); do (rm -f $$f.output.txt); done
+	@for f in $(scriptsFiles); do rm -f $$f.output.txt; done
+	@for f in $(mainFiles); do rm -f $$f.output.txt; done
 
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:

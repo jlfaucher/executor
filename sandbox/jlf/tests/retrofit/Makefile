@@ -31,8 +31,8 @@ help:
 	@echo make clean
 
 all:
-	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f
+	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f || exit /b
 
 $(scriptsFiles) :
 	rexx $@.rex > $@.output.txt 2>&1

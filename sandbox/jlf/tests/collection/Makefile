@@ -25,14 +25,14 @@ DIFF = diff --ignore-space-change
 # DIFF = fc /W
 
 help:
-	@echo make all
+	@echo nmake all
 	@-for %%f in ($(mainFiles)) do @echo nmake %%f
 	@-for %%f in ($(demoFiles)) do @echo nmake %%f
-	@echo make clean
+	@echo nmake clean
 
 all:
-	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f
+	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
 
 $(mainFiles) :
 	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1

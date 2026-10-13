@@ -14,13 +14,14 @@ demoFiles = executor-demo-array
 
 help:
 	@echo "make all"
-	@for f in $(mainFiles); do (echo "make" $$f); done
-	@for f in $(demoFiles); do (echo "make" $$f); done
+	@for f in $(mainFiles); do echo "make" $$f; done
+	@for f in $(demoFiles); do echo "make" $$f; done
 	@echo "make clean"
 
 all:
-	@for f in $(mainFiles); do (make $$f); done
-	@for f in $(demoFiles); do (make $$f); done
+	@set -e; \
+	for f in $(mainFiles); do make $$f; done; \
+	for f in $(demoFiles); do make $$f; done
 
 $(mainFiles) :
 	bash -i -c '( cat $@.rex ; echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1'
@@ -32,8 +33,8 @@ $(demoFiles) :
 	diff -q $@.output.reference.txt $@.output.txt
 
 clean:
-	@for f in $(mainFiles); do (rm -f $$f.output.txt); done
-	@for f in $(demoFiles); do (rm -f $$f.output.txt); done
+	@for f in $(mainFiles); do rm -f $$f.output.txt; done
+	@for f in $(demoFiles); do rm -f $$f.output.txt; done
 
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:

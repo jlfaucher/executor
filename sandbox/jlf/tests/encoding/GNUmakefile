@@ -46,10 +46,11 @@ help:
 	@echo "make clean"
 
 all:
-	@for f in $(testFiles); do make $$f; done
-	@for f in $(demoFiles); do make $$f; done
-	@for f in $(scriptsFiles); do make $$f; done
-	@for f in $(uscriptsFiles); do make $$f; done
+	@set -e; \
+	for f in $(testFiles); do make $$f; done; \
+	for f in $(demoFiles); do make $$f; done; \
+	for f in $(scriptsFiles); do make $$f; done; \
+	for f in $(uscriptsFiles); do make $$f; done
 	@echo
 	@echo "To be launched separately: make html"
 

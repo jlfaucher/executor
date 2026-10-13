@@ -19,25 +19,26 @@ help:
 	@echo
 	@echo "If using ooRexx >= 5.0, pass OOREXX_VERSION=5 to compare the output"
 	@echo "with reference files specific to this version."
-	@echo "nmake target OOREXX_VERSION=5"
+	@echo "make target OOREXX_VERSION=5"
 	@echo "Current value of OOREXX_VERSION is '$(OOREXX_VERSION)'"
 	@echo
 	@echo "make all [OOREXX_VERSION=5]"
-	@for f in $(testFiles); do (echo "make $$f [OOREXX_VERSION=5]"); done
+	@for f in $(testFiles); do echo "make $$f [OOREXX_VERSION=5]"; done
 	@echo "make clean"
 
 all:
-	@for f in $(testFiles); do (make $$f); done
+	@set -e; \
+	for f in $(testFiles); do make $$f; done
 
 $(testFiles) :
 	bash -i -c '( cat $@.rex ; echo RC = 0 ) | oorexxshell test regression > $@.output$(OOREXX_VERSION).slash.txt 2>&1'
 	diff -q $@.output$(OOREXX_VERSION).slash.reference.txt $@.output$(OOREXX_VERSION).slash.txt
 
 clean:
-	@for f in $(testFiles); do (rm -f $$f.output.backslash.txt); done
-	@for f in $(testFiles); do (rm -f $$f.output.slash.txt); done
-	@for f in $(testFiles); do (rm -f $$f.output5.backslash.txt); done
-	@for f in $(testFiles); do (rm -f $$f.output5.slash.txt); done
+	@for f in $(testFiles); do rm -f $$f.output.backslash.txt; done
+	@for f in $(testFiles); do rm -f $$f.output.slash.txt; done
+	@for f in $(testFiles); do rm -f $$f.output5.backslash.txt; done
+	@for f in $(testFiles); do rm -f $$f.output5.slash.txt; done
 
 
 # bash -i -c 'command" is a trick to bypass the SIP hell:

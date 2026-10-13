@@ -38,8 +38,8 @@ help:
 	@echo nmake clean
 
 all:
-	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f
+	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
 
 $(scriptsFiles) :
 	rexx $@.rex > $@.output.txt 2>&1

@@ -39,7 +39,7 @@ help:
 	@echo nmake clean
 
 all:
-	@-for %%f in ($(testFiles)) do @$(NMAKE) %%f
+	@-for %%f in ($(testFiles)) do @$(NMAKE) %%f || exit /b
 
 $(testFiles) :
 	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.output$(OOREXX_VERSION).backslash.txt 2>&1

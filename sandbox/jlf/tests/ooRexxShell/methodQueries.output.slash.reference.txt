@@ -10,16 +10,16 @@
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
 [Info] 10 lines displayed
 
 
@@ -29,75 +29,75 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
     MN(MAKESTRING)
 [Info] 10 lines displayed
 
@@ -108,25 +108,15 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
  > 0002 /*****************************************
  > 0003 * Pass 1: count the occurences of values *
@@ -160,10 +150,20 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -173,36 +173,14 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
@@ -212,28 +190,28 @@ P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
@@ -273,7 +251,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
@@ -281,7 +259,7 @@ P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
@@ -289,6 +267,28 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -302,16 +302,16 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
-P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
-P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
 [Info] 10 lines displayed
 
 
@@ -321,75 +321,75 @@ P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
     MN(MAKESTRING)
 [Info] 10 lines displayed
 
@@ -400,25 +400,15 @@ P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
  > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
  > 0002 /*****************************************
  > 0003 * Pass 1: count the occurences of values *
@@ -452,10 +442,20 @@ P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -465,36 +465,14 @@ P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose -3 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
@@ -504,28 +482,28 @@ P. P.G.    'MAKESTRING' : 'COMPLEX' (.../jlf/packages/extension/complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
@@ -565,7 +543,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (.../jlf/packages/pipeline/pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
@@ -573,7 +551,7 @@ P. P.G.    'MAKESTRING' : 'indeterminate' (.../jlf/packages/extension/indetermin
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
@@ -581,6 +559,28 @@ P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (.../release/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (.../jlf/packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -594,16 +594,16 @@ P. P.G.    'MAKESTRING' : 'infinity' (.../jlf/packages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods 0 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
 [Info] 10 lines displayed
 
 
@@ -613,75 +613,75 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose 0 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
     MN(MAKESTRING)
 [Info] 10 lines displayed
 
@@ -692,25 +692,15 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source 0 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
  > 0002 /*****************************************
  > 0003 * Pass 1: count the occurences of values *
@@ -744,10 +734,20 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -757,36 +757,14 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose 0 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
@@ -796,28 +774,28 @@ P. P.G.    'MAKESTRING' : 'COMPLEX' (complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
@@ -857,7 +835,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
@@ -865,7 +843,7 @@ P. P.G.    'MAKESTRING' : 'indeterminate' (indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
@@ -873,6 +851,28 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -886,16 +886,16 @@ P. P.G.    'MAKESTRING' : 'infinity' (infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
-P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
-P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
 [Info] 10 lines displayed
 
 
@@ -905,75 +905,75 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.verbose 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(complex.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(pipeline)/MPF(pipe.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
     MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
+    MN(MAKESTRING)
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
     MN(MAKESTRING)
 [Info] 10 lines displayed
 
@@ -984,25 +984,15 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
  > 0001 use strict arg mask="1 2 3 4 5", showPool=.false, pool=(.dataflowPool~new)
  > 0002 /*****************************************
  > 0003 * Pass 1: count the occurences of values *
@@ -1036,10 +1026,20 @@ P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 
 
@@ -1049,36 +1049,14 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
 
 -- -----------------------------------------------------------------------------
 ooRexx> ?methods.source.verbose 30 makeString
-.. P.G.    'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
-    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
-    CN(JsonBoolean)
-    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
-    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
-    MN(MAKESTRING)
- > 0001 expose value
- > 0002   return value
-.M P.G.    'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
-    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
-    CN(RexxTextInitializer)
-    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
-    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
-    MN(MAKESTRING)
- > 0001 expose indexer
- > 0002     use strict arg -- none
- > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
- > 0004 
- > 0005     if self~isCompatibleWithByteString then return indexer~string
- > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
+P. P.G..   'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/complex.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(complex.cls)
     CN(COMPLEX)
@@ -1088,28 +1066,28 @@ P. P.G.    'MAKESTRING' : 'COMPLEX' (...kages/extension/complex.cls)
  > 0001 expose real imaginary                       /* get the state info             */
  > 0002     if imaginary < 0 then return real||imaginary'i'
  > 0003     return real'+'imaginary'i'                  /* format as real+imaginaryi      */
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(pipeline)/CPF(pipe.cls)
     CN(dataflow)
@@ -1149,7 +1127,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (.../packages/pipeline/pipe.cls)
  > 0031     separator = ","
  > 0032 end
  > 0033 return string
-P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
+P. P.G..   'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/indeterminate.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(indeterminate.cls)
     CN(indeterminate)
@@ -1157,7 +1135,7 @@ P. P.G.    'MAKESTRING' : 'indeterminate' (...extension/indeterminate.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(indeterminate.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
-P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
+P. P.G..   'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
     CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/infinity.cls)
     /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(infinity.cls)
     CN(infinity)
@@ -1165,5 +1143,27 @@ P. P.G.    'MAKESTRING' : 'infinity' (...ages/extension/infinity.cls)
     /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(infinity.cls)
     MN(MAKESTRING)
  > 0001 return self~objectName
+.. P.G..   'MAKESTRING' : 'JsonBoolean' (...lease/delivery/bin/json.cls)
+    CPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /CPD(Users)/CPD(Shared)/CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(build)/CPD(executor.master)/CPD(sandbox)/CPD(jlf)/CPD(trunk)/CPD(macos-arm64)/CPD(clang)/CPD(release)/CPD(delivery)/CPD(bin)/CPF(json.cls)
+    CN(JsonBoolean)
+    MPN(/Users/Shared/local/rexx/oorexx/build/executor.master/sandbox/jlf/trunk/macos-arm64/clang/release/delivery/bin/json.cls)
+    /MPD(Users)/MPD(Shared)/MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(build)/MPD(executor.master)/MPD(sandbox)/MPD(jlf)/MPD(trunk)/MPD(macos-arm64)/MPD(clang)/MPD(release)/MPD(delivery)/MPD(bin)/MPF(json.cls)
+    MN(MAKESTRING)
+ > 0001 expose value
+ > 0002   return value
+.M P.G..   'MAKESTRING' : 'RexxTextInitializer' (...packages/extension/text.cls)
+    CPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /CPD(local)/CPD(rexx)/CPD(oorexx)/CPD(executor)/CPD(sandbox)/CPD(jlf)/CPD(packages)/CPD(extension)/CPF(text.cls)
+    CN(RexxTextInitializer)
+    MPN(/local/rexx/oorexx/executor/sandbox/jlf/packages/extension/text.cls)
+    /MPD(local)/MPD(rexx)/MPD(oorexx)/MPD(executor)/MPD(sandbox)/MPD(jlf)/MPD(packages)/MPD(extension)/MPF(text.cls)
+    MN(MAKESTRING)
+ > 0001 expose indexer
+ > 0002     use strict arg -- none
+ > 0003     if .Unicode~unckeckedConversionToString then return indexer~string -- for experimentation, don't check if compatible
+ > 0004 
+ > 0005     if self~isCompatibleWithByteString then return indexer~string
+ > 0006     raise syntax 23.900 array(self~descriptionForError "cannot be converted to a String instance")
 [Info] 56 lines displayed
 ooRexx> RC = 0

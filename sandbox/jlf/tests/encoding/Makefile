@@ -50,10 +50,10 @@ help:
 	@echo nmake clean
 
 all:
-	@-for %%f in ($(testFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f
-	@-for %%f in ($(uscriptsFiles)) do @$(NMAKE) %%f
+	@-for %%f in ($(testFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@-for %%f in ($(uscriptsFiles)) do @$(NMAKE) %%f || exit /b
 
 $(testFiles) :
 	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1
