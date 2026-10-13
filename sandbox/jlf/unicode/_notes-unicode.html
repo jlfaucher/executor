@@ -68,6 +68,7 @@ Contents:
     <a href="#ICU_tools">ICU tools</a>
     <a href="#ICU_bindings">ICU bindings</a>
     <a href="#ICU4X_title">ICU4X title</a>
+    <a href="#editor_title__to_move_elsewhere_">editor title (to move elsewhere)</a>
     <a href="#utf8proc_title">utf8proc title</a>
     <a href="#Twitter_text_parsing">Twitter text parsing</a>
     <a href="#terminal_title___console_title___cmd_title">terminal title / console title / cmd title</a>
@@ -90,6 +91,7 @@ Contents:
     <a href="#Awk_lang">Awk lang</a>
     <a href="#C_lang">C lang</a>
     <a href="#C___lang__cpp_lang__Boost">C++ lang, cpp lang, Boost</a>
+    <a href="#C__lang__csharp_lang">C# lang, csharp lang</a>
     <a href="#cobol_lang">cobol lang</a>
     <a href="#cRexx_lang">cRexx lang</a>
     <a href="#DotNet__CoreFx">DotNet, CoreFx</a>
@@ -145,6 +147,10 @@ To avoid doubling URLs, I use the 2nd form.
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/latest/">https://www.unicode.org/versions/latest/</a>                        (latest version)
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/enumeratedversions.html">https://www.unicode.org/versions/enumeratedversions.html</a>        (current and previous versions)
 
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/Unicode16.0.0/core-spec/">https://www.unicode.org/versions/Unicode16.0.0/core-spec/</a>       (specification)
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/Unicode17.0.0/core-spec/">https://www.unicode.org/versions/Unicode17.0.0/core-spec/</a>       (specification)
+<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/Unicode18.0.0/core-spec/">https://www.unicode.org/versions/Unicode18.0.0/core-spec/</a>       (specification)
+
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/Public/">https://www.unicode.org/Public/</a>                                 (datas for current and previous versions)
 
 
@@ -162,6 +168,7 @@ UCD = Unicode Character Database
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/">https://www.unicode.org/reports/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/unicode-reports/">https://unicode-org.github.io/unicode-reports/</a>
 Unicode® Technical Reports
     A Unicode Standard Annex (UAX) forms an integral part of the Unicode Standard,
     but is published as a separate document. The Unicode Standard may require
@@ -207,7 +214,7 @@ Unicode Standard Annex (UAX)
     UAX #38, Unicode Han Database (Unihan)
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr38/">https://www.unicode.org/reports/tr38/</a>
 
-    UAX #41, Common References for Unicode Standard Annexes
+    UAX #41, Common References for Unicode Standard Annexes         &lt;-- Very useful
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr41/">https://www.unicode.org/reports/tr41/</a>
 
     UAX #42, Unicode Character Database in XML
@@ -223,13 +230,22 @@ Unicode Standard Annex (UAX)
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr50/">https://www.unicode.org/reports/tr50/</a>
 
 
-Unicode Technical Standard  (UTS)
+Unicode Technical Report (UTR)
+
+    UTR #16, UTF-EBCDIC
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr16/tr16-8.html">https://www.unicode.org/reports/tr16/tr16-8.html</a>
+
+
+Unicode Technical Standard (UTS)
 
     UTS #22, UNICODE CHARACTER MAPPING MARKUP LANGUAGE (CharMapML)
     <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr22/">https://www.unicode.org/reports/tr22/</a>
     This document specifies an XML format for the interchange of mapping data
     for character encodings, and describes some of the issues connected with the
     use of character conversion.
+
+    UTS #51, Unicode Emoji
+    <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr51/">https://www.unicode.org/reports/tr51/</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/glossary">https://www.unicode.org/glossary</a>
@@ -290,10 +306,6 @@ In the UnicodeStandard PDF:
   Conformance 156 3.13 Default Case Algorithms
 For more information on the use of NFKC_Casefold and caseless matching for identifiers,
 see Unicode Standard Annex #31, “Unicode Identifier and Pattern Syntax
-
-
-<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr51/">https://www.unicode.org/reports/tr51/</a>
-Unicode  emoji
 
 
 23/05/2021
@@ -372,6 +384,7 @@ Some hieroglyphs have plural...
 <hr><h2 id="Unicode_general_informations">Unicode general informations</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codepoints.net/">https://codepoints.net/</a>
 Very detailled decription of each character
+To search by U+, append it to the URL: <a target="_blank" rel="noopener noreferrer" href="https://codepoints.net/U+0005">https://codepoints.net/U+0005</a>
 Source of the WEB site:
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/Codepoints/codepoints.net">https://github.com/Codepoints/codepoints.net</a>
 
@@ -660,6 +673,24 @@ This is from chapter 16 of the Unicode standard:
 This doesn't explicitly mention double question marks, but the double question mark also sits under the header for "double punctuation for vertical text" in the code charts.
 ---
 Chess annotation.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://bjoern.hoehrmann.de/utf-8/decoder/dfa/">https://bjoern.hoehrmann.de/utf-8/decoder/dfa/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://lists.w3.org/Archives/Public/www-archive/2009Apr/0001.html">https://lists.w3.org/Archives/Public/www-archive/2009Apr/0001.html</a>
+Björn Höhrmann’s DFA Decoder: This approach maps each byte to a character class
+and uses a mask to strip leading bits, combining them into a Unicode code point
+via a state machine. It is designed to be robust against all forms of illegal
+UTF-8 while remaining small and fast.
+<a target="_blank" rel="noopener noreferrer" href="https://lists.w3.org/Archives/Public/www-archive/2009Apr/att-0001/u8decdfa.c">https://lists.w3.org/Archives/Public/www-archive/2009Apr/att-0001/u8decdfa.c</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/polijan/utf8_decode/blob/main/utf8_decode.h">https://github.com/polijan/utf8_decode/blob/main/utf8_decode.h</a>
+Idea, explanation in index.html and real code in utf8_decode.h is by: Bjoern Hoehrmann
+I merely packaged his code as a single-file library and created a GitHub repo to facilitate re-use in my C projects.
+License is MIT.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://unicodebook.readthedocs.io/index.html">https://unicodebook.readthedocs.io/index.html</a>
+Did not read
 
 
 <hr><h2 id="U__notation__Unicode_escape_sequence">U+ notation, Unicode escape sequence</h2><hr>
@@ -1177,6 +1208,13 @@ jlf: many broken links
 <hr><h2 id="Transliteration_title">Transliteration title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/icu/userguide/transforms/general/">https://unicode-org.github.io/icu/userguide/transforms/general/</a>
 ICU documentation
+General transforms provide a general-purpose package for processing Unicode text.
+They are a powerful and flexible mechanism for handling a variety of different tasks,
+including:
+    Uppercase, Lowercase, Titlecase, Full/Halfwidth conversions
+    Normalization
+    Hex and Character Name conversions
+    Script to Script conversion
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://bartvanraaij.dev/2020-10-17-converting-utf8-strings-to-ascii-using-icu-transliterator/">https://bartvanraaij.dev/2020-10-17-converting-utf8-strings-to-ascii-using-icu-transliterator/</a>
@@ -1201,6 +1239,13 @@ Case study: Google Maps
 Spanish-to-Russian
 Spanish-to-Japanese
 Spanish-to-Mandarin
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://realpandablog.wordpress.com/2018/02/06/when-transliteration-romanization-is-painfully-complicated/">https://realpandablog.wordpress.com/2018/02/06/when-transliteration-romanization-is-painfully-complicated/</a>
+When Transliteration/ Romanization is Painfully Complicated
+---
+jlf: additional articles related to transliteration
+<a target="_blank" rel="noopener noreferrer" href="https://realpandablog.wordpress.com/?s=transliteration">https://realpandablog.wordpress.com/?s=transliteration</a>
 
 
 <hr><h2 id="String_matching___Lower_vs_Casefold__String_matching_title__1">String matching - Lower vs Casefold, String matching title #1</h2><hr>
@@ -2135,6 +2180,10 @@ Google Chrome and Opera have the same limitations: some characters are not suppo
 Mahjong tiles and Unicode variation selectors
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://benjaminwil.info/weblog/variation-selector-15/">https://benjaminwil.info/weblog/variation-selector-15/</a>
+Unicode Variation Selector-15 and some of my tears
+
+
 <hr><h2 id="Whitespaces__separators">Whitespaces, separators</h2><hr>
 22/05/2021
 <a target="_blank" rel="noopener noreferrer" href="https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/">https://eev.ee/blog/2015/09/12/dark-corners-of-unicode/</a>
@@ -2185,9 +2234,9 @@ Here's a good starting point to read up on this: <a target="_blank" rel="noopene
 Internationalized domain name
     ToASCII leaves ASCII labels unchanged. It fails if the label is unsuitable for
     the Domain Name System. For labels containing at least one non-ASCII character,
-    ToASCII applies the Nameprep algorithm (<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Nameprep)">https://en.wikipedia.org/wiki/Nameprep)</a>
+    ToASCII applies the Nameprep algorithm ( <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Nameprep">https://en.wikipedia.org/wiki/Nameprep</a> )
     This converts the label to lowercase and performs other normalization. ToASCII
-    then translates the result to ASCII, using Punycode (<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Punycode)">https://en.wikipedia.org/wiki/Punycode)</a>
+    then translates the result to ASCII, using Punycode ( <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Punycode">https://en.wikipedia.org/wiki/Punycode</a> )
     Finally, it prepends the four-character string "xn--". This four-character string
     is called the ASCII Compatible Encoding (ACE) prefix. It is used to distinguish
     labels encoded in Punycode from ordinary ASCII labels. The ToASCII algorithm can
@@ -2331,7 +2380,7 @@ Keywords:
 FAQ: How do I collate Indic language data?
 Collation order is not the same as code point order. A good treatment of some
 issues specific to collation in Indic languages can be found in the paper
-Issues in Indic Language Collation by Cathy Wissink (<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn1/)">https://www.unicode.org/notes/tn1/)</a>
+Issues in Indic Language Collation by Cathy Wissink ( <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/notes/tn1/">https://www.unicode.org/notes/tn1/</a> )
 Collation in general must proceed at the level of language or language variant,
 not at the script or codepoint levels. See also UTS #10: Unicode Collation Algorithm.
 Some Indic-specific issues are also discussed in that report.
@@ -2657,6 +2706,49 @@ universal encoding for web content. Tamil-language websites and applications
 began migrating from TSCII to Unicode Tamil.
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://akshara.org.lk/">https://akshara.org.lk/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/AksharaOrg/akshara-mac">https://github.com/AksharaOrg/akshara-mac</a>
+Sinhala typing, everywhere.
+Akshara is an open-source Sinhala input system that lets you type in a familiar
+way and handles the complexity of Sinhala composition for you.
+---
+jlf: text input / input source for macOS
+Enabling Akshara in macOS
+    Open System Settings (or System Preferences on older macOS versions).
+    Navigate to Keyboard ➔ Text Input ➔ Input Sources (Click Edit...).
+    Click the + button at the bottom left.
+    Select Sinhala (සිංහල) from the language list.
+    Select your desired input source:
+        Akshara - Smart Phonetic
+        Akshara - Phonetic
+        Akshara - Wijesekara
+    Click Add. Switch between input sources anytime using ⌃ Control + Space
+    or via the menu bar input menu!
+---
+jlf: Sinhala language
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Sinhala_language">https://en.wikipedia.org/wiki/Sinhala_language</a>
+Sinhala, sometimes called Sinhalese, is an Indo-Aryan language primarily spoken
+by the Sinhalese people of Sri Lanka, who make up the largest ethnic group on
+the island, numbering about 16 million. It is also the first language of about
+2 million other Sri Lankans, as of 2001. It is written in the Sinhalese script.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://merokalam.com/blog/how-to-type-in-nepali/">https://merokalam.com/blog/how-to-type-in-nepali/</a>
+How to Type in Nepali: Complete Nepali Typing Guide
+The Four Main Ways to Type Nepali
+1. Romanized Nepali → Unicode
+2. Preeti Keyboard Typing
+3. Nepali Unicode Keyboard
+4. Nepali Voice Typing
+---
+jlf:
+<a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Nepali_language">https://en.wikipedia.org/wiki/Nepali_language</a>
+Nepali (Devanagari: नेपाली) is the official and most-widely spoken language of Nepal,
+where it also serves as a lingua franca. It is an Indo-Aryan language, belonging to
+the Indo-Iranian branch within the Indo-European language family, native to the
+Himalayan region of South Asia.
+
+
 <hr><h2 id="CJK_title">CJK title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf">https://resources.oreilly.com/examples/9781565922242/blob/master/doc/cjk.inf</a>
 Version 2.1 (July 12, 1996)
@@ -2692,6 +2784,10 @@ How manny different syllable blocks are used in korean?
 
 <a target="_blank" rel="noopener noreferrer" href="https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/">https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/</a>
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=32987710">https://news.ycombinator.com/item?id=32987710</a>
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.dampfkraft.com/ghost-characters.html">https://www.dampfkraft.com/ghost-characters.html</a>
+A Spectre is Haunting Unicode
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=49310926">https://news.ycombinator.com/item?id=49310926</a>
 
 
 <hr><h2 id="Polish_language__Polish_title">Polish language, Polish title</h2><hr>
@@ -4289,6 +4385,12 @@ ICU API notice: new property values for Unicode 18
 <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/versions/beta-18.0.0.html">https://www.unicode.org/versions/beta-18.0.0.html</a>
 
 
+Unicode MessageFormat: Provide more extensibility
+<a target="_blank" rel="noopener noreferrer" href="https://docs.google.com/document/d/1LtcrDYrY7BTyfRox7vm3kTlQQmjIjfEnCHjjfJ0n52Y/edit?tab=t.0#heading=h.2gj537gotp00">https://docs.google.com/document/d/1LtcrDYrY7BTyfRox7vm3kTlQQmjIjfEnCHjjfJ0n52Y/edit?tab=t.0#heading=h.2gj537gotp00</a>
+jlf: interesting read for the progression in customization.
+saved in Unicode/ICU/WIP/"Unicode MessageFormat extensibility.odt"
+
+
 <hr><h2 id="ICU_design">ICU design</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design">https://icu.unicode.org/design</a>
 Design Docs
@@ -4324,6 +4426,69 @@ The BytesTrie and UCharsTrie structures are nearly the same, except that the UCh
 
 <a target="_blank" rel="noopener noreferrer" href="https://icu.unicode.org/design/struct/tries/ucharstrie">https://icu.unicode.org/design/struct/tries/ucharstrie</a>
 Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://groups.google.com/a/unicode.org/g/icu-design/c/6HPPf3NI4Zk/m/oldhDD-0AgAJ?utm_medium=email&utm_source=footer">https://groups.google.com/a/unicode.org/g/icu-design/c/6HPPf3NI4Zk/m/oldhDD-0AgAJ?utm_medium=email&utm_source=footer</a>
+ICU API proposal: Implicit Directional Marks should not separate UnicodeSet lexical elements
+    In discussion, an interesting ramification and a hitherto unknown inconsistency
+    between ICU4C and ICU4J came up, which the Technical Committee thought was worth
+    communicating on this mailing list.
+
+    As you may know, in the ICU implementation of UnicodeSet notation, a \u escape
+    for a high (lead) surrogate immediately followed by a \u escape for a low (trail)
+    surrogate are interpreted as an escape for the corresponding supplementary code point:
+    [\uDBFF\uDFFF] is equivalent to [\x{10FFFF}].
+    This behaviour is long-standing and deliberate; it was requested by ICU-2906 by
+    Mark Davis in 2003, and implemented by Alan Liu later in the same year.
+    <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.atlassian.net/browse/ICU-2906">https://unicode-org.atlassian.net/browse/ICU-2906</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-2906%22&type=commits">https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-2906%22&type=commits</a>
+
+    Note that they have to immediately follow each other; [\uDBFF \uDFFF] is a set
+    of size 2, whose elements are the surrogates U+DFFF and U+DBFF.
+
+    It follows from the proposal that \uDBFF&lt;LRM&gt;\uDFFF should be prohibited,
+    just like \00&lt;LRM&gt;7 is prohibited.
+
+    Since in the new formalism, the UnicodeSet syntax is space-insensitive, the
+    mechanism at play has to be at the lexical level: \uDBFF\uDFFF is its own
+    lexical element, and since we disallow the removal of an LRM or RLM to change
+    the sequence of lexical elements, \uDBFF&lt;LRM&gt;\uDFFF must be ill-formed.
+
+    A further complication is that the implementation of ICU-2906 was inconsistent
+    between C++ and Java:
+    In Java, [\x{DBFF}\x{DFFF}] is equivalent to [\x{10FFFF}];
+    in C++, it is instead equivalent to the two-element set [\x{DBFF}       \x{DFFF}].
+    The same holds for \U escapes, or any combinations of escapes other than \u and \u.
+
+    A straightforward implementation of the rule requiring separation of some pairs
+    of lexical elements with visible space is that \x{DBFF}\x{DFFF} becomes prohibited:
+    the lexer sees two consecutive lexical elements representing a high and low surrogate,
+    they are not separated by visible space, and so it rejects them.
+
+    In ICU4C 79, \x{DBFF}\x{DFFF} (and similar sequences of escapes other than \u+\u)
+    will become ill-formed in ICU4C Unicodesets; their interpretation was never portable.
+
+    In the ICU 80 timeline, I intend to propose that the same change be made in ICU4J;
+    for 79, \x{DBFF}\x{DFFF} will remain equivalent to \x{10FFFF} in ICU4J.
+
+    Note that the current draft of DUTS #61 states that \uDBFF\uDFFF should be
+    interpreted as two separate code points, contradicting twenty-three years of
+    ICU practice. In a forthcoming draft of DUTS #61, a sequence of escapes for
+    a high and low surrogate without intervening visible white space will be made
+    ill-formed instead, leaving room for ICU to retain its current behaviour as
+    an extension. I do not intend to standardize the \u+\u escapes, as they make
+    little sense for non-UTF-16 environments; they would remain an ICU extension,
+    similar to the use of $ for U+FFFF which is related to the behaviour of
+    out-of-range indexing in ICU.
+---
+jlf: not clear what is their notation x{ hexadecimal-digits }
+Apparently, it's defined by <a target="_blank" rel="noopener noreferrer" href="https://unicode-org.github.io/unicode-reports/tr61/tr61.html">https://unicode-org.github.io/unicode-reports/tr61/tr61.html</a>
+    Extracts:
+    Do not use \U00010FFFF, use instead \x{10FFFF}.
+    The escaped-elements \\, \134, \x5C, \u005C,\x{05C}, and \U0000005C all represent the code point U+005C.
+    The escaped-elements \a, \7, \x7, and \cG all represent the code point U+0007.
+    The escaped-element \x{110000} is ill-formed.
+    Note that the ICUs have differed in how they interpreted \x{DBFF}\x{DFFF}, but both agree in interpreting \uDBFF\uDFFF as \U0010FFFF.
 
 
 <hr><h2 id="ICU_demos">ICU demos</h2><hr>
@@ -4435,7 +4600,7 @@ Using OS X’s Built-in ICU Library in Your Own Project
 
 <hr><h2 id="ICU4X_title">ICU4X title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://icu4x.unicode.org/">https://icu4x.unicode.org/</a>
-lead by Shane Carr (<a target="_blank" rel="noopener noreferrer" href="https://www.sffc.xyz)">https://www.sffc.xyz)</a>
+lead by Shane Carr ( <a target="_blank" rel="noopener noreferrer" href="https://www.sffc.xyz">https://www.sffc.xyz</a> )
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-org/icu4x">https://github.com/unicode-org/icu4x</a>
@@ -4449,7 +4614,7 @@ jlf: if there is a version number in the path, you can replace it with "latest"
 jlf: ICU4X uses UNICODE LICENSE V3
 The Unicode License is a permissive MIT type of license. However, there are
 several additional considerations identified separately in the associated
-Unicode Terms of Use (<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/copyright.html).">https://www.unicode.org/copyright.html).</a>
+Unicode Terms of Use ( <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/copyright.html">https://www.unicode.org/copyright.html</a> ).
 ---
 Comparison with other licenses:
 <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses">https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses</a>
@@ -5384,6 +5549,36 @@ The implementation in ICU4C ends up working as follows:
    completions to the user.
 
 
+<hr><h2 id="editor_title__to_move_elsewhere_">editor title (to move elsewhere)</h2><hr>
+neovim
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c">https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c</a>
+    /// For UTF-8 character "c" return ...
+    int utf_char2cells(int c)
+
+    /// Return the number of display cells character at "*p" occupies.
+    /// This doesn't take care of unprintable characters, use ptr2cells() for that.
+    int utf_ptr2cells(const char *p_in)
+
+    /// Like utf_ptr2cells(), but limit string length to "size".
+    /// For an empty string or truncated character returns 1.
+    int utf_ptr2cells_len(const char *p, int size)
+
+    /// Calculate the number of cells occupied by string `str`.
+    ///
+    /// @param str The source string, may not be NULL, must be a NUL-terminated
+    ///            string.
+    /// @return The number of cells occupied by string `str`
+    size_t mb_string2cells(const char *str)
+
+    /// Get the number of cells occupied by string `str` with maximum length `size`
+    ///
+    /// @param str The source string, may not be NULL, must be a NUL-terminated
+    ///            string.
+    /// @param size maximum length of string. It will terminate on earlier NUL.
+    /// @return The number of cells occupied by string `str`
+    size_t mb_string2cells_len(const char *str, size_t size)
+
+
 <hr><h2 id="utf8proc_title">utf8proc title</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://codeberg.org/dnkl/foot/pulls/100">https://codeberg.org/dnkl/foot/pulls/100</a>
 Grapheme shaping using libutf8proc #100
@@ -5404,7 +5599,8 @@ Add an 'ambiwidth' property to utf8proc_property_t for such characters, by using
 a previously unused padding bit.
 ---
 This is an example how this property will be used in neovim: neovim/neovim#30042
-<a target="_blank" rel="noopener noreferrer" href="https://github.com/neovim/neovim/pull/30042">https://github.com/neovim/neovim/pull/30042</a>
+Pull: <a target="_blank" rel="noopener noreferrer" href="https://github.com/neovim/neovim/pull/30042">https://github.com/neovim/neovim/pull/30042</a>
+Source: <a target="_blank" rel="noopener noreferrer" href="https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c">https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c</a>
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/JuliaStrings/utf8proc/discussions/297#discussioncomment-13778394">https://github.com/JuliaStrings/utf8proc/discussions/297#discussioncomment-13778394</a>
@@ -5659,6 +5855,21 @@ This gist will show the support of BiDirectional text in the terminal emulators 
 Deterministic, readable Unicode/ASCII rendering of Mermaid diagrams in your terminal.
 jlf: out of subject. The only relation with Unicode is the use of a few Unicode
 characters for rendering.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/rust/comments/1vi0d74/dosu_fixes_broken_rtl_persianarabichebrew_text_in/">https://www.reddit.com/r/rust/comments/1vi0d74/dosu_fixes_broken_rtl_persianarabichebrew_text_in/</a>
+Dosu – fixes broken RTL (Persian/Arabic/Hebrew) text in your terminal
+---
+I got tired of Persian/Arabic text rendering wrong in Kitty, Alacritty, Ghostty, etc.
+so I built Dosu, a small Rust wrapper that sits between your shell and the terminal
+and fixes bidi rendering properly (Unicode Bidi Algorithm), no terminal-switching needed.
+---
+curl -fsSL <a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/RustNegar/dosu/main/install.sh">https://raw.githubusercontent.com/RustNegar/dosu/main/install.sh</a> | sh
+Repo: <a target="_blank" rel="noopener noreferrer" href="https://github.com/RustNegar/dosu">https://github.com/RustNegar/dosu</a>
+Core engine: <a target="_blank" rel="noopener noreferrer" href="https://github.com/RustNegar/dosu-core">https://github.com/RustNegar/dosu-core</a>
+---
+Linux/macOS for now. Open to feedback, especially edge cases.
+brew install rustnegar/dosu/dosu
 
 
 <hr><h2 id="QT_Title">QT Title</h2><hr>
@@ -5998,8 +6209,8 @@ by adding a T to the RECFM parameter (for example, by coding FBT). Track overflo
 is ignored for PDSEs.
 The type of print control can be specified to be in ANSI format-A, or in machine code
 format-M. See
-Using Optional Control Characters (<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ)">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ)</a>
-and z/OS DFSMS Macro Instructions for Data Sets (<a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm)">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm)</a>
+Using Optional Control Characters ( <a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ</a> )
+and z/OS DFSMS Macro Instructions for Data Sets ( <a target="_blank" rel="noopener noreferrer" href="https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm">https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm</a> )
 for information about control characters.
 
 
@@ -6653,6 +6864,10 @@ remove sooner or later.
 <a target="_blank" rel="noopener noreferrer" href="https://texteditor.com/">https://texteditor.com/</a>
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://fancytextx.com/">https://fancytextx.com/</a>
+Fancy text generator
+
+
 <a target="_blank" rel="noopener noreferrer" href="https://gwern.net/utext">https://gwern.net/utext</a>
 <a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=38016735">https://news.ycombinator.com/item?id=38016735</a>
 Utext: Rich Unicode Documents (gwern.net)
@@ -7088,6 +7303,12 @@ A part of the source code is reserved to commercial users, not in github.
 Libgrapheme
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://mojibake.zaerl.com/">https://mojibake.zaerl.com/</a>
+<a target="_blank" rel="noopener noreferrer" href="https://news.ycombinator.com/item?id=48941123">https://news.ycombinator.com/item?id=48941123</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/zaerl/mojibake.git">https://github.com/zaerl/mojibake.git</a>
+Mojibake library
+
+
 <hr><h2 id="C___lang__cpp_lang__Boost">C++ lang, cpp lang, Boost</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://en.cppreference.com/w/cpp/language/string_literal">https://en.cppreference.com/w/cpp/language/string_literal</a>
 String literal
@@ -7436,6 +7657,21 @@ unicode_ranges is a C++23 library for representing, validating, iterating,
 transforming, and formatting UTF-8, UTF-16, and UTF-32 text.
 
 
+<hr><h2 id="C__lang__csharp_lang">C# lang, csharp lang</h2><hr>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/Antyss77/StringExtension">https://github.com/Antyss77/StringExtension</a>
+A C# library that provides utility methods for manipulating strings.
+---
+Unicode-correct. Methods that classify or compare characters operate on whole
+Unicode scalar values (via Rune) rather than raw UTF-16 code units, so characters
+outside the Basic Multilingual Plane (many emoji, some rare scripts) are handled
+correctly instead of being split into invalid half-characters.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://learn.microsoft.com/en-us/dotnet/api/system.text.rune?view=net-10.0">https://learn.microsoft.com/en-us/dotnet/api/system.text.rune?view=net-10.0</a>
+Represents a Unicode scalar value ([ U+0000..U+D7FF ], inclusive;
+or [ U+E000..U+10FFFF ], inclusive).
+
+
 <hr><h2 id="cobol_lang">cobol lang</h2><hr>
 from: IBM-MAIN@LISTSERV.UA.EDU
 (jlf: waste of time... in the end, the guy says it's already implemented.)
@@ -7537,6 +7773,32 @@ Define and verify Level B Unicode string semantics
 Implement Level B UTF and binary baseline
 jlf: lot of notes about utf8
 It's a pull, not sure it will remain accessible.
+
+
+658c72b Plan Level L and Unicode research track                     <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/658c72ba107902063d1885dd218f6a396372cfa3">https://github.com/adesutherland/CREXX/pull/682/commits/658c72ba107902063d1885dd218f6a396372cfa3</a>
+    AI generated prose.
+    Nothing interesting.
+e1fdd43 Clarify re2c-inspired Unicode approach                      <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/e1fdd43656dd95f598ec4782bdd45329bd64703c">https://github.com/adesutherland/CREXX/pull/682/commits/e1fdd43656dd95f598ec4782bdd45329bd64703c</a>
+867e49f Freeze Unicode research contracts and inputs                <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/867e49faca1577c8dd491acb6563ffa9f5b896a4">https://github.com/adesutherland/CREXX/pull/682/commits/867e49faca1577c8dd491acb6563ffa9f5b896a4</a>
+fa1d0a2 Add conformant re2c Unicode NFD oracle                      <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/fa1d0a21030212f48e218c70ed7e06d6f157db6b">https://github.com/adesutherland/CREXX/pull/682/commits/fa1d0a21030212f48e218c70ed7e06d6f157db6b</a>
+5e56ca1 Parse Unicode rules into typed Level B AST                  <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/5e56ca1aeddc6381b34c31fc50a42f8c8b903c7f">https://github.com/adesutherland/CREXX/pull/682/commits/5e56ca1aeddc6381b34c31fc50a42f8c8b903c7f</a>
+cb5cfe9 Implement portable Level B NFD proof                        <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/cb5cfe91c7e62d3e4e64e2534610dbf121ba7d69">https://github.com/adesutherland/CREXX/pull/682/commits/cb5cfe91c7e62d3e4e64e2534610dbf121ba7d69</a>
+507472c unicode: add prepared NFD and NFKD baseline                 <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/507472cb86225c43fae26a6d78d242a1fd7758bd">https://github.com/adesutherland/CREXX/pull/682/commits/507472cb86225c43fae26a6d78d242a1fd7758bd</a>
+80b2f0b unicode: generate and qualify prepared NFD lexer            <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/80b2f0ba5d89dcd22861305ad8f4aed7bfc0102c">https://github.com/adesutherland/CREXX/pull/682/commits/80b2f0ba5d89dcd22861305ad8f4aed7bfc0102c</a>
+7204ed4 Merge remote-tracking branch 'origin/develop' into unicode  <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/7204ed4aa08d2a68d672e2ec5abff810ccb3e209">https://github.com/adesutherland/CREXX/pull/682/commits/7204ed4aa08d2a68d672e2ec5abff810ccb3e209</a>
+b0f1636 Restore prepared-symbol NFD executor                        <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/b0f16363fc8db2d8fb09a9a42ec80a942d28d3ba">https://github.com/adesutherland/CREXX/pull/682/commits/b0f16363fc8db2d8fb09a9a42ec80a942d28d3ba</a>
+8e1f9c0 Add RexxScript string BIF support                           <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/8e1f9c017b75469bf4ba0aa0328ec26c55a255b1">https://github.com/adesutherland/CREXX/pull/682/commits/8e1f9c017b75469bf4ba0aa0328ec26c55a255b1</a>
+511758c Document Unicode normalization checkpoint                   <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/511758ce4088255d444ed60622f311ac4981628f">https://github.com/adesutherland/CREXX/pull/682/commits/511758ce4088255d444ed60622f311ac4981628f</a>
+7ffe3c0 Add production Unicode case folding                         <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/7ffe3c0db905ce5d2fd3e5199fb9d4470d2420e2">https://github.com/adesutherland/CREXX/pull/682/commits/7ffe3c0db905ce5d2fd3e5199fb9d4470d2420e2</a>
+2b65b2f feat(unicode): complete normalization and grapheme support  <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/2b65b2f2e4e99765046baade2c4acc533b7f26f5">https://github.com/adesutherland/CREXX/pull/682/commits/2b65b2f2e4e99765046baade2c4acc533b7f26f5</a>
+9a86fb3 feat(unicode): complete production Unicode baseline         <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/9a86fb37c0d0d7b9cd395d676e8a0a3ef45e39b8">https://github.com/adesutherland/CREXX/pull/682/commits/9a86fb37c0d0d7b9cd395d676e8a0a3ef45e39b8</a>
+6f8bc5b Merge branch 'unicode' into develop                         <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/6f8bc5b9a173410e4d147c9de382f572f3a274a6">https://github.com/adesutherland/CREXX/pull/682/commits/6f8bc5b9a173410e4d147c9de382f572f3a274a6</a>
+985ffd7 Curate Unicode production integration                       <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/985ffd7e67ccc266ef0a00b13d94fe3c4d3165a3">https://github.com/adesutherland/CREXX/pull/682/commits/985ffd7e67ccc266ef0a00b13d94fe3c4d3165a3</a>
+b47787e Preserve Unicode data checksums on Windows                  <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/b47787e81d59c78feb90f05641d29d8182fcc469">https://github.com/adesutherland/CREXX/pull/682/commits/b47787e81d59c78feb90f05641d29d8182fcc469</a>
+9180fe3 Allow Unicode sanitizer suite to complete                   <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/9180fe34f3a5ac15932f81410096c30bd9690790">https://github.com/adesutherland/CREXX/pull/682/commits/9180fe34f3a5ac15932f81410096c30bd9690790</a>
+78f9ff0 Fix embedded Unicode runtime libraries                      <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/78f9ff0b6bbdb43c6b0980216cb756589f2039b6">https://github.com/adesutherland/CREXX/pull/682/commits/78f9ff0b6bbdb43c6b0980216cb756589f2039b6</a>
+ae264c9 build: move Unicode graph into Level B builder              <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/commits/ae264c921597119d928ad610896361311327607f">https://github.com/adesutherland/CREXX/pull/682/commits/ae264c921597119d928ad610896361311327607f</a>
+A bin/tests/rexx_src/rxunicode_default_runtime.crexx (4)            <a target="_blank" rel="noopener noreferrer" href="https://github.com/adesutherland/CREXX/pull/682/files#diff-40123b28ce701f22628083cf9c211b7ef233ef794fef6b74df868efb30d60fcf">https://github.com/adesutherland/CREXX/pull/682/files#diff-40123b28ce701f22628083cf9c211b7ef233ef794fef6b74df868efb30d60fcf</a>
 
 
 <hr><h2 id="DotNet__CoreFx">DotNet, CoreFx</h2><hr>
@@ -7711,7 +7973,7 @@ Elixir will also warn on confusable identifiers in the same file.
 For example, Elixir will emit a warning if you use both variables а (Cyrillic)
 and а (Latin) in your code.
 Elixir implements the requirements outlined in the Unicode Annex #31
-(<a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr31/)">https://www.unicode.org/reports/tr31/)</a>
+( <a target="_blank" rel="noopener noreferrer" href="https://www.unicode.org/reports/tr31/">https://www.unicode.org/reports/tr31/</a> )
 Elixir does not allow the use of ZWJ or ZWNJ in identifiers and therefore does
 not implement R1a.
 Bidirectional control characters are also not supported.
@@ -7845,6 +8107,13 @@ In the unicode_index.f90 example:
 <a target="_blank" rel="noopener noreferrer" href="https://go.dev/ref/spec#Conversions_to_and_from_a_string_type">https://go.dev/ref/spec#Conversions_to_and_from_a_string_type</a>
 jlf: worth reading, they cover all the possible conversions between bytes, rune
 and string.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://pkg.go.dev/github.com/rivo/uniseg">https://pkg.go.dev/github.com/rivo/uniseg</a>
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/rivo/uniseg/tree/v0.4.7">https://github.com/rivo/uniseg/tree/v0.4.7</a>
+Unicode Text Segmentation for Go
+jlf: worth reading, but seems abandonned? last update Feb 8, 2024
+Unicode version 15.0.0
 
 
 <a target="_blank" rel="noopener noreferrer" href="https://go.dev/play/">https://go.dev/play/</a>
@@ -8203,6 +8472,30 @@ Unicode characters Go doesn’t know about, and I didn’t want Quamina to settl
 Home of Quamina, a fast pattern-matching library in Go
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://pkg.go.dev/vuln/GO-2026-5970">https://pkg.go.dev/vuln/GO-2026-5970</a>
+Vulnerability Report: GO-2026-5970
+A norm.Iter can enter an infinite loop when handling input containing invalid UTF-8 bytes.
+Affected package: golang.org/x/text/unicode/norm before v0.39.0
+---
+<a target="_blank" rel="noopener noreferrer" href="https://go-review.googlesource.com/c/text/+/794100">https://go-review.googlesource.com/c/text/+/794100</a>
+    unicode/norm: avoid infinite loop on invalid input
+
+    Invalid characters are given a Properties with a size of 0.
+
+    The nextComposed function can enter an infinite loop when
+    encountering an invalid character, since it advances
+    its input by the (possibly 0) character size.
+
+    Rather than finding every place which might assume characters
+    have a non-zero size, change compInfo to return a size-1
+    Properties for invalid characters and use the property flags
+    to record validity.
+
+    Fixes golang/go#80142 <a target="_blank" rel="noopener noreferrer" href="https://github.com/golang/go/issues/80142">https://github.com/golang/go/issues/80142</a>
+---
+jlf: it's related to normalization
+
+
 <hr><h2 id="jRuby_lang">jRuby lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyString.java">https://github.com/jruby/jruby/blob/master/core/src/main/java/org/jruby/RubyString.java</a>
 jlf: big file, more than 7000 lines.
@@ -8249,7 +8542,7 @@ Grapheme Cluster Boundaries section in the Unicode Standard Annex #29.
         // Returns the correct number of perceived characters in a String.
         // Requires JDK 20+ to work correctly.
         // Earlier Java releases will incorrectly just count the code points instead.
-        // JDK-8291660 "Grapheme support in BreakIterator" (<a target="_blank" rel="noopener noreferrer" href="https://bugs.openjdk.org/browse/JDK-8291660)">https://bugs.openjdk.org/browse/JDK-8291660)</a> refers.
+        // JDK-8291660 "Grapheme support in BreakIterator" ( <a target="_blank" rel="noopener noreferrer" href="https://bugs.openjdk.org/browse/JDK-8291660">https://bugs.openjdk.org/browse/JDK-8291660</a> ) refers.
         public static int getLength(String emoji) {
             BreakIterator it = BreakIterator.getCharacterInstance();
             it.setText(emoji);
@@ -8556,7 +8849,7 @@ What is the level of support of surrogates?
 
 <a target="_blank" rel="noopener noreferrer" href="https://youtrack.jetbrains.com/issue/IDEA-197555">https://youtrack.jetbrains.com/issue/IDEA-197555</a>
 \b{g} not supported in regex
-In the docs for java.util.regex.Pattern (<a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html):">https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html):</a>
+In the docs for java.util.regex.Pattern ( <a target="_blank" rel="noopener noreferrer" href="https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html">https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html</a> ):
 \b{g} is listed under the “Boundary matchers” section: “\b{g} A Unicode extended grapheme cluster boundary”
 
 
@@ -8613,7 +8906,7 @@ jlf tag: character width
 
 <a target="_blank" rel="noopener noreferrer" href="https://github.com/foliojs/linebreak">https://github.com/foliojs/linebreak</a>
 A JS implementation of the Unicode Line Breaking Algorithm (UAX #14)
-It is used by PDFKit (<a target="_blank" rel="noopener noreferrer" href="https://github.com/foliojs/pdfkit)">https://github.com/foliojs/pdfkit)</a> for line wrapping text
+It is used by PDFKit ( <a target="_blank" rel="noopener noreferrer" href="https://github.com/foliojs/pdfkit">https://github.com/foliojs/pdfkit</a> ) for line wrapping text
 in PDF documents.
 
 
@@ -10177,6 +10470,20 @@ powerful toolchain.
 jlf: not sure it's interesting... did not investigate
 
 
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/000wq123/boundaryguard">https://github.com/000wq123/boundaryguard</a>
+boundaryguard
+Detect and remove invisible Unicode security hazards.
+Trojan Source detection, CI checks, and safe RTL handling.
+---
+jlf: seems serious, not reviewed
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://www.b-list.org/weblog/2026/aug/10/newlines/">https://www.b-list.org/weblog/2026/aug/10/newlines/</a>
+Breaking up (lines) is hard to do
+---
+jlf: hum... a little article, a gentle conclusion... not the article of the century.
+
+
 <hr><h2 id="R_lang">R lang</h2><hr>
 <a target="_blank" rel="noopener noreferrer" href="https://stringi.gagolewski.com/index.html">https://stringi.gagolewski.com/index.html</a>
 stringi: Fast and Portable Character String Processing in R
@@ -11579,7 +11886,7 @@ Calculating String length and width
 How is the Rust compiler able to tell the visible width of unicode characters?
 ---
 jlf: some arbitray excerpts
-- rustc uses the unicode-width crate (<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-width)">https://github.com/unicode-rs/unicode-width)</a>
+- rustc uses the unicode-width crate ( <a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-width">https://github.com/unicode-rs/unicode-width</a> )
 - Now try it with the rainbow flag emoji. Unicode is hard :)
 - explanation:
   the rainbow flag emoji is actually just a white flag + zero width joiner + a rainbow, meaning it's technically three characters.
@@ -11674,6 +11981,63 @@ Grapheme Cluster and Word boundaries according to UAX#29 rules
         let b: &amp;[_] = &amp;["The", " ", "quick", " ", "(", "\"", "brown", "\"", ")", "  ", "fox"];
         assert_eq!(w, b);
     }
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/unicode-rs/unicode-segmentation/tree/master">https://github.com/unicode-rs/unicode-segmentation/tree/master</a>
+<a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-segmentation">https://lib.rs/crates/unicode-segmentation</a>
+Iterators which split strings on Grapheme Cluster, Word, or Sentence boundaries,
+according to the Unicode Standard Annex #29 rules.
+---
+One of the contributors is Manish Goregaokar
+---
+Other crates:
+unicode-width           <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-width">https://lib.rs/crates/unicode-width</a>
+                        Determine displayed width of char and str types according
+                        to Unicode Standard Annex #11 rules
+unicode-normalization   <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-normalization">https://lib.rs/crates/unicode-normalization</a>
+                        This crate provides functions for normalization of Unicode
+                        strings, including Canonical and Compatible Decomposition
+                        and Recomposition, as described in Unicode Standard Annex #15
+unicode-xid             <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-xid">https://lib.rs/crates/unicode-xid</a>
+                        Determine whether characters have the XID_Start or XID_Continue
+                        properties according to Unicode Standard Annex #31
+unicode-script          <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-script">https://lib.rs/crates/unicode-script</a>
+                        This crate exposes the Unicode Script and Script_Extension
+                        properties from UAX #24
+unicode-properties      <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-properties">https://lib.rs/crates/unicode-properties</a>
+                        Query character Unicode properties according to UAX #44 and UTR #51
+unicode-security        <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-security">https://lib.rs/crates/unicode-security</a>
+                        Detect possible security problems with Unicode usage according
+                        to Unicode Technical Standard #39 rules
+unicode-charname        <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-charname">https://lib.rs/crates/unicode-charname</a>
+unicode-bidi            <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode-bidi">https://lib.rs/crates/unicode-bidi</a>
+                        Implementation of the Unicode Bidirectional Algorithm
+unicode_names           <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/unicode_names">https://lib.rs/crates/unicode_names</a>
+                        Unicode character name properties as described in Unicode Standard Annex #44.
+deunicode               <a target="_blank" rel="noopener noreferrer" href="https://lib.rs/crates/deunicode">https://lib.rs/crates/deunicode</a>
+                        Convert Unicode strings to pure ASCII by intelligently transliterating them. Suppors Emoji and Chinese.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/rust-lang/rust/pull/33098">https://github.com/rust-lang/rust/pull/33098</a>
+Efficient trie lookup for boolean Unicode properties
+---
+Referenced from <a target="_blank" rel="noopener noreferrer" href="https://github.com/dtolnay/unicode-ident#ucd-trie">https://github.com/dtolnay/unicode-ident#ucd-trie</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://roaringbitmap.org/about/">https://roaringbitmap.org/about/</a>
+Roaring bitmaps are compressed bitmaps which tend to outperform conventional
+compressed bitmaps such as WAH, EWAH or Concise. In some instances, they can be
+hundreds of times faster and they often offer significantly better compression.
+---
+Referenced from <a target="_blank" rel="noopener noreferrer" href="https://github.com/dtolnay/unicode-ident#roaring">https://github.com/dtolnay/unicode-ident#roaring</a>
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://github.com/aetf/unicode-truncate">https://github.com/aetf/unicode-truncate</a>
+Unicode-aware algorithm to pad or truncate str in terms of displayed width.
+
+
+<a target="_blank" rel="noopener noreferrer" href="https://lib.rs/text-processing">https://lib.rs/text-processing</a>
+jlf: Tons of crates
 
 
 <hr><h2 id="Saxon_lang">Saxon lang</h2><hr>
@@ -11961,7 +12325,7 @@ me what was said on the ARB mailing list about byte versus string.
 
     When parsing protocols such as HTTP, Redis, MySQL, PostgreSQL, etc we will read data from
     the OS into an `UnsafeBufferPointer&lt;UInt8&gt;`. This is almost always via NIO's
-    [`ByteBuffer`](<a target="_blank" rel="noopener noreferrer" href="https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html)">https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html)</a> type.
+    [`ByteBuffer`]( <a target="_blank" rel="noopener noreferrer" href="https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html">https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html</a> ) type.
     We sometimes grab `String` from that directly or grab `Data` if we want to iterate over the bytes
     for additional parsing.
 
@@ -11987,7 +12351,7 @@ jlf: this comment from the same thread shows which questions we should answer fo
     3) The invalid bytes to be replaced with U+FFFD
     4) The bytes verbatim, and experience the emergent behavior / unspecified results / security hazard from those bytes.
 
-    For reference, I think [Rust's model](<a target="_blank" rel="noopener noreferrer" href="https://doc.rust-lang.org/std/string/struct.String.html)">https://doc.rust-lang.org/std/string/struct.String.html)</a> is pretty good:
+    For reference, I think [Rust's model]( <a target="_blank" rel="noopener noreferrer" href="https://doc.rust-lang.org/std/string/struct.String.html">https://doc.rust-lang.org/std/string/struct.String.html</a> ) is pretty good:
 
     `from_utf8` produces an error explaining why the code units were invalid
     `from_utf8_lossy` replaces encoding errors with U+FFFD

@@ -20,6 +20,10 @@ https://www.unicode.org/versions/
 https://www.unicode.org/versions/latest/                        (latest version)
 https://www.unicode.org/versions/enumeratedversions.html        (current and previous versions)
 
+https://www.unicode.org/versions/Unicode16.0.0/core-spec/       (specification)
+https://www.unicode.org/versions/Unicode17.0.0/core-spec/       (specification)
+https://www.unicode.org/versions/Unicode18.0.0/core-spec/       (specification)
+
 https://www.unicode.org/Public/                                 (datas for current and previous versions)
 
 
@@ -37,6 +41,7 @@ https://www.unicode.org/faq/specifications.html
 
 
 https://www.unicode.org/reports/
+https://unicode-org.github.io/unicode-reports/
 Unicode® Technical Reports
     A Unicode Standard Annex (UAX) forms an integral part of the Unicode Standard,
     but is published as a separate document. The Unicode Standard may require
@@ -82,7 +87,7 @@ Unicode Standard Annex (UAX)
     UAX #38, Unicode Han Database (Unihan)
     https://www.unicode.org/reports/tr38/
 
-    UAX #41, Common References for Unicode Standard Annexes
+    UAX #41, Common References for Unicode Standard Annexes         <-- Very useful
     https://www.unicode.org/reports/tr41/
 
     UAX #42, Unicode Character Database in XML
@@ -98,13 +103,22 @@ Unicode Standard Annex (UAX)
     https://www.unicode.org/reports/tr50/
 
 
-Unicode Technical Standard  (UTS)
+Unicode Technical Report (UTR)
+
+    UTR #16, UTF-EBCDIC
+    https://www.unicode.org/reports/tr16/tr16-8.html
+
+
+Unicode Technical Standard (UTS)
 
     UTS #22, UNICODE CHARACTER MAPPING MARKUP LANGUAGE (CharMapML)
     https://www.unicode.org/reports/tr22/
     This document specifies an XML format for the interchange of mapping data
     for character encodings, and describes some of the issues connected with the
     use of character conversion.
+
+    UTS #51, Unicode Emoji
+    https://www.unicode.org/reports/tr51/
 
 
 https://www.unicode.org/glossary
@@ -165,10 +179,6 @@ In the UnicodeStandard PDF:
   Conformance 156 3.13 Default Case Algorithms
 For more information on the use of NFKC_Casefold and caseless matching for identifiers,
 see Unicode Standard Annex #31, “Unicode Identifier and Pattern Syntax
-
-
-https://www.unicode.org/reports/tr51/
-Unicode  emoji
 
 
 23/05/2021
@@ -253,6 +263,7 @@ Unicode general informations
 
 https://codepoints.net/
 Very detailled decription of each character
+To search by U+, append it to the URL: https://codepoints.net/U+0005
 Source of the WEB site:
 https://github.com/Codepoints/codepoints.net
 
@@ -541,6 +552,24 @@ This is from chapter 16 of the Unicode standard:
 This doesn't explicitly mention double question marks, but the double question mark also sits under the header for "double punctuation for vertical text" in the code charts.
 ---
 Chess annotation.
+
+
+https://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+https://lists.w3.org/Archives/Public/www-archive/2009Apr/0001.html
+Björn Höhrmann’s DFA Decoder: This approach maps each byte to a character class
+and uses a mask to strip leading bits, combining them into a Unicode code point
+via a state machine. It is designed to be robust against all forms of illegal
+UTF-8 while remaining small and fast.
+https://lists.w3.org/Archives/Public/www-archive/2009Apr/att-0001/u8decdfa.c
+
+https://github.com/polijan/utf8_decode/blob/main/utf8_decode.h
+Idea, explanation in index.html and real code in utf8_decode.h is by: Bjoern Hoehrmann
+I merely packaged his code as a single-file library and created a GitHub repo to facilitate re-use in my C projects.
+License is MIT.
+
+
+https://unicodebook.readthedocs.io/index.html
+Did not read
 
 
 ================================================================================
@@ -1076,6 +1105,13 @@ Transliteration title
 
 https://unicode-org.github.io/icu/userguide/transforms/general/
 ICU documentation
+General transforms provide a general-purpose package for processing Unicode text.
+They are a powerful and flexible mechanism for handling a variety of different tasks,
+including:
+    Uppercase, Lowercase, Titlecase, Full/Halfwidth conversions
+    Normalization
+    Hex and Character Name conversions
+    Script to Script conversion
 
 
 https://bartvanraaij.dev/2020-10-17-converting-utf8-strings-to-ascii-using-icu-transliterator/
@@ -1100,6 +1136,13 @@ Case study: Google Maps
 Spanish-to-Russian
 Spanish-to-Japanese
 Spanish-to-Mandarin
+
+
+https://realpandablog.wordpress.com/2018/02/06/when-transliteration-romanization-is-painfully-complicated/
+When Transliteration/ Romanization is Painfully Complicated
+---
+jlf: additional articles related to transliteration
+https://realpandablog.wordpress.com/?s=transliteration
 
 
 ================================================================================
@@ -2076,6 +2119,10 @@ https://sethmlarson.dev/unicode-variation-selectors
 Mahjong tiles and Unicode variation selectors
 
 
+https://benjaminwil.info/weblog/variation-selector-15/
+Unicode Variation Selector-15 and some of my tears
+
+
 ================================================================================
 Whitespaces, separators
 ================================================================================
@@ -2135,9 +2182,9 @@ https://en.wikipedia.org/wiki/Internationalized_domain_name
 Internationalized domain name
     ToASCII leaves ASCII labels unchanged. It fails if the label is unsuitable for
     the Domain Name System. For labels containing at least one non-ASCII character,
-    ToASCII applies the Nameprep algorithm (https://en.wikipedia.org/wiki/Nameprep)
+    ToASCII applies the Nameprep algorithm ( https://en.wikipedia.org/wiki/Nameprep )
     This converts the label to lowercase and performs other normalization. ToASCII
-    then translates the result to ASCII, using Punycode (https://en.wikipedia.org/wiki/Punycode)
+    then translates the result to ASCII, using Punycode ( https://en.wikipedia.org/wiki/Punycode )
     Finally, it prepends the four-character string "xn--". This four-character string
     is called the ASCII Compatible Encoding (ACE) prefix. It is used to distinguish
     labels encoded in Punycode from ordinary ASCII labels. The ToASCII algorithm can
@@ -2299,7 +2346,7 @@ Keywords:
 FAQ: How do I collate Indic language data?
 Collation order is not the same as code point order. A good treatment of some
 issues specific to collation in Indic languages can be found in the paper
-Issues in Indic Language Collation by Cathy Wissink (https://www.unicode.org/notes/tn1/)
+Issues in Indic Language Collation by Cathy Wissink ( https://www.unicode.org/notes/tn1/ )
 Collation in general must proceed at the level of language or language variant,
 not at the script or codepoint levels. See also UTS #10: Unicode Collation Algorithm.
 Some Indic-specific issues are also discussed in that report.
@@ -2625,6 +2672,49 @@ universal encoding for web content. Tamil-language websites and applications
 began migrating from TSCII to Unicode Tamil.
 
 
+https://akshara.org.lk/
+https://github.com/AksharaOrg/akshara-mac
+Sinhala typing, everywhere.
+Akshara is an open-source Sinhala input system that lets you type in a familiar
+way and handles the complexity of Sinhala composition for you.
+---
+jlf: text input / input source for macOS
+Enabling Akshara in macOS
+    Open System Settings (or System Preferences on older macOS versions).
+    Navigate to Keyboard ➔ Text Input ➔ Input Sources (Click Edit...).
+    Click the + button at the bottom left.
+    Select Sinhala (සිංහල) from the language list.
+    Select your desired input source:
+        Akshara - Smart Phonetic
+        Akshara - Phonetic
+        Akshara - Wijesekara
+    Click Add. Switch between input sources anytime using ⌃ Control + Space
+    or via the menu bar input menu!
+---
+jlf: Sinhala language
+https://en.wikipedia.org/wiki/Sinhala_language
+Sinhala, sometimes called Sinhalese, is an Indo-Aryan language primarily spoken
+by the Sinhalese people of Sri Lanka, who make up the largest ethnic group on
+the island, numbering about 16 million. It is also the first language of about
+2 million other Sri Lankans, as of 2001. It is written in the Sinhalese script.
+
+
+https://merokalam.com/blog/how-to-type-in-nepali/
+How to Type in Nepali: Complete Nepali Typing Guide
+The Four Main Ways to Type Nepali
+1. Romanized Nepali → Unicode
+2. Preeti Keyboard Typing
+3. Nepali Unicode Keyboard
+4. Nepali Voice Typing
+---
+jlf:
+https://en.wikipedia.org/wiki/Nepali_language
+Nepali (Devanagari: नेपाली) is the official and most-widely spoken language of Nepal,
+where it also serves as a lingua franca. It is an Indo-Aryan language, belonging to
+the Indo-Iranian branch within the Indo-European language family, native to the
+Himalayan region of South Asia.
+
+
 ================================================================================
 CJK title
 ================================================================================
@@ -2669,6 +2759,10 @@ https://news.ycombinator.com/item?id=29022906
 
 https://www.johndcook.com/blog/2022/09/25/katakana-hiragana-unicode/
 https://news.ycombinator.com/item?id=32987710
+
+https://www.dampfkraft.com/ghost-characters.html
+A Spectre is Haunting Unicode
+https://news.ycombinator.com/item?id=49310926
 
 
 ================================================================================
@@ -4326,6 +4420,12 @@ https://www.unicode.org/versions/Unicode18.0.0/
 https://www.unicode.org/versions/beta-18.0.0.html
 
 
+Unicode MessageFormat: Provide more extensibility
+https://docs.google.com/document/d/1LtcrDYrY7BTyfRox7vm3kTlQQmjIjfEnCHjjfJ0n52Y/edit?tab=t.0#heading=h.2gj537gotp00
+jlf: interesting read for the progression in customization.
+saved in Unicode/ICU/WIP/"Unicode MessageFormat extensibility.odt"
+
+
 ================================================================================
 ICU design
 ================================================================================
@@ -4364,6 +4464,69 @@ The BytesTrie and UCharsTrie structures are nearly the same, except that the UCh
 
 https://icu.unicode.org/design/struct/tries/ucharstrie
 Same design as a BytesTrie, but mapping any UnicodeString (any sequence of 16-bit units) to 32-bit integer values.
+
+
+https://groups.google.com/a/unicode.org/g/icu-design/c/6HPPf3NI4Zk/m/oldhDD-0AgAJ?utm_medium=email&utm_source=footer
+ICU API proposal: Implicit Directional Marks should not separate UnicodeSet lexical elements
+    In discussion, an interesting ramification and a hitherto unknown inconsistency
+    between ICU4C and ICU4J came up, which the Technical Committee thought was worth
+    communicating on this mailing list.
+
+    As you may know, in the ICU implementation of UnicodeSet notation, a \u escape
+    for a high (lead) surrogate immediately followed by a \u escape for a low (trail)
+    surrogate are interpreted as an escape for the corresponding supplementary code point:
+    [\uDBFF\uDFFF] is equivalent to [\x{10FFFF}].
+    This behaviour is long-standing and deliberate; it was requested by ICU-2906 by
+    Mark Davis in 2003, and implemented by Alan Liu later in the same year.
+    https://unicode-org.atlassian.net/browse/ICU-2906
+    https://github.com/search?q=repo%3Aunicode-org%2Ficu+%22ICU-2906%22&type=commits
+
+    Note that they have to immediately follow each other; [\uDBFF \uDFFF] is a set
+    of size 2, whose elements are the surrogates U+DFFF and U+DBFF.
+
+    It follows from the proposal that \uDBFF<LRM>\uDFFF should be prohibited,
+    just like \00<LRM>7 is prohibited.
+
+    Since in the new formalism, the UnicodeSet syntax is space-insensitive, the
+    mechanism at play has to be at the lexical level: \uDBFF\uDFFF is its own
+    lexical element, and since we disallow the removal of an LRM or RLM to change
+    the sequence of lexical elements, \uDBFF<LRM>\uDFFF must be ill-formed.
+
+    A further complication is that the implementation of ICU-2906 was inconsistent
+    between C++ and Java:
+    In Java, [\x{DBFF}\x{DFFF}] is equivalent to [\x{10FFFF}];
+    in C++, it is instead equivalent to the two-element set [\x{DBFF}       \x{DFFF}].
+    The same holds for \U escapes, or any combinations of escapes other than \u and \u.
+
+    A straightforward implementation of the rule requiring separation of some pairs
+    of lexical elements with visible space is that \x{DBFF}\x{DFFF} becomes prohibited:
+    the lexer sees two consecutive lexical elements representing a high and low surrogate,
+    they are not separated by visible space, and so it rejects them.
+
+    In ICU4C 79, \x{DBFF}\x{DFFF} (and similar sequences of escapes other than \u+\u)
+    will become ill-formed in ICU4C Unicodesets; their interpretation was never portable.
+
+    In the ICU 80 timeline, I intend to propose that the same change be made in ICU4J;
+    for 79, \x{DBFF}\x{DFFF} will remain equivalent to \x{10FFFF} in ICU4J.
+
+    Note that the current draft of DUTS #61 states that \uDBFF\uDFFF should be
+    interpreted as two separate code points, contradicting twenty-three years of
+    ICU practice. In a forthcoming draft of DUTS #61, a sequence of escapes for
+    a high and low surrogate without intervening visible white space will be made
+    ill-formed instead, leaving room for ICU to retain its current behaviour as
+    an extension. I do not intend to standardize the \u+\u escapes, as they make
+    little sense for non-UTF-16 environments; they would remain an ICU extension,
+    similar to the use of $ for U+FFFF which is related to the behaviour of
+    out-of-range indexing in ICU.
+---
+jlf: not clear what is their notation x{ hexadecimal-digits }
+Apparently, it's defined by https://unicode-org.github.io/unicode-reports/tr61/tr61.html
+    Extracts:
+    Do not use \U00010FFFF, use instead \x{10FFFF}.
+    The escaped-elements \\, \134, \x5C, \u005C,\x{05C}, and \U0000005C all represent the code point U+005C.
+    The escaped-elements \a, \7, \x7, and \cG all represent the code point U+0007.
+    The escaped-element \x{110000} is ill-formed.
+    Note that the ICUs have differed in how they interpreted \x{DBFF}\x{DFFF}, but both agree in interpreting \uDBFF\uDFFF as \U0010FFFF.
 
 
 ================================================================================
@@ -4487,7 +4650,7 @@ ICU4X title
 ================================================================================
 
 https://icu4x.unicode.org/
-lead by Shane Carr (https://www.sffc.xyz)
+lead by Shane Carr ( https://www.sffc.xyz )
 
 
 https://github.com/unicode-org/icu4x
@@ -4501,7 +4664,7 @@ https://www.unicode.org/faq/unicode_license.html
 jlf: ICU4X uses UNICODE LICENSE V3
 The Unicode License is a permissive MIT type of license. However, there are
 several additional considerations identified separately in the associated
-Unicode Terms of Use (https://www.unicode.org/copyright.html).
+Unicode Terms of Use ( https://www.unicode.org/copyright.html ).
 ---
 Comparison with other licenses:
 https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses
@@ -5437,6 +5600,39 @@ The implementation in ICU4C ends up working as follows:
 
 
 ================================================================================
+editor title (to move elsewhere)
+================================================================================
+
+neovim
+https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c
+    /// For UTF-8 character "c" return ...
+    int utf_char2cells(int c)
+
+    /// Return the number of display cells character at "*p" occupies.
+    /// This doesn't take care of unprintable characters, use ptr2cells() for that.
+    int utf_ptr2cells(const char *p_in)
+
+    /// Like utf_ptr2cells(), but limit string length to "size".
+    /// For an empty string or truncated character returns 1.
+    int utf_ptr2cells_len(const char *p, int size)
+
+    /// Calculate the number of cells occupied by string `str`.
+    ///
+    /// @param str The source string, may not be NULL, must be a NUL-terminated
+    ///            string.
+    /// @return The number of cells occupied by string `str`
+    size_t mb_string2cells(const char *str)
+
+    /// Get the number of cells occupied by string `str` with maximum length `size`
+    ///
+    /// @param str The source string, may not be NULL, must be a NUL-terminated
+    ///            string.
+    /// @param size maximum length of string. It will terminate on earlier NUL.
+    /// @return The number of cells occupied by string `str`
+    size_t mb_string2cells_len(const char *str, size_t size)
+
+
+================================================================================
 utf8proc title
 ================================================================================
 
@@ -5459,7 +5655,8 @@ Add an 'ambiwidth' property to utf8proc_property_t for such characters, by using
 a previously unused padding bit.
 ---
 This is an example how this property will be used in neovim: neovim/neovim#30042
-https://github.com/neovim/neovim/pull/30042
+Pull: https://github.com/neovim/neovim/pull/30042
+Source: https://github.com/neovim/neovim/blob/master/src/nvim/mbyte.c
 
 
 https://github.com/JuliaStrings/utf8proc/discussions/297#discussioncomment-13778394
@@ -5720,6 +5917,21 @@ https://github.com/tariqshams/mermaidtui
 Deterministic, readable Unicode/ASCII rendering of Mermaid diagrams in your terminal.
 jlf: out of subject. The only relation with Unicode is the use of a few Unicode
 characters for rendering.
+
+
+https://www.reddit.com/r/rust/comments/1vi0d74/dosu_fixes_broken_rtl_persianarabichebrew_text_in/
+Dosu – fixes broken RTL (Persian/Arabic/Hebrew) text in your terminal
+---
+I got tired of Persian/Arabic text rendering wrong in Kitty, Alacritty, Ghostty, etc.
+so I built Dosu, a small Rust wrapper that sits between your shell and the terminal
+and fixes bidi rendering properly (Unicode Bidi Algorithm), no terminal-switching needed.
+---
+curl -fsSL https://raw.githubusercontent.com/RustNegar/dosu/main/install.sh | sh
+Repo: https://github.com/RustNegar/dosu
+Core engine: https://github.com/RustNegar/dosu-core
+---
+Linux/macOS for now. Open to feedback, especially edge cases.
+brew install rustnegar/dosu/dosu
 
 
 ================================================================================
@@ -6074,8 +6286,8 @@ by adding a T to the RECFM parameter (for example, by coding FBT). Track overflo
 is ignored for PDSEs.
 The type of print control can be specified to be in ANSI format-A, or in machine code
 format-M. See
-Using Optional Control Characters (https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ)
-and z/OS DFSMS Macro Instructions for Data Sets (https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm)
+Using Optional Control Characters ( https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad400/occ.htm#occ )
+and z/OS DFSMS Macro Instructions for Data Sets ( https://www.ibm.com/docs/en/SSLTBW_2.5.0/com.ibm.zos.v2r5.idad500/abstract.htm )
 for information about control characters.
 
 
@@ -6747,6 +6959,10 @@ https://peterwunder.de/projects/prettify/
 https://texteditor.com/
 
 
+https://fancytextx.com/
+Fancy text generator
+
+
 https://gwern.net/utext
 https://news.ycombinator.com/item?id=38016735
 Utext: Rich Unicode Documents (gwern.net)
@@ -7203,6 +7419,12 @@ https://libs.suckless.org/libgrapheme/
 Libgrapheme
 
 
+https://mojibake.zaerl.com/
+https://news.ycombinator.com/item?id=48941123
+https://github.com/zaerl/mojibake.git
+Mojibake library
+
+
 ================================================================================
 C++ lang, cpp lang, Boost
 ================================================================================
@@ -7555,6 +7777,24 @@ transforming, and formatting UTF-8, UTF-16, and UTF-32 text.
 
 
 ================================================================================
+C# lang, csharp lang
+================================================================================
+
+https://github.com/Antyss77/StringExtension
+A C# library that provides utility methods for manipulating strings.
+---
+Unicode-correct. Methods that classify or compare characters operate on whole
+Unicode scalar values (via Rune) rather than raw UTF-16 code units, so characters
+outside the Basic Multilingual Plane (many emoji, some rare scripts) are handled
+correctly instead of being split into invalid half-characters.
+
+
+https://learn.microsoft.com/en-us/dotnet/api/system.text.rune?view=net-10.0
+Represents a Unicode scalar value ([ U+0000..U+D7FF ], inclusive;
+or [ U+E000..U+10FFFF ], inclusive).
+
+
+================================================================================
 cobol lang
 ================================================================================
 
@@ -7661,6 +7901,32 @@ https://github.com/adesutherland/CREXX/pull/605
 Implement Level B UTF and binary baseline
 jlf: lot of notes about utf8
 It's a pull, not sure it will remain accessible.
+
+
+658c72b Plan Level L and Unicode research track                     https://github.com/adesutherland/CREXX/pull/682/commits/658c72ba107902063d1885dd218f6a396372cfa3
+    AI generated prose.
+    Nothing interesting.
+e1fdd43 Clarify re2c-inspired Unicode approach                      https://github.com/adesutherland/CREXX/pull/682/commits/e1fdd43656dd95f598ec4782bdd45329bd64703c
+867e49f Freeze Unicode research contracts and inputs                https://github.com/adesutherland/CREXX/pull/682/commits/867e49faca1577c8dd491acb6563ffa9f5b896a4
+fa1d0a2 Add conformant re2c Unicode NFD oracle                      https://github.com/adesutherland/CREXX/pull/682/commits/fa1d0a21030212f48e218c70ed7e06d6f157db6b
+5e56ca1 Parse Unicode rules into typed Level B AST                  https://github.com/adesutherland/CREXX/pull/682/commits/5e56ca1aeddc6381b34c31fc50a42f8c8b903c7f
+cb5cfe9 Implement portable Level B NFD proof                        https://github.com/adesutherland/CREXX/pull/682/commits/cb5cfe91c7e62d3e4e64e2534610dbf121ba7d69
+507472c unicode: add prepared NFD and NFKD baseline                 https://github.com/adesutherland/CREXX/pull/682/commits/507472cb86225c43fae26a6d78d242a1fd7758bd
+80b2f0b unicode: generate and qualify prepared NFD lexer            https://github.com/adesutherland/CREXX/pull/682/commits/80b2f0ba5d89dcd22861305ad8f4aed7bfc0102c
+7204ed4 Merge remote-tracking branch 'origin/develop' into unicode  https://github.com/adesutherland/CREXX/pull/682/commits/7204ed4aa08d2a68d672e2ec5abff810ccb3e209
+b0f1636 Restore prepared-symbol NFD executor                        https://github.com/adesutherland/CREXX/pull/682/commits/b0f16363fc8db2d8fb09a9a42ec80a942d28d3ba
+8e1f9c0 Add RexxScript string BIF support                           https://github.com/adesutherland/CREXX/pull/682/commits/8e1f9c017b75469bf4ba0aa0328ec26c55a255b1
+511758c Document Unicode normalization checkpoint                   https://github.com/adesutherland/CREXX/pull/682/commits/511758ce4088255d444ed60622f311ac4981628f
+7ffe3c0 Add production Unicode case folding                         https://github.com/adesutherland/CREXX/pull/682/commits/7ffe3c0db905ce5d2fd3e5199fb9d4470d2420e2
+2b65b2f feat(unicode): complete normalization and grapheme support  https://github.com/adesutherland/CREXX/pull/682/commits/2b65b2f2e4e99765046baade2c4acc533b7f26f5
+9a86fb3 feat(unicode): complete production Unicode baseline         https://github.com/adesutherland/CREXX/pull/682/commits/9a86fb37c0d0d7b9cd395d676e8a0a3ef45e39b8
+6f8bc5b Merge branch 'unicode' into develop                         https://github.com/adesutherland/CREXX/pull/682/commits/6f8bc5b9a173410e4d147c9de382f572f3a274a6
+985ffd7 Curate Unicode production integration                       https://github.com/adesutherland/CREXX/pull/682/commits/985ffd7e67ccc266ef0a00b13d94fe3c4d3165a3
+b47787e Preserve Unicode data checksums on Windows                  https://github.com/adesutherland/CREXX/pull/682/commits/b47787e81d59c78feb90f05641d29d8182fcc469
+9180fe3 Allow Unicode sanitizer suite to complete                   https://github.com/adesutherland/CREXX/pull/682/commits/9180fe34f3a5ac15932f81410096c30bd9690790
+78f9ff0 Fix embedded Unicode runtime libraries                      https://github.com/adesutherland/CREXX/pull/682/commits/78f9ff0b6bbdb43c6b0980216cb756589f2039b6
+ae264c9 build: move Unicode graph into Level B builder              https://github.com/adesutherland/CREXX/pull/682/commits/ae264c921597119d928ad610896361311327607f
+A bin/tests/rexx_src/rxunicode_default_runtime.crexx (4)            https://github.com/adesutherland/CREXX/pull/682/files#diff-40123b28ce701f22628083cf9c211b7ef233ef794fef6b74df868efb30d60fcf
 
 
 ================================================================================
@@ -7847,7 +8113,7 @@ Elixir will also warn on confusable identifiers in the same file.
 For example, Elixir will emit a warning if you use both variables а (Cyrillic)
 and а (Latin) in your code.
 Elixir implements the requirements outlined in the Unicode Annex #31
-(https://www.unicode.org/reports/tr31/)
+( https://www.unicode.org/reports/tr31/ )
 Elixir does not allow the use of ZWJ or ZWNJ in identifiers and therefore does
 not implement R1a.
 Bidirectional control characters are also not supported.
@@ -7996,6 +8262,13 @@ https://go.dev/
 https://go.dev/ref/spec#Conversions_to_and_from_a_string_type
 jlf: worth reading, they cover all the possible conversions between bytes, rune
 and string.
+
+
+https://pkg.go.dev/github.com/rivo/uniseg
+https://github.com/rivo/uniseg/tree/v0.4.7
+Unicode Text Segmentation for Go
+jlf: worth reading, but seems abandonned? last update Feb 8, 2024
+Unicode version 15.0.0
 
 
 https://go.dev/play/
@@ -8354,6 +8627,30 @@ https://github.com/timbray/quamina
 Home of Quamina, a fast pattern-matching library in Go
 
 
+https://pkg.go.dev/vuln/GO-2026-5970
+Vulnerability Report: GO-2026-5970
+A norm.Iter can enter an infinite loop when handling input containing invalid UTF-8 bytes.
+Affected package: golang.org/x/text/unicode/norm before v0.39.0
+---
+https://go-review.googlesource.com/c/text/+/794100
+    unicode/norm: avoid infinite loop on invalid input
+
+    Invalid characters are given a Properties with a size of 0.
+
+    The nextComposed function can enter an infinite loop when
+    encountering an invalid character, since it advances
+    its input by the (possibly 0) character size.
+
+    Rather than finding every place which might assume characters
+    have a non-zero size, change compInfo to return a size-1
+    Properties for invalid characters and use the property flags
+    to record validity.
+
+    Fixes golang/go#80142 https://github.com/golang/go/issues/80142
+---
+jlf: it's related to normalization
+
+
 ================================================================================
 jRuby lang
 ================================================================================
@@ -8406,7 +8703,7 @@ Grapheme Cluster Boundaries section in the Unicode Standard Annex #29.
         // Returns the correct number of perceived characters in a String.
         // Requires JDK 20+ to work correctly.
         // Earlier Java releases will incorrectly just count the code points instead.
-        // JDK-8291660 "Grapheme support in BreakIterator" (https://bugs.openjdk.org/browse/JDK-8291660) refers.
+        // JDK-8291660 "Grapheme support in BreakIterator" ( https://bugs.openjdk.org/browse/JDK-8291660 ) refers.
         public static int getLength(String emoji) {
             BreakIterator it = BreakIterator.getCharacterInstance();
             it.setText(emoji);
@@ -8713,7 +9010,7 @@ https://bugs.openjdk.org/browse/JDK-8291660
 
 https://youtrack.jetbrains.com/issue/IDEA-197555
 \b{g} not supported in regex
-In the docs for java.util.regex.Pattern (https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html):
+In the docs for java.util.regex.Pattern ( https://docs.oracle.com/javase/10/docs/api/java/util/regex/Pattern.html ):
 \b{g} is listed under the “Boundary matchers” section: “\b{g} A Unicode extended grapheme cluster boundary”
 
 
@@ -8773,7 +9070,7 @@ jlf tag: character width
 
 https://github.com/foliojs/linebreak
 A JS implementation of the Unicode Line Breaking Algorithm (UAX #14)
-It is used by PDFKit (https://github.com/foliojs/pdfkit) for line wrapping text
+It is used by PDFKit ( https://github.com/foliojs/pdfkit ) for line wrapping text
 in PDF documents.
 
 
@@ -10367,6 +10664,20 @@ https://www.openfst.org/twiki/bin/view/FST/WebHome
 jlf: not sure it's interesting... did not investigate
 
 
+https://github.com/000wq123/boundaryguard
+boundaryguard
+Detect and remove invisible Unicode security hazards.
+Trojan Source detection, CI checks, and safe RTL handling.
+---
+jlf: seems serious, not reviewed
+
+
+https://www.b-list.org/weblog/2026/aug/10/newlines/
+Breaking up (lines) is hard to do
+---
+jlf: hum... a little article, a gentle conclusion... not the article of the century.
+
+
 ================================================================================
 R lang
 ================================================================================
@@ -11784,7 +12095,7 @@ https://www.reddit.com/r/rust/comments/gpw2ra/how_is_the_rust_compiler_able_to_t
 How is the Rust compiler able to tell the visible width of unicode characters?
 ---
 jlf: some arbitray excerpts
-- rustc uses the unicode-width crate (https://github.com/unicode-rs/unicode-width)
+- rustc uses the unicode-width crate ( https://github.com/unicode-rs/unicode-width )
 - Now try it with the rainbow flag emoji. Unicode is hard :)
 - explanation:
   the rainbow flag emoji is actually just a white flag + zero width joiner + a rainbow, meaning it's technically three characters.
@@ -11879,6 +12190,63 @@ Grapheme Cluster and Word boundaries according to UAX#29 rules
         let b: &[_] = &["The", " ", "quick", " ", "(", "\"", "brown", "\"", ")", "  ", "fox"];
         assert_eq!(w, b);
     }
+
+
+https://github.com/unicode-rs/unicode-segmentation/tree/master
+https://lib.rs/crates/unicode-segmentation
+Iterators which split strings on Grapheme Cluster, Word, or Sentence boundaries,
+according to the Unicode Standard Annex #29 rules.
+---
+One of the contributors is Manish Goregaokar
+---
+Other crates:
+unicode-width           https://lib.rs/crates/unicode-width
+                        Determine displayed width of char and str types according
+                        to Unicode Standard Annex #11 rules
+unicode-normalization   https://lib.rs/crates/unicode-normalization
+                        This crate provides functions for normalization of Unicode
+                        strings, including Canonical and Compatible Decomposition
+                        and Recomposition, as described in Unicode Standard Annex #15
+unicode-xid             https://lib.rs/crates/unicode-xid
+                        Determine whether characters have the XID_Start or XID_Continue
+                        properties according to Unicode Standard Annex #31
+unicode-script          https://lib.rs/crates/unicode-script
+                        This crate exposes the Unicode Script and Script_Extension
+                        properties from UAX #24
+unicode-properties      https://lib.rs/crates/unicode-properties
+                        Query character Unicode properties according to UAX #44 and UTR #51
+unicode-security        https://lib.rs/crates/unicode-security
+                        Detect possible security problems with Unicode usage according
+                        to Unicode Technical Standard #39 rules
+unicode-charname        https://lib.rs/crates/unicode-charname
+unicode-bidi            https://lib.rs/crates/unicode-bidi
+                        Implementation of the Unicode Bidirectional Algorithm
+unicode_names           https://lib.rs/crates/unicode_names
+                        Unicode character name properties as described in Unicode Standard Annex #44.
+deunicode               https://lib.rs/crates/deunicode
+                        Convert Unicode strings to pure ASCII by intelligently transliterating them. Suppors Emoji and Chinese.
+
+
+https://github.com/rust-lang/rust/pull/33098
+Efficient trie lookup for boolean Unicode properties
+---
+Referenced from https://github.com/dtolnay/unicode-ident#ucd-trie
+
+
+https://roaringbitmap.org/about/
+Roaring bitmaps are compressed bitmaps which tend to outperform conventional
+compressed bitmaps such as WAH, EWAH or Concise. In some instances, they can be
+hundreds of times faster and they often offer significantly better compression.
+---
+Referenced from https://github.com/dtolnay/unicode-ident#roaring
+
+
+https://github.com/aetf/unicode-truncate
+Unicode-aware algorithm to pad or truncate str in terms of displayed width.
+
+
+https://lib.rs/text-processing
+jlf: Tons of crates
 
 
 ================================================================================
@@ -12175,7 +12543,7 @@ https://github.com/apple/swift/issues/50144#issuecomment-1108303710
 
     When parsing protocols such as HTTP, Redis, MySQL, PostgreSQL, etc we will read data from
     the OS into an `UnsafeBufferPointer<UInt8>`. This is almost always via NIO's
-    [`ByteBuffer`](https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html) type.
+    [`ByteBuffer`]( https://apple.github.io/swift-nio/docs/current/NIO/Structs/ByteBuffer.html ) type.
     We sometimes grab `String` from that directly or grab `Data` if we want to iterate over the bytes
     for additional parsing.
 
@@ -12201,7 +12569,7 @@ https://github.com/apple/swift/issues/50144#issuecomment-1108303720
     3) The invalid bytes to be replaced with U+FFFD
     4) The bytes verbatim, and experience the emergent behavior / unspecified results / security hazard from those bytes.
 
-    For reference, I think [Rust's model](https://doc.rust-lang.org/std/string/struct.String.html) is pretty good:
+    For reference, I think [Rust's model]( https://doc.rust-lang.org/std/string/struct.String.html ) is pretty good:
 
     `from_utf8` produces an error explaining why the code units were invalid
     `from_utf8_lossy` replaces encoding errors with U+FFFD
