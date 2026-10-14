@@ -534,6 +534,55 @@ History of changes
 ==================
 
 -----------------------------------------------
+2026 October 14
+
+Add support for comments in queries (commands are not affected).
+    --
+    /*...*/ (can be nested)
+
+Reason:
+I had this erroneous result in a regression test because of the "comment":
+    ooRexx> ?m do   -- classes supporting the message "do"
+    P. P.G..   'CLASSES' : 'Package' (REXX)
+    PM P.G.A   'DO'      : 'Doer' (doers.cls)
+    PM P....   'DO'      : 'CoactivityDoer' (doers.cls)
+    PM P....   'DO'      : 'MethodDoer' (doers.cls)
+    PM P....   'DO'      : 'RexxBlockDoer' (doers.cls)
+    PM P....   'DO'      : 'RoutineDoer' (doers.cls)
+    PM P....   'DO'      : 'StringDoer' (doers.cls)
+    PM P....   'DO'      : 'TextDoer' (doers.cls)
+    .. P.G..   'MESSAGE' : 'MESSAGEPROFILEDATA' (profiling.cls)
+    P. P.G..   'MESSAGE' : 'ListChoice' (ooDialog.cls)
+    [Info] 10 lines displayed
+The query was not limited to the "do" method.
+All the words after "--" (and "--" itself) were taken as method names.
+Hence the presence of 'CLASSES' and 'MESSAGE' in the result.
+
+Now, with the support of comments:
+    ooRexx[CMD]> ?m do  -- classes supporting the message "do"
+    PM P.G.A   'DO' : 'Doer' (doers.cls)
+    PM P....   'DO' : 'CoactivityDoer' (doers.cls)
+    PM P....   'DO' : 'MethodDoer' (doers.cls)
+    PM P....   'DO' : 'RexxBlockDoer' (doers.cls)
+    PM P....   'DO' : 'RoutineDoer' (doers.cls)
+    PM P....   'DO' : 'StringDoer' (doers.cls)
+    PM P....   'DO' : 'TextDoer' (doers.cls)
+    [Info] 9 lines displayed
+
+
+Other examples:
+
+    ooRexx[CMD]> ?c /*/*string*/array -- */ directory -- list
+                      |--------|                      |------
+                    |---------------------|
+    P.         'Directory' : (REXX)
+
+    ooRexx[CMD]> ?c /*/string*/array -- */ directory -- list
+                    |---------|      |----------------------
+     P.         'Array' : (REXX)
+
+
+-----------------------------------------------
 2026 October 09
 
 Fix the raw commands addressed to `PowerShell`. They were executed using `pwsh`

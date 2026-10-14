@@ -2121,6 +2121,8 @@ Helpers
 
 ::method dispatchHelp class
     use strict arg interpreterContext, queryFilter, queryArgs, filteringStream=.nil
+    queryArgs = removeComments(queryArgs)
+    if .nil == queryArgs then return
     if queryArgs[1] == .nil then do
         .ooRexxShell~helpCommands
         return
@@ -2793,6 +2795,43 @@ Helpers
         end
     end
     return width
+
+
+::routine commentLevel private
+    -- A chunk "--" not surrounded by quotes is a comment. The rest of the line is ignored. Returns 1
+    -- A chunk "/*" not surrounded by quotes opens a comment. Can be nested. Returns 1.1 or 1.2 etc.
+    -- A chunk "*/" not surrounded by quotes closes the last opened "/*" comment. Returns 0.0 or 1.1 or 1.2 etc.
+    -- Otherwise returns -1 if error, or else 0
+    use strict arg stringChunk, level -- stringChunk can be a simple string, level is 0.0 or 1.1 or 1.2 etc.
+    if level == 0 then level = 0.0
+    parse var level inComment "." nesting
+    if stringChunk~hasMethod("quotedFlags"), stringChunk~quotedFlags~countStr("1") \== 0 then return 0 -- not a comment because at least one character is surrouded by quotes
+    if "--" == stringChunk~string, \ inComment then return 1 -- This is a comment, this chunk and the rest of the line are ignored.
+    if "/*" == stringChunk~string then return 1. || nesting + 1 -- Opens a comment, this chunk and the following chunks are ignored up to the closing "*/"
+    if "*/" == stringChunk~string then do
+        nesting -= 1
+        if nesting < 0 then do
+            .ooRexxShell~sayError('Unmatched "*/"')
+            return -1 -- abort
+        end
+        if nesting == 0 then return 0.0
+        return 1. || nesting
+    end
+    if inComment then return level
+    return 0 -- not a comment
+
+
+::routine removeComments private
+    use strict arg stringChunks
+    withoutComments = .array~new
+    level = 0
+    do stringChunk over stringChunks
+        level = commentLevel(stringChunk, level)
+        if level == -1 then return .nil -- abort
+        if level == 0 then withoutComments~append(stringChunk)
+        if level == 1 then leave
+    end
+    return withoutComments
 
 
 -------------------------------------------------------------------------------

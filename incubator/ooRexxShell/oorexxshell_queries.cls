@@ -717,7 +717,7 @@ attribute traceFilter
 
     separatorsAlreadySeen = .set~new
 
-    self~queryFilterArgs = routine_stringChunks~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators)
+    self~queryFilterArgs = routine_stringChunks~call(queryFilter, /*withInfos*/ .true, /*breakTokens*/ .Filter~operators .QueryManager~separators "-- /* */")
     do arg over self~queryFilterArgs
         if .nil == self~query then self~query = arg -- the first arg is the query
         else do
