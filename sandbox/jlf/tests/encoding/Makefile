@@ -8,8 +8,10 @@
 
 # ooRexxShell scripts in the current directory
 testFiles = main_conversion \
-            main_concatenation \
-            diary_examples
+            main_concatenation
+
+# ooRexxShell scripts in the current directory whose output depends on the platform
+testFiles_win = diary_examples
 
 # The demos can be used as non-regression tests
 demos = ..\..\demos
@@ -44,20 +46,27 @@ DIFF = diff --ignore-space-change
 help:
 	@echo nmake all
 	@-for %%f in ($(testFiles)) do @echo nmake %%f
+	@-for %%f in ($(testFiles_win)) do @echo nmake %%f
+	@-for %%f in ($(testFiles)) do @echo nmake %%f
 	@-for %%f in ($(demoFiles)) do @echo nmake %%f
 	@-for %%f in ($(scriptsFiles)) do @echo nmake %%f
 	@-for %%f in ($(uscriptsFiles)) do @echo nmake %%f
 	@echo nmake clean
 
 all:
-	@-for %%f in ($(testFiles)) do @$(NMAKE) %%f || exit /b
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
-	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
-	@-for %%f in ($(uscriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(testFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(testFiles_win)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(uscriptsFiles)) do @$(NMAKE) %%f || exit /b
 
 $(testFiles) :
 	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1
 	$(DIFF) $@.output.reference.txt $@.output.txt > nul
+
+$(testFiles_win) :
+	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.win.output.txt 2>&1
+	$(DIFF) $@.win.output.reference.txt $@.win.output.txt > nul
 
 $(demoFiles) :
 	@:: Don't display the current address in the prompt
@@ -74,6 +83,7 @@ $(uscriptsFiles) :
 
 clean:
 	@-for %%f in ($(testFiles)) do @del -f %%f.output.txt
+	@-for %%f in ($(testFiles_win)) do @del -f %%f.win.output.txt
 	@-for %%f in ($(demoFiles)) do @del -f %%f.output.txt
 	@-for %%f in ($(scriptsFiles)) do @del -f %%f.output.txt
 	@-for %%f in ($(uscriptsFiles)) do @del -f %%f.output.txt

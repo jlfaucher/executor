@@ -1,0 +1,270 @@
+The string hashCode on WSL Ubuntu is different from MacOS and Windows.
+According ChatGPT, it's because WSL Ubuntu uses unsigned char by default,
+whereas MacOS and Windows uses signed char...
+
+
+executor on MacOS
+
+    -- hashCode
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
+    (The String class)
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
+    '8FA5DCDA35AE1A58'
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~c2x=   -- '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+
+executor on Windows (with chcp 65001)
+
+    -- hashCode
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
+    (The String class)
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
+    '8FA5DCDA35AE1A58'
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~c2x=   -- '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+
+executor on WSL Ubuntu
+
+    -- hashCode
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~class=
+    (The String class)
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~hashCode~c2x=
+    '8F0673C61FDAFFD4'
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~c2x=   -- '6E 6F C3AB 6C F09F91A9 E2808D F09F91A8 E2808D F09F91A9 E2808D F09F91A7 F09F8E85'
+
+
+--------------------------------------------------------------------------------
+
+ooRexx 5 on MacOS
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
+    '8FA5DCDA35AE1A58'
+
+
+ooRexx 5 on Windows (with chcp 65001)
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
+    '8FA5DCDA35AE1A58'
+
+
+ooRexx 5 on WSL Ubuntu
+
+    ooRexx> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
+    '8F0673C61FDAFFD4'
+
+
+================================================================================
+Implementation of string~hashCode in ooRexx 4.2
+================================================================================
+
+Summary
+
+Implemented by inline HashCode getStringHash() in the String class.
+
+
+Detailled review:
+
+  // this is explicitly inserted into the class behaviour because it gets used
+  // prior to the instance behavior merges.
+  defineKernelMethod(CHAR_HASHCODE               ,TheClassBehaviour, CPPM(RexxObject::hashCode), 0);
+
+  defineKernelMethod(CHAR_HASHCODE               ,TheObjectBehaviour, CPPM(RexxObject::hashCode), 0);
+
+  defineKernelMethod(CHAR_HASHCODE                     ,TheIntegerBehaviour, CPPM(RexxInteger::hashCode), 1);
+
+  defineKernelMethod(CHAR_HASHCODE                     ,TheNumberStringBehaviour, CPPM(RexxNumberString::hashCode), 0);
+
+
+/**
+ * Default implementation of the HASHCODE method.
+ *
+ * @return The object's hash code value.
+ */
+RexxObject *RexxObject::hashCode()
+{
+    // get the hash value directly, then turn it into a binary string value
+    HashCode h = getHashValue();
+    /* create a string value             */
+    return (RexxObject *)new_string((char *)&h, sizeof(HashCode));
+}
+
+#define OREFSHIFT 3
+                                       /* generate hash value from OREF     */
+inline uintptr_t HASHOREF(RexxVirtualBase *r) { return ((uintptr_t)r) >> OREFSHIFT; }
+
+  class RexxInternalObject : public RexxVirtualBase{
+    public:
+     virtual HashCode     getHashValue()  { return identityHash(); }
+
+     inline  HashCode     identityHash() { return HASHOREF(this); }
+
+
+
+ class RexxString : public RexxObject {
+  public:
+
+   virtual HashCode getHashValue();
+
+   inline HashCode getStringHash()
+   {
+       if (hashValue == 0)                // if we've never generated this, the code is zero
+       {
+           stringsize_t len = this->getLength();
+
+           HashCode h = 0;
+           // the hash code is generated from all of the string characters.
+           // we do this in a lazy fashion, since most string objects never need to
+           // calculate a hash code, particularly the long ones.
+           // This hashing algorithm is very similar to that used for Java strings.
+           for (stringsize_t i = 0; i < len; i++)
+           {
+               h = 31 * h + this->stringData[i];
+           }
+           this->hashValue = h;
+       }
+       return hashValue;
+   }
+
+
+/**
+ * Get the primitive hash value of this String object.
+ *
+ * @return The calculated string hash for the string.
+ */
+HashCode RexxString::getHashValue()
+{
+    // this will calculate the hash if it hasn't been done yet
+    return getStringHash();
+}
+
+
+================================================================================
+Implementation of string~hashCode in ooRexx 5.3
+================================================================================
+
+It's identical to ooRexx 4.2
+
+    inline HashCode getStringHash()
+    {
+        if (hashValue == 0)                // if we've never generated this, the code is zero
+        {
+            size_t len = getLength();
+
+            HashCode h = 0;
+            // the hash code is generated from all of the string characters.
+            // we do this in a lazy fashion, since most string objects never need to
+            // calculate a hash code, particularly the long ones.
+            // This hashing algorithm is very similar to that used for Java strings.
+            for (size_t i = 0; i < len; i++)
+            {
+                h = 31 * h + stringData[i];
+            }
+            hashValue = h;
+        }
+        return hashValue;
+    }
+
+
+================================================================================
+ChatGPT analysis
+================================================================================
+
+Yes. The likely cause is the same signed-`char` issue as with `toupper()`, but here it affects the hash calculation directly.
+
+Your hash algorithm is:
+
+C++
+
+```
+h = 31 * h + this->stringData[i];
+```
+
+The crucial detail is the type of `stringData[i]` and how it is converted before the addition.
+
+Your UTF-8 string contains bytes above `0x7F`, including `C3 AB` for `ë` and many bytes in the emoji sequences. If `char` is signed, those bytes are interpreted as negative values when promoted to `int`. If `char` is unsigned, they are interpreted as positive values.
+
+That can produce different hash values for identical UTF-8 byte sequences.
+
+Importantly, the string's `c2x` output being identical across platforms does not rule this out: it confirms the byte sequences are identical, but not how C++ interprets those bytes in arithmetic.
+
+## The numbers confirm this explanation
+
+I reproduced the hash calculation using the UTF-8 bytes you supplied, assuming a 64-bit unsigned `HashCode` with arithmetic wrapping modulo 2642^{64}264.
+
+| Interpretation of each byte | Calculated hash      | Displayed byte sequence on little-endian |
+| --------------------------- | -------------------- | ---------------------------------------- |
+| Signed `char`               | `0x581AAE35DADCA58F` | `8FA5DCDA35AE1A58`                       |
+| Unsigned `char`             | `0xD4FFDA1FC673068F` | `8F0673C61FDAFFD4`                       |
+
+These match your macOS/Windows and Ubuntu results exactly, including the byte order of the displayed values.
+
+This is very strong evidence that the difference comes from whether plain `char` is signed or unsigned on the respective platforms.
+
+## Recommended fix
+
+Change the hash calculation to explicitly interpret each byte as unsigned:
+
+C++
+
+```
+h = 31 * h + static_cast<unsigned char>(this->stringData[i]);
+```
+
+This makes the hash independent of the implementation-defined signedness of plain `char`, while preserving the existing polynomial hashing algorithm.
+
+One important compatibility consideration: this changes hash values on platforms where `char` is signed, so it could affect persisted hash values or code that assumes existing hash values remain stable. Hash values should generally not be treated as persistent identifiers, but check whether ooRexx relies on them anywhere beyond in-memory hashing.
+
+For your Unicode work, this is also a useful distinction: `string~hashCode` hashes the string's bytes, not its Unicode codepoints or grapheme clusters. That is perfectly valid, provided the byte interpretation is consistent across platforms.
+
+
+
+## Why the same source code can produce different results
+
+The signedness of plain `char` is implementation-defined in C++. It is determined by the compiler and target configuration, not by the operating system's locale.
+
+Typical defaults are:
+
+| Platform / compiler target    | Default plain `char` signedness                |
+| ----------------------------- | ---------------------------------------------- |
+| macOS, Apple Clang on ARM64   | Signed                                         |
+| Windows, MSVC on ARM64 or x64 | Signed                                         |
+| Linux, GCC on x86-64          | Signed by default                              |
+| Linux, GCC on ARM targets     | Often unsigned by default, depending on target |
+
+Your WSL Ubuntu result is consistent with unsigned `char`, but that is not the usual default for GCC on x86-64 Linux. It is worth checking rather than assuming the platform is responsible.
+
+The same `CMakeLists.txt` does not guarantee identical compiler flags, compiler versions, toolchains, or cached configuration. For example, `-funsigned-char` or `/J` can change the default.
+
+Temporarily instrument getStringHash() in ooRexx 5.3 to print the type characteristics
+and the intermediate hash:
+
+    #include <limits>
+    #include <type_traits>
+
+    printf("char is signed: %d\n",
+           std::numeric_limits<char>::is_signed);
+    printf("sizeof(HashCode): %zu\n", sizeof(HashCode));
+    printf("HashCode is unsigned: %d\n",
+           std::is_unsigned<HashCode>::value);
+
+Then, inside the loop, print the first few bytes and intermediate hash values:
+
+    for (stringsize_t i = 0; i < len; i++)
+    {
+        unsigned char byte =
+            static_cast<unsigned char>(this->stringData[i]);
+
+        h = 31 * h + this->stringData[i];
+
+        if (i < 8)
+        {
+            printf("i=%zu byte=%02X h=%llX\n",
+                   static_cast<size_t>(i),
+                   static_cast<unsigned int>(byte),
+                   static_cast<unsigned long long>(h));
+        }
+    }
+

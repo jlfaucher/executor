@@ -324,16 +324,14 @@ forwards the message "do".
 ooRexx> {say "hello"}~()
 hello
 ooRexx> ?m do                           -- classes supporting the message "do"
-P. P.G..   'CLASSES' : 'Package' (REXX)
-PM P.G.A   'DO'      : 'Doer' (doers.cls)
-PM P....   'DO'      : 'CoactivityDoer' (doers.cls)
-PM P....   'DO'      : 'MethodDoer' (doers.cls)
-PM P....   'DO'      : 'RexxBlockDoer' (doers.cls)
-PM P....   'DO'      : 'RoutineDoer' (doers.cls)
-PM P....   'DO'      : 'StringDoer' (doers.cls)
-PM P....   'DO'      : 'TextDoer' (doers.cls)
-.. P.G..   'MESSAGE' : 'MESSAGEPROFILEDATA' (profiling.cls)
-[Info] 9 lines displayed
+PM P.G.A   'DO' : 'Doer' (doers.cls)
+PM P....   'DO' : 'CoactivityDoer' (doers.cls)
+PM P....   'DO' : 'MethodDoer' (doers.cls)
+PM P....   'DO' : 'RexxBlockDoer' (doers.cls)
+PM P....   'DO' : 'RoutineDoer' (doers.cls)
+PM P....   'DO' : 'StringDoer' (doers.cls)
+PM P....   'DO' : 'TextDoer' (doers.cls)
+[Info] 7 lines displayed
 
 /*
 Trailing block argument (similar to Groovy & Swift syntax for closures) :

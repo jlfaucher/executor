@@ -33,16 +33,19 @@ DIFF = diff --ignore-space-change
 
 help:
 	@echo nmake all
-	@-for %%f in ($(scriptsFiles)) do @echo nmake %%f
-	@-for %%f in ($(demoFiles)) do @echo nmake %%f
 	@echo nmake clean
+	@echo ----------
+	@-for %%f in ($(scriptsFiles)) do @echo nmake %%f
+	@echo ----------
+	@-for %%f in ($(demoFiles)) do @echo nmake %%f
+	@echo.
 
 all:
-	@-for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(scriptsFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
 
 $(scriptsFiles) :
-	rexx $@.rex > $@.output.txt 2>&1
+	rexx $@.rex --testRegression > $@.output.txt 2>&1
 	$(DIFF) $@.output.reference.txt $@.output.txt > nul
 
 $(demoFiles) :

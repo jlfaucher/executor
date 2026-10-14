@@ -21,9 +21,12 @@ demoFiles = executor-demo-extensions
 
 help:
 	@echo "make all"
-	@for f in $(scriptsFiles); do echo "make" $$f; done
-	@for f in $(demoFiles); do echo "make" $$f; done
 	@echo "make clean"
+	@echo "----------"
+	@for f in $(scriptsFiles); do echo "make" $$f; done
+	@echo "----------"
+	@for f in $(demoFiles); do echo "make" $$f; done
+	@echo
 
 all:
 	@set -e; \
@@ -31,7 +34,7 @@ all:
 	for f in $(demoFiles); do make $$f; done
 
 $(scriptsFiles) :
-	bash -i -c 'rexx $@.rex > $@.output.txt 2>&1'
+	bash -i -c 'rexx $@.rex --testRegression > $@.output.txt 2>&1'
 	diff -q $@.output.reference.txt $@.output.txt
 
 $(demoFiles) :

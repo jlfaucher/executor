@@ -401,13 +401,13 @@ Returns a ByteSupplier which provides each byte in decimal.
 Examples:
 */
 ooRexx> "Noel"~bytes==
-a ByteSupplier 
+a ByteSupplier
  1 :  78
  2 :  111
  3 :  101
  4 :  108
 ooRexx> "Noël"~bytes==
-a ByteSupplier 
+a ByteSupplier
  1 :  78
  2 :  111
  3 :  195
@@ -2167,7 +2167,7 @@ ooRexx>     "FF FE FD FC"x~text("byte")~c2x=                                    
 ooRexx>     "FF FE FD FC"x~text("byte")~c2g=                                               -- 'FF FE FD FC'
 'FF FE FD FC'
 ooRexx>     "FF FE FD FC"x~text("byte")~codepoints==
-a CodePointSupplier 
+a CodePointSupplier
  1 :  255
  2 :  254
  3 :  253
@@ -2188,7 +2188,7 @@ ooRexx>     "FF FE FD FC"x~text("utf8")~c2g=                                    
 ooRexx>     "FF FE FD FC"x~text("utf8")~c2u=                                               -- 'U+FFFD U+FFFD U+FFFD U+FFFD'
 'U+FFFD U+FFFD U+FFFD U+FFFD'
 ooRexx>     "FF FE FD FC"x~text("utf8")~codepoints==
-a CodePointSupplier 
+a CodePointSupplier
  1 :  65533
  2 :  65533
  3 :  65533
@@ -2199,7 +2199,7 @@ ooRexx>     "FF FE FD FC"x~text("unicode8")~c2x=                                
 ooRexx>     "FF FE FD FC"x~text("unicode8")~c2g=                                           -- 'FF FE FD FC'
 'FF FE FD FC'
 ooRexx>     "FF FE FD FC"x~text("unicode8")~codepoints==
-a CodePointSupplier 
+a CodePointSupplier
  1 :  255
  2 :  254
  3 :  253
@@ -4600,7 +4600,6 @@ a Directory (10 items)
 -- Frequency of each character, ignoring the accents:
 ooRexx> "Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
 a Stem (9 items)
-'🎅' :  1
 ' '    :  3
 'e'    :  4
 'l'    :  1
@@ -4609,6 +4608,7 @@ a Stem (9 items)
 'p'    :  1
 'r'    :  2
 't'    :  1
+'🎅' :  1
 
 -- Add support for generator methods to RexxText.
 
@@ -5870,7 +5870,7 @@ Examples:
 ooRexx> .unicode["zwj"]~utf8~join("ab", "cd", .unicode["woman"]~utf8, .unicode["father christmas"]~utf8)~c2g=  -- '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
 '61 62E2808D 63 64E2808D F09F91A9E2808DF09F8E85'
 ooRexx> .unicode["zwj"]~utf8~join("ab", "cd", .unicode["woman"]~utf8, .unicode["father christmas"]~utf8)~graphemes==
-a CharacterSupplier 
+a CharacterSupplier
  1 : T'a'
  2 : T'b‍'
  3 : T'c'
@@ -5895,7 +5895,7 @@ an Array (shape [12], 12 items)
 -- https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries
 -- Do not break within emoji modifier sequences or emoji zwj sequences (GB11).
 ooRexx> "noël👩‍👨‍👩‍👧🎅"~text~graphemes==
-a CharacterSupplier 
+a CharacterSupplier
  1 : T'n'
  2 : T'o'
  3 : T'ë'
@@ -6131,7 +6131,7 @@ The indexes of the characters supplier are the codepoints, not the indexes of th
 internal array which are codepoint+2.
 */
 ooRexx> .unicode~characters==
-an UnicodeCharacterSupplier 
+an UnicodeCharacterSupplier
  0    : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
  1    : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
  2    : ( ""    U+0002 Cc 0 "", "START OF TEXT", "STX" )
@@ -7143,7 +7143,7 @@ Add character intervals.
     isExpanded
 */
 ooRexx> .unicode~characterIntervals==
-an UnicodeCharacterIntervalSupplier 
+an UnicodeCharacterIntervalSupplier
  1  : (U+3400..U+4DBF "CJK UNIFIED IDEOGRAPH-*" 6591 characters)
  2  : (U+4E00..U+9FFF "CJK UNIFIED IDEOGRAPH-*" 20991 characters)
  3  : (U+F900..U+FA6D "CJK COMPATIBILITY IDEOGRAPH-*" 365 characters)
@@ -7224,7 +7224,7 @@ Examples:
 */
 -- All the Unicode characters (sparse array).
 ooRexx> .unicode~characters==
-an UnicodeCharacterSupplier 
+an UnicodeCharacterSupplier
  0    : ( ""    U+0000 Cc 0 "", "NULL", "NUL" )
  1    : ( ""    U+0001 Cc 0 "", "START OF HEADING", "SOH" )
  2    : ( ""    U+0002 Cc 0 "", "START OF TEXT", "STX" )

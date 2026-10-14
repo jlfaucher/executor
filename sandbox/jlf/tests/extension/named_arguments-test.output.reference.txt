@@ -1326,10 +1326,12 @@ r = .myclass~sendWith("mymethod", (1, {}), namedArguments:.directory~of(a2:2, a3
 ********************************************************************************
 
 Initial arguments
-    positional count=0 size=0
+    positional count=1 size=1
+        1 : --testRegression
     named count=0
 INTERPRET call sayArg .context
-    positional count=0 size=0
+    positional count=1 size=1
+        1 : --testRegression
     named count=0
 
 .context~setArgs(.array~of(1,2))
@@ -1367,40 +1369,6 @@ INTERPRET say "a1="arg(1) "a2="arg(2)
 a1=1 a2=2
 use named arg n1, n2; say "n1="n1 "n2="n2
 n1=1 n2=2
-
-
-.myclass~reply(.array~of(1, 2), namedArguments:.directory~of(n1:1, n2:2))
-    On entry in the method
-    positional count=1 size=1
-        1 : an Array
-    named count=1
-        NAMEDARGUMENTS : a Directory
-
-    After setArgs
-    positional count=2 size=2
-        1 : 1
-        2 : 2
-    named count=2
-        N1 : 1
-        N2 : 2
-    
-On entry in the thread (migrated arguments)
-
-    positional count=2 size=2
-        1 : 1
-        2 : 2
-    named count=2
-        N1 : 1
-        N2 : 2
-    After setArgs in thread
-    positional count=3 size=3
-        1 : 1
-        2 : 2
-        3 : 3
-    named count=3
-        N1 : 1
-        N2 : 2
-        N3 : 3
 
 
 ********************************************************************************

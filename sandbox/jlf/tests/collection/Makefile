@@ -31,8 +31,8 @@ help:
 	@echo nmake clean
 
 all:
-	@-for %%f in ($(mainFiles)) do @$(NMAKE) %%f || exit /b
-	@-for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(mainFiles)) do @$(NMAKE) %%f || exit /b
+	@for %%f in ($(demoFiles)) do @$(NMAKE) %%f || exit /b
 
 $(mainFiles) :
 	( type $@.rex & echo RC = 0 ) | oorexxshell test regression > $@.output.txt 2>&1

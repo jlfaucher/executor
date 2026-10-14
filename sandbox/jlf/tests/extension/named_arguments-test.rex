@@ -4,6 +4,8 @@ Keep this file independent of the extensions (no requires).
 See the file named_arguments-test_with_extensions.rex for the tests of extensions.
 */
 
+arg option .
+
 -------------------
 -- Instruction CALL
 -------------------
@@ -381,9 +383,12 @@ use arg n1, n2; say "n1="n1 "n2="n2
 say
 say
 
--- When creating a thread, the arguments are migrated to the thread. Check that it works as expected after using setArgs
-call interpret '.myclass~reply(.array~of(1, 2), namedArguments:.directory~of(n1:1, n2:2))'
-call SysSleep 1 -- wait one second to be sure that the messages after reply are displayed before continuing
+-- The output can be different at each run and between platforms
+if option \== "--TESTREGRESSION" then do
+    -- When creating a thread, the arguments are migrated to the thread. Check that it works as expected after using setArgs
+    call interpret '.myclass~reply(.array~of(1, 2), namedArguments:.directory~of(n1:1, n2:2))'
+    call SysSleep 1 -- wait one second to be sure that the messages after reply are displayed before continuing
+end
 
 ---------------------------
 -- StackFrame~nameArguments

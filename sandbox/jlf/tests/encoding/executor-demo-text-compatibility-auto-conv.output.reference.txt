@@ -509,11 +509,6 @@ ooRexx> string1~equals(string2, strict:.false)=     -- true (non-strict mode)
  1
 
 
--- hashCode
-ooRexx> "noël👩‍👨‍👩‍👧🎅"~hashCode~class=
-(The String class)
-ooRexx> "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
-'8FA5DCDA35AE1A58'
 
 
 -- left
@@ -788,7 +783,6 @@ Frequency of each character, ignoring the accents:
 
 ooRexx> "Notre père Noël 🎅"~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
 a Stem (9 items)
-'🎅' :  1
 ' '    :  3
 'e'    :  4
 'l'    :  1
@@ -797,6 +791,7 @@ a Stem (9 items)
 'p'    :  1
 'r'    :  2
 't'    :  1
+'🎅' :  1
 
 
 ---------------------------------------------------------

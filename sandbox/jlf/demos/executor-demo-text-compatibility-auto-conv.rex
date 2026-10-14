@@ -467,11 +467,13 @@ string1~equals(string2, strict:.false)=     -- true (non-strict mode)
 sleep no prompt
 
 
+goto skip_hashCode when .ooRexxShell~testRegression -- The hasCode value on WSL Ubuntu ARM is different from other platforms
 -- hashCode
 "noël👩‍👨‍👩‍👧🎅"~hashCode~class=
 sleep
 "noël👩‍👨‍👩‍👧🎅"~hashCode~c2x=
 sleep no prompt
+skip_hashCode:
 
 
 -- left

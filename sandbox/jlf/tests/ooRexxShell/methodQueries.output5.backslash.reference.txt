@@ -9,19 +9,18 @@
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-[Info] 11 lines displayed
+ooRexx> ?methods makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -29,85 +28,78 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.verbose makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.verbose makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
     MPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:MPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     MN(MAKESTRING)
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
-[Info] 11 lines displayed
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -115,17 +107,17 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+ooRexx> ?methods.source makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0001 /*
  > 0002 mask lets indicate which fields to include.
  > 0003 If previous is included, then the same mask is used everywhere.
@@ -171,15 +163,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0043 end
  > 0044 return string
  > 0045 
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 63 lines displayed
+[Info] 55 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -187,71 +171,71 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source.verbose makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.source.verbose makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
@@ -302,21 +286,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- =============================================================================
@@ -328,19 +298,18 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods -3 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
-P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
-[Info] 11 lines displayed
+ooRexx> ?methods -3 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -348,85 +317,78 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.verbose -3 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.verbose -3 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
     MPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:MPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     MN(MAKESTRING)
-P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
-[Info] 11 lines displayed
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -434,17 +396,17 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source -3 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
+ooRexx> ?methods.source -3 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
  > 0001 /*
  > 0002 mask lets indicate which fields to include.
  > 0003 If previous is included, then the same mask is used everywhere.
@@ -489,15 +451,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -505,71 +459,71 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source.verbose -3 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.source.verbose -3 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
@@ -620,21 +574,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (...\jlf\packages\pipeline\pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- =============================================================================
@@ -646,19 +586,18 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...\cl\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods 0 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-[Info] 11 lines displayed
+ooRexx> ?methods 0 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -666,85 +605,78 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.verbose 0 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.verbose 0 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
     MPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:MPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     MN(MAKESTRING)
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
-[Info] 11 lines displayed
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -752,17 +684,17 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source 0 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+ooRexx> ?methods.source 0 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0001 /*
  > 0002 mask lets indicate which fields to include.
  > 0003 If previous is included, then the same mask is used everywhere.
@@ -807,15 +739,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -823,71 +747,71 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source.verbose 0 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.source.verbose 0 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
@@ -938,21 +862,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- =============================================================================
@@ -964,19 +874,18 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods 30 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
-P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
-[Info] 11 lines displayed
+ooRexx> ?methods 30 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -984,85 +893,78 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.verbose 30 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.verbose 30 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
     MPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:MPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     MN(MAKESTRING)
-P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
-[Info] 11 lines displayed
+[Info] 10 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -1070,17 +972,17 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source 30 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
+ooRexx> ?methods.source 30 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
  > 0001 /*
  > 0002 mask lets indicate which fields to include.
  > 0003 If previous is included, then the same mask is used everywhere.
@@ -1125,15 +1027,7 @@ P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 
 
 -- -----------------------------------------------------------------------------
@@ -1141,71 +1035,71 @@ P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
 -- -----------------------------------------------------------------------------
 
 -- -----------------------------------------------------------------------------
-ooRexx> ?methods.source.verbose 30 makeString
-P. P.G.    'MAKESTRING' : 'Array' (REXX)
+ooRexx> ?methods.source.verbose 30 makeString <> json yaml
+P. P.G..   'MAKESTRING' : 'Array' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(Array)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'CircularQueue' (REXX)
+P. P.G..   'MAKESTRING' : 'CircularQueue' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(CircularQueue)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'DateTime' (REXX)
+P. P.G..   'MAKESTRING' : 'DateTime' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(DateTime)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'File' (REXX)
+P. P.G..   'MAKESTRING' : 'File' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(File)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'MutableBuffer' (REXX)
+P. P.G..   'MAKESTRING' : 'MutableBuffer' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(MutableBuffer)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'StackFrame' (REXX)
+P. P.G..   'MAKESTRING' : 'StackFrame' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(StackFrame)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'String' (REXX)
+P. P.G..   'MAKESTRING' : 'String' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(String)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TimeSpan' (REXX)
+P. P.G..   'MAKESTRING' : 'TimeSpan' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TimeSpan)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'TraceObject' (REXX)
+P. P.G..   'MAKESTRING' : 'TraceObject' (REXX)
     CPN(REXX)
     CPF(REXX)
     CN(TraceObject)
     MPN(REXX)
     MPF(REXX)
     MN(MAKESTRING)
-P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
+P. P.G..   'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
     CPN(Y:/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     Y:CPF(/local/rexx/oorexx/executor/sandbox/jlf/packages/pipeline/pipe.cls)
     CN(dataflow)
@@ -1256,19 +1150,5 @@ P. P.G.    'MAKESTRING' : 'dataflow' (...\packages\pipeline\pipe.cls)
  > 0042     separator = ","
  > 0043 end
  > 0044 return string
-P. P...    'MAKESTRING' : 'JSONBoolean' (...l\release\delivery\json.cls)
-    CPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:CPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    CN(JSONBoolean)
-    MPN(E:/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    E:MPF(/local/rexxlocal/oorexx/build/official/main/trunk/windows-arm64/cl/release/delivery/json.cls)
-    MN(MAKESTRING)
- > 0001   expose value
- > 0002   return value
- > 0003 
- > 0004 /** Renders the object as a JSON string representing its logical value.
- > 0005 * @return a string representing its logical value JSON encoded, either &quot;<code>false</code>&quot;
- > 0006 *         or &quot;<code>true</code>&quot;
- > 0007 */
-[Info] 62 lines displayed
+[Info] 54 lines displayed
 ooRexx> RC = 0 

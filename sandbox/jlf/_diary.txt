@@ -3,6 +3,27 @@ See tests/encoding/diary_examples.rex for [non-]regression tests.
 
 
 ===============================================================================
+2026 Oct 14
+
+I have 2 regression tests that fail on WLS Ubuntu ARM.
+See
+    - internals/notes/caselessCompareTo/caselessCompareTo.txt
+      (workaround: modify rgf_util2 to keep RexxText when sorting)
+    - internals/notes/string_hashCode.txt
+      (no workaround, disabled)
+
+According ChatGPT, it's because WSL Ubuntu uses unsigned char by default,
+whereas MacOS and Windows uses signed char...
+
+| Platform / compiler target    | Default plain `char` signedness                |
+| ----------------------------- | ---------------------------------------------- |
+| macOS, Apple Clang on ARM64   | Signed                                         |
+| Windows, MSVC on ARM64 or x64 | Signed                                         |
+| Linux, GCC on x86-64          | Signed by default                              |
+| Linux, GCC on ARM targets     | Often unsigned by default, depending on target |
+
+
+===============================================================================
 2026 May 12
 
 Remove dependency on uni-algo.
