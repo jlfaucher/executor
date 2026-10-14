@@ -1,0 +1,1235 @@
+The result of caselessCompareTo on WSL Ubuntu is different from MacOS and Windows.
+ChatGPT analysis: https://chatgpt.com/share/6acf9f61-1f4c-83ed-8442-032aef5ddd2a
+
+I did not apply the fix proposed by ChatGPT.
+I fixed the problem by modifying rgf_util2.rex to replace a simple object~string
+by a call textOrString(object).
+
+:routine textOrString private
+    use strict arg object
+    if object~hasMethod("text") then return object~text
+    return object~string
+
+
+The file rgf_util2.rex in this directory has trace in the sort procedures.
+
+
+executor macos
+
+    "🎅"~c2x=    'F09F8E85'
+    "e"~c2x=     '65'
+    "é"~c2x=     'C3A9'
+
+
+    "🎅"~caselessCompareTo("e")=    1
+    "🎅"~caselessCompareTo("é")=    1
+
+    "🎅"~string~caselessCompareTo("e")=    -1       -- 1 on Ubuntu
+    "🎅"~string~caselessCompareTo("é")=    1
+
+    "🎅"~upper~c2x=             'F09F8E85'
+    "🎅"~lower~c2x=             'F09F8E85'
+
+    "🎅"~string~upper~c2x=      'F09F8E85'
+    "🎅"~string~lower~c2x=      'F09F8E85'
+
+    "e"~upper~c2x=              '45'
+    "e"~lower~c2x=              '65'
+
+    "é"~upper~c2x=              'C389'              -- T'É'
+    "é"~lower~c2x=              'C3A9'
+
+    "é"~string~upper~c2x=       'C3A9'
+    "é"~string~lower~c2x=       'C3A9'
+
+executor wsl
+
+    "🎅"~c2x=    'F09F8E85'
+    "e"~c2x=     '65'
+    "é"~c2x=     'C3A9'
+
+    "🎅"~caselessCompareTo("e")=    1
+    "🎅"~caselessCompareTo("é")=    1
+
+    "🎅"~string~caselessCompareTo("e")=    1        -- -1 on MacOS and Windows
+    "🎅"~string~caselessCompareTo("é")=    1
+
+    "🎅"~upper~c2x=             'F09F8E85'
+    "🎅"~lower~c2x=             'F09F8E85'
+
+    "🎅"~string~upper~c2x=      'F09F8E85'
+    "🎅"~string~lower~c2x=      'F09F8E85'
+
+    "e"~upper~c2x=              '45'
+    "e"~lower~c2x=              '65'
+
+    "é"~upper~c2x=              'C389'      -- T'É'
+    "é"~lower~c2x=              'C3A9'
+
+    "é"~string~upper~c2x=       'C3A9'
+    "é"~string~lower~c2x=       'C3A9'
+
+
+  2454 *-* return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+       >V>   STRINGCOMPARATOR => "a StringComparator"
+       >V>   LEFT => "🎅"
+       >M>   "STRING" => "🎅"
+       >A>   "🎅"
+       >V>   RIGHT => "e"
+       >M>   "STRING" => "e"
+       >A>   "e"
+StringComparator~compare
+     1 *-* use strict arg left, right;
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "e"
+       >=>   RIGHT <= "e"
+     1 *-* return left~caselessCompareTo(right)
+       >V>   LEFT => "🎅"
+       >V>   RIGHT => "e"
+       >A>   "e"
+       >M>   "CASELESSCOMPARETO" => "-1"
+       >>>   "-1"
+       >M>   "COMPARE" => "-1"
+       >>>   "-1"
+
+  2454 *-* return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+       >V>   STRINGCOMPARATOR => "a StringComparator"
+       >V>   LEFT => "🎅"
+       >M>   "STRING" => "🎅"
+       >A>   "🎅"
+       >V>   RIGHT => "é"
+       >M>   "STRING" => "é"
+       >A>   "é"
+StringComparator~compare
+     1 *-* use strict arg left, right;
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "é"
+       >=>   RIGHT <= "é"
+     1 *-* return left~caselessCompareTo(right)
+       >V>   LEFT => "🎅"
+       >V>   RIGHT => "é"
+       >A>   "é"
+       >M>   "CASELESSCOMPARETO" => "1"
+       >>>   "1"
+       >M>   "COMPARE" => "1"
+       >>>   "1"
+
+
+--------------------------------------------------------------------------------
+
+st=.stem~new
+st["🎅"]=1
+st["e"]=2
+
+ooRexx[bash]> st=
+NumberComparator~init
+  2393 *-* use arg bIgnoreNonNumbers=.true, order="A", case="I"
+       >E>   .TRUE => "1"
+       >>>   "1"
+       >=>   BIGNORENONNUMBERS <= "1"
+       >L>   "A"
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >L>   "I"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2395 *-* if bIgnoreNonNumbers=.false
+       >V>   BIGNORENONNUMBERS => "1"
+       >E>   .FALSE => "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2398 *-* if \datatype(bIgnoreNonNumbers, "O")
+       >V>   BIGNORENONNUMBERS => "1"
+       >A>   "1"
+       >L>   "O"
+       >A>   "O"
+       >F>   DATATYPE => "1"
+       >P>   "\" => "0"
+       >>>   "0"
+  2401 *-* order=order~strip~left(1)~translate
+       >V>   ORDER => "A"
+       >M>   "STRIP" => "A"
+       >L>   "1"
+       >A>   "1"
+       >M>   "LEFT" => "A"
+       >M>   "TRANSLATE" => "A"
+       >>>   "A"
+       >=>   ORDER <= "A"
+  2402 *-* if pos(order, "AD")=0
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2406 *-* case=case~strip~left(1)~translate
+       >V>   CASE => "I"
+       >M>   "STRIP" => "I"
+       >L>   "1"
+       >A>   "1"
+       >M>   "LEFT" => "I"
+       >M>   "TRANSLATE" => "I"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2407 *-* if pos(case, "CI")=0
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "CI"
+       >A>   "CI"
+       >F>   POS => "2"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2411 *-* if order="A"
+       >V>   ORDER => "A"
+       >L>   "A"
+       >O>   "=" => "1"
+       >>>   "1"
+  2411 *-*   then
+  2412 *-*     self~setMethod("compare", self~instanceMethod("compareWithNonNumbers"), "OBJECT")
+       >V>       SELF => "a NumberComparator"
+       >L>       "compare"
+       >A>       "compare"
+       >V>       SELF => "a NumberComparator"
+       >L>       "compareWithNonNumbers"
+       >A>       "compareWithNonNumbers"
+       >M>       "INSTANCEMETHOD" => "a Method"
+       >A>       "a Method"
+       >L>       "OBJECT"
+       >A>       "OBJECT"
+  2417 *-* stringComparator=.stringComparator~new(order, case) -- get string comparator to use
+       >E>   .STRINGCOMPARATOR => "The StringComparator class"
+       >V>   ORDER => "A"
+       >A>   "A"
+       >V>   CASE => "I"
+       >A>   "I"
+StringComparator~init
+  2497 *-* parse upper arg order, case
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2499 *-* if order=""
+       >V>   ORDER => "A"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2500 *-*   else
+  2500 *-*     order=order~strip~translate
+       >V>       ORDER => "A"
+       >M>       "STRIP" => "A"
+       >M>       "TRANSLATE" => "A"
+       >>>       "A"
+       >=>       ORDER <= "A"
+  2502 *-* if case =""
+       >V>   CASE => "I"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2503 *-*   else
+  2503 *-*     case=case~strip~translate
+       >V>       CASE => "I"
+       >M>       "STRIP" => "I"
+       >M>       "TRANSLATE" => "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2505 *-* pos=pos(order, "AD")        -- check whether valid argument
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >>>   "1"
+       >=>   POS <= "1"
+  2506 *-* if pos=0
+       >V>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2509 *-* pos=verify(case, "ICN")     -- check whether built of valid arguments
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "ICN"
+       >A>   "ICN"
+       >F>   VERIFY => "0"
+       >>>   "0"
+       >=>   POS <= "0"
+  2510 *-* if pos<>0
+       >V>   POS => "0"
+       >L>   "0"
+       >O>   "<>" => "0"
+       >>>   "0"
+  2513 *-* bCompareNumeric=(pos("N", case)>0)   -- numeric comparisons ?
+       >L>   "N"
+       >A>   "N"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+       >=>   BCOMPARENUMERIC <= "0"
+  2515 *-* if pos("C", case)>0
+       >L>   "C"
+       >A>   "C"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+  2517 *-*   else
+  2518 *-*     case="I"                 -- ignore case (default)
+       >L>       "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2520 *-* if bCompareNumeric=.true
+       >V>   BCOMPARENUMERIC => "0"
+       >E>   .TRUE => "1"
+       >O>   "=" => "0"
+       >>>   "0"
+  2535 *-*   else
+  2536 *-*     do
+  2537 *-*       sign=""        -- no sign for return value
+       >L>         ""
+       >>>         ""
+       >=>         SIGN <= ""
+  2538 *-*       if order="D"
+       >V>         ORDER => "A"
+       >L>         "D"
+       >O>         "=" => "0"
+       >>>         "0"
+  2541 *-*       if case="I"
+       >V>         CASE => "I"
+       >L>         "I"
+       >O>         "=" => "1"
+       >>>         "1"
+  2541 *-*         then
+  2542 *-*           self~setMethod("compare", "say 'StringComparator~compare'; trace i; use strict arg left, right; return" sign"left~caselessCompareTo(right)")
+       >V>             SELF => "a StringComparator"
+       >L>             "compare"
+       >A>             "compare"
+       >L>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return"
+       >V>             SIGN => ""
+       >O>             " " => "say 'StringComparator~compare'; trace i; use strict arg left, right; return "
+       >L>             "left~caselessCompareTo(right)"
+       >O>             "" => "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+       >A>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+  2545 *-*   end
+       >M>   "NEW" => "a StringComparator"
+       >>>   "a StringComparator"
+       >=>   STRINGCOMPARATOR <= "a StringComparator"
+  2418 *-* stringComparator=.StringComparator~new(order, case)
+       >E>   .STRINGCOMPARATOR => "The StringComparator class"
+       >V>   ORDER => "A"
+       >A>   "A"
+       >V>   CASE => "I"
+       >A>   "I"
+StringComparator~init
+  2497 *-* parse upper arg order, case
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2499 *-* if order=""
+       >V>   ORDER => "A"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2500 *-*   else
+  2500 *-*     order=order~strip~translate
+       >V>       ORDER => "A"
+       >M>       "STRIP" => "A"
+       >M>       "TRANSLATE" => "A"
+       >>>       "A"
+       >=>       ORDER <= "A"
+  2502 *-* if case =""
+       >V>   CASE => "I"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2503 *-*   else
+  2503 *-*     case=case~strip~translate
+       >V>       CASE => "I"
+       >M>       "STRIP" => "I"
+       >M>       "TRANSLATE" => "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2505 *-* pos=pos(order, "AD")        -- check whether valid argument
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >>>   "1"
+       >=>   POS <= "1"
+  2506 *-* if pos=0
+       >V>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2509 *-* pos=verify(case, "ICN")     -- check whether built of valid arguments
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "ICN"
+       >A>   "ICN"
+       >F>   VERIFY => "0"
+       >>>   "0"
+       >=>   POS <= "0"
+  2510 *-* if pos<>0
+       >V>   POS => "0"
+       >L>   "0"
+       >O>   "<>" => "0"
+       >>>   "0"
+  2513 *-* bCompareNumeric=(pos("N", case)>0)   -- numeric comparisons ?
+       >L>   "N"
+       >A>   "N"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+       >=>   BCOMPARENUMERIC <= "0"
+  2515 *-* if pos("C", case)>0
+       >L>   "C"
+       >A>   "C"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+  2517 *-*   else
+  2518 *-*     case="I"                 -- ignore case (default)
+       >L>       "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2520 *-* if bCompareNumeric=.true
+       >V>   BCOMPARENUMERIC => "0"
+       >E>   .TRUE => "1"
+       >O>   "=" => "0"
+       >>>   "0"
+  2535 *-*   else
+  2536 *-*     do
+  2537 *-*       sign=""        -- no sign for return value
+       >L>         ""
+       >>>         ""
+       >=>         SIGN <= ""
+  2538 *-*       if order="D"
+       >V>         ORDER => "A"
+       >L>         "D"
+       >O>         "=" => "0"
+       >>>         "0"
+  2541 *-*       if case="I"
+       >V>         CASE => "I"
+       >L>         "I"
+       >O>         "=" => "1"
+       >>>         "1"
+  2541 *-*         then
+  2542 *-*           self~setMethod("compare", "say 'StringComparator~compare'; trace i; use strict arg left, right; return" sign"left~caselessCompareTo(right)")
+       >V>             SELF => "a StringComparator"
+       >L>             "compare"
+       >A>             "compare"
+       >L>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return"
+       >V>             SIGN => ""
+       >O>             " " => "say 'StringComparator~compare'; trace i; use strict arg left, right; return "
+       >L>             "left~caselessCompareTo(right)"
+       >O>             "" => "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+       >A>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+  2545 *-*   end
+       >M>   "NEW" => "a StringComparator"
+       >>>   "a StringComparator"
+       >=>   STRINGCOMPARATOR <= "a StringComparator"
+a Stem (2 items)
+  1852 *-*       s=makeSortedSupplier(coll, comparator, maxCount)
+       >V>         COLL => ""
+       >A>         ""
+       >V>         COMPARATOR => "a NumberComparator"
+       >A>         "a NumberComparator"
+       >V>         MAXCOUNT => "1000"
+       >A>         "1000"
+  1929 *-*         makeSortedSupplier:
+  1929 *-*         procedure
+  1930 *-*         numeric digits -- stop any propagated settings, to have the default value for digits()
+  1931 *-*         use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
+       >>>           ""
+       >=>           COLL <= ""
+       >>>           "a NumberComparator"
+       >=>           COMPARATOR <= "a NumberComparator"
+       >>>           "1000"
+       >=>           MAXCOUNT <= "1000"
+  1933 *-*         if .ExtensionDispatcher~isA(.Class)
+       >E>           .EXTENSIONDISPATCHER => ".EXTENSIONDISPATCHER"
+       >E>           .CLASS => "The Class class"
+       >A>           "The Class class"
+       >M>           "ISA" => "0"
+       >>>           "0"
+  1939 *-*           else
+  1940 *-*             do
+  1941 *-*               coll_isA_OrderedCollection =  coll~isA(.OrderedCollection)
+       >V>                 COLL => ""
+       >E>                 .ORDEREDCOLLECTION => "The OrderedCollection class"
+       >A>                 "The OrderedCollection class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_ORDEREDCOLLECTION <= "0"
+  1942 *-*               coll_isA_SetCollection =  coll~isA(.SetCollection)
+       >V>                 COLL => ""
+       >E>                 .SETCOLLECTION => "The SetCollection class"
+       >A>                 "The SetCollection class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_SETCOLLECTION <= "0"
+  1943 *-*               coll_isA_Array =  coll~isA(.Array)
+       >V>                 COLL => ""
+       >E>                 .ARRAY => "The Array class"
+       >A>                 "The Array class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_ARRAY <= "0"
+  1944 *-*           end
+  1946 *-*       if coll_isA_OrderedCollection
+       >V>         COLL_ISA_ORDEREDCOLLECTION => "0"
+       >>>         "0"
+  1958 *-*       if coll_isA_SetCollection
+       >V>         COLL_ISA_SETCOLLECTION => "0"
+       >>>         "0"
+  1965 *-*       if coll~hasMethod('allAt')
+       >V>         COLL => ""
+       >L>         "allAt"
+       >A>         "allAt"
+       >M>         "HASMETHOD" => "0"
+       >>>         "0"
+  1984 *-*       arr=coll~allIndexes                  -- remove duplicate indexes, if any
+       >V>         COLL => ""
+       >M>         "ALLINDEXES" => "an Array"
+       >>>         "an Array"
+       >=>         ARR <= "an Array"
+  1985 *-*       call sortArray arr, comparator       -- sort elements
+       >V>         ARR => "an Array"
+       >A>         "an Array"
+       >V>         COMPARATOR => "a NumberComparator"
+       >A>         "a NumberComparator"
+  1995 *-*         sortArray:
+  1995 *-*         procedure
+  1996 *-*         use arg arr, comparator=.nil
+       >>>           "an Array"
+       >=>           ARR <= "an Array"
+       >>>           "a NumberComparator"
+       >=>           COMPARATOR <= "a NumberComparator"
+  1998 *-*         if .nil=comparator, \arr[1]~hasMethod('compareTo')
+       >E>           .NIL => "The NIL object"
+       >V>           COMPARATOR => "a NumberComparator"
+       >O>           "=" => "0"
+       >>>           "0"
+       >>>           "0"
+  2001 *-*         if .nil<>comparator
+       >E>           .NIL => "The NIL object"
+       >V>           COMPARATOR => "a NumberComparator"
+       >O>           "<>" => "1"
+       >>>           "1"
+  2001 *-*           then
+  2002 *-*             arr~stableSortWith(comparator)
+       >V>               ARR => "an Array"
+       >V>               COMPARATOR => "a NumberComparator"
+       >A>               "a NumberComparator"
+NumberComparator~compareWithNonNumbers
+  2446 *-* use strict arg left, right
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "e"
+       >=>   RIGHT <= "e"
+  2448 *-* if datatype(left, "n"), datatype(right, "n")
+       >V>   LEFT => "🎅"
+       >A>   "🎅"
+       >L>   "n"
+       >A>   "n"
+       >F>   DATATYPE => "0"
+       >>>   "0"
+       >>>   "0"
+  2454 *-* return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+       >V>   STRINGCOMPARATOR => "a StringComparator"
+       >V>   LEFT => "🎅"
+       >M>   "STRING" => "🎅"
+       >A>   "🎅"
+       >V>   RIGHT => "e"
+       >M>   "STRING" => "e"
+       >A>   "e"
+StringComparator~compare
+     1 *-* use strict arg left, right;
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "e"
+       >=>   RIGHT <= "e"
+     1 *-* return left~caselessCompareTo(right)
+       >V>   LEFT => "🎅"
+       >V>   RIGHT => "e"
+       >A>   "e"
+       >M>   "CASELESSCOMPARETO" => "-1"
+       >>>   "-1"
+       >M>   "COMPARE" => "-1"
+       >>>   "-1"
+       >>>               "an Array"
+  2006 *-*         return
+  1987 *-*       arr2=.array~new
+       >E>         .ARRAY => "The Array class"
+       >M>         "NEW" => "an Array"
+       >>>         "an Array"
+       >=>         ARR2 <= "an Array"
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >L>           "1"
+       >V>           ARR => "an Array"
+       >M>           "ITEMS" => "2"
+       >=>           I <= "1"
+       >>>           "1"
+  1989 *-*         arr2[i]=coll[arr[i]]              -- retrieve item part
+       >V>           ARR2 => "an Array"
+       >V>           COLL => ""
+       >V>           ARR => "an Array"
+       >V>           I => "1"
+       >A>           "1"
+       >M>           "[]" => "🎅"
+       >A>           "🎅"
+       >M>           "[]" => "1"
+       >A>           "1"
+       >V>           I => "1"
+       >A>           "1"
+  1990 *-*       end
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >>>           "1"
+       >>>           "2"
+  1989 *-*         arr2[i]=coll[arr[i]]              -- retrieve item part
+       >V>           ARR2 => "an Array"
+       >V>           COLL => ""
+       >V>           ARR => "an Array"
+       >V>           I => "2"
+       >A>           "2"
+       >M>           "[]" => "e"
+       >A>           "e"
+       >M>           "[]" => "2"
+       >A>           "2"
+       >V>           I => "2"
+       >A>           "2"
+  1990 *-*       end
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >>>           "2"
+       >>>           "3"
+  1991 *-*     return .supplier~new(arr2, arr)
+       >E>       .SUPPLIER => "The Supplier class"
+       >V>       ARR2 => "an Array"
+       >A>       "an Array"
+       >V>       ARR => "an Array"
+       >A>       "an Array"
+       >M>       "NEW" => "a Supplier"
+       >>>       "a Supplier"
+       >F>         MAKESORTEDSUPPLIER => "a Supplier"
+       >>>         "a Supplier"
+       >=>         S <= "a Supplier"
+  1853 *-*       trace o
+'🎅' :  1
+'e'    :  2
+
+
+--------------------------------------------------------------------------------
+
+st=.stem~new
+st["🎅"]=1
+st["é"]=2
+
+ooRexx[bash]> st=
+NumberComparator~init
+  2393 *-* use arg bIgnoreNonNumbers=.true, order="A", case="I"
+       >E>   .TRUE => "1"
+       >>>   "1"
+       >=>   BIGNORENONNUMBERS <= "1"
+       >L>   "A"
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >L>   "I"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2395 *-* if bIgnoreNonNumbers=.false
+       >V>   BIGNORENONNUMBERS => "1"
+       >E>   .FALSE => "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2398 *-* if \datatype(bIgnoreNonNumbers, "O")
+       >V>   BIGNORENONNUMBERS => "1"
+       >A>   "1"
+       >L>   "O"
+       >A>   "O"
+       >F>   DATATYPE => "1"
+       >P>   "\" => "0"
+       >>>   "0"
+  2401 *-* order=order~strip~left(1)~translate
+       >V>   ORDER => "A"
+       >M>   "STRIP" => "A"
+       >L>   "1"
+       >A>   "1"
+       >M>   "LEFT" => "A"
+       >M>   "TRANSLATE" => "A"
+       >>>   "A"
+       >=>   ORDER <= "A"
+  2402 *-* if pos(order, "AD")=0
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2406 *-* case=case~strip~left(1)~translate
+       >V>   CASE => "I"
+       >M>   "STRIP" => "I"
+       >L>   "1"
+       >A>   "1"
+       >M>   "LEFT" => "I"
+       >M>   "TRANSLATE" => "I"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2407 *-* if pos(case, "CI")=0
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "CI"
+       >A>   "CI"
+       >F>   POS => "2"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2411 *-* if order="A"
+       >V>   ORDER => "A"
+       >L>   "A"
+       >O>   "=" => "1"
+       >>>   "1"
+  2411 *-*   then
+  2412 *-*     self~setMethod("compare", self~instanceMethod("compareWithNonNumbers"), "OBJECT")
+       >V>       SELF => "a NumberComparator"
+       >L>       "compare"
+       >A>       "compare"
+       >V>       SELF => "a NumberComparator"
+       >L>       "compareWithNonNumbers"
+       >A>       "compareWithNonNumbers"
+       >M>       "INSTANCEMETHOD" => "a Method"
+       >A>       "a Method"
+       >L>       "OBJECT"
+       >A>       "OBJECT"
+  2417 *-* stringComparator=.stringComparator~new(order, case) -- get string comparator to use
+       >E>   .STRINGCOMPARATOR => "The StringComparator class"
+       >V>   ORDER => "A"
+       >A>   "A"
+       >V>   CASE => "I"
+       >A>   "I"
+StringComparator~init
+  2497 *-* parse upper arg order, case
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2499 *-* if order=""
+       >V>   ORDER => "A"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2500 *-*   else
+  2500 *-*     order=order~strip~translate
+       >V>       ORDER => "A"
+       >M>       "STRIP" => "A"
+       >M>       "TRANSLATE" => "A"
+       >>>       "A"
+       >=>       ORDER <= "A"
+  2502 *-* if case =""
+       >V>   CASE => "I"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2503 *-*   else
+  2503 *-*     case=case~strip~translate
+       >V>       CASE => "I"
+       >M>       "STRIP" => "I"
+       >M>       "TRANSLATE" => "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2505 *-* pos=pos(order, "AD")        -- check whether valid argument
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >>>   "1"
+       >=>   POS <= "1"
+  2506 *-* if pos=0
+       >V>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2509 *-* pos=verify(case, "ICN")     -- check whether built of valid arguments
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "ICN"
+       >A>   "ICN"
+       >F>   VERIFY => "0"
+       >>>   "0"
+       >=>   POS <= "0"
+  2510 *-* if pos<>0
+       >V>   POS => "0"
+       >L>   "0"
+       >O>   "<>" => "0"
+       >>>   "0"
+  2513 *-* bCompareNumeric=(pos("N", case)>0)   -- numeric comparisons ?
+       >L>   "N"
+       >A>   "N"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+       >=>   BCOMPARENUMERIC <= "0"
+  2515 *-* if pos("C", case)>0
+       >L>   "C"
+       >A>   "C"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+  2517 *-*   else
+  2518 *-*     case="I"                 -- ignore case (default)
+       >L>       "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2520 *-* if bCompareNumeric=.true
+       >V>   BCOMPARENUMERIC => "0"
+       >E>   .TRUE => "1"
+       >O>   "=" => "0"
+       >>>   "0"
+  2535 *-*   else
+  2536 *-*     do
+  2537 *-*       sign=""        -- no sign for return value
+       >L>         ""
+       >>>         ""
+       >=>         SIGN <= ""
+  2538 *-*       if order="D"
+       >V>         ORDER => "A"
+       >L>         "D"
+       >O>         "=" => "0"
+       >>>         "0"
+  2541 *-*       if case="I"
+       >V>         CASE => "I"
+       >L>         "I"
+       >O>         "=" => "1"
+       >>>         "1"
+  2541 *-*         then
+  2542 *-*           self~setMethod("compare", "say 'StringComparator~compare'; trace i; use strict arg left, right; return" sign"left~caselessCompareTo(right)")
+       >V>             SELF => "a StringComparator"
+       >L>             "compare"
+       >A>             "compare"
+       >L>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return"
+       >V>             SIGN => ""
+       >O>             " " => "say 'StringComparator~compare'; trace i; use strict arg left, right; return "
+       >L>             "left~caselessCompareTo(right)"
+       >O>             "" => "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+       >A>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+  2545 *-*   end
+       >M>   "NEW" => "a StringComparator"
+       >>>   "a StringComparator"
+       >=>   STRINGCOMPARATOR <= "a StringComparator"
+  2418 *-* stringComparator=.StringComparator~new(order, case)
+       >E>   .STRINGCOMPARATOR => "The StringComparator class"
+       >V>   ORDER => "A"
+       >A>   "A"
+       >V>   CASE => "I"
+       >A>   "I"
+StringComparator~init
+  2497 *-* parse upper arg order, case
+       >>>   "A"
+       >=>   ORDER <= "A"
+       >>>   "I"
+       >=>   CASE <= "I"
+  2499 *-* if order=""
+       >V>   ORDER => "A"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2500 *-*   else
+  2500 *-*     order=order~strip~translate
+       >V>       ORDER => "A"
+       >M>       "STRIP" => "A"
+       >M>       "TRANSLATE" => "A"
+       >>>       "A"
+       >=>       ORDER <= "A"
+  2502 *-* if case =""
+       >V>   CASE => "I"
+       >L>   ""
+       >O>   "=" => "0"
+       >>>   "0"
+  2503 *-*   else
+  2503 *-*     case=case~strip~translate
+       >V>       CASE => "I"
+       >M>       "STRIP" => "I"
+       >M>       "TRANSLATE" => "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2505 *-* pos=pos(order, "AD")        -- check whether valid argument
+       >V>   ORDER => "A"
+       >A>   "A"
+       >L>   "AD"
+       >A>   "AD"
+       >F>   POS => "1"
+       >>>   "1"
+       >=>   POS <= "1"
+  2506 *-* if pos=0
+       >V>   POS => "1"
+       >L>   "0"
+       >O>   "=" => "0"
+       >>>   "0"
+  2509 *-* pos=verify(case, "ICN")     -- check whether built of valid arguments
+       >V>   CASE => "I"
+       >A>   "I"
+       >L>   "ICN"
+       >A>   "ICN"
+       >F>   VERIFY => "0"
+       >>>   "0"
+       >=>   POS <= "0"
+  2510 *-* if pos<>0
+       >V>   POS => "0"
+       >L>   "0"
+       >O>   "<>" => "0"
+       >>>   "0"
+  2513 *-* bCompareNumeric=(pos("N", case)>0)   -- numeric comparisons ?
+       >L>   "N"
+       >A>   "N"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+       >=>   BCOMPARENUMERIC <= "0"
+  2515 *-* if pos("C", case)>0
+       >L>   "C"
+       >A>   "C"
+       >V>   CASE => "I"
+       >A>   "I"
+       >F>   POS => "0"
+       >L>   "0"
+       >O>   ">" => "0"
+       >>>   "0"
+  2517 *-*   else
+  2518 *-*     case="I"                 -- ignore case (default)
+       >L>       "I"
+       >>>       "I"
+       >=>       CASE <= "I"
+  2520 *-* if bCompareNumeric=.true
+       >V>   BCOMPARENUMERIC => "0"
+       >E>   .TRUE => "1"
+       >O>   "=" => "0"
+       >>>   "0"
+  2535 *-*   else
+  2536 *-*     do
+  2537 *-*       sign=""        -- no sign for return value
+       >L>         ""
+       >>>         ""
+       >=>         SIGN <= ""
+  2538 *-*       if order="D"
+       >V>         ORDER => "A"
+       >L>         "D"
+       >O>         "=" => "0"
+       >>>         "0"
+  2541 *-*       if case="I"
+       >V>         CASE => "I"
+       >L>         "I"
+       >O>         "=" => "1"
+       >>>         "1"
+  2541 *-*         then
+  2542 *-*           self~setMethod("compare", "say 'StringComparator~compare'; trace i; use strict arg left, right; return" sign"left~caselessCompareTo(right)")
+       >V>             SELF => "a StringComparator"
+       >L>             "compare"
+       >A>             "compare"
+       >L>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return"
+       >V>             SIGN => ""
+       >O>             " " => "say 'StringComparator~compare'; trace i; use strict arg left, right; return "
+       >L>             "left~caselessCompareTo(right)"
+       >O>             "" => "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+       >A>             "say 'StringComparator~compare'; trace i; use strict arg left, right; return left~caselessCompareTo(right)"
+  2545 *-*   end
+       >M>   "NEW" => "a StringComparator"
+       >>>   "a StringComparator"
+       >=>   STRINGCOMPARATOR <= "a StringComparator"
+a Stem (2 items)
+  1852 *-*       s=makeSortedSupplier(coll, comparator, maxCount)
+       >V>         COLL => ""
+       >A>         ""
+       >V>         COMPARATOR => "a NumberComparator"
+       >A>         "a NumberComparator"
+       >V>         MAXCOUNT => "1000"
+       >A>         "1000"
+  1929 *-*         makeSortedSupplier:
+  1929 *-*         procedure
+  1930 *-*         numeric digits -- stop any propagated settings, to have the default value for digits()
+  1931 *-*         use arg coll, comparator=.nil, maxCount=(9~copies(digits()))
+       >>>           ""
+       >=>           COLL <= ""
+       >>>           "a NumberComparator"
+       >=>           COMPARATOR <= "a NumberComparator"
+       >>>           "1000"
+       >=>           MAXCOUNT <= "1000"
+  1933 *-*         if .ExtensionDispatcher~isA(.Class)
+       >E>           .EXTENSIONDISPATCHER => ".EXTENSIONDISPATCHER"
+       >E>           .CLASS => "The Class class"
+       >A>           "The Class class"
+       >M>           "ISA" => "0"
+       >>>           "0"
+  1939 *-*           else
+  1940 *-*             do
+  1941 *-*               coll_isA_OrderedCollection =  coll~isA(.OrderedCollection)
+       >V>                 COLL => ""
+       >E>                 .ORDEREDCOLLECTION => "The OrderedCollection class"
+       >A>                 "The OrderedCollection class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_ORDEREDCOLLECTION <= "0"
+  1942 *-*               coll_isA_SetCollection =  coll~isA(.SetCollection)
+       >V>                 COLL => ""
+       >E>                 .SETCOLLECTION => "The SetCollection class"
+       >A>                 "The SetCollection class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_SETCOLLECTION <= "0"
+  1943 *-*               coll_isA_Array =  coll~isA(.Array)
+       >V>                 COLL => ""
+       >E>                 .ARRAY => "The Array class"
+       >A>                 "The Array class"
+       >M>                 "ISA" => "0"
+       >>>                 "0"
+       >=>                 COLL_ISA_ARRAY <= "0"
+  1944 *-*           end
+  1946 *-*       if coll_isA_OrderedCollection
+       >V>         COLL_ISA_ORDEREDCOLLECTION => "0"
+       >>>         "0"
+  1958 *-*       if coll_isA_SetCollection
+       >V>         COLL_ISA_SETCOLLECTION => "0"
+       >>>         "0"
+  1965 *-*       if coll~hasMethod('allAt')
+       >V>         COLL => ""
+       >L>         "allAt"
+       >A>         "allAt"
+       >M>         "HASMETHOD" => "0"
+       >>>         "0"
+  1984 *-*       arr=coll~allIndexes                  -- remove duplicate indexes, if any
+       >V>         COLL => ""
+       >M>         "ALLINDEXES" => "an Array"
+       >>>         "an Array"
+       >=>         ARR <= "an Array"
+  1985 *-*       call sortArray arr, comparator       -- sort elements
+       >V>         ARR => "an Array"
+       >A>         "an Array"
+       >V>         COMPARATOR => "a NumberComparator"
+       >A>         "a NumberComparator"
+  1995 *-*         sortArray:
+  1995 *-*         procedure
+  1996 *-*         use arg arr, comparator=.nil
+       >>>           "an Array"
+       >=>           ARR <= "an Array"
+       >>>           "a NumberComparator"
+       >=>           COMPARATOR <= "a NumberComparator"
+  1998 *-*         if .nil=comparator, \arr[1]~hasMethod('compareTo')
+       >E>           .NIL => "The NIL object"
+       >V>           COMPARATOR => "a NumberComparator"
+       >O>           "=" => "0"
+       >>>           "0"
+       >>>           "0"
+  2001 *-*         if .nil<>comparator
+       >E>           .NIL => "The NIL object"
+       >V>           COMPARATOR => "a NumberComparator"
+       >O>           "<>" => "1"
+       >>>           "1"
+  2001 *-*           then
+  2002 *-*             arr~stableSortWith(comparator)
+       >V>               ARR => "an Array"
+       >V>               COMPARATOR => "a NumberComparator"
+       >A>               "a NumberComparator"
+NumberComparator~compareWithNonNumbers
+  2446 *-* use strict arg left, right
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "é"
+       >=>   RIGHT <= "é"
+  2448 *-* if datatype(left, "n"), datatype(right, "n")
+       >V>   LEFT => "🎅"
+       >A>   "🎅"
+       >L>   "n"
+       >A>   "n"
+       >F>   DATATYPE => "0"
+       >>>   "0"
+       >>>   "0"
+  2454 *-* return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+       >V>   STRINGCOMPARATOR => "a StringComparator"
+       >V>   LEFT => "🎅"
+       >M>   "STRING" => "🎅"
+       >A>   "🎅"
+       >V>   RIGHT => "é"
+       >M>   "STRING" => "é"
+       >A>   "é"
+StringComparator~compare
+     1 *-* use strict arg left, right;
+       >>>   "🎅"
+       >=>   LEFT <= "🎅"
+       >>>   "é"
+       >=>   RIGHT <= "é"
+     1 *-* return left~caselessCompareTo(right)
+       >V>   LEFT => "🎅"
+       >V>   RIGHT => "é"
+       >A>   "é"
+       >M>   "CASELESSCOMPARETO" => "1"
+       >>>   "1"
+       >M>   "COMPARE" => "1"
+       >>>   "1"
+       >>>               "an Array"
+  2006 *-*         return
+  1987 *-*       arr2=.array~new
+       >E>         .ARRAY => "The Array class"
+       >M>         "NEW" => "an Array"
+       >>>         "an Array"
+       >=>         ARR2 <= "an Array"
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >L>           "1"
+       >V>           ARR => "an Array"
+       >M>           "ITEMS" => "2"
+       >=>           I <= "1"
+       >>>           "1"
+  1989 *-*         arr2[i]=coll[arr[i]]              -- retrieve item part
+       >V>           ARR2 => "an Array"
+       >V>           COLL => ""
+       >V>           ARR => "an Array"
+       >V>           I => "1"
+       >A>           "1"
+       >M>           "[]" => "é"
+       >A>           "é"
+       >M>           "[]" => "2"
+       >A>           "2"
+       >V>           I => "1"
+       >A>           "1"
+  1990 *-*       end
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >>>           "1"
+       >>>           "2"
+  1989 *-*         arr2[i]=coll[arr[i]]              -- retrieve item part
+       >V>           ARR2 => "an Array"
+       >V>           COLL => ""
+       >V>           ARR => "an Array"
+       >V>           I => "2"
+       >A>           "2"
+       >M>           "[]" => "🎅"
+       >A>           "🎅"
+       >M>           "[]" => "1"
+       >A>           "1"
+       >V>           I => "2"
+       >A>           "2"
+  1990 *-*       end
+  1988 *-*       do i=1 to arr~items                  -- iterate over all indexes
+       >>>           "2"
+       >>>           "3"
+  1991 *-*     return .supplier~new(arr2, arr)
+       >E>       .SUPPLIER => "The Supplier class"
+       >V>       ARR2 => "an Array"
+       >A>       "an Array"
+       >V>       ARR => "an Array"
+       >A>       "an Array"
+       >M>       "NEW" => "a Supplier"
+       >>>       "a Supplier"
+       >F>         MAKESORTEDSUPPLIER => "a Supplier"
+       >>>         "a Supplier"
+       >=>         S <= "a Supplier"
+  1853 *-*       trace o
+'é'   :  2
+'🎅' :  1
+
+
+================================================================================
+Initial discovery of the problem (regression test fails on WSL Ubuntu)
+================================================================================
+
+WHY a different sort order???
+
+
+macos
+ooRexx[bash]> locale
+LANG=""                         <--
+LC_COLLATE="en_US.UTF-8"
+LC_CTYPE="en_US.UTF-8"
+LC_MESSAGES="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_ALL="en_US.UTF-8"
+
+windows
+N/A
+
+wsl
+ooRexx[bash]> "locale"
+LANG=C.UTF-8                    <--
+LANGUAGE=
+LC_CTYPE="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_COLLATE="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_MESSAGES="en_US.UTF-8"
+LC_PAPER="en_US.UTF-8"
+LC_NAME="en_US.UTF-8"
+LC_ADDRESS="en_US.UTF-8"
+LC_TELEPHONE="en_US.UTF-8"
+LC_MEASUREMENT="en_US.UTF-8"
+LC_IDENTIFICATION="en_US.UTF-8"
+LC_ALL=en_US.UTF-8
+
+----------
+
+executor macos
+ooRexx[bash]> "Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+a Stem (9 items)
+'🎅' :  1
+' '    :  3
+'e'    :  4
+'l'    :  1
+'N'    :  2
+'o'    :  2
+'p'    :  1
+'r'    :  2
+'t'    :  1
+
+executor windows
+ooRexx[CMD]> "Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+a Stem (9 items)
+'🎅' :  1
+' '    :  3
+'e'    :  4
+'l'    :  1
+'N'    :  2
+'o'    :  2
+'p'    :  1
+'r'    :  2
+'t'    :  1
+
+executor wsl
+/mnt/y/local/rexx/oorexx/executor
+              "Notre père Noël 🎅"~text~transform(stripMark:)~reduce(by: "characters", initial: .stem~new~~put(0)){accu[item~string] += 1}=
+a Stem (9 items)
+' '    :  3
+'e'    :  4
+'l'    :  1
+'N'    :  2
+'o'    :  2
+'p'    :  1
+'r'    :  2
+'t'    :  1
+'🎅' :  1

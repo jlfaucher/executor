@@ -2443,7 +2443,8 @@ syntax:     -- propagate syntax exception, if any
      return (left-right)~sign    -- returns -1 (left<right), +1 (left>right), 0 (left=right)
   end
 
-  return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+  -- return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+  return stringComparator~compare(textOrString(left),textOrString(right))
 
 
 ::method compareWithNonNumbersDescending  -- used by StringComparator as well !
@@ -2459,8 +2460,14 @@ syntax:     -- propagate syntax exception, if any
      return -((left-right)~sign) -- returns -1 (left<right), +1 (left>right), 0 (left=right)
   end
 
-  return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+  -- return stringComparator~compare(left~string,right~string) -- rgf, 20090520
+  return stringComparator~compare(textOrString(left),textOrString(right))
 
+
+::routine textOrString private
+    use strict arg object
+    if object~hasMethod("text") then return object~text
+    return object~string
 
 
 /* ======================================================================= */
