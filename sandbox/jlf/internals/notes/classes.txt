@@ -1,3 +1,55 @@
+Example
+
+RexxUnicodeStringIndexer::method
+
+Assuming the Rexx name is RexxUnicodeStringIndexerNative (add "Native"):
+
+interpreter/behaviour/PrimitiveClasses.xml
+    <Class id="RexxUnicodeStringIndexerNative" class="RexxUnicodeStringIndexer" include="support/Unicode/string-indexer/RexxUnicodeStringIndexer.hpp"/>
+
+RexxUnicodeStringIndexer.cpp
+    // singleton class instance
+    RexxClass *RexxUnicodeStringIndexer::classInstance = OREF_NULL;
+
+    /**
+     * Create initial bootstrap objects
+     */
+    void RexxUnicodeStringIndexer::createInstance()
+    {
+        CLASS_CREATE(RexxUnicodeStringIndexerNative);
+    }
+
+    void *RexxUnicodeStringIndexer::operator new(size_t size)
+    {
+        return new_object(size, T_RexxUnicodeStringIndexerNative);
+    }
+
+interpreter/memory/RexxMemory.cpp
+    RESTORE_CLASS(RexxUnicodeStringIndexerNative, RexxClass);
+
+
+        /***************************************************************************/
+        /*           REXXUNICODESTRINGINDEXERNATIVE                                */
+        /***************************************************************************/
+
+    StartClassDefinition(RexxUnicodeStringIndexerNative)
+
+            AddClassMethod("New", RexxUnicodeStringIndexer::newRexx, A_COUNT);
+
+        CompleteClassMethodDefinitions();
+
+            // AddMethod("Copy", RexxUnicodeStringIndexer::copyRexx, 0);
+
+        CompleteMethodDefinitions();
+
+        CompleteClassDefinition(RexxUnicodeStringIndexerNative);
+
+    EndClassDefinition(RexxUnicodeStringIndexerNative);
+
+interpreter/runtime/RexxCore.h
+    #define TheRexxUnicodeStringIndexerNativeClass RexxUnicodeStringIndexer::classInstance
+
+
 ===========================================================================
 interpreter/behaviour
 
